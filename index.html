@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Body Refactoring Dashboard v2.7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .day-card { transition: all 0.3s ease; border-left: 4px solid transparent; }
+        .day-card:hover { background-color: #1e293b; }
+        .day-active { background-color: #1e293b; border-left: 4px solid #38bdf8; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .day-complete { border-left: 4px solid #22c55e !important; background-color: rgba(34, 197, 94, 0.05); }
+
+        /* Locked State */
+        .day-locked .exercise-row { opacity: 0.6; }
+        .day-locked .check-circle { pointer-events: none; filter: grayscale(100%); opacity: 0.5; }
+        .day-locked .lock-icon { display: inline-flex !important; }
+
+        .check-circle { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .exercise-row.completed .check-circle { background-color: #22c55e; border-color: #22c55e; transform: scale(1.1); }
+        .exercise-row.completed .exercise-text { opacity: 0.4; text-decoration: line-through; }
+        
+        .phase-badge { font-size: 0.65rem; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .badge-warmup { background: rgba(234, 88, 12, 0.2); color: #fb923c; border: 1px solid rgba(234, 88, 12, 0.3); }
+        .badge-main { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-cool { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .today-badge { background: #ef4444; color: white; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: bold; margin-left: 10px; animation: pulse 2s infinite; }
+        .completed-badge { background: #22c55e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; margin-left: 10px; display: none; }
+        
+        .nav-btn { background: #334155; border: 1px solid #475569; padding: 0.5rem; border-radius: 0.5rem; color: white; transition: all 0.2s; display:flex; align-items:center; justify-content:center; }
+        .nav-btn:hover:not(:disabled) { background: #475569; border-color: #64748b; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; background: #1e293b; border-color: #334155; }
+
+        /* Inputs for Weights */
+        .weight-input { 
+            background: transparent; 
+            border: none; 
+            color: #38bdf8; 
+            font-weight: 900; 
+            text-align: center; 
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            -moz-appearance: textfield;
+        }
+        .weight-input:focus { outline: none; border-bottom: 2px solid #38bdf8; }
+        .weight-input::-webkit-outer-spin-button,
+        .weight-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    </style>
+</head>
+<body class="p-4 md:p-6 pb-20">
+
+    <!-- Header & Navigation -->
+    <div class="max-w-4xl mx-auto mb-8">
+        
+        <!-- Top Bar with Import/Export -->
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Body Refactoring</span> v2.7
+                </h1>
+                <p class="text-slate-400 font-mono text-sm mt-1">> PROGRESSIVE OVERLOAD: ACTIVE</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="exportData()" class="nav-btn bg-blue-900/50 text-blue-300 border-blue-800" title="Backup speichern (JSON)">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                </button>
+                <button onclick="document.getElementById('import-input').click()" class="nav-btn bg-emerald-900/50 text-emerald-300 border-emerald-800" title="Backup laden">
+                    <i data-lucide="upload" class="w-5 h-5"></i>
+                </button>
+                <input type="file" id="import-input" class="hidden" accept=".json" onchange="importData(this)">
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="flex flex-col md:flex-row justify-between items-end">
+            <div class="text-xs text-slate-500 mb-2 md:mb-0">
+                START: 22.12.2025
+            </div>
+            <div class="flex items-center gap-4 bg-slate-800 p-2 rounded-lg border border-slate-700 w-full md:w-auto justify-between md:justify-end">
+                <button onclick="changeWeek(-1)" id="btn-prev" class="nav-btn px-4"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                <div class="text-center w-36">
+                    <div class="text-xs text-slate-500 uppercase">Zeitraum</div>
+                    <div id="week-display" class="font-bold text-white text-sm">Lade...</div>
+                </div>
+                <button onclick="changeWeek(1)" id="btn-next" class="nav-btn px-4"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Schedule Container -->
+    <div class="max-w-4xl mx-auto space-y-4" id="schedule-container">
+        <!-- Javascript injects content here -->
+    </div>
+
+    <script>
+        // --- GLOBAL CONFIG & STATE ---
+        const USER_START_DATE = new Date('2025-12-22T00:00:00'); 
+        let currentWeekOffset = 0; 
+        const STORAGE_PREFIX = "body_refactoring_v1_";
+        const NOTE_PREFIX = "body_refactoring_note_";
+        const WEIGHT_PREFIX = "body_refactoring_weight_";
+
+        // --- DATA TEMPLATE ---
+        // Weights here are just fallbacks if nothing is saved
+        const scheduleTemplate = [
+            { id: 'sun', dayIndex: 0, name: 'SONNTAG', theme: 'Rest & Recovery', icon: 'coffee', colorClass: 'text-slate-300', bgClass: 'bg-slate-700', details: [
+                { id: 'w', type: 'warmup', title: 'Mobilisation', desc: 'Nacken & Schulterkreisen' },
+                { id: 'm', type: 'main', title: 'Active Rest', desc: 'Spazieren. Kein Training.' },
+                { id: 'c', type: 'cool', title: 'Mental Reset', desc: 'Wochenplanung' }
+            ]},
+            { id: 'mon', dayIndex: 1, name: 'MONTAG', theme: 'Ganzkörper Kraft', icon: 'dumbbell', colorClass: 'text-blue-400', bgClass: 'bg-blue-500/20', details: [
+                { id: 'w', type: 'warmup', title: 'Rudern', desc: '5-10 Min locker' },
+                { id: 'm1', type: 'main', title: 'Beinstrecken', desc: '2 x 15 Wdh', weight: '15' },
+                { id: 'm2', type: 'main', title: 'Latziehen', desc: '3 x 12 Wdh', weight: '35' },
+                { id: 'm3', type: 'main', title: 'Bankdrücken', desc: '3 x 12 Wdh', weight: '30' },
+                { id: 'm4', type: 'main', title: 'Schulterdrücken', desc: '2 x 12 Wdh', weight: '10' },
+                { id: 'c', type: 'cool', title: 'Cooldown', desc: 'Stretching' }
+            ]},
+            { id: 'tue', dayIndex: 2, name: 'DIENSTAG', theme: 'Active Office (NEAT)', icon: 'footprints', colorClass: 'text-emerald-400', bgClass: 'bg-emerald-500/20', details: [
+                { id: 'w', type: 'warmup', title: 'Joint Mobility', desc: 'Beine ausschütteln' },
+                { id: 'm', type: 'main', title: 'Walkingpad', desc: '45-60 Min @ 3-4 km/h' },
+                { id: 'c', type: 'cool', title: 'Hüftbeuger Dehnen', desc: '2 Min halten' }
+            ]},
+            { id: 'wed', dayIndex: 3, name: 'MITTWOCH', theme: 'Ganzkörper Kraft', icon: 'dumbbell', colorClass: 'text-blue-400', bgClass: 'bg-blue-500/20', details: [
+                { id: 'w', type: 'warmup', title: 'Blazepods', desc: 'Reaction Drill' },
+                { id: 'm1', type: 'main', title: 'Beinstrecken', desc: '2 x 15 Wdh', weight: '15' },
+                { id: 'm2', type: 'main', title: 'Latziehen', desc: '3 x 12 Wdh', weight: '35' },
+                { id: 'm3', type: 'main', title: 'Bankdrücken', desc: '3 x 12 Wdh', weight: '30' },
+                { id: 'm4', type: 'main', title: 'Schulterdrücken', desc: '2 x 12 Wdh', weight: '10' },
+                { id: 'c', type: 'cool', title: 'Cooldown', desc: 'Foam Rolling' }
+            ]},
+            { id: 'thu', dayIndex: 4, name: 'DONNERSTAG', theme: 'Active Recovery', icon: 'gamepad-2', colorClass: 'text-purple-400', bgClass: 'bg-purple-500/20', details: [
+                { id: 'w', type: 'warmup', title: 'Armkreisen', desc: 'Schultern lockern' },
+                { id: 'm', type: 'main', title: 'Beat Saber (VR)', desc: '30 Min (Expert)' },
+                { id: 'm2', type: 'main', title: 'Alt: Yoga', desc: '20 Min Rücken Fokus' },
+                { id: 'c', type: 'cool', title: 'Child\'s Pose', desc: 'Entspannung' }
+            ]},
+            { id: 'fri', dayIndex: 5, name: 'FREITAG', theme: 'Cardio Battle (Boxen)', icon: 'swords', colorClass: 'text-pink-400', bgClass: 'bg-pink-500/20', details: [
+                { id: 'w', type: 'warmup', title: 'Schattenboxen', desc: '3 Min locker' },
+                { id: 'm', type: 'main', title: 'Boxsack & Pods', desc: '5 Runden à 3 Min' },
+                { id: 'c', type: 'cool', title: 'Oberkörper Stretch', desc: 'Brustmuskel dehnen' }
+            ]},
+            { id: 'sat', dayIndex: 6, name: 'SAMSTAG', theme: 'Nature Walk', icon: 'trees', colorClass: 'text-yellow-400', bgClass: 'bg-yellow-500/20', details: [
+                { id: 'w', type: 'warmup', title: 'Gelenke kreisen', desc: 'Vorbereitung' },
+                { id: 'm', type: 'main', title: 'Spaziergang', desc: '60 Min Naturschutzgebiet' },
+                { id: 'c', type: 'cool', title: 'Waden dehnen', desc: 'Wichtig!' }
+            ]}
+        ];
+
+        // --- SMART DATA LOGIC ---
+
+        // Iterates BACKWARDS from target date to find the last saved weight.
+        // If I'm viewing Jan 10th, and saved a weight on Jan 3rd, it uses Jan 3rd.
+        // If I save a weight on Jan 10th, future dates will see Jan 10th.
+        // Past dates (e.g. Jan 3rd) won't see Jan 10th.
+        function getSmartWeight(exerciseId, targetDate, defaultWeight) {
+            let searchDate = new Date(targetDate);
+            searchDate.setHours(0,0,0,0);
+            
+            // Loop backwards in 1-week steps until we find a value or hit start date
+            while (searchDate >= USER_START_DATE) {
+                const dateStr = searchDate.toISOString().split('T')[0];
+                const key = `${WEIGHT_PREFIX}${exerciseId}_${dateStr}`;
+                const saved = localStorage.getItem(key);
+                if (saved) return saved;
+                
+                // Go back one week
+                searchDate.setDate(searchDate.getDate() - 7);
+            }
+            return defaultWeight;
+        }
+
+        // Get Memo from exactly 7 days ago
+        function getPreviousMemo(targetDateIso) {
+            const current = new Date(targetDateIso);
+            const prevDate = new Date(current);
+            prevDate.setDate(prevDate.getDate() - 7);
+            const prevIso = prevDate.toISOString().split('T')[0];
+            const key = `${NOTE_PREFIX}${prevIso}`;
+            return localStorage.getItem(key);
+        }
+
+        // --- CORE FUNCTIONS ---
+
+        function getComputedSchedule() {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const currentDayIndex = today.getDay(); 
+            
+            const referenceDate = new Date(today);
+            referenceDate.setDate(today.getDate() + (currentWeekOffset * 7));
+
+            const rotated = [
+                ...scheduleTemplate.slice(currentDayIndex),
+                ...scheduleTemplate.slice(0, currentDayIndex)
+            ];
+
+            return rotated.map((day, idx) => {
+                const targetDate = new Date(referenceDate);
+                targetDate.setDate(referenceDate.getDate() + idx);
+                targetDate.setHours(0,0,0,0);
+                
+                const currentYear = new Date().getFullYear();
+                const targetYear = targetDate.getFullYear();
+                
+                let dateOptions = { day: '2-digit', month: '2-digit' };
+                if (targetYear !== currentYear) dateOptions.year = 'numeric';
+
+                const dateStr = targetDate.toLocaleDateString('de-DE', dateOptions);
+                const isoDate = targetDate.toISOString().split('T')[0];
+                
+                const diffTime = today - targetDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                let isLocked = false;
+                if (targetDate > today) isLocked = true;
+                else if (diffDays > 3) isLocked = true;
+
+                return { 
+                    ...day, 
+                    displayDate: dateStr, 
+                    storageDate: isoDate,
+                    fullDateObj: targetDate,
+                    isRealToday: (currentWeekOffset === 0 && idx === 0),
+                    isLocked: isLocked
+                };
+            });
+        }
+
+        function renderSchedule() {
+            const container = document.getElementById('schedule-container');
+            container.innerHTML = '';
+            
+            const computedSchedule = getComputedSchedule();
+            
+            // --- Nav State ---
+            const btnPrev = document.getElementById('btn-prev');
+            const weekDisplay = document.getElementById('week-display');
+
+            const mondayItem = computedSchedule.find(d => d.dayIndex === 1);
+            let displayedMondayDate = mondayItem ? mondayItem.fullDateObj : computedSchedule[0].fullDateObj;
+
+            const startDateClean = new Date(USER_START_DATE);
+            startDateClean.setHours(0,0,0,0);
+            
+            if (displayedMondayDate <= startDateClean) {
+                btnPrev.disabled = true;
+            } else {
+                btnPrev.disabled = false;
+            }
+
+            if(currentWeekOffset === 0) weekDisplay.innerText = "Diese Woche";
+            else if(currentWeekOffset === -1) weekDisplay.innerText = "Letzte Woche";
+            else if(currentWeekOffset > 0) weekDisplay.innerText = `In ${currentWeekOffset} Wochen`;
+            else weekDisplay.innerText = `Vor ${Math.abs(currentWeekOffset)} Wochen`;
+
+
+            // --- Render Cards ---
+            computedSchedule.forEach((day, index) => {
+                const card = document.createElement('div');
+                card.id = `card-${day.storageDate}`;
+                
+                let lockedClass = day.isLocked ? 'day-locked' : '';
+                
+                card.className = `day-card rounded-xl bg-slate-800/50 overflow-hidden cursor-pointer mb-4 ${day.isRealToday ? 'day-active' : ''} ${lockedClass}`;
+                
+                const allDone = day.details.every(ex => {
+                    const storeKey = `${STORAGE_PREFIX}${day.storageDate}_${ex.id}`;
+                    return localStorage.getItem(storeKey) === 'true';
+                });
+                
+                if (allDone) card.classList.add('day-complete');
+
+                let lockIcon = '';
+                if(day.isLocked) {
+                    lockIcon = `<span class="bg-slate-700/50 text-slate-500 px-2 py-1 rounded ml-2 flex items-center lock-icon"><i data-lucide="lock" class="w-3 h-3"></i></span>`;
+                }
+
+                // Header
+                let headerHtml = `
+                    <div class="p-5 flex justify-between items-center" onclick="toggleAccordion('${day.storageDate}')">
+                        <div class="flex items-center gap-4">
+                            <div class="${day.bgClass} ${day.colorClass} p-3 rounded-lg">
+                                <i data-lucide="${day.icon}"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2 flex-wrap">
+                                    ${day.name} 
+                                    <span class="text-slate-500 font-normal text-base ml-2 bg-slate-900 px-2 rounded border border-slate-700">${day.displayDate}</span>
+                                    ${day.isRealToday ? '<span class="today-badge">HEUTE</span>' : ''}
+                                    <span class="completed-badge" style="display:${allDone ? 'inline-block' : 'none'}" id="badge-${day.storageDate}">DONE</span>
+                                    ${lockIcon}
+                                </h3>
+                                <p class="text-sm ${day.colorClass} font-mono opacity-80">${day.theme}</p>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-down" id="icon-${day.storageDate}" class="text-slate-500 transition-transform duration-300 ${day.isRealToday ? 'rotate-180' : ''}"></i>
+                    </div>
+                `;
+
+                // Exercises
+                let exercisesHtml = '';
+                day.details.forEach(ex => {
+                    const uniqueKey = `${STORAGE_PREFIX}${day.storageDate}_${ex.id}`;
+                    const isChecked = localStorage.getItem(uniqueKey) === 'true';
+
+                    let badgeClass = ex.type === 'warmup' ? 'badge-warmup' : ex.type === 'main' ? 'badge-main' : 'badge-cool';
+                    let badgeText = ex.type === 'warmup' ? 'Warm Up' : ex.type === 'main' ? 'Mission' : 'Cooldown';
+
+                    // WEIGHT LOGIC
+                    let rightSide = '';
+                    if (ex.weight) {
+                        // Fetch smart weight (latest from past or default)
+                        const currentWeight = getSmartWeight(ex.id, day.fullDateObj, ex.weight);
+                        
+                        rightSide = `
+                            <div class="weight-box rounded p-2 w-24 flex flex-col items-center justify-center border border-slate-700 bg-slate-900 group-hover:border-blue-500 transition-colors z-10" onclick="event.stopPropagation()">
+                                <input type="number" 
+                                    class="weight-input text-3xl font-black" 
+                                    value="${currentWeight}" 
+                                    onchange="saveWeight('${ex.id}', '${day.storageDate}', this.value)"
+                                >
+                                <span class="text-[9px] text-slate-500 uppercase font-bold mt-1">KG</span>
+                            </div>
+                        `;
+                    }
+
+                    exercisesHtml += `
+                        <div class="flex items-center gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}" 
+                             onclick="${day.isLocked ? '' : `toggleCheck(this, '${uniqueKey}', '${day.storageDate}')`}">
+                            <div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
+                            </div>
+                            <div class="flex-grow exercise-text">
+                                <div class="${badgeClass} mb-1">${badgeText}</div>
+                                <div class="font-bold text-white text-xl">${ex.title}</div>
+                                <div class="text-sm text-slate-400">${ex.desc}</div>
+                            </div>
+                            ${rightSide}
+                        </div>
+                    `;
+                });
+
+                // Notes Area with Memo from Past
+                const noteKey = `${NOTE_PREFIX}${day.storageDate}`;
+                const savedNote = localStorage.getItem(noteKey) || '';
+                
+                const prevMemo = getPreviousMemo(day.storageDate);
+                let prevMemoHtml = '';
+                if (prevMemo) {
+                    prevMemoHtml = `
+                        <div class="mt-2 p-3 rounded border border-dashed border-slate-700 bg-slate-800/50">
+                            <div class="text-[10px] text-slate-500 uppercase flex items-center gap-1 mb-1">
+                                <i data-lucide="history" class="w-3 h-3"></i> Memo von letzter Woche
+                            </div>
+                            <div class="text-sm text-slate-400 italic">"${prevMemo}"</div>
+                        </div>
+                    `;
+                }
+                
+                const noteHtml = `
+                    <div class="mt-4 pt-4 border-t border-slate-800">
+                        <label class="text-xs text-slate-500 uppercase font-bold mb-2 block">Logbuch / Notizen</label>
+                        <textarea 
+                            oninput="saveNote('${noteKey}', this.value)"
+                            class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-sm text-slate-300 focus:outline-none focus:border-blue-500 transition-colors h-24 resize-none mb-2"
+                            placeholder="Wie lief es? Schmerzen? Besonderheiten?"
+                        >${savedNote}</textarea>
+                        ${prevMemoHtml}
+                    </div>
+                `;
+
+                const isOpen = day.isRealToday; 
+                const detailsHtml = `
+                    <div id="details-${day.storageDate}" class="${isOpen ? '' : 'hidden'} border-t border-slate-700 bg-slate-900/50">
+                        <div class="p-6">
+                            ${exercisesHtml}
+                            ${noteHtml}
+                        </div>
+                    </div>
+                `;
+
+                card.innerHTML = headerHtml + detailsHtml;
+                container.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        // --- INTERACTION ---
+
+        function changeWeek(direction) {
+            if (direction === -1 && document.getElementById('btn-prev').disabled) return;
+            currentWeekOffset += direction;
+            renderSchedule();
+        }
+
+        function toggleAccordion(dateId) {
+            const details = document.getElementById(`details-${dateId}`);
+            const icon = document.getElementById(`icon-${dateId}`);
+            
+            if (details.classList.contains('hidden')) {
+                details.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                details.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function toggleCheck(row, storageKey, dateId) {
+            row.classList.toggle('completed');
+            
+            const isComplete = row.classList.contains('completed');
+            if (isComplete) {
+                localStorage.setItem(storageKey, 'true');
+                const checkCircle = row.querySelector('.check-circle');
+                miniConfetti(checkCircle);
+            } else {
+                localStorage.removeItem(storageKey);
+            }
+
+            checkDayCompletion(dateId);
+        }
+        
+        function saveNote(key, value) {
+            localStorage.setItem(key, value);
+        }
+
+        function saveWeight(exId, dateIso, value) {
+            // Save specific weight for this date
+            // Future dates will now find this value because it's the "latest" relative to them
+            const key = `${WEIGHT_PREFIX}${exId}_${dateIso}`;
+            localStorage.setItem(key, value);
+            
+            // Note: We don't re-render immediately to prevent UI jumps while typing.
+            // But next time you load or change weeks, it calculates correctly.
+        }
+
+        function checkDayCompletion(dateId) {
+            const container = document.getElementById(`details-${dateId}`);
+            const card = document.getElementById(`card-${dateId}`);
+            const badge = document.getElementById(`badge-${dateId}`);
+            
+            const total = container.querySelectorAll('.exercise-row').length;
+            const done = container.querySelectorAll('.exercise-row.completed').length;
+
+            if (total > 0 && total === done) {
+                if (!card.classList.contains('day-complete')) {
+                    card.classList.add('day-complete');
+                    badge.style.display = 'inline-block';
+                    superConfetti();
+                }
+            } else {
+                card.classList.remove('day-complete');
+                badge.style.display = 'none';
+            }
+        }
+
+        // --- DATA MANAGEMENT (JSON) ---
+
+        function exportData() {
+            const exportObj = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith(STORAGE_PREFIX) || key.startsWith(NOTE_PREFIX) || key.startsWith(WEIGHT_PREFIX)) {
+                    exportObj[key] = localStorage.getItem(key);
+                }
+            }
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            const date = new Date().toISOString().split('T')[0];
+            downloadAnchorNode.setAttribute("download", `BodyRefactoring_Backup_${date}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importData(inputElement) {
+            const file = inputElement.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    Object.keys(data).forEach(key => {
+                        if (key.startsWith(STORAGE_PREFIX) || key.startsWith(NOTE_PREFIX) || key.startsWith(WEIGHT_PREFIX)) {
+                            localStorage.setItem(key, data[key]);
+                        }
+                    });
+                    alert('Daten erfolgreich importiert!');
+                    location.reload(); 
+                } catch (err) {
+                    alert('Fehler beim Importieren der Datei.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- VISUALS ---
+
+        function miniConfetti(element) {
+            const rect = element.getBoundingClientRect();
+            const x = (rect.left + rect.width / 2) / window.innerWidth;
+            const y = (rect.top + rect.height / 2) / window.innerHeight;
+            confetti({
+                particleCount: 20, spread: 50, origin: { x: x, y: y },
+                colors: ['#38bdf8', '#f472b6', '#22c55e'], disableForReducedMotion: true,
+                ticks: 50, gravity: 1.2, scalar: 0.6, startVelocity: 20
+            });
+        }
+
+        function superConfetti() {
+            var duration = 3000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#38bdf8', '#f472b6', '#22c55e'] });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#38bdf8', '#f472b6', '#22c55e'] });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+            setTimeout(() => { confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, scalar: 1.2 }); }, 500);
+        }
+
+        window.onload = function() {
+            renderSchedule();
+        };
+
+    </script>
+</body>
+</html>
