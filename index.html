@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" href="gymlogo.png">
     <link rel="icon" type="image/png" href="gymlogo.png">
     <meta name="robots" content="noindex, nofollow, noarchive">
-    <title>Body Refactoring App v7.0</title>
+    <title>Body Refactoring App v8.0</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -129,7 +129,7 @@
 
     <div id="splash-screen">
         <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 mb-4 animate-pulse">BODY REFACTORING</h1>
-        <div class="text-slate-500 font-mono text-xs">LOADING v7.0...</div>
+        <div class="text-slate-500 font-mono text-xs">INITIALIZING v8.0...</div>
     </div>
 
     <div class="app-container">
@@ -139,7 +139,7 @@
                 <h1 class="text-xl font-black text-white uppercase leading-none">
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Body</span> Refactoring
                 </h1>
-                <p class="text-slate-500 font-mono text-[10px] mt-1">v7.0 // CLEAN CODE</p>
+                <p class="text-slate-500 font-mono text-[10px] mt-1">v8.0 // DYNAMIC SCHEDULES</p>
             </div>
             
             <div class="flex items-center gap-3">
@@ -206,12 +206,19 @@
     </div>
 
     <script>
-        const USER_START_DATE = new Date('2025-12-22T00:00:00'); 
+        // --- GLOBAL STATE ---
         let currentWeekOffset = 0; 
         const STORAGE_PREFIX = "body_refactoring_v1_";
         const NOTE_PREFIX = "body_refactoring_note_";
         const WEIGHT_PREFIX = "body_refactoring_weight_";
         const UNIT_PREFIX = "body_refactoring_unit_";
+
+        // Global State for Dynamic Scheduling
+        const state = {
+            availableSchedules: [], // List of { date: 'YYYY-MM-DD', file: '...' }
+            scheduleCache: {},      // Cache content of JSON files
+            startDate: null         // Derived from first schedule
+        };
 
         const quotes = [
             "Stark! Wieder einen Tag geschafft.",
@@ -224,76 +231,387 @@
             "Ein Schritt näher am Ziel."
         ];
 
-        // --- CLEAN JSON (No Legacy IDs) ---
-        const scheduleTemplate = [
-            { id: 'mon', dayIndex: 1, name: 'MONTAG', theme: 'Ganzkörper Kraft', icon: 'dumbbell', colorClass: 'text-blue-400', bgClass: 'bg-blue-500/10', details: [
-                { id: 'warmup_row', type: 'warmup', title: 'Rudern', desc: 'Aufwärmen', timers: [{l:'5 Min', s:300}, {l:'7 Min', s:420}, {l:'10 Min', s:600}] },
-                { id: 'ex_beinstrecken', type: 'main', title: 'Beinstrecken', desc: '2 x 15 Wdh', weight: '2', defaultUnit: 'STUFE' },
-                { id: 'ex_latziehen', type: 'main', title: 'Latziehen', desc: '3 x 12 Wdh', weight: '3', defaultUnit: 'STUFE' },
-                { id: 'ex_brustpresse', type: 'main', title: 'Brustpresse', desc: '3 x 12 Wdh', weight: '3', defaultUnit: 'STUFE' },
-                { id: 'ex_butterfly', type: 'main', title: 'Butterfly', desc: '2 x 12 Wdh', weight: '2', defaultUnit: 'STUFE' },
-                { id: 'cool_stretch', type: 'cool', title: 'Cooldown', desc: 'Stretching', timers: [{l:'3 Min', s:180}, {l:'5 Min', s:300}] }
-            ]},
-            { id: 'tue', dayIndex: 2, name: 'DIENSTAG', theme: 'Active Office (NEAT)', icon: 'footprints', colorClass: 'text-emerald-400', bgClass: 'bg-emerald-500/10', details: [
-                { id: 'warmup_mob', type: 'warmup', title: 'Joint Mobility', desc: 'Beine ausschütteln', timers: [{l:'1 Min', s:60}] },
-                { id: 'ex_walking', type: 'main', title: 'Walkingpad', desc: 'Schritte sammeln', timers: [{l:'45 Min', s:2700}, {l:'60 Min', s:3600}] },
-                { id: 'cool_hip', type: 'cool', title: 'Hüftbeuger Dehnen', desc: 'Halten', timers: [{l:'2 Min', s:120}] }
-            ]},
-            { id: 'wed', dayIndex: 3, name: 'MITTWOCH', theme: 'Ganzkörper Kraft', icon: 'dumbbell', colorClass: 'text-blue-400', bgClass: 'bg-blue-500/10', details: [
-                { id: 'warmup_blaze', type: 'warmup', title: 'Blazepods', desc: 'Reaction Drill', timers: [{l:'5 Min', s:300}] },
-                { id: 'ex_beinstrecken', type: 'main', title: 'Beinstrecken', desc: '2 x 15 Wdh', weight: '2', defaultUnit: 'STUFE' },
-                { id: 'ex_latziehen', type: 'main', title: 'Latziehen', desc: '3 x 12 Wdh', weight: '3', defaultUnit: 'STUFE' },
-                { id: 'ex_brustpresse', type: 'main', title: 'Brustpresse', desc: '3 x 12 Wdh', weight: '3', defaultUnit: 'STUFE' },
-                { id: 'ex_butterfly', type: 'main', title: 'Butterfly', desc: '2 x 12 Wdh', weight: '2', defaultUnit: 'STUFE' },
-                { id: 'cool_foam', type: 'cool', title: 'Cooldown', desc: 'Foam Rolling', timers: [{l:'5 Min', s:300}] }
-            ]},
-            { id: 'thu', dayIndex: 4, name: 'DONNERSTAG', theme: 'Active Recovery', icon: 'gamepad-2', colorClass: 'text-purple-400', bgClass: 'bg-purple-500/10', details: [
-                { id: 'warmup_arms', type: 'warmup', title: 'Armkreisen', desc: 'Schultern lockern', timers: [{l:'2 Min', s:120}] },
-                { 
-                    id: 'm_alt_group_thu', 
-                    type: 'alternatives',
-                    alternatives: [
-                        { title: 'Beat Saber (VR)', desc: 'Expert Level', timers: [{l:'30 Min', s:1800}] },
-                        { title: 'Yoga', desc: 'Rücken Fokus', timers: [{l:'20 Min', s:1200}] }
-                    ] 
-                },
-                { id: 'cool_child', type: 'cool', title: 'Child\'s Pose', desc: 'Entspannung', timers: [{l:'3 Min', s:180}] }
-            ]},
-            { id: 'fri', dayIndex: 5, name: 'FREITAG', theme: 'Cardio Battle (Boxen)', icon: 'swords', colorClass: 'text-pink-400', bgClass: 'bg-pink-500/10', details: [
-                { id: 'warmup_shadow', type: 'warmup', title: 'Schattenboxen', desc: 'Locker bewegen', timers: [{l:'3 Min', s:180}] },
-                { id: 'ex_boxen', type: 'main', title: 'Boxsack & Pods', desc: '5 Runden', timers: [{l:'20 Min', s:1200}] },
-                { id: 'cool_upper', type: 'cool', title: 'Oberkörper Stretch', desc: 'Dehnen', timers: [{l:'5 Min', s:300}] }
-            ]},
-            { id: 'sat', dayIndex: 6, name: 'SAMSTAG', theme: 'Nature Walk / Cardio', icon: 'trees', colorClass: 'text-yellow-400', bgClass: 'bg-yellow-500/10', details: [
-                { id: 'warmup_joints', type: 'warmup', title: 'Gelenke kreisen', desc: 'Vorbereitung', timers: [{l:'1 Min', s:60}] },
-                { 
-                    id: 'm_alt_group_sat', 
-                    type: 'alternatives', 
-                    alternatives: [
-                        { title: 'Nature Walk', desc: 'Draußen (Gut Wetter)', timers: [{l:'60 Min', s:3600}] },
-                        { title: 'Indoor Cardio', desc: 'Laufband / Rad', timers: [{l:'45 Min', s:2700}, {l:'60 Min', s:3600}] }
-                    ]
-                },
-                { id: 'cool_calves', type: 'cool', title: 'Waden dehnen', desc: 'Wichtig!', timers: [{l:'2 Min', s:120}] }
-            ]},
-            { id: 'sun', dayIndex: 0, name: 'SONNTAG', theme: 'Rest & Recovery', icon: 'coffee', colorClass: 'text-slate-300', bgClass: 'bg-slate-700/50', details: [
-                { id: 'warmup_mob_sun', type: 'warmup', title: 'Mobilisation', desc: 'Schulterkreisen', timers: [{l:'2 Min', s:120}] },
-                { 
-                    id: 'ex_rest_group_sun', 
-                    type: 'alternatives',
-                    alternatives: [
-                        { title: 'Spaziergang', desc: 'Draußen (Frische Luft)', timers: [{l:'30 Min', s:1800}, {l:'45 Min', s:2700}] },
-                        { title: 'Walkingpad', desc: 'Indoor (Light)', timers: [{l:'30 Min', s:1800}] }
-                    ]
-                },
-                { id: 'cool_mental', type: 'cool', title: 'Mental Reset', desc: 'Wochenplanung', timers: [{l:'10 Min', s:600}] }
-            ]}
-        ];
+        // --- INIT & DATA FETCHING ---
+        async function initApp() {
+            try {
+                const response = await fetch('trainings/index.php');
+                if(!response.ok) throw new Error("API Error");
+                
+                state.availableSchedules = await response.json();
+                
+                if (state.availableSchedules.length > 0) {
+                    state.startDate = new Date(state.availableSchedules[0].date + "T00:00:00");
+                    await renderSchedule(); // Initial render
+                    setTimeout(() => { document.getElementById('splash-screen').style.opacity = '0'; }, 800);
+                    setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; }, 1300);
+                } else {
+                    alert("Keine Trainingspläne gefunden.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Fehler beim Laden der Trainingspläne. Webserver erforderlich!");
+            }
+        }
 
+        async function fetchScheduleForDate(dateStr) {
+            // Logic: Find latest schedule where schedule.date <= dateStr
+            // Schedules are sorted asc by date from backend
+            let bestMatch = null;
+            for (const sched of state.availableSchedules) {
+                if (sched.date <= dateStr) {
+                    bestMatch = sched;
+                } else {
+                    break; 
+                }
+            }
+            
+            if (!bestMatch) return null; // Should not happen if date >= startDate
+
+            // Check Cache
+            if (state.scheduleCache[bestMatch.file]) {
+                return state.scheduleCache[bestMatch.file];
+            }
+
+            // Fetch
+            const res = await fetch(`trainings/${bestMatch.file}`);
+            const json = await res.json();
+            state.scheduleCache[bestMatch.file] = json;
+            return json;
+        }
+
+        // --- CORE FUNCTIONS ---
         function getLocalISODate(date) {
             const offset = date.getTimezoneOffset(); 
             const localDate = new Date(date.getTime() - (offset * 60 * 1000));
             return localDate.toISOString().split('T')[0];
+        }
+
+        async function getComputedSchedule() {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            const currentDayIndex = today.getDay(); 
+            const distanceToMonday = (currentDayIndex + 6) % 7; 
+            
+            const thisWeekMonday = new Date(today);
+            thisWeekMonday.setDate(today.getDate() - distanceToMonday);
+            
+            const displayedMonday = new Date(thisWeekMonday);
+            displayedMonday.setDate(thisWeekMonday.getDate() + (currentWeekOffset * 7));
+
+            // Generate 7 day objects async
+            const daysPromise = Array.from({length: 7}, async (_, idx) => {
+                const targetDate = new Date(displayedMonday);
+                targetDate.setDate(displayedMonday.getDate() + idx);
+                targetDate.setHours(0,0,0,0);
+                
+                const isoDate = getLocalISODate(targetDate);
+                const currentYear = new Date().getFullYear();
+                let dateOptions = { day: '2-digit', month: '2-digit' };
+                if (targetDate.getFullYear() !== currentYear) dateOptions.year = 'numeric';
+                const dateStr = targetDate.toLocaleDateString('de-DE', dateOptions);
+
+                // Fetch Config for this specific day
+                // (This allows mid-week schedule changes!)
+                const scheduleConfig = await fetchScheduleForDate(isoDate);
+                
+                // Find correct day in config (Mon=1 ... Sun=0)
+                // Note: getDay() returns 0 for Sun, 1 for Mon
+                const targetDayIndex = targetDate.getDay(); 
+                
+                let dayData = null;
+                if (scheduleConfig) {
+                    dayData = scheduleConfig.find(d => d.dayIndex === targetDayIndex);
+                }
+
+                // If no data found (e.g. before start date), return dummy or null
+                if (!dayData) {
+                    return { 
+                        id: 'invalid', name: '---', theme: '', details: [], 
+                        displayDate: dateStr, storageDate: isoDate, fullDateObj: targetDate, 
+                        isRealToday: false, isLocked: true 
+                    };
+                }
+
+                const diffTime = today - targetDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                let isLocked = targetDate > today || diffDays > 3;
+                const isRealToday = getLocalISODate(today) === isoDate;
+
+                // Merge static config with calculated props
+                return { 
+                    ...dayData, 
+                    displayDate: dateStr, 
+                    storageDate: isoDate, 
+                    fullDateObj: targetDate, 
+                    isRealToday: isRealToday, 
+                    isLocked: isLocked 
+                };
+            });
+
+            return Promise.all(daysPromise);
+        }
+
+        async function renderSchedule() {
+            const container = document.getElementById('schedule-container');
+            // Don't clear immediately to prevent flickering if it's fast
+            // container.innerHTML = '<div class="text-center text-slate-500 py-8">Lade Daten...</div>';
+            
+            const computedSchedule = await getComputedSchedule();
+            container.innerHTML = ''; // Clear now
+            
+            // Nav Logic
+            const btnPrev = document.getElementById('btn-prev');
+            const weekDisplay = document.getElementById('week-display');
+            
+            // Allow going back only if Monday is >= Global Start Date
+            const mondayDate = computedSchedule[0].fullDateObj;
+            const startDateClean = new Date(state.startDate);
+            startDateClean.setHours(0,0,0,0);
+            
+            btnPrev.disabled = mondayDate <= startDateClean;
+
+            if(currentWeekOffset === 0) weekDisplay.innerText = "Aktuelle Woche";
+            else if(currentWeekOffset > 0) weekDisplay.innerText = `+${currentWeekOffset} Wochen`;
+            else weekDisplay.innerText = `${currentWeekOffset} Wochen`;
+
+            let activeElementId = null;
+
+            computedSchedule.forEach((day) => {
+                if(day.id === 'invalid') return; // Skip invalid days
+
+                const card = document.createElement('div');
+                card.id = `card-${day.storageDate}`;
+                
+                let lockedClass = day.isLocked ? 'day-locked' : '';
+                let activeClass = day.isRealToday ? 'day-active' : '';
+                if(day.isRealToday) activeElementId = `card-${day.storageDate}`;
+
+                card.className = `day-card rounded-2xl bg-slate-800/40 border border-slate-700/50 overflow-hidden cursor-pointer ${activeClass} ${lockedClass}`;
+                
+                // Check Completion (Sync check is fine here)
+                let allDone = false;
+                if(day.details.length > 0) {
+                    allDone = isDayComplete(day.storageDate, day.details);
+                }
+                
+                if (allDone) card.classList.add('day-complete');
+
+                let lockIcon = day.isLocked ? `<span class="bg-slate-700/50 text-slate-500 px-2 py-1 rounded ml-2 flex items-center lock-icon"><i data-lucide="lock" class="w-3 h-3"></i></span>` : '';
+
+                let headerHtml = `
+                    <div class="p-5 flex justify-between items-center card-header-content" onclick="toggleAccordion('${day.storageDate}')">
+                        <div class="flex items-center gap-4">
+                            <div class="${day.bgClass} ${day.colorClass} p-3 rounded-xl">
+                                <i data-lucide="${day.icon}"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white flex items-center gap-2 flex-wrap">
+                                    ${day.name} 
+                                    <span class="text-slate-500 font-normal text-xs ml-1 bg-slate-900/50 px-2 py-0.5 rounded">${day.displayDate}</span>
+                                    ${day.isRealToday ? '<span class="today-badge">HEUTE</span>' : ''}
+                                    <span class="completed-badge" style="display:${allDone ? 'inline-block' : 'none'}" id="badge-${day.storageDate}">DONE</span>
+                                    ${lockIcon}
+                                </h3>
+                                <p class="text-xs ${day.colorClass} font-mono opacity-80 mt-1">${day.theme}</p>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-down" id="icon-${day.storageDate}" class="text-slate-500 transition-transform duration-300 ${day.isRealToday ? 'rotate-180' : ''}"></i>
+                    </div>
+                `;
+
+                let exercisesHtml = '';
+                day.details.forEach(ex => {
+                    const uniqueKey = `${STORAGE_PREFIX}${day.storageDate}_${ex.id}`;
+                    let isChecked = localStorage.getItem(uniqueKey) === 'true';
+
+                    // --- RENDER LOGIC ---
+                    if (ex.type === 'alternatives') {
+                        let altContent = '';
+                        ex.alternatives.forEach((alt, idx) => {
+                            let altTimersHtml = '';
+                            if (alt.timers) {
+                                altTimersHtml = `<div class="flex gap-2 mt-1 flex-wrap">` + 
+                                    alt.timers.map(t => `<div class="timer-chip" onclick="startSpecificTimer(${t.s}, '${t.l} ${alt.title}')"><i data-lucide="clock" class="w-3 h-3"></i> ${t.l}</div>`).join('') + 
+                                    `</div>`;
+                            }
+                            
+                            altContent += `
+                                <div>
+                                    <div class="font-bold text-white text-lg leading-tight">${alt.title}</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">${alt.desc}</div>
+                                    ${altTimersHtml}
+                                </div>
+                            `;
+                            if (idx < ex.alternatives.length - 1) {
+                                altContent += `<div class="alt-divider">ODER</div>`;
+                            }
+                        });
+
+                        exercisesHtml += `
+                            <div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}" 
+                                 onclick="${day.isLocked ? '' : `toggleCheck(this, '${uniqueKey}', '${day.storageDate}')`}">
+                                <div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1">
+                                    <i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
+                                </div>
+                                <div class="flex-grow exercise-text">
+                                    <div class="phase-badge badge-main mb-1">MISSION</div>
+                                    <div class="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50">
+                                        ${altContent}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        let badgeClass = ex.type === 'warmup' ? 'badge-warmup' : ex.type === 'main' ? 'badge-main' : 'badge-cool';
+                        let badgeText = ex.type === 'warmup' ? 'Warm Up' : ex.type === 'main' ? 'Mission' : 'Cooldown';
+
+                        let timersHtml = '';
+                        if (ex.timers) { 
+                            timersHtml = `<div class="flex gap-2 mt-2 flex-wrap">` + 
+                                ex.timers.map(t => `<div class="timer-chip" onclick="startSpecificTimer(${t.s}, '${t.l} ${ex.title}')"><i data-lucide="clock" class="w-3 h-3"></i> ${t.l}</div>`).join('') + 
+                                `</div>`;
+                        }
+
+                        let rightSide = '';
+                        if (ex.weight) {
+                            const unitKey = `${UNIT_PREFIX}${ex.id}`;
+                            const userUnit = localStorage.getItem(unitKey) || ex.defaultUnit || 'KG';
+                            const currentWeight = getSmartWeight(ex.id, day.fullDateObj, ex.weight);
+                            
+                            rightSide = `
+                                <div class="weight-box rounded-lg p-2 w-24 flex flex-col items-center justify-center border border-slate-700 bg-slate-900/80 z-10" onclick="event.stopPropagation()">
+                                    <input type="number" 
+                                        inputmode="numeric" 
+                                        pattern="[0-9]*" 
+                                        class="weight-input" 
+                                        value="${currentWeight}" 
+                                        onfocus="focusWeightInput(this)"
+                                        onblur="handleWeightBlur('${ex.id}', '${day.storageDate}', this)"
+                                        onkeydown="if(event.key==='Enter') this.blur()"
+                                    >
+                                    <span class="text-[9px] text-slate-500 uppercase font-bold mt-1 unit-toggle" onclick="toggleUnit('${ex.id}', this)">${userUnit}</span>
+                                </div>`;
+                        }
+
+                        exercisesHtml += `
+                            <div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}" 
+                                 onclick="${day.isLocked ? '' : `toggleCheck(this, '${uniqueKey}', '${day.storageDate}')`}">
+                                <div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1">
+                                    <i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
+                                </div>
+                                <div class="flex-grow exercise-text">
+                                    <div class="${badgeClass} mb-1">${badgeText}</div>
+                                    <div class="font-bold text-white text-lg leading-tight">${ex.title}</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">${ex.desc}</div>
+                                    ${timersHtml}
+                                </div>
+                                ${rightSide}
+                            </div>
+                        `;
+                    }
+                });
+
+                const noteKey = `${NOTE_PREFIX}${day.storageDate}`;
+                const savedNote = localStorage.getItem(noteKey) || '';
+                const prevMemo = getPreviousMemo(day.storageDate);
+                let prevMemoHtml = prevMemo ? `<div class="mt-2 p-3 rounded-lg border border-dashed border-slate-700 bg-slate-800/50"><div class="text-[10px] text-slate-500 uppercase flex items-center gap-1 mb-1"><i data-lucide="history" class="w-3 h-3"></i> Memo von letzter Woche</div><div class="text-sm text-slate-400 italic">"${prevMemo}"</div></div>` : '';
+                
+                const detailsHtml = `
+                    <div id="details-${day.storageDate}" class="${day.isRealToday ? '' : 'hidden'} border-t border-slate-700/50 bg-slate-900/30">
+                        <div class="p-5">
+                            ${exercisesHtml}
+                            <div class="mt-4 pt-4 border-t border-slate-800">
+                                <label class="text-[10px] text-slate-500 uppercase font-bold mb-2 block tracking-wider">Logbuch</label>
+                                <textarea oninput="saveNote('${noteKey}', this.value)" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-blue-500 transition-colors h-24 resize-none mb-2" placeholder="Notizen...">${savedNote}</textarea>
+                                ${prevMemoHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                card.innerHTML = headerHtml + detailsHtml;
+                container.appendChild(card);
+            });
+
+            lucide.createIcons();
+            
+            // Scroll logic
+            if(activeElementId) {
+                setTimeout(() => {
+                    const el = document.getElementById(activeElementId);
+                    if(el) {
+                        const y = el.getBoundingClientRect().top + window.pageYOffset - 140;
+                        window.scrollTo({top: y, behavior: 'smooth'});
+                    }
+                }, 200); // Slight delay for rendering
+            }
+            
+            calculateStreak();
+        }
+
+        // --- HELPERS ---
+        function getSmartWeight(exerciseId, targetDate, defaultWeight) {
+            let searchDate = new Date(targetDate);
+            searchDate.setHours(0,0,0,0);
+            
+            while (searchDate >= state.startDate) {
+                const dateStr = getLocalISODate(searchDate);
+                const key = `${WEIGHT_PREFIX}${exerciseId}_${dateStr}`;
+                const saved = localStorage.getItem(key);
+                if (saved) return saved;
+                searchDate.setDate(searchDate.getDate() - 1);
+            }
+            return defaultWeight;
+        }
+
+        function getPreviousMemo(targetDateIso) {
+            const current = new Date(targetDateIso);
+            const prevDate = new Date(current);
+            prevDate.setDate(prevDate.getDate() - 7);
+            const prevIso = getLocalISODate(prevDate);
+            return localStorage.getItem(`${NOTE_PREFIX}${prevIso}`);
+        }
+
+        function changeWeek(direction) {
+            if (direction === -1 && document.getElementById('btn-prev').disabled) return;
+            currentWeekOffset += direction;
+            renderSchedule();
+        }
+
+        function toggleAccordion(dateId) {
+            const details = document.getElementById(`details-${dateId}`);
+            const icon = document.getElementById(`icon-${dateId}`);
+            if (details.classList.contains('hidden')) {
+                details.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                details.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function toggleCheck(row, storageKey, dateId) {
+            row.classList.toggle('completed');
+            if (row.classList.contains('completed')) {
+                localStorage.setItem(storageKey, 'true');
+                miniConfetti(row.querySelector('.check-circle'));
+            } else {
+                localStorage.removeItem(storageKey);
+            }
+            checkDayCompletion(dateId);
+            calculateStreak();
+        }
+
+        function saveNote(key, value) { localStorage.setItem(key, value); }
+        function saveWeight(exId, dateIso, value) { localStorage.setItem(`${WEIGHT_PREFIX}${exId}_${dateIso}`, value); }
+        
+        function toggleUnit(exId, element) {
+            event.stopPropagation();
+            const current = element.innerText;
+            const newUnit = current === 'KG' ? 'STUFE' : 'KG';
+            element.innerText = newUnit;
+            localStorage.setItem(`${UNIT_PREFIX}${exId}`, newUnit);
         }
 
         function focusWeightInput(input) {
@@ -309,17 +627,122 @@
             saveWeight(exId, dateIso, val);
         }
 
-        // --- MENU LOGIC ---
+        // Updated completion check needs to handle async rendering, 
+        // but here we call it from click handlers where data is ready.
+        // HOWEVER: isDayComplete needs 'details' array which we don't have globally anymore.
+        // We need to fetch it from the 'computedSchedule' or similar. 
+        // But since we render, we can pass it or look it up.
+        // Simple fix: We reload the schedule for that day? Expensive.
+        // Better: We rely on the rendered DOM or pass the details.
+        
+        // REFACTOR: checkDayCompletion now just triggers UI updates, actual logic in isDayComplete
+        // But isDayComplete needs the list of exercises.
+        // Solution: Since we need to look up config anyway, let's keep it simple:
+        // When clicking, we check if all .exercise-row in current container are checked.
+        function checkDayCompletion(dateId) {
+            const container = document.getElementById(`details-${dateId}`);
+            const card = document.getElementById(`card-${dateId}`);
+            const badge = document.getElementById(`badge-${dateId}`);
+            
+            const total = container.querySelectorAll('.exercise-row').length;
+            const done = container.querySelectorAll('.exercise-row.completed').length;
+
+            if (total > 0 && total === done) {
+                if (!card.classList.contains('day-complete')) {
+                    card.classList.add('day-complete');
+                    badge.style.display = 'inline-block';
+                    showCompletionPopup(); 
+                }
+            } else {
+                card.classList.remove('day-complete');
+                badge.style.display = 'none';
+            }
+        }
+        
+        // Helper for Streak Calculation (needs config access)
+        // Since streak calculation is heavy with dynamic schedules, we optimize:
+        // We only check streak on init and when a task changes.
+        // We need to iterate dates backwards and fetch config for each.
+        async function calculateStreak() {
+            let streak = 0;
+            let checkDate = new Date(); 
+            const todayIso = getLocalISODate(checkDate);
+            
+            // To do this properly async, we need the schedule config for 'checkDate'
+            // We can reuse fetchScheduleForDate which caches.
+            
+            // Check Today
+            let config = await fetchScheduleForDate(todayIso);
+            let dayIdx = checkDate.getDay();
+            let dayData = config ? config.find(d => d.dayIndex === dayIdx) : null;
+            
+            if (dayData && isDayComplete(todayIso, dayData.details)) {
+                streak++;
+            }
+            
+            checkDate.setDate(checkDate.getDate() - 1);
+
+            while (true) {
+                const dateStr = getLocalISODate(checkDate);
+                if (dateStr < getLocalISODate(state.startDate)) break; 
+                
+                config = await fetchScheduleForDate(dateStr);
+                dayIdx = checkDate.getDay();
+                dayData = config ? config.find(d => d.dayIndex === dayIdx) : null;
+
+                if (dayData && isDayComplete(dateStr, dayData.details)) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1); 
+                } else {
+                    break; 
+                }
+            }
+            
+            const streakEl = document.getElementById('streak-container');
+            const countEl = document.getElementById('streak-count');
+            const medalEl = document.getElementById('medal-icon');
+            
+            if (streak > 0) {
+                streakEl.classList.remove('hidden');
+                countEl.innerText = streak;
+                document.getElementById('modal-streak').innerText = `${streak} Tage`;
+                
+                let medal = '';
+                if (streak >= 14) medal = '🥇';
+                else if (streak >= 7) medal = '🥈';
+                else if (streak >= 3) medal = '🥉';
+                medalEl.innerText = medal;
+            } else {
+                streakEl.classList.add('hidden');
+                document.getElementById('modal-streak').innerText = `0 Tage`;
+            }
+        }
+
+        // Logic check using passed details
+        function isDayComplete(dateIso, details) {
+            if (!details || details.length === 0) return false;
+            return details.every(ex => {
+                return localStorage.getItem(`${STORAGE_PREFIX}${dateIso}_${ex.id}`) === 'true';
+            });
+        }
+
+        function showCompletionPopup() {
+            const modal = document.getElementById('completion-modal');
+            const quoteEl = document.getElementById('modal-quote');
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            quoteEl.innerText = `"${randomQuote}"`;
+            modal.classList.add('open');
+            superConfetti();
+        }
+
+        function closeModal() {
+            document.getElementById('completion-modal').classList.remove('open');
+        }
+
         function toggleMenu(e) {
             if(e) e.stopPropagation();
             const menu = document.getElementById('menu-dropdown');
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                menu.style.display = 'flex';
-            } else {
-                menu.classList.add('hidden');
-                menu.style.display = 'none';
-            }
+            menu.classList.toggle('hidden');
         }
 
         function closeMenuOutside(e) {
@@ -327,32 +750,22 @@
             const btn = document.getElementById('menu-btn');
             if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
                 menu.classList.add('hidden');
-                menu.style.display = 'none';
             }
         }
 
-        function triggerImport() {
-            document.getElementById('import-input').click();
-            toggleMenu(); 
-        }
-
+        function triggerImport() { document.getElementById('import-input').click(); toggleMenu(); }
+        
         function forceUpdate() {
-            if (confirm("Die App wird neu geladen um Updates zu ziehen. Dies erfordert eine Internetverbindung.")) {
+            if (confirm("Update laden?")) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('update', Date.now());
                 window.location.href = url.toString();
             }
         }
 
-        // --- TIMER ENGINE ---
-        let timerInterval;
-        let timeLeft = 60;
-        let isRunning = false;
-        let currentTimerLabel = "60s Pause";
-        
         function enableNoSleep() {
             const video = document.getElementById('nosleep-video');
-            video.play().catch(e => console.log("Video play failed (interaction needed)", e));
+            video.play().catch(e => console.log("Video play failed", e));
         }
 
         function speak(text) {
@@ -428,369 +841,6 @@
             window.speechSynthesis.cancel();
         }
 
-        // --- STREAK & DATA ---
-        function calculateStreak() {
-            let streak = 0;
-            let checkDate = new Date(); 
-            const todayIso = getLocalISODate(checkDate);
-            if (isDayComplete(todayIso)) streak++;
-            
-            checkDate.setDate(checkDate.getDate() - 1);
-
-            while (true) {
-                const dateStr = getLocalISODate(checkDate);
-                if (dateStr < getLocalISODate(USER_START_DATE)) break; 
-                if (isDayComplete(dateStr)) {
-                    streak++;
-                    checkDate.setDate(checkDate.getDate() - 1); 
-                } else {
-                    break; 
-                }
-            }
-            
-            const streakEl = document.getElementById('streak-container');
-            const countEl = document.getElementById('streak-count');
-            const medalEl = document.getElementById('medal-icon');
-            
-            if (streak > 0) {
-                streakEl.classList.remove('hidden');
-                countEl.innerText = streak;
-                const dayLabel = streak === 1 ? "Tag" : "Tage";
-                document.getElementById('modal-streak').innerText = `${streak} ${dayLabel}`;
-                
-                let medal = '';
-                if (streak >= 14) medal = '🥇';
-                else if (streak >= 7) medal = '🥈';
-                else if (streak >= 3) medal = '🥉';
-                medalEl.innerText = medal;
-            } else {
-                streakEl.classList.add('hidden');
-                document.getElementById('modal-streak').innerText = `0 Tage`;
-            }
-        }
-
-        // --- COMPLETION CHECK (CLEAN) ---
-        function isDayComplete(dateIso) {
-            const dayOfWeekIndex = new Date(dateIso).getDay();
-            const templateDay = scheduleTemplate.find(d => d.dayIndex === dayOfWeekIndex);
-            if (!templateDay) return false;
-            
-            return templateDay.details.every(ex => {
-                const checkedNew = localStorage.getItem(`${STORAGE_PREFIX}${dateIso}_${ex.id}`) === 'true';
-                if(checkedNew) return true;
-                return false;
-            });
-        }
-
-        function showCompletionPopup() {
-            const modal = document.getElementById('completion-modal');
-            const quoteEl = document.getElementById('modal-quote');
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            quoteEl.innerText = `"${randomQuote}"`;
-            calculateStreak();
-            modal.classList.add('open');
-            superConfetti();
-        }
-
-        function closeModal() {
-            document.getElementById('completion-modal').classList.remove('open');
-        }
-
-        // --- RENDER ---
-        function getComputedSchedule() {
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            
-            const currentDayIndex = today.getDay(); 
-            const distanceToMonday = (currentDayIndex + 6) % 7; 
-            const thisWeekMonday = new Date(today);
-            thisWeekMonday.setDate(today.getDate() - distanceToMonday);
-            const displayedMonday = new Date(thisWeekMonday);
-            displayedMonday.setDate(thisWeekMonday.getDate() + (currentWeekOffset * 7));
-
-            return scheduleTemplate.map((day, idx) => {
-                const targetDate = new Date(displayedMonday);
-                targetDate.setDate(displayedMonday.getDate() + idx);
-                targetDate.setHours(0,0,0,0);
-                
-                const currentYear = new Date().getFullYear();
-                let dateOptions = { day: '2-digit', month: '2-digit' };
-                if (targetDate.getFullYear() !== currentYear) dateOptions.year = 'numeric';
-                const dateStr = targetDate.toLocaleDateString('de-DE', dateOptions);
-                const isoDate = getLocalISODate(targetDate);
-
-                const diffTime = today - targetDate;
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                
-                let isLocked = targetDate > today || diffDays > 3;
-                const isRealToday = getLocalISODate(today) === isoDate;
-
-                return { ...day, displayDate: dateStr, storageDate: isoDate, fullDateObj: targetDate, isRealToday, isLocked };
-            });
-        }
-
-        function renderSchedule() {
-            const container = document.getElementById('schedule-container');
-            container.innerHTML = '';
-            const computedSchedule = getComputedSchedule();
-            
-            const btnPrev = document.getElementById('btn-prev');
-            const weekDisplay = document.getElementById('week-display');
-            btnPrev.disabled = computedSchedule[0].fullDateObj <= new Date(USER_START_DATE);
-            
-            if(currentWeekOffset === 0) weekDisplay.innerText = "Aktuelle Woche";
-            else if(currentWeekOffset > 0) weekDisplay.innerText = `+${currentWeekOffset} Wochen`;
-            else weekDisplay.innerText = `${currentWeekOffset} Wochen`;
-
-            let activeElementId = null;
-
-            computedSchedule.forEach((day) => {
-                const card = document.createElement('div');
-                card.id = `card-${day.storageDate}`;
-                
-                let lockedClass = day.isLocked ? 'day-locked' : '';
-                let activeClass = day.isRealToday ? 'day-active' : '';
-                if(day.isRealToday) activeElementId = `card-${day.storageDate}`;
-
-                card.className = `day-card rounded-2xl bg-slate-800/40 border border-slate-700/50 overflow-hidden cursor-pointer ${activeClass} ${lockedClass}`;
-                
-                if (isDayComplete(day.storageDate)) card.classList.add('day-complete');
-
-                let lockIcon = day.isLocked ? `<span class="bg-slate-700/50 text-slate-500 px-2 py-1 rounded ml-2 flex items-center lock-icon"><i data-lucide="lock" class="w-3 h-3"></i></span>` : '';
-
-                let headerHtml = `
-                    <div class="p-5 flex justify-between items-center card-header-content" onclick="toggleAccordion('${day.storageDate}')">
-                        <div class="flex items-center gap-4">
-                            <div class="${day.bgClass} ${day.colorClass} p-3 rounded-xl">
-                                <i data-lucide="${day.icon}"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-white flex items-center gap-2 flex-wrap">
-                                    ${day.name} 
-                                    <span class="text-slate-500 font-normal text-xs ml-1 bg-slate-900/50 px-2 py-0.5 rounded">${day.displayDate}</span>
-                                    ${day.isRealToday ? '<span class="today-badge">HEUTE</span>' : ''}
-                                    <span class="completed-badge" style="display:${isDayComplete(day.storageDate) ? 'inline-block' : 'none'}" id="badge-${day.storageDate}">DONE</span>
-                                    ${lockIcon}
-                                </h3>
-                                <p class="text-xs ${day.colorClass} font-mono opacity-80 mt-1">${day.theme}</p>
-                            </div>
-                        </div>
-                        <i data-lucide="chevron-down" id="icon-${day.storageDate}" class="text-slate-500 transition-transform duration-300 ${day.isRealToday ? 'rotate-180' : ''}"></i>
-                    </div>
-                `;
-
-                let exercisesHtml = '';
-                day.details.forEach(ex => {
-                    const uniqueKey = `${STORAGE_PREFIX}${day.storageDate}_${ex.id}`;
-                    let isChecked = localStorage.getItem(uniqueKey) === 'true';
-
-                    // --- ALTERNATIVES RENDER LOGIC ---
-                    if (ex.type === 'alternatives') {
-                        let altContent = '';
-                        ex.alternatives.forEach((alt, idx) => {
-                            let altTimersHtml = '';
-                            if (alt.timers) {
-                                altTimersHtml = `<div class="flex gap-2 mt-1 flex-wrap">` + 
-                                    alt.timers.map(t => `<div class="timer-chip" onclick="startSpecificTimer(${t.s}, '${t.l} ${alt.title}')"><i data-lucide="clock" class="w-3 h-3"></i> ${t.l}</div>`).join('') + 
-                                    `</div>`;
-                            }
-                            
-                            altContent += `
-                                <div>
-                                    <div class="font-bold text-white text-lg leading-tight">${alt.title}</div>
-                                    <div class="text-xs text-slate-400 mt-0.5">${alt.desc}</div>
-                                    ${altTimersHtml}
-                                </div>
-                            `;
-                            if (idx < ex.alternatives.length - 1) {
-                                altContent += `<div class="alt-divider">ODER</div>`;
-                            }
-                        });
-
-                        exercisesHtml += `
-                            <div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}" 
-                                 onclick="${day.isLocked ? '' : `toggleCheck(this, '${uniqueKey}', '${day.storageDate}')`}">
-                                <div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1">
-                                    <i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
-                                </div>
-                                <div class="flex-grow exercise-text">
-                                    <div class="phase-badge badge-main mb-1">MISSION</div>
-                                    <div class="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50">
-                                        ${altContent}
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    } 
-                    // --- STANDARD RENDER LOGIC ---
-                    else {
-                        let badgeClass = ex.type === 'warmup' ? 'badge-warmup' : ex.type === 'main' ? 'badge-main' : 'badge-cool';
-                        let badgeText = ex.type === 'warmup' ? 'Warm Up' : ex.type === 'main' ? 'Mission' : 'Cooldown';
-
-                        let timersHtml = '';
-                        if (ex.timers) { 
-                            timersHtml = `<div class="flex gap-2 mt-2 flex-wrap">` + 
-                                ex.timers.map(t => `<div class="timer-chip" onclick="startSpecificTimer(${t.s}, '${t.l} ${ex.title}')"><i data-lucide="clock" class="w-3 h-3"></i> ${t.l}</div>`).join('') + 
-                                `</div>`;
-                        }
-
-                        let rightSide = '';
-                        if (ex.weight) {
-                            const unitKey = `${UNIT_PREFIX}${ex.id}`;
-                            const userUnit = localStorage.getItem(unitKey) || ex.defaultUnit || 'KG';
-                            // CLEAN WEIGHT LOOKUP (NO LEGACY)
-                            const currentWeight = getSmartWeight(ex.id, day.fullDateObj, ex.weight);
-                            
-                            rightSide = `
-                                <div class="weight-box rounded-lg p-2 w-24 flex flex-col items-center justify-center border border-slate-700 bg-slate-900/80 z-10" onclick="event.stopPropagation()">
-                                    <input type="number" 
-                                        inputmode="numeric" 
-                                        pattern="[0-9]*" 
-                                        class="weight-input" 
-                                        value="${currentWeight}" 
-                                        onfocus="focusWeightInput(this)"
-                                        onblur="handleWeightBlur('${ex.id}', '${day.storageDate}', this)"
-                                        onkeydown="if(event.key==='Enter') this.blur()"
-                                    >
-                                    <span class="text-[9px] text-slate-500 uppercase font-bold mt-1 unit-toggle" onclick="toggleUnit('${ex.id}', this)">${userUnit}</span>
-                                </div>`;
-                        }
-
-                        exercisesHtml += `
-                            <div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}" 
-                                 onclick="${day.isLocked ? '' : `toggleCheck(this, '${uniqueKey}', '${day.storageDate}')`}">
-                                <div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1">
-                                    <i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
-                                </div>
-                                <div class="flex-grow exercise-text">
-                                    <div class="${badgeClass} mb-1">${badgeText}</div>
-                                    <div class="font-bold text-white text-lg leading-tight">${ex.title}</div>
-                                    <div class="text-xs text-slate-400 mt-0.5">${ex.desc}</div>
-                                    ${timersHtml}
-                                </div>
-                                ${rightSide}
-                            </div>
-                        `;
-                    }
-                });
-
-                const noteKey = `${NOTE_PREFIX}${day.storageDate}`;
-                const savedNote = localStorage.getItem(noteKey) || '';
-                const prevMemo = getPreviousMemo(day.storageDate);
-                let prevMemoHtml = prevMemo ? `<div class="mt-2 p-3 rounded-lg border border-dashed border-slate-700 bg-slate-800/50"><div class="text-[10px] text-slate-500 uppercase flex items-center gap-1 mb-1"><i data-lucide="history" class="w-3 h-3"></i> Memo von letzter Woche</div><div class="text-sm text-slate-400 italic">"${prevMemo}"</div></div>` : '';
-                
-                const detailsHtml = `
-                    <div id="details-${day.storageDate}" class="${day.isRealToday ? '' : 'hidden'} border-t border-slate-700/50 bg-slate-900/30">
-                        <div class="p-5">
-                            ${exercisesHtml}
-                            <div class="mt-4 pt-4 border-t border-slate-800">
-                                <label class="text-[10px] text-slate-500 uppercase font-bold mb-2 block tracking-wider">Logbuch</label>
-                                <textarea oninput="saveNote('${noteKey}', this.value)" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-blue-500 transition-colors h-24 resize-none mb-2" placeholder="Notizen...">${savedNote}</textarea>
-                                ${prevMemoHtml}
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                card.innerHTML = headerHtml + detailsHtml;
-                container.appendChild(card);
-            });
-
-            lucide.createIcons();
-            
-            if(activeElementId) {
-                setTimeout(() => {
-                    const el = document.getElementById(activeElementId);
-                    if(el) {
-                        const y = el.getBoundingClientRect().top + window.pageYOffset - 140;
-                        window.scrollTo({top: y, behavior: 'smooth'});
-                    }
-                }, 100);
-            }
-            
-            calculateStreak();
-        }
-
-        // --- HELPERS (CLEAN) ---
-        function getSmartWeight(exerciseId, targetDate, defaultWeight) {
-            let searchDate = new Date(targetDate);
-            searchDate.setHours(0,0,0,0);
-            
-            while (searchDate >= USER_START_DATE) {
-                const dateStr = getLocalISODate(searchDate);
-                const key = `${WEIGHT_PREFIX}${exerciseId}_${dateStr}`;
-                const saved = localStorage.getItem(key);
-                if (saved) return saved;
-                searchDate.setDate(searchDate.getDate() - 1);
-            }
-            return defaultWeight;
-        }
-
-        function getPreviousMemo(targetDateIso) {
-            const current = new Date(targetDateIso);
-            const prevDate = new Date(current);
-            prevDate.setDate(prevDate.getDate() - 7);
-            const prevIso = getLocalISODate(prevDate);
-            return localStorage.getItem(`${NOTE_PREFIX}${prevIso}`);
-        }
-
-        function changeWeek(direction) {
-            if (direction === -1 && document.getElementById('btn-prev').disabled) return;
-            currentWeekOffset += direction;
-            renderSchedule();
-        }
-
-        function toggleAccordion(dateId) {
-            const details = document.getElementById(`details-${dateId}`);
-            const icon = document.getElementById(`icon-${dateId}`);
-            if (details.classList.contains('hidden')) {
-                details.classList.remove('hidden');
-                icon.style.transform = 'rotate(180deg)';
-            } else {
-                details.classList.add('hidden');
-                icon.style.transform = 'rotate(0deg)';
-            }
-        }
-
-        function toggleCheck(row, storageKey, dateId) {
-            row.classList.toggle('completed');
-            if (row.classList.contains('completed')) {
-                localStorage.setItem(storageKey, 'true');
-                miniConfetti(row.querySelector('.check-circle'));
-            } else {
-                localStorage.removeItem(storageKey);
-            }
-            checkDayCompletion(dateId);
-            calculateStreak();
-        }
-
-        function saveNote(key, value) { localStorage.setItem(key, value); }
-        function saveWeight(exId, dateIso, value) { localStorage.setItem(`${WEIGHT_PREFIX}${exId}_${dateIso}`, value); }
-        
-        function toggleUnit(exId, element) {
-            event.stopPropagation();
-            const current = element.innerText;
-            const newUnit = current === 'KG' ? 'STUFE' : 'KG';
-            element.innerText = newUnit;
-            localStorage.setItem(`${UNIT_PREFIX}${exId}`, newUnit);
-        }
-
-        function checkDayCompletion(dateId) {
-            const container = document.getElementById(`details-${dateId}`);
-            const card = document.getElementById(`card-${dateId}`);
-            const badge = document.getElementById(`badge-${dateId}`);
-            if (isDayComplete(dateId)) {
-                if (!card.classList.contains('day-complete')) {
-                    card.classList.add('day-complete');
-                    badge.style.display = 'inline-block';
-                    showCompletionPopup(); 
-                }
-            } else {
-                card.classList.remove('day-complete');
-                badge.style.display = 'none';
-            }
-        }
-
         function exportData() {
             const exportObj = {};
             for (let i = 0; i < localStorage.length; i++) {
@@ -845,11 +895,8 @@
             }());
         }
 
-        window.onload = function() {
-            renderSchedule();
-            setTimeout(() => { document.getElementById('splash-screen').style.opacity = '0'; }, 800);
-            setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; }, 1300);
-        };
+        // START APP
+        window.onload = initApp;
     </script>
 </body>
 </html>
