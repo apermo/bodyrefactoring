@@ -18,7 +18,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95)), url('../../Gemini_Generated_Image_lb6voolb6voolb6v.jpg');
+    background-image: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.75)), url('../../Gemini_Generated_Image_lb6voolb6voolb6v.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -220,7 +220,6 @@ body {
     width: 100%;
     padding: 0;
     margin: 0;
-    -moz-appearance: textfield;
     font-size: 1.5rem;
     border-radius: 0;
 }
