@@ -139,8 +139,8 @@ tail -f deploy.log
    ├── gymlogo.png         \# Icon  
    ├── background.jpg      \# Wallpaper  
    └── trainings/          \# Config Directory  
-   ├── index.php       \# JSON Loader API  
-   └── schedule-2025-12-22.json
+       ├── index.php       \# JSON Loader API  
+       └── schedule-2025-12-22.json
 ```
 
 3. Open the URL in your browser.
