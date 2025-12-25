@@ -83,20 +83,27 @@ REPO_PATH=/var/www/vhosts/your-domain.com/httpdocs
 
 3. **Set permissions:**
 ```bash
-chown -R www-data:www-data /var/www/vhosts/your-domain.com/httpdocs
+# Make .env readable only by owner (security)
 chmod 600 .env
+
+# Ensure git can write to the directory
+# Note: On Plesk, file permissions are usually already correct
+# If you get permission errors, contact your hosting provider
 ```
 
 4. **Git configuration:**
 ```bash
-sudo -u www-data git config user.email "deploy@your-domain.com"
-sudo -u www-data git config user.name "Plesk Deploy"
+git config user.email "deploy@your-domain.com"
+git config user.name "Plesk Deploy"
 ```
 
 5. **SSH key for GitHub:**
 ```bash
-sudo -u www-data ssh-keygen -t ed25519 -C "deploy@your-domain.com"
-sudo -u www-data cat ~/.ssh/id_ed25519.pub
+# Generate SSH key if not already exists
+ssh-keygen -t ed25519 -C "deploy@your-domain.com"
+
+# Display public key to add to GitHub
+cat ~/.ssh/id_ed25519.pub
 ```
 
 Add the public key as a **Deploy Key**:  
