@@ -5,7 +5,7 @@
       { "id": "ex_latziehen", "type": "main", "title": "Latziehen", "desc": "3 x 12 Wdh", "weight": "3", "defaultUnit": "STUFE" },
       { "id": "ex_brustpresse", "type": "main", "title": "Brustpresse", "desc": "3 x 12 Wdh", "weight": "3", "defaultUnit": "STUFE" },
       { "id": "ex_butterfly", "type": "main", "title": "Butterfly", "desc": "2 x 12 Wdh", "weight": "2", "defaultUnit": "STUFE" },
-      { "id": "cool_stretch", "type": "cool", "title": "Cooldown", "desc": "Stretching", "timers": [{"l":"3 Min", "s":180}, {"l":"5 Min", "s:300"}] }
+      { "id": "cool_stretch", "type": "cool", "title": "Cooldown", "desc": "Stretching", "timers": [{"l":"3 Min", "s":180}, {"l":"5 Min", "s":300}] }
   ]},
   { "id": "tue", "dayIndex": 2, "name": "DIENSTAG", "theme": "Active Office (NEAT)", "icon": "footprints", "colorClass": "text-emerald-400", "bgClass": "bg-emerald-500/10", "details": [
       { "id": "warmup_mob", "type": "warmup", "title": "Joint Mobility", "desc": "Beine ausschütteln", "timers": [{"l":"1 Min", "s":60}] },
