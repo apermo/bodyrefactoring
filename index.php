@@ -1,7 +1,7 @@
 <?php
 require_once 'assets/cachebuster.php';
 
-$version = '8.0';
+$version = '8.0.1';
 
 ?>
 <!DOCTYPE html>
