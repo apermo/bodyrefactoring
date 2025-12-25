@@ -43,6 +43,41 @@ serve dynamic, evolvable training schedules without breaking historical data.
 * **Haptic Feedback:** Vibrations on timer completion.
 * **Input Optimization:** Custom numeric input handling for easier weight logging on mobile.
 
+## **🏗️ Architecture**
+
+### **File Structure**
+
+```
+bodyrefactoring/
+├── index.php                  # Main application entry point (PHP for cache busting)
+├── assets/
+│   ├── cachebuster.php       # Cache busting helper function
+│   ├── css/
+│   │   └── styles.css        # All application styles
+│   └── js/
+│       └── app.js            # All application logic
+├── trainings/
+│   ├── index.php             # API endpoint for available schedules
+│   └── *.json                # Training schedule files
+├── deploy.php                # GitHub webhook handler
+├── .env                      # Environment configuration (not in repo)
+└── .htaccess                 # Apache configuration
+```
+
+### **Cache Busting**
+
+The app uses file modification timestamps for automatic cache invalidation:
+- CSS and JS files are loaded with `?v=<timestamp>` query parameter
+- Ensures users always get the latest version after updates
+- Implemented via PHP's `filemtime()` function
+
+### **Separation of Concerns**
+
+- **HTML (index.php)**: Structure and layout only
+- **CSS (assets/css/styles.css)**: All styling and animations
+- **JavaScript (assets/js/app.js)**: All application logic and interactivity
+- **PHP Backend**: Dynamic schedule loading and cache busting
+
 ## **🚀 Installation & Setup**
 
 Unlike the initial version, v8.0+ requires a web server (Apache/Nginx/PHP) to list the schedule files.
