@@ -164,6 +164,12 @@ $version = '8.0';
         startDate: null         // Derived from first schedule
     };
 
+    // Timer State
+    let timerInterval = null;
+    let isRunning = false;
+    let timeLeft = 0;
+    let currentTimerLabel = "";
+
     const quotes = [
         "Stark! Wieder einen Tag geschafft.",
         "Konsistenz ist der Schlüssel zum Erfolg.",
