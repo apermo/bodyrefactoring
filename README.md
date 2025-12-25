@@ -47,6 +47,75 @@ serve dynamic, evolvable training schedules without breaking historical data.
 
 Unlike the initial version, v8.0+ requires a web server (Apache/Nginx/PHP) to list the schedule files.
 
+## **🔄 Automatic Deployment (Plesk)**
+
+This repository supports automatic deployment via GitHub Webhooks to Plesk-powered web hosting.
+
+### **Server Setup**
+
+1. **Clone repository:**
+```bash
+cd /var/www/vhosts/your-domain.com
+git clone git@github.com:apermo/bodyrefactoring.git httpdocs
+cd httpdocs
+```
+
+2. **Create .env file:**
+```bash
+cp .env.example .env
+```
+
+Generate a secure secret:
+```bash
+openssl rand -hex 32
+```
+
+Edit `.env` and add the secret:
+```bash
+nano .env
+```
+
+Example:
+```
+DEPLOY_SECRET=a1b2c3d4e5f6...
+REPO_PATH=/var/www/vhosts/your-domain.com/httpdocs
+```
+
+3. **Set permissions:**
+```bash
+chown -R www-data:www-data /var/www/vhosts/your-domain.com/httpdocs
+chmod 600 .env
+```
+
+4. **Git configuration:**
+```bash
+sudo -u www-data git config user.email "deploy@your-domain.com"
+sudo -u www-data git config user.name "Plesk Deploy"
+```
+
+5. **SSH key for GitHub:**
+```bash
+sudo -u www-data ssh-keygen -t ed25519 -C "deploy@your-domain.com"
+sudo -u www-data cat ~/.ssh/id_ed25519.pub
+```
+
+Add the public key as a **Deploy Key**:  
+👉 https://github.com/apermo/bodyrefactoring/settings/keys
+
+6. **Configure GitHub Webhook:**
+   - URL: `https://your-domain.com/deploy.php`
+   - Content-Type: `application/json`
+   - Secret: Your `DEPLOY_SECRET` from `.env`
+   - Events: "Just the push event"
+
+### **Testing**
+
+```bash
+git commit --allow-empty -m "Test deployment"
+git push origin main
+tail -f deploy.log
+```
+
 ### **1\. Requirements**
 
 * A web server with **PHP** support (e.g., XAMPP, Docker, or any standard shared hosting).
