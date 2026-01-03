@@ -100,6 +100,65 @@
 - Use imperative mood: "add" not "added"
 - Provide detailed body if needed (separated by blank line)
 
+## Changelog Management
+
+### Automatic Maintenance
+- **CHANGELOG.md** follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format
+- **Update changelog for EVERY change** made to the codebase
+- Branch names indicate the upcoming version (e.g., `feature/v9.1.0`, `fix/v9.0.1`)
+
+### Changelog Sections
+Use these sections in order (omit empty sections):
+- **Added**: New features
+- **Changed**: Changes in existing functionality
+- **Deprecated**: Soon-to-be removed features
+- **Removed**: Removed features
+- **Fixed**: Bug fixes
+- **Security**: Vulnerability fixes
+
+### Update Process
+1. **For every code change**, update the `[Unreleased]` section
+2. Add entry under appropriate section (Added, Changed, Fixed, etc.)
+3. Use bullet points with descriptive text
+4. Include **bold** for feature names or key components
+5. Be specific but concise
+6. Use present tense: "Add" not "Added", "Fix" not "Fixed"
+
+### Entry Format Examples
+```markdown
+### Added
+- **Sick Mode**: Allow sick mode without shields (breaks streak)
+- Confirmation dialog for unchecking past exercises
+- Export/import for recovery and sick mode data
+
+### Changed
+- Streak calculation now excludes sick days without shield
+- Weight input fields now have better mobile keyboard support
+
+### Fixed
+- Shield counter not visible in header
+- Disabled exercises still checkable in recovery mode
+- Border color not changing for sick/recovery days
+```
+
+### Version Release Process
+When releasing a version:
+1. Move all `[Unreleased]` content to new version section
+2. Add version number and date: `## [X.Y.Z] - YYYY-MM-DD`
+3. Update comparison links at bottom of file
+4. Create new empty `[Unreleased]` section at top
+5. Commit with message: `chore: release version X.Y.Z`
+
+### Versioning Guidelines (Semantic Versioning)
+- **MAJOR** (X.0.0): Breaking changes, incompatible API changes
+- **MINOR** (x.Y.0): New features, backward compatible
+- **PATCH** (x.y.Z): Bug fixes, backward compatible
+
+### Changelog Location
+- File: `/CHANGELOG.md` (root directory)
+- Always use ISO 8601 date format: `YYYY-MM-DD`
+- Link to GitHub compare views at bottom
+
 ## Project Architecture
 
 ### File Structure
