@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Composer integration**: Added `composer.json` for project metadata and dependency management
 - **Centralized version management**: Created `tools.php` with `getAppVersion()` function and `APP_VERSION` constant
+- **Pull request template**: Added `.github/pull_request_template.md` for standardized PR workflow
 
 ### Changed
 
