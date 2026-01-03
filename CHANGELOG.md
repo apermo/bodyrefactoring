@@ -5,7 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [10.0.0] - 2026-01-03
+## [10.0.1] - 2026-01-03
+
+### Added
+
+- **Rep counter breathing animation**: Numbers animate from 100% → 75% (at midpoint) → 50% (at end) over the delay duration with enhanced color transitions and stronger glow effects to visually indicate up/down rep motion
+- **Countdown breathing animation**: 5-4-3-2-1 countdown numbers now breathe with 1-second animation each
+- **Rest timer breathing animation**: Rest timer between sets now breathes with 1-second animation and announces "X Sekunden Pause" at start
+- **Debug mode**: Access app with `#debug` in URL to remove day editing restrictions (indicated by 🐛 DEBUG badge in header)
+
+### Fixed
+
+- **Speech synthesis compatibility**: Fixed audio not working on iOS Safari and Chrome macOS by removing immediate cancel() call, adding proper voice loading, and implementing queue management
+- **Timer animation**: Rep counter animations now properly scoped to modal only, preventing interference with FAB timer
+
+## [9.3.2] - 2026-01-03
+
 
 ### Changed
 

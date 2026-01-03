@@ -17,6 +17,9 @@ const SHIELDS_KEY = 'body_refactoring_shields';
 const SHIELDS_AWARDED_KEY = 'body_refactoring_shields_awarded';
 const MAX_SHIELDS = 3;
 
+// Debug mode - removes day editing restrictions
+const DEBUG_MODE = window.location.hash === '#debug';
+
 // Global State for Dynamic Scheduling
 const state = {
 	availableSchedules: [], // List of { date: 'YYYY-MM-DD', file: '...' }
@@ -60,6 +63,15 @@ const recoveryActivities = [
  * @return {Promise<void>} Resolves when initialization is complete.
  */
 async function initApp() {
+	// Show debug indicator if in debug mode
+	if (DEBUG_MODE) {
+		const debugIndicator = document.getElementById('debug-indicator');
+		if (debugIndicator) {
+			debugIndicator.classList.remove('hidden');
+		}
+		console.log('🐛 DEBUG MODE ACTIVE - All day restrictions removed');
+	}
+
 	try {
 		const response = await fetch('trainings/index.php');
 		if (!response.ok) {
@@ -216,7 +228,7 @@ async function getComputedSchedule() {
 
 		const diffTime = today - targetDate;
 		const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-		let isLocked = targetDate > today || diffDays > 3;
+		let isLocked = DEBUG_MODE ? false : (targetDate > today || diffDays > 3);
 		const isRealToday = getLocalISODate(today) === isoDate;
 
 		// Merge static config with calculated props
@@ -982,25 +994,40 @@ function enableNoSleep() {
  * @return {void}
  */
 function speak(text) {
-	if ('speechSynthesis' in window) {
-		// Cancel any ongoing speech
-		window.speechSynthesis.cancel();
+	if (!('speechSynthesis' in window)) {
+		return;
+	}
 
-		const utterance = new SpeechSynthesisUtterance(text);
-		utterance.lang = 'de-DE';
+	// Wait a bit if speech is currently speaking to avoid conflicts
+	if (window.speechSynthesis.speaking) {
+		setTimeout(() => speak(text), 100);
+		return;
+	}
 
-		// Get available voices
-		let voices = window.speechSynthesis.getVoices();
+	const utterance = new SpeechSynthesisUtterance(text);
+	utterance.lang = 'de-DE';
 
-		// If voices aren't loaded yet, wait for them
-		if (voices.length === 0) {
+	// Natural speech settings - set before voice selection
+	utterance.rate = 0.95;
+	utterance.pitch = 1.0;
+	utterance.volume = 0.9;
+
+	// Get available voices
+	let voices = window.speechSynthesis.getVoices();
+
+	// If voices aren't loaded yet, wait for them
+	if (voices.length === 0) {
+		// Only set the handler once
+		if (!window.speechSynthesis.onvoiceschanged) {
 			window.speechSynthesis.onvoiceschanged = () => {
-				voices = window.speechSynthesis.getVoices();
-				selectVoiceAndSpeak(utterance, voices);
+				const loadedVoices = window.speechSynthesis.getVoices();
+				selectAndSpeak(utterance, loadedVoices);
 			};
-		} else {
-			selectVoiceAndSpeak(utterance, voices);
 		}
+		// Trigger voice loading
+		window.speechSynthesis.getVoices();
+	} else {
+		selectAndSpeak(utterance, voices);
 	}
 }
 
@@ -1011,36 +1038,35 @@ function speak(text) {
  * @param {Array} voices - Available voices.
  * @return {void}
  */
-function selectVoiceAndSpeak(utterance, voices) {
-	// Prefer iOS German voices in order of preference
-	const preferredVoices = [
-		'Anna',           // High quality German female voice (iOS)
-		'Helena',         // Alternative German female voice
-		'Markus',         // German male voice
-		'de-DE',          // Generic German
-	];
+function selectAndSpeak(utterance, voices) {
+	// Find German voices
+	const germanVoices = voices.filter(voice => voice.lang.startsWith('de'));
 
-	// Find the best available voice
+	// Prefer specific voices in order
+	const preferredNames = ['Anna', 'Helena', 'Markus'];
 	let selectedVoice = null;
-	for (const preferred of preferredVoices) {
-		selectedVoice = voices.find(voice =>
-			voice.name.includes(preferred) || voice.lang.startsWith('de')
-		);
-		if (selectedVoice) {
-			break;
-		}
+
+	// Try to find preferred voice
+	for (const name of preferredNames) {
+		selectedVoice = germanVoices.find(voice => voice.name.includes(name));
+		if (selectedVoice) break;
+	}
+
+	// Fallback to any German voice
+	if (!selectedVoice && germanVoices.length > 0) {
+		selectedVoice = germanVoices[0];
 	}
 
 	if (selectedVoice) {
 		utterance.voice = selectedVoice;
 	}
 
-	// Natural speech settings
-	utterance.rate = 1.1;      // Slightly slower for clarity
-	utterance.pitch = 1.0;      // Normal pitch
-	utterance.volume = 1.1;     // Slightly lower volume
-
-	window.speechSynthesis.speak(utterance);
+	// Speak with error handling
+	try {
+		window.speechSynthesis.speak(utterance);
+	} catch (error) {
+		console.error('Speech synthesis error:', error);
+	}
 }
 
 /**
@@ -1175,8 +1201,10 @@ function updateRepCounterModal() {
 	const currentNumberEl = document.getElementById('rep-current-number');
 	currentNumberEl.textContent = repCounterState.currentRep;
 
+	// Remove all animations and dim classes
+	currentNumberEl.classList.remove('rep-pulse', 'rep-breathe', 'rep-number-blue-dim', 'rep-number-green-dim');
+
 	// Trigger pulse animation
-	currentNumberEl.classList.remove('rep-pulse');
 	void currentNumberEl.offsetWidth; // Force reflow
 	currentNumberEl.classList.add('rep-pulse');
 
@@ -1185,8 +1213,10 @@ function updateRepCounterModal() {
 
 	// Change color for last 3 reps
 	const repsRemaining = repCounterState.repsPerSet - repCounterState.currentRep;
-	if (repsRemaining <= 2 && repCounterState.currentRep > 0) {
-		// Last 3 reps (including current): green
+	const isLastThree = repsRemaining <= 2 && repCounterState.currentRep > 0;
+
+	if (isLastThree) {
+		// Last 3 reps: green
 		currentNumberEl.classList.remove('rep-number-blue');
 		currentNumberEl.classList.add('rep-number-green');
 	} else {
@@ -1194,6 +1224,23 @@ function updateRepCounterModal() {
 		currentNumberEl.classList.remove('rep-number-green');
 		currentNumberEl.classList.add('rep-number-blue');
 	}
+
+	// Set CSS variable for breathing animation duration
+	currentNumberEl.style.setProperty('--rep-delay', `${repCounterState.delayMilliseconds}ms`);
+
+	// Start breathing animation after pulse completes
+	setTimeout(() => {
+		currentNumberEl.classList.add('rep-breathe');
+
+		// Change to dim color at midpoint (simulating down motion)
+		setTimeout(() => {
+			if (isLastThree) {
+				currentNumberEl.classList.add('rep-number-green-dim');
+			} else {
+				currentNumberEl.classList.add('rep-number-blue-dim');
+			}
+		}, repCounterState.delayMilliseconds / 2);
+	}, 200);
 
 	document.getElementById('rep-total').textContent =
 		`von ${repCounterState.repsPerSet}`;
@@ -1209,11 +1256,15 @@ function startRepCountdown() {
 
 	const currentNumberEl = document.getElementById('rep-current-number');
 	currentNumberEl.textContent = countdown;
-	currentNumberEl.classList.remove('rep-number-blue', 'rep-number-green', 'rep-number-go');
+	currentNumberEl.classList.remove('rep-number-blue', 'rep-number-green', 'rep-number-go', 'rep-breathe');
 	currentNumberEl.classList.add('rep-number-countdown');
 
 	document.getElementById('rep-total').textContent = '';
 	document.getElementById('rep-status-text').textContent = 'Bereit...';
+
+	// Set 1-second breathing animation for countdown
+	currentNumberEl.style.setProperty('--rep-delay', '1000ms');
+	currentNumberEl.classList.add('rep-breathe');
 
 	// Only speak 3, 2, 1 (not 5, 4)
 	if (countdown === 3) {
@@ -1231,6 +1282,12 @@ function startRepCountdown() {
 		countdown--;
 		if (countdown > 0) {
 			currentNumberEl.textContent = countdown;
+
+			// Restart breathing animation for each number
+			currentNumberEl.classList.remove('rep-breathe');
+			void currentNumberEl.offsetWidth; // Force reflow
+			currentNumberEl.classList.add('rep-breathe');
+
 			// Only speak 3, 2, 1
 			if (countdown <= 3) {
 				speak(`${countdown}`);
@@ -1240,8 +1297,9 @@ function startRepCountdown() {
 
 			// Show "Los!" in big text with green color
 			currentNumberEl.textContent = 'Los!';
-			currentNumberEl.classList.remove('rep-number-countdown');
+			currentNumberEl.classList.remove('rep-number-countdown', 'rep-breathe');
 			currentNumberEl.classList.add('rep-number-go');
+			currentNumberEl.style.removeProperty('--rep-delay');
 			document.getElementById('rep-status-text').textContent = '';
 			speak('Los!');
 
@@ -1328,16 +1386,20 @@ function abortRepCounter() {
 		repStartTimeout = null;
 	}
 
-	// Cancel any ongoing speech
-	if (window.speechSynthesis) {
+	// Stop any ongoing speech
+	if (window.speechSynthesis && window.speechSynthesis.speaking) {
 		window.speechSynthesis.cancel();
 	}
 
 	repCounterState.active = false;
 	isRunning = false;
 
-	speak('Abgebrochen');
 	hideRepCounterModal();
+
+	// Speak after a short delay to ensure cancel has completed
+	setTimeout(() => {
+		speak('Abgebrochen');
+	}, 100);
 }
 
 /**
@@ -1369,9 +1431,19 @@ function startRestPeriod() {
 
 	const currentNumberEl = document.getElementById('rep-current-number');
 
+	// Remove previous classes and set rest styling
+	currentNumberEl.classList.remove('rep-number-blue', 'rep-number-green', 'rep-number-blue-dim', 'rep-number-green-dim', 'rep-breathe');
+	currentNumberEl.classList.add('rep-number-countdown');
+
 	// Start rest timer
 	timeLeft = repCounterState.restSeconds;
 	isRunning = true;
+
+	// Announce rest period
+	speak(`${timeLeft} Sekunden Pause`);
+
+	// Set 1-second breathing animation for rest timer
+	currentNumberEl.style.setProperty('--rep-delay', '1000ms');
 
 	// Add click handler to skip to 5 seconds
 	currentNumberEl.style.cursor = 'pointer';
@@ -1385,6 +1457,11 @@ function startRestPeriod() {
 
 	timerInterval = setInterval(() => {
 		currentNumberEl.textContent = `${timeLeft}s`;
+
+		// Restart breathing animation for each second
+		currentNumberEl.classList.remove('rep-breathe');
+		void currentNumberEl.offsetWidth; // Force reflow
+		currentNumberEl.classList.add('rep-breathe');
 
 		if (timeLeft === 30) {
 			speak('30 Sekunden');
@@ -1406,9 +1483,11 @@ function startRestPeriod() {
 			clearInterval(timerInterval);
 			isRunning = false;
 
-			// Remove click handler
+			// Remove click handler and reset styles
 			currentNumberEl.removeEventListener('click', quickRestHandler);
 			currentNumberEl.style.cursor = '';
+			currentNumberEl.classList.remove('rep-breathe', 'rep-number-countdown');
+			currentNumberEl.style.removeProperty('--rep-delay');
 
 			// Vibrate
 			if (navigator.vibrate) {
