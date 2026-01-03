@@ -5,12 +5,10 @@
  * A web-based interface for creating, editing, and managing training schedule JSON files.
  *
  * @package BodyRefactoring
- * @version 9.1.0
  */
 
+require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/assets/cachebuster.php';
-
-$version = '9.1.0';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -68,7 +66,7 @@ $version = '9.1.0';
 			<h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
 				Schedule Editor
 			</h1>
-			<span class="text-xs text-slate-500 font-mono">v<?php echo $version; ?></span>
+			<span class="text-xs text-slate-500 font-mono">v<?php echo APP_VERSION; ?></span>
 		</div>
 		<p class="text-slate-400 text-sm">Create and edit training schedule JSON files</p>
 	</div>
