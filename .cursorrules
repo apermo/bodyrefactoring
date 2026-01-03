@@ -1,0 +1,249 @@
+# Body Refactoring - AI Development Guidelines
+
+## Project Overview
+
+**Body Refactoring** is a progressive web app (PWA) for personal fitness tracking and habit building. It features:
+- Dynamic JSON-based workout schedules with version control
+- LocalStorage-based data persistence
+- Gamification with streaks, confetti, and completion tracking
+- Smart progressive overload with weight history
+- iOS-optimized PWA with offline capabilities
+- PHP backend for schedule management and deployment automation
+
+## Communication
+
+- **Language**: Always communicate in English for all code, comments, documentation, and commit messages
+- **User Interface**: German language for UI text (this is the target audience language)
+- Exception: User may communicate in German, but all code artifacts must be in English
+
+## Coding Standards
+
+### PHP
+- Follow **WordPress PHP Coding Standards**
+- Use tabs for indentation (not spaces)
+- Always use braces for control structures, even single-line statements
+- Use lowercase for built-in PHP functions
+- Use descriptive variable names with underscores: `$user_data`, `$schedule_file`
+- DocBlocks required for all functions:
+  ```php
+  /**
+   * Brief description.
+   *
+   * @param string $param Description.
+   * @return bool Description.
+   */
+  ```
+
+### HTML
+- Follow **WordPress HTML Coding Standards**
+- Use tabs for indentation
+- Always use double quotes for attributes
+- Semantic HTML5 elements where appropriate
+- Proper indentation for nested elements
+
+### CSS
+- Follow **WordPress CSS Coding Standards**
+- Use tabs for indentation
+- One selector per line in multi-selector rulesets
+- Include a space before opening brace
+- Properties should be on their own line
+- Include a space after the colon
+- Closing brace on its own line
+- Use lowercase for hex colors
+- Use shorthand properties where possible
+- Order properties alphabetically (or by logical grouping)
+- Example:
+  ```css
+  .selector-one,
+  .selector-two {
+      background: #fff;
+      color: #333;
+      display: flex;
+  }
+  ```
+
+### JavaScript
+- Follow **WordPress JavaScript Coding Standards**
+- Use tabs for indentation
+- Use camelCase for variable and function names
+- Use PascalCase for constructor functions
+- Always use `const` or `let`, never `var`
+- Use strict equality: `===` and `!==`
+- Single quotes for strings (unless avoiding escaping)
+- Include JSDoc comments for functions:
+  ```javascript
+  /**
+   * Brief description.
+   *
+   * @param {string} param - Description.
+   * @return {boolean} Description.
+   */
+  ```
+- Use arrow functions for callbacks where appropriate
+- Prefer template literals for string concatenation
+
+## Git Commit Standards
+
+- Use **Conventional Commits** format:
+  - `feat:` New feature
+  - `fix:` Bug fix
+  - `refactor:` Code refactoring
+  - `style:` Formatting, missing semicolons, etc.
+  - `docs:` Documentation changes
+  - `test:` Adding tests
+  - `chore:` Maintenance tasks
+  - `perf:` Performance improvements
+
+- Format: `<type>: <description>`
+- Example: `feat: add confirmation dialog for unchecking past exercises`
+- Keep the first line under 72 characters
+- Use imperative mood: "add" not "added"
+- Provide detailed body if needed (separated by blank line)
+
+## Project Architecture
+
+### File Structure
+```
+bodyrefactoring/
+├── index.php                 # Main app entry point
+├── deploy.php                # GitHub webhook handler
+├── .env                      # Environment config (not in repo)
+├── .htaccess                 # Apache config
+├── assets/
+│   ├── cachebuster.php      # Cache busting helper
+│   ├── css/
+│   │   └── styles.css       # All styles
+│   └── js/
+│       └── app.js           # All JavaScript (when separated)
+└── trainings/
+    ├── index.php            # Schedule API endpoint
+    └── *.json               # Training schedules
+```
+
+### Separation of Concerns
+- **PHP**: Backend logic, cache busting, schedule management
+- **HTML**: Structure and semantic markup only
+- **CSS**: All styling, animations, responsive design
+- **JavaScript**: All client-side logic and interactivity
+- Keep inline styles and scripts to minimum (only when necessary for dynamic content)
+
+### Cache Busting
+- Use PHP `filemtime()` for versioned asset URLs
+- Format: `asset_url?v=<timestamp>`
+- Ensures users always get latest version after updates
+
+### Data Storage
+- **LocalStorage** for all user data (privacy-first approach)
+- Prefix all keys: `body_refactoring_v1_`, `body_refactoring_note_`, etc.
+- Support JSON export/import for backup and device transfer
+- No external tracking or analytics
+
+## Code Patterns
+
+### Dynamic Schedule Loading
+- Schedule files named: `schedule-YYYY-MM-DD.json`
+- App loads the most recent schedule ≤ current date
+- Enables plan evolution without breaking historical data
+- Cache schedules in memory to avoid repeated fetches
+- **Always validate schedules** with `php validate-schedule.php` before committing
+
+### Schedule Validation
+- Validator script: `trainings/validate-schedule.php`
+- JSON Schema: `trainings/schema-schedule-v1.json`
+- Template: `trainings/template-schedule.json`
+- Validates: structure, required fields, data types, ID uniqueness, filename format
+- **Schema version**: All schedules must have `version: 1` at root level
+- Usage: `cd trainings/ && php validate-schedule.php` (auto-scans all schedules)
+- Validate specific: `cd trainings/ && php validate-schedule.php schedule-2026-01-15.json`
+- **CLI only** - web access is blocked for security
+
+### Progressive Overload Logic
+- Weight increases apply to all future workouts
+- Historical data remains unchanged
+- Look back to find last used weight for each exercise
+
+### Gamification
+- Confetti on task completion (canvas-confetti library)
+- Streak calculation based on consecutive completed days
+- Completion modal with motivational quotes
+- Visual feedback for all user actions
+
+## Dependencies
+
+### External Libraries (CDN)
+- **Tailwind CSS**: Utility-first styling
+- **Lucide Icons**: Modern icon set
+- **Canvas Confetti**: Celebration animations
+- **Google Fonts**: JetBrains Mono, Roboto
+
+### PHP Requirements
+- PHP 8.3 is available on the server
+- Functions used: `filemtime()`, `scandir()`, `json_encode()`
+- No database required
+
+## Testing & Validation
+
+- Test on iOS Safari (primary target)
+- Test as installed PWA (Add to Home Screen)
+- Verify offline functionality
+- Test with different screen sizes
+- **Validate JSON schedule files** before committing: `cd trainings/ && php validate-schedule.php`
+- Check localStorage limits (typically 5-10MB)
+
+## Security Considerations
+
+- `.env` file must never be committed
+- Use strong secrets for webhook authentication
+- Sanitize all user inputs (though app is private/local-first)
+- File permissions: `.env` should be `600` (owner read/write only)
+- Deploy script should validate GitHub signatures
+
+## Performance
+
+- Minimize DOM manipulations
+- Cache schedule data in memory
+- Use async/await for schedule loading
+- Lazy load/render only visible content where possible
+- Optimize for mobile devices (primary use case)
+
+## Accessibility
+
+- Semantic HTML elements
+- Proper heading hierarchy
+- ARIA labels where needed
+- Sufficient color contrast
+- Touch targets minimum 44x44px
+- Keyboard navigation support
+
+## Browser Support
+
+- **Primary**: iOS Safari 14+
+- **Secondary**: Chrome Mobile, Firefox Mobile
+- **Desktop**: Modern browsers (Chrome, Firefox, Safari, Edge)
+- Use feature detection for modern APIs (localStorage, speechSynthesis, etc.)
+
+## Development Workflow
+
+1. Make changes locally
+2. Test thoroughly on iOS Safari
+3. Commit with conventional commit message
+4. Push to main branch
+5. Automatic deployment via webhook (if configured)
+6. Verify deployment on production
+
+## Future Considerations
+
+- Consider separating JavaScript into external file (currently inline)
+- Add service worker for true offline support
+- Consider IndexedDB for larger datasets
+- Potential for exercise library expansion
+- Multi-user support (would require backend changes)
+
+## Notes
+
+- This is a personal project with privacy-first approach
+- No external tracking or analytics
+- German UI language, English codebase
+- Optimized for iPhone usage patterns
+- Emphasizes consistency over perfection
+
