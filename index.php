@@ -13,8 +13,8 @@ $version = '9.1.0';
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="apple-mobile-web-app-title" content="BodyRefactoring">
-	<link rel="apple-touch-icon" href="gymlogo.png">
-	<link rel="icon" type="image/png" href="gymlogo.png">
+	<link rel="apple-touch-icon" href="assets/img/gymlogo.png">
+	<link rel="icon" type="image/png" href="assets/img/gymlogo.png">
 	<meta name="robots" content="noindex, nofollow, noarchive">
 	<title>Body Refactoring App v<?php echo $version; ?></title>
 
