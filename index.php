@@ -76,7 +76,6 @@ $version = '8.0.1';
             <div id="streak-container" class="streak-badge hidden">
                 <i data-lucide="flame" class="w-4 h-4 fill-white"></i>
                 <span id="streak-count">0</span>
-                <span id="medal-icon" class="ml-1"></span>
             </div>
 
             <button id="menu-btn" onclick="toggleMenu(event)"
@@ -403,9 +402,9 @@ $version = '8.0.1';
                     });
 
                     exercisesHtml += `
-                            <div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}" 
-                                 onclick="${day.isLocked ? '' : `toggleCheck(this, '${uniqueKey}', '${day.storageDate}')`}">
-                                <div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1">
+                            <div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}">
+                                <div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1 ${day.isLocked ? '' : 'cursor-pointer'}"
+                                     onclick="${day.isLocked ? '' : `toggleCheck(this.parentElement, '${uniqueKey}', '${day.storageDate}')`}">
                                     <i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
                                 </div>
                                 <div class="flex-grow exercise-text">
@@ -449,9 +448,9 @@ $version = '8.0.1';
                     }
 
                     exercisesHtml += `
-                            <div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}" 
-                                 onclick="${day.isLocked ? '' : `toggleCheck(this, '${uniqueKey}', '${day.storageDate}')`}">
-                                <div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1">
+                            <div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}">
+                                <div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1 ${day.isLocked ? '' : 'cursor-pointer'}"
+                                     onclick="${day.isLocked ? '' : `toggleCheck(this.parentElement, '${uniqueKey}', '${day.storageDate}')`}">
                                     <i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
                                 </div>
                                 <div class="flex-grow exercise-text">
@@ -546,6 +545,23 @@ $version = '8.0.1';
     }
 
     function toggleCheck(row, storageKey, dateId) {
+        const isCurrentlyCompleted = row.classList.contains('completed');
+
+        // Check if this is from yesterday or before
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const targetDate = new Date(dateId);
+        targetDate.setHours(0, 0, 0, 0);
+
+        const isPast = targetDate < today;
+
+        // If trying to uncheck a past day, ask for confirmation
+        if (isCurrentlyCompleted && isPast) {
+            if (!confirm('Möchtest du diese abgeschlossene Übung wirklich rückgängig machen?')) {
+                return; // Cancel the action
+            }
+        }
+
         row.classList.toggle('completed');
         if (row.classList.contains('completed')) {
             localStorage.setItem(storageKey, 'true');
@@ -659,18 +675,11 @@ $version = '8.0.1';
 
         const streakEl = document.getElementById('streak-container');
         const countEl = document.getElementById('streak-count');
-        const medalEl = document.getElementById('medal-icon');
 
         if (streak > 0) {
             streakEl.classList.remove('hidden');
             countEl.innerText = streak;
             document.getElementById('modal-streak').innerText = `${streak} Tage`;
-
-            let medal = '';
-            if (streak >= 14) medal = '🥇';
-            else if (streak >= 7) medal = '🥈';
-            else if (streak >= 3) medal = '🥉';
-            medalEl.innerText = medal;
         } else {
             streakEl.classList.add('hidden');
             document.getElementById('modal-streak').innerText = `0 Tage`;

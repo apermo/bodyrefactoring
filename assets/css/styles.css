@@ -89,6 +89,10 @@ body {
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.exercise-row {
+    cursor: default;
+}
+
 .exercise-row.completed .check-circle {
     background-color: #22c55e;
     border-color: #22c55e;
