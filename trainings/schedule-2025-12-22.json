@@ -36,7 +36,13 @@
 					"title": "Beinstrecken",
 					"desc": "2 x 15 Wdh",
 					"weight": "2",
-					"defaultUnit": "STUFE"
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 2,
+						"reps": 15,
+						"restSeconds": 60,
+						"delaySeconds": 3
+					}
 				},
 				{
 					"id": "ex_latziehen",
@@ -44,7 +50,13 @@
 					"title": "Latziehen",
 					"desc": "3 x 12 Wdh",
 					"weight": "3",
-					"defaultUnit": "STUFE"
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
+						"reps": 12,
+						"restSeconds": 60,
+						"delaySeconds": 4
+					}
 				},
 				{
 					"id": "ex_brustpresse",
@@ -52,7 +64,13 @@
 					"title": "Brustpresse",
 					"desc": "3 x 12 Wdh",
 					"weight": "3",
-					"defaultUnit": "STUFE"
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
+						"reps": 12,
+						"restSeconds": 60,
+						"delaySeconds": 3
+					}
 				},
 				{
 					"id": "ex_butterfly",
@@ -60,7 +78,13 @@
 					"title": "Butterfly",
 					"desc": "2 x 12 Wdh",
 					"weight": "2",
-					"defaultUnit": "STUFE"
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 2,
+						"reps": 12,
+						"restSeconds": 60,
+						"delaySeconds": 3
+					}
 				},
 				{
 					"id": "cool_stretch",
@@ -158,7 +182,13 @@
 					"title": "Beinstrecken",
 					"desc": "2 x 15 Wdh",
 					"weight": "2",
-					"defaultUnit": "STUFE"
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 2,
+						"reps": 15,
+						"restSeconds": 60,
+						"delaySeconds": 3
+					}
 				},
 				{
 					"id": "ex_latziehen",
@@ -166,7 +196,13 @@
 					"title": "Latziehen",
 					"desc": "3 x 12 Wdh",
 					"weight": "3",
-					"defaultUnit": "STUFE"
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
+						"reps": 12,
+						"restSeconds": 60,
+						"delaySeconds": 4
+					}
 				},
 				{
 					"id": "ex_brustpresse",
@@ -174,7 +210,13 @@
 					"title": "Brustpresse",
 					"desc": "3 x 12 Wdh",
 					"weight": "3",
-					"defaultUnit": "STUFE"
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
+						"reps": 12,
+						"restSeconds": 60,
+						"delaySeconds": 3
+					}
 				},
 				{
 					"id": "ex_butterfly",
@@ -182,7 +224,13 @@
 					"title": "Butterfly",
 					"desc": "2 x 12 Wdh",
 					"weight": "2",
-					"defaultUnit": "STUFE"
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 2,
+						"reps": 12,
+						"restSeconds": 60,
+						"delaySeconds": 3
+					}
 				},
 				{
 					"id": "cool_foam",

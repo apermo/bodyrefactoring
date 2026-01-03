@@ -14,6 +14,7 @@ const UNIT_PREFIX = 'body_refactoring_unit_';
 const SICK_PREFIX = 'body_refactoring_sick_';
 const RECOVERY_PREFIX = 'body_refactoring_recovery_';
 const SHIELDS_KEY = 'body_refactoring_shields';
+const SHIELDS_AWARDED_KEY = 'body_refactoring_shields_awarded';
 const MAX_SHIELDS = 3;
 
 // Global State for Dynamic Scheduling
@@ -462,6 +463,17 @@ async function renderSchedule() {
 						`</div>`;
 				}
 
+				// Rep counter chip
+				let repCounterHtml = '';
+				if (ex.repCounter) {
+					const rc = ex.repCounter;
+					repCounterHtml = `<div class="flex gap-2 mt-2 flex-wrap">
+						<div class="timer-chip bg-purple-500/20 border-purple-500/40" onclick="startRepCounter('${ex.id}', ${rc.sets}, ${rc.reps}, ${rc.restSeconds}, ${rc.delaySeconds}, '${ex.title}', '${day.storageDate}', '${uniqueKey}')">
+							<i data-lucide="repeat" class="w-3 h-3"></i> ${rc.sets} x ${rc.reps}
+						</div>
+					</div>`;
+				}
+
 				let rightSide = '';
 				if (ex.weight) {
 					const unitKey = `${UNIT_PREFIX}${ex.id}`;
@@ -494,6 +506,7 @@ async function renderSchedule() {
 							<div class="font-bold text-white text-lg leading-tight">${ex.title}</div>
 							<div class="text-xs text-slate-400 mt-0.5">${ex.desc}</div>
 							${timersHtml}
+							${repCounterHtml}
 						</div>
 						${rightSide}
 					</div>
@@ -769,6 +782,9 @@ async function calculateStreak() {
 	let checkDate = new Date();
 	const todayIso = getLocalISODate(checkDate);
 
+	// Get already awarded shield milestones
+	const awardedMilestones = getAwardedShieldMilestones();
+
 	// Check Today
 	let config = await fetchScheduleForDate(todayIso);
 	let dayIdx = checkDate.getDay();
@@ -782,6 +798,11 @@ async function calculateStreak() {
 		streak++;
 		if (todayComplete) {
 			weekCounter++;
+			// Check if this milestone hasn't been awarded yet
+			if (weekCounter % 7 === 0 && !awardedMilestones.has(weekCounter)) {
+				awardShield();
+				addAwardedShieldMilestone(weekCounter);
+			}
 		}
 	}
 
@@ -805,9 +826,10 @@ async function calculateStreak() {
 			streak++;
 			if (dayComplete) {
 				weekCounter++;
-				// Award shield every 7 completed days
-				if (weekCounter % 7 === 0) {
+				// Check if this milestone hasn't been awarded yet
+				if (weekCounter % 7 === 0 && !awardedMilestones.has(weekCounter)) {
 					awardShield();
+					addAwardedShieldMilestone(weekCounter);
 				}
 			}
 			checkDate.setDate(checkDate.getDate() - 1);
@@ -1014,9 +1036,9 @@ function selectVoiceAndSpeak(utterance, voices) {
 	}
 
 	// Natural speech settings
-	utterance.rate = 0.95;      // Slightly slower for clarity
+	utterance.rate = 1.1;      // Slightly slower for clarity
 	utterance.pitch = 1.0;      // Normal pitch
-	utterance.volume = 0.9;     // Slightly lower volume
+	utterance.volume = 1.1;     // Slightly lower volume
 
 	window.speechSynthesis.speak(utterance);
 }
@@ -1046,6 +1068,337 @@ function startSpecificTimer(seconds, label) {
 	document.getElementById('timer-text').innerText = label;
 	const spokenLabel = getSpokenText(label);
 	startTimerLogic(spokenLabel);
+}
+
+// Rep counter state
+let repCounterState = {
+	active: false,
+	exerciseId: '',
+	exerciseTitle: '',
+	exerciseDate: '',
+	exerciseStorageKey: '',
+	totalSets: 0,
+	repsPerSet: 0,
+	restSeconds: 60,
+	delaySeconds: 3,
+	currentSet: 0,
+	currentRep: 0
+};
+let repCounterInterval = null;
+
+/**
+ * Start rep counter workflow.
+ *
+ * @param {string} exerciseId - Exercise identifier.
+ * @param {number} sets - Number of sets.
+ * @param {number} reps - Reps per set.
+ * @param {number} restSeconds - Rest duration between sets.
+ * @param {number} delaySeconds - Seconds per rep.
+ * @param {string} title - Exercise title.
+ * @param {string} date - Exercise date (for storage).
+ * @param {string} storageKey - LocalStorage key for completion tracking.
+ * @return {void}
+ */
+function startRepCounter(exerciseId, sets, reps, restSeconds, delaySeconds, title, date, storageKey) {
+	event.stopPropagation();
+
+	// Reset any existing timer
+	resetTimer();
+	if (repCounterInterval) {
+		clearInterval(repCounterInterval);
+	}
+
+	// Initialize state
+	repCounterState = {
+		active: true,
+		exerciseId: exerciseId,
+		exerciseTitle: title,
+		exerciseDate: date,
+		exerciseStorageKey: storageKey,
+		totalSets: sets,
+		repsPerSet: reps,
+		restSeconds: restSeconds,
+		delaySeconds: delaySeconds,
+		currentSet: 1,
+		currentRep: 0
+	};
+
+	// Show modal
+	showRepCounterModal();
+
+	// Start with 5-second countdown
+	setTimeout(() => {
+		startRepCountdown();
+	}, 300);
+}
+
+/**
+ * Show rep counter modal.
+ *
+ * @return {void}
+ */
+function showRepCounterModal() {
+	const modal = document.getElementById('rep-counter-modal');
+	modal.classList.remove('hidden');
+
+	// Set exercise title
+	document.getElementById('rep-exercise-title').textContent = repCounterState.exerciseTitle;
+
+	// Initialize display
+	updateRepCounterModal();
+
+	// Reinitialize lucide icons
+	lucide.createIcons();
+}
+
+/**
+ * Hide rep counter modal.
+ *
+ * @return {void}
+ */
+function hideRepCounterModal() {
+	const modal = document.getElementById('rep-counter-modal');
+	modal.classList.add('hidden');
+}
+
+/**
+ * Update rep counter modal display.
+ *
+ * @return {void}
+ */
+function updateRepCounterModal() {
+	document.getElementById('rep-set-info').textContent =
+		`Satz ${repCounterState.currentSet} von ${repCounterState.totalSets}`;
+
+	const currentNumberEl = document.getElementById('rep-current-number');
+	currentNumberEl.textContent = repCounterState.currentRep;
+
+	// Trigger pulse animation
+	currentNumberEl.classList.remove('rep-pulse');
+	void currentNumberEl.offsetWidth; // Force reflow
+	currentNumberEl.classList.add('rep-pulse');
+
+	// Change color for last 3 reps
+	const repsRemaining = repCounterState.repsPerSet - repCounterState.currentRep;
+	if (repsRemaining <= 2 && repCounterState.currentRep > 0) {
+		// Last 3 reps (including current): green
+		currentNumberEl.classList.remove('rep-number-blue');
+		currentNumberEl.classList.add('rep-number-green');
+	} else {
+		// Regular reps: blue
+		currentNumberEl.classList.remove('rep-number-green');
+		currentNumberEl.classList.add('rep-number-blue');
+	}
+
+	document.getElementById('rep-total').textContent =
+		`von ${repCounterState.repsPerSet}`;
+}
+
+/**
+ * Start 5-second countdown before first set.
+ *
+ * @return {void}
+ */
+function startRepCountdown() {
+	let countdown = 5;
+
+	document.getElementById('rep-current-number').textContent = countdown;
+	document.getElementById('rep-total').textContent = '';
+	document.getElementById('rep-status-text').textContent = 'Bereit...';
+
+	// Ensure voices are loaded before speaking
+	if (window.speechSynthesis.getVoices().length === 0) {
+		window.speechSynthesis.onvoiceschanged = () => {
+			speak('5');
+		};
+	} else {
+		speak('5');
+	}
+
+	const countdownInterval = setInterval(() => {
+		countdown--;
+		if (countdown > 0) {
+			document.getElementById('rep-current-number').textContent = countdown;
+			speak(`${countdown}`);
+		} else {
+			clearInterval(countdownInterval);
+			document.getElementById('rep-status-text').textContent = 'Los!';
+			speak('Los!');
+			setTimeout(() => {
+				startRepCounting();
+			}, 500);
+		}
+	}, 1000);
+}
+
+/**
+ * Start automatic counting of reps for current set.
+ *
+ * @return {void}
+ */
+function startRepCounting() {
+	repCounterState.currentRep = 0;
+
+	// Update display
+	updateRepCounterModal();
+	document.getElementById('rep-status-text').textContent = 'Führe Wiederholungen aus...';
+
+	// Start automatic rep counting
+	repCounterInterval = setInterval(() => {
+		repCounterState.currentRep++;
+		updateRepCounterModal();
+
+		// Speak rep number
+		speak(`${repCounterState.currentRep}`);
+
+		// Vibrate on each rep
+		if (navigator.vibrate) {
+			navigator.vibrate(50);
+		}
+
+		// Check if set complete
+		if (repCounterState.currentRep >= repCounterState.repsPerSet) {
+			clearInterval(repCounterInterval);
+			setTimeout(() => {
+				completeSet();
+			}, 300);
+		}
+	}, repCounterState.delaySeconds * 1000);
+}
+
+/**
+ * Abort rep counter.
+ *
+ * @return {void}
+ */
+function abortRepCounter() {
+	if (repCounterInterval) {
+		clearInterval(repCounterInterval);
+	}
+	if (timerInterval) {
+		clearInterval(timerInterval);
+	}
+
+	repCounterState.active = false;
+	isRunning = false;
+
+	speak('Abgebrochen');
+	hideRepCounterModal();
+}
+
+/**
+ * Complete current set and start rest or finish exercise.
+ *
+ * @return {void}
+ */
+function completeSet() {
+	repCounterState.currentSet++;
+
+	if (repCounterState.currentSet > repCounterState.totalSets) {
+		// All sets complete
+		finishRepCounter();
+	} else {
+		// Start rest period
+		startRestPeriod();
+	}
+}
+
+/**
+ * Start rest period between sets.
+ *
+ * @return {void}
+ */
+function startRestPeriod() {
+	// Update modal for rest
+	document.getElementById('rep-status-text').textContent = 'Pause';
+	document.getElementById('rep-total').textContent = '';
+
+	// Start rest timer
+	timeLeft = repCounterState.restSeconds;
+	isRunning = true;
+
+	timerInterval = setInterval(() => {
+		document.getElementById('rep-current-number').textContent = `${timeLeft}s`;
+
+		if (timeLeft === 30) {
+			speak('30 Sekunden');
+		}
+		if (timeLeft === 10) {
+			speak('10 Sekunden');
+		}
+		if (timeLeft === 3) {
+			speak('3');
+		}
+		if (timeLeft === 2) {
+			speak('2');
+		}
+		if (timeLeft === 1) {
+			speak('1');
+		}
+
+		if (timeLeft <= 0) {
+			clearInterval(timerInterval);
+			isRunning = false;
+
+			// Vibrate
+			if (navigator.vibrate) {
+				navigator.vibrate([200, 100, 200]);
+			}
+
+			speak('Los!');
+
+			// Start next set
+			setTimeout(() => {
+				startRepCounting();
+			}, 500);
+		}
+
+		timeLeft--;
+	}, 1000);
+}
+
+/**
+ * Finish rep counter workout.
+ *
+ * @return {void}
+ */
+function finishRepCounter() {
+	speak('Fertig!');
+
+	// Confetti celebration
+	confetti({
+		particleCount: 100,
+		spread: 70,
+		origin: { y: 0.6 }
+	});
+
+	// Vibrate
+	if (navigator.vibrate) {
+		navigator.vibrate([300, 100, 300, 100, 300]);
+	}
+
+	// Show completion in modal briefly
+	document.getElementById('rep-status-text').textContent = 'Fertig! 🎉';
+	document.getElementById('rep-current-number').textContent = '✓';
+	document.getElementById('rep-total').textContent = '';
+
+	// Mark exercise as complete
+	if (repCounterState.exerciseStorageKey) {
+		localStorage.setItem(repCounterState.exerciseStorageKey, 'true');
+		checkDayCompletion(repCounterState.exerciseDate);
+		calculateStreak();
+	}
+
+	// Close modal after celebration
+	setTimeout(() => {
+		repCounterState.active = false;
+		hideRepCounterModal();
+
+		// Reload schedule to show completed checkmark
+		if (state.currentDate) {
+			loadSchedule(state.currentDate);
+		}
+	}, 2000);
 }
 
 /**
@@ -1142,7 +1495,7 @@ function exportData() {
 	const exportObj = {};
 	for (let i = 0; i < localStorage.length; i++) {
 		const key = localStorage.key(i);
-		if (key.startsWith(STORAGE_PREFIX) || key.startsWith(NOTE_PREFIX) || key.startsWith(WEIGHT_PREFIX) || key.startsWith(UNIT_PREFIX) || key.startsWith(SICK_PREFIX) || key.startsWith(RECOVERY_PREFIX) || key === SHIELDS_KEY) {
+		if (key.startsWith(STORAGE_PREFIX) || key.startsWith(NOTE_PREFIX) || key.startsWith(WEIGHT_PREFIX) || key.startsWith(UNIT_PREFIX) || key.startsWith(SICK_PREFIX) || key.startsWith(RECOVERY_PREFIX) || key === SHIELDS_KEY || key === SHIELDS_AWARDED_KEY) {
 			exportObj[key] = localStorage.getItem(key);
 		}
 	}
@@ -1173,7 +1526,7 @@ function importData(inputElement) {
 		try {
 			const data = JSON.parse(e.target.result);
 			Object.keys(data).forEach(key => {
-				if (key.startsWith(STORAGE_PREFIX) || key.startsWith(NOTE_PREFIX) || key.startsWith(WEIGHT_PREFIX) || key.startsWith(UNIT_PREFIX) || key.startsWith(SICK_PREFIX) || key.startsWith(RECOVERY_PREFIX) || key === SHIELDS_KEY) {
+				if (key.startsWith(STORAGE_PREFIX) || key.startsWith(NOTE_PREFIX) || key.startsWith(WEIGHT_PREFIX) || key.startsWith(UNIT_PREFIX) || key.startsWith(SICK_PREFIX) || key.startsWith(RECOVERY_PREFIX) || key === SHIELDS_KEY || key === SHIELDS_AWARDED_KEY) {
 					localStorage.setItem(key, data[key]);
 				}
 			});
@@ -1251,6 +1604,36 @@ function superConfetti() {
 function getShields() {
 	const shields = parseInt( localStorage.getItem( SHIELDS_KEY ) || '0' );
 	return Math.min( shields, MAX_SHIELDS );
+}
+
+/**
+ * Get awarded shield milestones.
+ *
+ * @return {Set<number>} Set of milestone numbers that have been awarded.
+ */
+function getAwardedShieldMilestones() {
+	const stored = localStorage.getItem( SHIELDS_AWARDED_KEY );
+	if ( ! stored ) {
+		return new Set();
+	}
+	try {
+		const array = JSON.parse( stored );
+		return new Set( array );
+	} catch ( e ) {
+		return new Set();
+	}
+}
+
+/**
+ * Add a milestone to the awarded list.
+ *
+ * @param {number} milestone - The milestone number (e.g., 7, 14, 21).
+ * @return {void}
+ */
+function addAwardedShieldMilestone( milestone ) {
+	const milestones = getAwardedShieldMilestones();
+	milestones.add( milestone );
+	localStorage.setItem( SHIELDS_AWARDED_KEY, JSON.stringify( Array.from( milestones ) ) );
 }
 
 /**
