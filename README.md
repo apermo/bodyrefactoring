@@ -67,6 +67,7 @@ bodyrefactoring/
 ### **Cache Busting**
 
 The app uses file modification timestamps for automatic cache invalidation:
+
 - CSS and JS files are loaded with `?v=<timestamp>` query parameter
 - Ensures users always get the latest version after updates
 - Implemented via PHP's `filemtime()` function
@@ -89,6 +90,7 @@ This repository supports automatic deployment via GitHub Webhooks to Plesk-power
 ### **Server Setup**
 
 1. **Clone repository:**
+
 ```bash
 cd /var/www/vhosts/your-domain.com
 git clone git@github.com:apermo/bodyrefactoring.git httpdocs
@@ -96,27 +98,32 @@ cd httpdocs
 ```
 
 2. **Create .env file:**
+
 ```bash
 cp .env.example .env
 ```
 
 Generate a secure secret:
+
 ```bash
 openssl rand -hex 32
 ```
 
 Edit `.env` and add the secret:
+
 ```bash
 nano .env
 ```
 
 Example:
+
 ```
 DEPLOY_SECRET=a1b2c3d4e5f6...
 REPO_PATH=/var/www/vhosts/your-domain.com/httpdocs
 ```
 
 3. **Set permissions:**
+
 ```bash
 # Make .env readable only by owner (security)
 chmod 600 .env
@@ -127,12 +134,14 @@ chmod 600 .env
 ```
 
 4. **Git configuration:**
+
 ```bash
 git config user.email "deploy@your-domain.com"
 git config user.name "Plesk Deploy"
 ```
 
 5. **SSH key for GitHub:**
+
 ```bash
 # Generate SSH key if not already exists
 ssh-keygen -t ed25519 -C "deploy@your-domain.com"
@@ -145,10 +154,10 @@ Add the public key as a **Deploy Key**:
 👉 https://github.com/apermo/bodyrefactoring/settings/keys
 
 6. **Configure GitHub Webhook:**
-   - URL: `https://your-domain.com/deploy.php`
-   - Content-Type: `application/json`
-   - Secret: Your `DEPLOY_SECRET` from `.env`
-   - Events: "Just the push event"
+  - URL: `https://your-domain.com/deploy.php`
+  - Content-Type: `application/json`
+  - Secret: Your `DEPLOY_SECRET` from `.env`
+  - Events: "Just the push event"
 
 ### **Testing**
 
@@ -197,16 +206,25 @@ app always selects the schedule that is closest to (but not after) the current d
 [
   {
     "id": "mon",
-    "dayIndex": 1, 
+    "dayIndex": 1,
     "name": "MONDAY",
     "theme": "Push Day",
     "details": [
       {
         "id": "warmup_row",
-        "type": "warmup", 
-        "title": "Rowing", 
-        "desc": "Warmup", 
-        "timers": [{"l":"5 Min", "s":300}, {"l":"10 Min", "s":600}] 
+        "type": "warmup",
+        "title": "Rowing",
+        "desc": "Warmup",
+        "timers": [
+          {
+            "l": "5 Min",
+            "s": 300
+          },
+          {
+            "l": "10 Min",
+            "s": 600
+          }
+        ]
       },
       {
         "id": "ex_benchpress",
@@ -220,8 +238,20 @@ app always selects the schedule that is closest to (but not after) the current d
         "id": "alt_cardio",
         "type": "alternatives",
         "alternatives": [
-           { "title": "Outdoor Run", "desc": "Good weather", "timers": [...] },
-           { "title": "Treadmill", "desc": "Rainy day", "timers": [...] }
+          {
+            "title": "Outdoor Run",
+            "desc": "Good weather",
+            "timers": [
+              ...
+            ]
+          },
+          {
+            "title": "Treadmill",
+            "desc": "Rainy day",
+            "timers": [
+              ...
+            ]
+          }
         ]
       }
     ]

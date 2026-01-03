@@ -1,64 +1,437 @@
 [
-  { "id": "mon", "dayIndex": 1, "name": "MONTAG", "theme": "Ganzkörper Kraft", "icon": "dumbbell", "colorClass": "text-blue-400", "bgClass": "bg-blue-500/10", "details": [
-      { "id": "warmup_row", "type": "warmup", "title": "Rudern", "desc": "Aufwärmen", "timers": [{"l":"5 Min", "s":300}, {"l":"7 Min", "s":420}, {"l":"10 Min", "s":600}] },
-      { "id": "ex_beinstrecken", "type": "main", "title": "Beinstrecken", "desc": "2 x 15 Wdh", "weight": "2", "defaultUnit": "STUFE" },
-      { "id": "ex_latziehen", "type": "main", "title": "Latziehen", "desc": "3 x 12 Wdh", "weight": "3", "defaultUnit": "STUFE" },
-      { "id": "ex_brustpresse", "type": "main", "title": "Brustpresse", "desc": "3 x 12 Wdh", "weight": "3", "defaultUnit": "STUFE" },
-      { "id": "ex_butterfly", "type": "main", "title": "Butterfly", "desc": "2 x 12 Wdh", "weight": "2", "defaultUnit": "STUFE" },
-      { "id": "cool_stretch", "type": "cool", "title": "Cooldown", "desc": "Stretching", "timers": [{"l":"3 Min", "s":180}, {"l":"5 Min", "s":300}] }
-  ]},
-  { "id": "tue", "dayIndex": 2, "name": "DIENSTAG", "theme": "Active Office (NEAT)", "icon": "footprints", "colorClass": "text-emerald-400", "bgClass": "bg-emerald-500/10", "details": [
-      { "id": "warmup_mob", "type": "warmup", "title": "Joint Mobility", "desc": "Beine ausschütteln", "timers": [{"l":"1 Min", "s":60}] },
-      { "id": "ex_walking", "type": "main", "title": "Walkingpad", "desc": "Schritte sammeln", "timers": [{"l":"45 Min", "s":2700}, {"l":"60 Min", "s":3600}] },
-      { "id": "cool_hip", "type": "cool", "title": "Hüftbeuger Dehnen", "desc": "Halten", "timers": [{"l":"2 Min", "s":120}] }
-  ]},
-  { "id": "wed", "dayIndex": 3, "name": "MITTWOCH", "theme": "Ganzkörper Kraft", "icon": "dumbbell", "colorClass": "text-blue-400", "bgClass": "bg-blue-500/10", "details": [
-      { "id": "warmup_blaze", "type": "warmup", "title": "Blazepods", "desc": "Reaction Drill", "timers": [{"l":"5 Min", "s":300}] },
-      { "id": "ex_beinstrecken", "type": "main", "title": "Beinstrecken", "desc": "2 x 15 Wdh", "weight": "2", "defaultUnit": "STUFE" },
-      { "id": "ex_latziehen", "type": "main", "title": "Latziehen", "desc": "3 x 12 Wdh", "weight": "3", "defaultUnit": "STUFE" },
-      { "id": "ex_brustpresse", "type": "main", "title": "Brustpresse", "desc": "3 x 12 Wdh", "weight": "3", "defaultUnit": "STUFE" },
-      { "id": "ex_butterfly", "type": "main", "title": "Butterfly", "desc": "2 x 12 Wdh", "weight": "2", "defaultUnit": "STUFE" },
-      { "id": "cool_foam", "type": "cool", "title": "Cooldown", "desc": "Foam Rolling", "timers": [{"l":"5 Min", "s":300}] }
-  ]},
-  { "id": "thu", "dayIndex": 4, "name": "DONNERSTAG", "theme": "Active Recovery", "icon": "gamepad-2", "colorClass": "text-purple-400", "bgClass": "bg-purple-500/10", "details": [
-      { "id": "warmup_arms", "type": "warmup", "title": "Armkreisen", "desc": "Schultern lockern", "timers": [{"l":"2 Min", "s":120}] },
-      { 
-          "id": "m_alt_group_thu", 
-          "type": "alternatives",
-          "alternatives": [
-              { "title": "Beat Saber (VR)", "desc": "Expert Level", "timers": [{"l":"30 Min", "s":1800}] },
-              { "title": "Yoga", "desc": "Rücken Fokus", "timers": [{"l":"20 Min", "s":1200}] }
-          ] 
-      },
-      { "id": "cool_child", "type": "cool", "title": "Child's Pose", "desc": "Entspannung", "timers": [{"l":"3 Min", "s":180}] }
-  ]},
-  { "id": "fri", "dayIndex": 5, "name": "FREITAG", "theme": "Cardio Battle (Boxen)", "icon": "swords", "colorClass": "text-pink-400", "bgClass": "bg-pink-500/10", "details": [
-      { "id": "warmup_shadow", "type": "warmup", "title": "Schattenboxen", "desc": "Locker bewegen", "timers": [{"l":"3 Min", "s":180}] },
-      { "id": "ex_boxen", "type": "main", "title": "Boxsack & Pods", "desc": "5 Runden", "timers": [{"l":"20 Min", "s":1200}] },
-      { "id": "cool_upper", "type": "cool", "title": "Oberkörper Stretch", "desc": "Dehnen", "timers": [{"l":"5 Min", "s":300}] }
-  ]},
-  { "id": "sat", "dayIndex": 6, "name": "SAMSTAG", "theme": "Nature Walk / Cardio", "icon": "trees", "colorClass": "text-yellow-400", "bgClass": "bg-yellow-500/10", "details": [
-      { "id": "warmup_joints", "type": "warmup", "title": "Gelenke kreisen", "desc": "Vorbereitung", "timers": [{"l":"1 Min", "s":60}] },
-      { 
-          "id": "m_alt_group_sat", 
-          "type": "alternatives", 
-          "alternatives": [
-              { "title": "Nature Walk", "desc": "Draußen (Gut Wetter)", "timers": [{"l":"60 Min", "s":3600}] },
-              { "title": "Indoor Cardio", "desc": "Laufband / Rad", "timers": [{"l":"45 Min", "s":2700}, {"l":"60 Min", "s":3600}] }
-          ]
-      },
-      { "id": "cool_calves", "type": "cool", "title": "Waden dehnen", "desc": "Wichtig!", "timers": [{"l":"2 Min", "s":120}] }
-  ]},
-  { "id": "sun", "dayIndex": 0, "name": "SONNTAG", "theme": "Rest & Recovery", "icon": "coffee", "colorClass": "text-slate-300", "bgClass": "bg-slate-700/50", "details": [
-      { "id": "warmup_mob_sun", "type": "warmup", "title": "Mobilisation", "desc": "Schulterkreisen", "timers": [{"l":"2 Min", "s":120}] },
-      { 
-          "id": "ex_rest_group_sun", 
-          "type": "alternatives",
-          "alternatives": [
-              { "title": "Spaziergang", "desc": "Draußen (Frische Luft)", "timers": [{"l":"30 Min", "s":1800}, {"l":"45 Min", "s":2700}] },
-              { "title": "Walkingpad", "desc": "Indoor (Light)", "timers": [{"l":"30 Min", "s":1800}] }
-          ]
-      },
-      { "id": "cool_mental", "type": "cool", "title": "Mental Reset", "desc": "Wochenplanung", "timers": [{"l":"10 Min", "s":600}] }
-  ]}
+	{
+		"id": "mon",
+		"dayIndex": 1,
+		"name": "MONTAG",
+		"theme": "Ganzkörper Kraft",
+		"icon": "dumbbell",
+		"colorClass": "text-blue-400",
+		"bgClass": "bg-blue-500/10",
+		"details": [
+			{
+				"id": "warmup_row",
+				"type": "warmup",
+				"title": "Rudern",
+				"desc": "Aufwärmen",
+				"timers": [
+					{
+						"l": "5 Min",
+						"s": 300
+					},
+					{
+						"l": "7 Min",
+						"s": 420
+					},
+					{
+						"l": "10 Min",
+						"s": 600
+					}
+				]
+			},
+			{
+				"id": "ex_beinstrecken",
+				"type": "main",
+				"title": "Beinstrecken",
+				"desc": "2 x 15 Wdh",
+				"weight": "2",
+				"defaultUnit": "STUFE"
+			},
+			{
+				"id": "ex_latziehen",
+				"type": "main",
+				"title": "Latziehen",
+				"desc": "3 x 12 Wdh",
+				"weight": "3",
+				"defaultUnit": "STUFE"
+			},
+			{
+				"id": "ex_brustpresse",
+				"type": "main",
+				"title": "Brustpresse",
+				"desc": "3 x 12 Wdh",
+				"weight": "3",
+				"defaultUnit": "STUFE"
+			},
+			{
+				"id": "ex_butterfly",
+				"type": "main",
+				"title": "Butterfly",
+				"desc": "2 x 12 Wdh",
+				"weight": "2",
+				"defaultUnit": "STUFE"
+			},
+			{
+				"id": "cool_stretch",
+				"type": "cool",
+				"title": "Cooldown",
+				"desc": "Stretching",
+				"timers": [
+					{
+						"l": "3 Min",
+						"s": 180
+					},
+					{
+						"l": "5 Min",
+						"s": 300
+					}
+				]
+			}
+		]
+	},
+	{
+		"id": "tue",
+		"dayIndex": 2,
+		"name": "DIENSTAG",
+		"theme": "Active Office (NEAT)",
+		"icon": "footprints",
+		"colorClass": "text-emerald-400",
+		"bgClass": "bg-emerald-500/10",
+		"details": [
+			{
+				"id": "warmup_mob",
+				"type": "warmup",
+				"title": "Joint Mobility",
+				"desc": "Beine ausschütteln",
+				"timers": [
+					{
+						"l": "1 Min",
+						"s": 60
+					}
+				]
+			},
+			{
+				"id": "ex_walking",
+				"type": "main",
+				"title": "Walkingpad",
+				"desc": "Schritte sammeln",
+				"timers": [
+					{
+						"l": "45 Min",
+						"s": 2700
+					},
+					{
+						"l": "60 Min",
+						"s": 3600
+					}
+				]
+			},
+			{
+				"id": "cool_hip",
+				"type": "cool",
+				"title": "Hüftbeuger Dehnen",
+				"desc": "Halten",
+				"timers": [
+					{
+						"l": "2 Min",
+						"s": 120
+					}
+				]
+			}
+		]
+	},
+	{
+		"id": "wed",
+		"dayIndex": 3,
+		"name": "MITTWOCH",
+		"theme": "Ganzkörper Kraft",
+		"icon": "dumbbell",
+		"colorClass": "text-blue-400",
+		"bgClass": "bg-blue-500/10",
+		"details": [
+			{
+				"id": "warmup_blaze",
+				"type": "warmup",
+				"title": "Blazepods",
+				"desc": "Reaction Drill",
+				"timers": [
+					{
+						"l": "5 Min",
+						"s": 300
+					}
+				]
+			},
+			{
+				"id": "ex_beinstrecken",
+				"type": "main",
+				"title": "Beinstrecken",
+				"desc": "2 x 15 Wdh",
+				"weight": "2",
+				"defaultUnit": "STUFE"
+			},
+			{
+				"id": "ex_latziehen",
+				"type": "main",
+				"title": "Latziehen",
+				"desc": "3 x 12 Wdh",
+				"weight": "3",
+				"defaultUnit": "STUFE"
+			},
+			{
+				"id": "ex_brustpresse",
+				"type": "main",
+				"title": "Brustpresse",
+				"desc": "3 x 12 Wdh",
+				"weight": "3",
+				"defaultUnit": "STUFE"
+			},
+			{
+				"id": "ex_butterfly",
+				"type": "main",
+				"title": "Butterfly",
+				"desc": "2 x 12 Wdh",
+				"weight": "2",
+				"defaultUnit": "STUFE"
+			},
+			{
+				"id": "cool_foam",
+				"type": "cool",
+				"title": "Cooldown",
+				"desc": "Foam Rolling",
+				"timers": [
+					{
+						"l": "5 Min",
+						"s": 300
+					}
+				]
+			}
+		]
+	},
+	{
+		"id": "thu",
+		"dayIndex": 4,
+		"name": "DONNERSTAG",
+		"theme": "Active Recovery",
+		"icon": "gamepad-2",
+		"colorClass": "text-purple-400",
+		"bgClass": "bg-purple-500/10",
+		"details": [
+			{
+				"id": "warmup_arms",
+				"type": "warmup",
+				"title": "Armkreisen",
+				"desc": "Schultern lockern",
+				"timers": [
+					{
+						"l": "2 Min",
+						"s": 120
+					}
+				]
+			},
+			{
+				"id": "m_alt_group_thu",
+				"type": "alternatives",
+				"alternatives": [
+					{
+						"title": "Beat Saber (VR)",
+						"desc": "Expert Level",
+						"timers": [
+							{
+								"l": "30 Min",
+								"s": 1800
+							}
+						]
+					},
+					{
+						"title": "Yoga",
+						"desc": "Rücken Fokus",
+						"timers": [
+							{
+								"l": "20 Min",
+								"s": 1200
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "cool_child",
+				"type": "cool",
+				"title": "Child's Pose",
+				"desc": "Entspannung",
+				"timers": [
+					{
+						"l": "3 Min",
+						"s": 180
+					}
+				]
+			}
+		]
+	},
+	{
+		"id": "fri",
+		"dayIndex": 5,
+		"name": "FREITAG",
+		"theme": "Cardio Battle (Boxen)",
+		"icon": "swords",
+		"colorClass": "text-pink-400",
+		"bgClass": "bg-pink-500/10",
+		"details": [
+			{
+				"id": "warmup_shadow",
+				"type": "warmup",
+				"title": "Schattenboxen",
+				"desc": "Locker bewegen",
+				"timers": [
+					{
+						"l": "3 Min",
+						"s": 180
+					}
+				]
+			},
+			{
+				"id": "ex_boxen",
+				"type": "main",
+				"title": "Boxsack & Pods",
+				"desc": "5 Runden",
+				"timers": [
+					{
+						"l": "20 Min",
+						"s": 1200
+					}
+				]
+			},
+			{
+				"id": "cool_upper",
+				"type": "cool",
+				"title": "Oberkörper Stretch",
+				"desc": "Dehnen",
+				"timers": [
+					{
+						"l": "5 Min",
+						"s": 300
+					}
+				]
+			}
+		]
+	},
+	{
+		"id": "sat",
+		"dayIndex": 6,
+		"name": "SAMSTAG",
+		"theme": "Nature Walk / Cardio",
+		"icon": "trees",
+		"colorClass": "text-yellow-400",
+		"bgClass": "bg-yellow-500/10",
+		"details": [
+			{
+				"id": "warmup_joints",
+				"type": "warmup",
+				"title": "Gelenke kreisen",
+				"desc": "Vorbereitung",
+				"timers": [
+					{
+						"l": "1 Min",
+						"s": 60
+					}
+				]
+			},
+			{
+				"id": "m_alt_group_sat",
+				"type": "alternatives",
+				"alternatives": [
+					{
+						"title": "Nature Walk",
+						"desc": "Draußen (Gut Wetter)",
+						"timers": [
+							{
+								"l": "60 Min",
+								"s": 3600
+							}
+						]
+					},
+					{
+						"title": "Indoor Cardio",
+						"desc": "Laufband / Rad",
+						"timers": [
+							{
+								"l": "45 Min",
+								"s": 2700
+							},
+							{
+								"l": "60 Min",
+								"s": 3600
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "cool_calves",
+				"type": "cool",
+				"title": "Waden dehnen",
+				"desc": "Wichtig!",
+				"timers": [
+					{
+						"l": "2 Min",
+						"s": 120
+					}
+				]
+			}
+		]
+	},
+	{
+		"id": "sun",
+		"dayIndex": 0,
+		"name": "SONNTAG",
+		"theme": "Rest & Recovery",
+		"icon": "coffee",
+		"colorClass": "text-slate-300",
+		"bgClass": "bg-slate-700/50",
+		"details": [
+			{
+				"id": "warmup_mob_sun",
+				"type": "warmup",
+				"title": "Mobilisation",
+				"desc": "Schulterkreisen",
+				"timers": [
+					{
+						"l": "2 Min",
+						"s": 120
+					}
+				]
+			},
+			{
+				"id": "ex_rest_group_sun",
+				"type": "alternatives",
+				"alternatives": [
+					{
+						"title": "Spaziergang",
+						"desc": "Draußen (Frische Luft)",
+						"timers": [
+							{
+								"l": "30 Min",
+								"s": 1800
+							},
+							{
+								"l": "45 Min",
+								"s": 2700
+							}
+						]
+					},
+					{
+						"title": "Walkingpad",
+						"desc": "Indoor (Light)",
+						"timers": [
+							{
+								"l": "30 Min",
+								"s": 1800
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "cool_mental",
+				"type": "cool",
+				"title": "Mental Reset",
+				"desc": "Wochenplanung",
+				"timers": [
+					{
+						"l": "10 Min",
+						"s": 600
+					}
+				]
+			}
+		]
+	}
 ]
