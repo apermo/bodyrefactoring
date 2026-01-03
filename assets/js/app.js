@@ -468,7 +468,7 @@ async function renderSchedule() {
 				if (ex.repCounter) {
 					const rc = ex.repCounter;
 					repCounterHtml = `<div class="flex gap-2 mt-2 flex-wrap">
-						<div class="timer-chip bg-purple-500/20 border-purple-500/40" onclick="startRepCounter('${ex.id}', ${rc.sets}, ${rc.reps}, ${rc.restSeconds}, ${rc.delaySeconds}, '${ex.title}', '${day.storageDate}', '${uniqueKey}')">
+						<div class="timer-chip bg-purple-500/20 border-purple-500/40" onclick="startRepCounter('${ex.id}', ${rc.sets}, ${rc.reps}, ${rc.restSeconds}, ${rc.delayMilliseconds}, '${ex.title}', '${day.storageDate}', '${uniqueKey}')">
 							<i data-lucide="repeat" class="w-3 h-3"></i> ${rc.sets} x ${rc.reps}
 						</div>
 					</div>`;
@@ -1080,11 +1080,13 @@ let repCounterState = {
 	totalSets: 0,
 	repsPerSet: 0,
 	restSeconds: 60,
-	delaySeconds: 3,
+	delayMilliseconds: 3000,
 	currentSet: 0,
 	currentRep: 0
 };
 let repCounterInterval = null;
+let repCountdownInterval = null;
+let repStartTimeout = null;
 
 /**
  * Start rep counter workflow.
@@ -1093,13 +1095,13 @@ let repCounterInterval = null;
  * @param {number} sets - Number of sets.
  * @param {number} reps - Reps per set.
  * @param {number} restSeconds - Rest duration between sets.
- * @param {number} delaySeconds - Seconds per rep.
+ * @param {number} delayMilliseconds - Milliseconds per rep.
  * @param {string} title - Exercise title.
  * @param {string} date - Exercise date (for storage).
  * @param {string} storageKey - LocalStorage key for completion tracking.
  * @return {void}
  */
-function startRepCounter(exerciseId, sets, reps, restSeconds, delaySeconds, title, date, storageKey) {
+function startRepCounter(exerciseId, sets, reps, restSeconds, delayMilliseconds, title, date, storageKey) {
 	event.stopPropagation();
 
 	// Reset any existing timer
@@ -1118,7 +1120,7 @@ function startRepCounter(exerciseId, sets, reps, restSeconds, delaySeconds, titl
 		totalSets: sets,
 		repsPerSet: reps,
 		restSeconds: restSeconds,
-		delaySeconds: delaySeconds,
+		delayMilliseconds: delayMilliseconds,
 		currentSet: 1,
 		currentRep: 0
 	};
@@ -1178,6 +1180,9 @@ function updateRepCounterModal() {
 	void currentNumberEl.offsetWidth; // Force reflow
 	currentNumberEl.classList.add('rep-pulse');
 
+	// Remove countdown/go colors if present
+	currentNumberEl.classList.remove('rep-number-countdown', 'rep-number-go');
+
 	// Change color for last 3 reps
 	const repsRemaining = repCounterState.repsPerSet - repCounterState.currentRep;
 	if (repsRemaining <= 2 && repCounterState.currentRep > 0) {
@@ -1202,7 +1207,11 @@ function updateRepCounterModal() {
 function startRepCountdown() {
 	let countdown = 5;
 
-	document.getElementById('rep-current-number').textContent = countdown;
+	const currentNumberEl = document.getElementById('rep-current-number');
+	currentNumberEl.textContent = countdown;
+	currentNumberEl.classList.remove('rep-number-blue', 'rep-number-green', 'rep-number-go');
+	currentNumberEl.classList.add('rep-number-countdown');
+
 	document.getElementById('rep-total').textContent = '';
 	document.getElementById('rep-status-text').textContent = 'Bereit...';
 
@@ -1218,21 +1227,28 @@ function startRepCountdown() {
 		}
 	}
 
-	const countdownInterval = setInterval(() => {
+	repCountdownInterval = setInterval(() => {
 		countdown--;
 		if (countdown > 0) {
-			document.getElementById('rep-current-number').textContent = countdown;
+			currentNumberEl.textContent = countdown;
 			// Only speak 3, 2, 1
 			if (countdown <= 3) {
 				speak(`${countdown}`);
 			}
 		} else {
-			clearInterval(countdownInterval);
-			document.getElementById('rep-status-text').textContent = 'Los!';
+			clearInterval(repCountdownInterval);
+
+			// Show "Los!" in big text with green color
+			currentNumberEl.textContent = 'Los!';
+			currentNumberEl.classList.remove('rep-number-countdown');
+			currentNumberEl.classList.add('rep-number-go');
+			document.getElementById('rep-status-text').textContent = '';
 			speak('Los!');
-			setTimeout(() => {
+
+			// Wait 2 seconds, then start rep counting
+			repStartTimeout = setTimeout(() => {
 				startRepCounting();
-			}, 500);
+			}, 2000);
 		}
 	}, 1000);
 }
@@ -1281,9 +1297,9 @@ function startRepCounting() {
 			clearInterval(repCounterInterval);
 			setTimeout(() => {
 				completeSet();
-			}, repCounterState.delaySeconds * 1000);
+			}, repCounterState.delayMilliseconds);
 		}
-	}, repCounterState.delaySeconds * 1000);
+	}, repCounterState.delayMilliseconds);
 }
 
 /**
@@ -1292,11 +1308,29 @@ function startRepCounting() {
  * @return {void}
  */
 function abortRepCounter() {
+	// Clear all intervals
 	if (repCounterInterval) {
 		clearInterval(repCounterInterval);
+		repCounterInterval = null;
+	}
+	if (repCountdownInterval) {
+		clearInterval(repCountdownInterval);
+		repCountdownInterval = null;
 	}
 	if (timerInterval) {
 		clearInterval(timerInterval);
+		timerInterval = null;
+	}
+
+	// Clear timeouts
+	if (repStartTimeout) {
+		clearTimeout(repStartTimeout);
+		repStartTimeout = null;
+	}
+
+	// Cancel any ongoing speech
+	if (window.speechSynthesis) {
+		window.speechSynthesis.cancel();
 	}
 
 	repCounterState.active = false;
@@ -1330,15 +1364,27 @@ function completeSet() {
  */
 function startRestPeriod() {
 	// Update modal for rest
-	document.getElementById('rep-status-text').textContent = 'Pause';
+	document.getElementById('rep-status-text').textContent = 'Pause (Tippen für 5s)';
 	document.getElementById('rep-total').textContent = '';
+
+	const currentNumberEl = document.getElementById('rep-current-number');
 
 	// Start rest timer
 	timeLeft = repCounterState.restSeconds;
 	isRunning = true;
 
+	// Add click handler to skip to 5 seconds
+	currentNumberEl.style.cursor = 'pointer';
+	const quickRestHandler = () => {
+		if (timeLeft > 5) {
+			timeLeft = 5;
+			speak('5 Sekunden');
+		}
+	};
+	currentNumberEl.addEventListener('click', quickRestHandler);
+
 	timerInterval = setInterval(() => {
-		document.getElementById('rep-current-number').textContent = `${timeLeft}s`;
+		currentNumberEl.textContent = `${timeLeft}s`;
 
 		if (timeLeft === 30) {
 			speak('30 Sekunden');
@@ -1359,6 +1405,10 @@ function startRestPeriod() {
 		if (timeLeft <= 0) {
 			clearInterval(timerInterval);
 			isRunning = false;
+
+			// Remove click handler
+			currentNumberEl.removeEventListener('click', quickRestHandler);
+			currentNumberEl.style.cursor = '';
 
 			// Vibrate
 			if (navigator.vibrate) {

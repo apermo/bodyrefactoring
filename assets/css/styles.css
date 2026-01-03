@@ -374,3 +374,13 @@ body {
 	text-shadow: 0 0 30px rgba(52, 211, 153, 0.5);
 }
 
+.rep-number-countdown {
+	color: #fbbf24;
+	text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+}
+
+.rep-number-go {
+	color: #10b981;
+	text-shadow: 0 0 40px rgba(16, 185, 129, 0.7);
+}
+

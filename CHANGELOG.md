@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.0.0] - 2026-01-03
+
+### Changed
+
+- **Rep counter timing precision**: Changed from `delaySeconds` to `delayMilliseconds` for more precise rep timing control (e.g., 3000ms instead of 3s)
+- **Rep counter visual improvements**: 
+  - Countdown uses yellow color to distinguish from rep counting (blue/green)
+  - "Los!" displayed as large text for 2 seconds before starting rep counting
+  - Clear visual transition from countdown → "Los!" → rep counting
+  - Tap rest timer to skip to 5 seconds for quicker succession between sets
+
+### Fixed
+
+- **Rep counter completion bug**: Fixed issue where exercise was not marked complete after finishing rep counter workout
+- **Rep counter cancel bug**: Fixed issue where canceling did not stop the voice-over and timers properly
+
 ## [9.3.1] - 2026-01-03
 
 ### Changed
@@ -35,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Menu dropdown width issue
+- **Rep counter voice-over abort**: Voice-over now properly stops when canceling the rep counter
 
 ## [9.2.0] - 2026-01-03
 
