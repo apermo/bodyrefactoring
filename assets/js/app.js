@@ -11,6 +11,10 @@ const STORAGE_PREFIX = 'body_refactoring_v1_';
 const NOTE_PREFIX = 'body_refactoring_note_';
 const WEIGHT_PREFIX = 'body_refactoring_weight_';
 const UNIT_PREFIX = 'body_refactoring_unit_';
+const SICK_PREFIX = 'body_refactoring_sick_';
+const RECOVERY_PREFIX = 'body_refactoring_recovery_';
+const SHIELDS_KEY = 'body_refactoring_shields';
+const MAX_SHIELDS = 3;
 
 // Global State for Dynamic Scheduling
 const state = {
@@ -36,6 +40,13 @@ const quotes = [
 	'Ein Schritt näher am Ziel.'
 ];
 
+// Recovery Mode Activities (light activities for sick days)
+const recoveryActivities = [
+	{ id: 'breathing', title: '5 Min Atemübungen', desc: 'Tiefes Ein- und Ausatmen' },
+	{ id: 'stretching', title: 'Leichtes Stretching', desc: '5 Minuten sanfte Dehnübungen' },
+	{ id: 'hydration', title: 'Flüssigkeitszufuhr', desc: '2 Liter Wasser/Tee trinken' }
+];
+
 // --- INIT & DATA FETCHING ---
 
 /**
@@ -59,6 +70,7 @@ async function initApp() {
 		if (state.availableSchedules.length > 0) {
 			state.startDate = new Date(state.availableSchedules[0].date + 'T00:00:00');
 			await renderSchedule(); // Initial render
+			updateShieldDisplay(); // Initialize shields display
 			setTimeout(() => {
 				document.getElementById('splash-screen').style.opacity = '0';
 			}, 800);
@@ -307,7 +319,98 @@ async function renderSchedule() {
 		`;
 
 		let exercisesHtml = '';
-		day.details.forEach(ex => {
+
+		// Check if this is a recovery or sick day
+		const isRecoveryDay = localStorage.getItem( `${RECOVERY_PREFIX}${day.storageDate}_active` ) === 'true';
+		const isSickDayActive = localStorage.getItem( `${SICK_PREFIX}${day.storageDate}_active` ) === 'true';
+
+		if ( isRecoveryDay || isSickDayActive ) {
+			// Show original exercises as disabled/greyed out
+			day.details.forEach( ex => {
+				const simpleTitle = ex.type === 'alternatives' ? ex.alternatives.map( a => a.title ).join( ' / ' ) : ex.title;
+				exercisesHtml += `
+					<div class="flex items-start gap-4 exercise-row py-4 border-b border-slate-800/50 last:border-0 opacity-30">
+						<div class="w-8 h-8 rounded-full border-2 border-slate-500 flex items-center justify-center flex-shrink-0 mt-1">
+							<i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
+						</div>
+						<div class="flex-grow exercise-text">
+							<div class="font-bold text-slate-500 text-lg leading-tight line-through">${simpleTitle}</div>
+							<div class="text-xs text-slate-600 mt-0.5">${ex.desc || 'Heute nicht verfügbar'}</div>
+						</div>
+					</div>
+				`;
+			} );
+
+			// Add recovery or sick activities
+			if ( isRecoveryDay ) {
+				exercisesHtml += `
+					<div class="mt-4 pt-4 border-t-2 border-emerald-500/30">
+						<div class="flex items-center justify-between mb-3">
+							<div class="flex items-center gap-2 text-emerald-400">
+								<div class="text-2xl">🌱</div>
+								<div class="font-bold text-lg">Recovery Modus</div>
+							</div>
+							${day.isLocked ? '' : `<button onclick="backToNormal('${day.storageDate}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg transition flex items-center gap-1"><i data-lucide="x" class="w-3 h-3"></i> Zurück zu Normal</button>`}
+						</div>
+				`;
+
+				recoveryActivities.forEach( activity => {
+					const uniqueKey = `${RECOVERY_PREFIX}${day.storageDate}_${activity.id}`;
+					let isChecked = localStorage.getItem( uniqueKey ) === 'true';
+
+					exercisesHtml += `
+						<div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}">
+							<div class="w-8 h-8 rounded-full border-2 border-emerald-500 check-circle flex items-center justify-center flex-shrink-0 mt-1 ${day.isLocked ? '' : 'cursor-pointer'}"
+								 onclick="${day.isLocked ? '' : `toggleCheck(this.parentElement, '${uniqueKey}', '${day.storageDate}')`}">
+								<i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
+							</div>
+							<div class="flex-grow exercise-text">
+								<div class="badge-main mb-1">Recovery</div>
+								<div class="font-bold text-white text-lg leading-tight">${activity.title}</div>
+								<div class="text-xs text-slate-400 mt-0.5">${activity.desc}</div>
+							</div>
+						</div>
+					`;
+				} );
+
+				exercisesHtml += `</div>`;
+
+			} else if ( isSickDayActive ) {
+				// Sick day - only hydration
+				const uniqueKey = `${SICK_PREFIX}${day.storageDate}_hydration`;
+				let isChecked = localStorage.getItem( uniqueKey ) === 'true';
+				const usedShield = localStorage.getItem( `${SICK_PREFIX}${day.storageDate}_shield` ) === 'true';
+
+				exercisesHtml += `
+					<div class="mt-4 pt-4 border-t-2 border-red-500/30">
+						<div class="flex items-center justify-between mb-3">
+							<div class="flex items-center gap-2 text-red-400">
+								<div class="text-2xl">🛡️</div>
+								<div class="font-bold text-lg">Ruhetag ${usedShield ? '(Schild aktiv)' : '(Streak pausiert)'}</div>
+							</div>
+							${day.isLocked ? '' : `<button onclick="backToNormal('${day.storageDate}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg transition flex items-center gap-1"><i data-lucide="x" class="w-3 h-3"></i> Zurück zu Normal</button>`}
+						</div>
+						<div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}">
+							<div class="w-8 h-8 rounded-full border-2 border-red-500 check-circle flex items-center justify-center flex-shrink-0 mt-1 ${day.isLocked ? '' : 'cursor-pointer'}"
+								 onclick="${day.isLocked ? '' : `toggleCheck(this.parentElement, '${uniqueKey}', '${day.storageDate}')`}">
+								<i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
+							</div>
+							<div class="flex-grow exercise-text">
+								<div class="badge-cool mb-1">Pflicht</div>
+								<div class="font-bold text-white text-lg leading-tight">Flüssigkeitszufuhr</div>
+								<div class="text-xs text-slate-400 mt-0.5">Mindestens 2 Liter Wasser/Tee trinken</div>
+							</div>
+						</div>
+						<div class="mt-3 p-3 bg-red-500/10 rounded-lg border border-red-500/30 text-xs text-red-300">
+							💡 Gute Besserung! Konzentriere dich heute auf Erholung und ausreichend Flüssigkeit.
+							${!usedShield ? '<br><strong>⚠️ Kein Schild verwendet - Streak wird unterbrochen!</strong>' : ''}
+						</div>
+					</div>
+				`;
+			}
+		} else {
+			// Normal day - render regular exercises
+			day.details.forEach(ex => {
 			const uniqueKey = `${STORAGE_PREFIX}${day.storageDate}_${ex.id}`;
 			let isChecked = localStorage.getItem(uniqueKey) === 'true';
 
@@ -397,6 +500,7 @@ async function renderSchedule() {
 				`;
 			}
 		});
+		} // End of normal day rendering
 
 		const noteKey = `${NOTE_PREFIX}${day.storageDate}`;
 		const savedNote = localStorage.getItem(noteKey) || '';
@@ -652,6 +756,8 @@ function checkDayCompletion(dateId) {
  * Calculate the current workout streak.
  *
  * Iterates backwards from today counting consecutive completed days.
+ * Handles sick days (recovery mode) and shield usage.
+ * Awards shields for every 7 consecutive completed days.
  * Updates the streak display in the UI and modal.
  *
  * @async
@@ -659,6 +765,7 @@ function checkDayCompletion(dateId) {
  */
 async function calculateStreak() {
 	let streak = 0;
+	let weekCounter = 0;
 	let checkDate = new Date();
 	const todayIso = getLocalISODate(checkDate);
 
@@ -667,8 +774,15 @@ async function calculateStreak() {
 	let dayIdx = checkDate.getDay();
 	let dayData = config ? config.find(d => d.dayIndex === dayIdx) : null;
 
-	if (dayData && isDayComplete(todayIso, dayData.details)) {
+	const todayComplete = dayData && isDayComplete(todayIso, dayData.details);
+	const todayRecovery = localStorage.getItem( `${RECOVERY_PREFIX}${todayIso}_active` ) === 'true' && isDayComplete(todayIso, []);
+	const todaySickWithShield = localStorage.getItem( `${SICK_PREFIX}${todayIso}_active` ) === 'true' && localStorage.getItem( `${SICK_PREFIX}${todayIso}_shield` ) === 'true' && isDayComplete(todayIso, []);
+
+	if (todayComplete || todayRecovery || todaySickWithShield) {
 		streak++;
+		if (todayComplete) {
+			weekCounter++;
+		}
 	}
 
 	checkDate.setDate(checkDate.getDate() - 1);
@@ -683,8 +797,19 @@ async function calculateStreak() {
 		dayIdx = checkDate.getDay();
 		dayData = config ? config.find(d => d.dayIndex === dayIdx) : null;
 
-		if (dayData && isDayComplete(dateStr, dayData.details)) {
+		const dayComplete = dayData && isDayComplete(dateStr, dayData.details);
+		const recoveryComplete = localStorage.getItem( `${RECOVERY_PREFIX}${dateStr}_active` ) === 'true' && isDayComplete(dateStr, []);
+		const sickDayWithShield = localStorage.getItem( `${SICK_PREFIX}${dateStr}_active` ) === 'true' && localStorage.getItem( `${SICK_PREFIX}${dateStr}_shield` ) === 'true' && isDayComplete(dateStr, []);
+
+		if (dayComplete || recoveryComplete || sickDayWithShield) {
 			streak++;
+			if (dayComplete) {
+				weekCounter++;
+				// Award shield every 7 completed days
+				if (weekCounter % 7 === 0) {
+					awardShield();
+				}
+			}
 			checkDate.setDate(checkDate.getDate() - 1);
 		} else {
 			break;
@@ -702,16 +827,34 @@ async function calculateStreak() {
 		streakEl.classList.add('hidden');
 		document.getElementById('modal-streak').innerText = `0 Tage`;
 	}
+
+	// Update shield display
+	updateShieldDisplay();
 }
 
 /**
  * Check if all exercises in a day are completed.
+ *
+ * Handles normal days, recovery days, and sick days differently.
  *
  * @param {string} dateIso - ISO date string.
  * @param {Array} details - Array of exercise objects for the day.
  * @return {boolean} True if all exercises are completed, false otherwise.
  */
 function isDayComplete(dateIso, details) {
+	// Check if it's a recovery day
+	if ( localStorage.getItem( `${RECOVERY_PREFIX}${dateIso}_active` ) === 'true' ) {
+		return recoveryActivities.every( activity => {
+			return localStorage.getItem( `${RECOVERY_PREFIX}${dateIso}_${activity.id}` ) === 'true';
+		} );
+	}
+
+	// Check if it's a sick day
+	if ( localStorage.getItem( `${SICK_PREFIX}${dateIso}_active` ) === 'true' ) {
+		return localStorage.getItem( `${SICK_PREFIX}${dateIso}_hydration` ) === 'true';
+	}
+
+	// Normal day
 	if (!details || details.length === 0) {
 		return false;
 	}
@@ -944,7 +1087,7 @@ function exportData() {
 	const exportObj = {};
 	for (let i = 0; i < localStorage.length; i++) {
 		const key = localStorage.key(i);
-		if (key.startsWith(STORAGE_PREFIX) || key.startsWith(NOTE_PREFIX) || key.startsWith(WEIGHT_PREFIX) || key.startsWith(UNIT_PREFIX)) {
+		if (key.startsWith(STORAGE_PREFIX) || key.startsWith(NOTE_PREFIX) || key.startsWith(WEIGHT_PREFIX) || key.startsWith(UNIT_PREFIX) || key.startsWith(SICK_PREFIX) || key.startsWith(RECOVERY_PREFIX) || key === SHIELDS_KEY) {
 			exportObj[key] = localStorage.getItem(key);
 		}
 	}
@@ -975,7 +1118,7 @@ function importData(inputElement) {
 		try {
 			const data = JSON.parse(e.target.result);
 			Object.keys(data).forEach(key => {
-				if (key.startsWith(STORAGE_PREFIX) || key.startsWith(NOTE_PREFIX) || key.startsWith(WEIGHT_PREFIX) || key.startsWith(UNIT_PREFIX)) {
+				if (key.startsWith(STORAGE_PREFIX) || key.startsWith(NOTE_PREFIX) || key.startsWith(WEIGHT_PREFIX) || key.startsWith(UNIT_PREFIX) || key.startsWith(SICK_PREFIX) || key.startsWith(RECOVERY_PREFIX) || key === SHIELDS_KEY) {
 					localStorage.setItem(key, data[key]);
 				}
 			});
@@ -1040,6 +1183,220 @@ function superConfetti() {
 			requestAnimationFrame(frame);
 		}
 	}());
+}
+
+// --- SICK MODE / RECOVERY FUNCTIONS ---
+
+
+/**
+ * Get the current number of available shields.
+ *
+ * @return {number} Number of shields (0-3).
+ */
+function getShields() {
+	const shields = parseInt( localStorage.getItem( SHIELDS_KEY ) || '0' );
+	return Math.min( shields, MAX_SHIELDS );
+}
+
+/**
+ * Award a shield for completing a week.
+ *
+ * @return {void}
+ */
+function awardShield() {
+	const current = getShields();
+	if ( current < MAX_SHIELDS ) {
+		localStorage.setItem( SHIELDS_KEY, ( current + 1 ).toString() );
+		updateShieldDisplay();
+		// Show notification
+		showShieldNotification( 'Neuer Schutzschild verdient! 🛡️' );
+	}
+}
+
+
+/**
+ * Update the shield display in the UI.
+ *
+ * @return {void}
+ */
+function updateShieldDisplay() {
+	const shields = getShields();
+	const containers = [
+		document.getElementById( 'shields-container' ),
+		document.getElementById( 'shields-container-modal' )
+	];
+
+	containers.forEach( container => {
+		if ( ! container ) {
+			return;
+		}
+
+		container.innerHTML = '';
+		for ( let i = 0; i < MAX_SHIELDS; i++ ) {
+			const shield = document.createElement( 'span' );
+			shield.className = 'text-xl';
+			shield.innerText = i < shields ? '🛡️' : '⚪';
+			shield.title = i < shields ? 'Schutzschild verfügbar' : 'Kein Schutzschild';
+			container.appendChild( shield );
+		}
+	} );
+}
+
+/**
+ * Show a notification message (temporary).
+ *
+ * @param {string} message - The message to display.
+ * @return {void}
+ */
+function showShieldNotification( message ) {
+	const notification = document.createElement( 'div' );
+	notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-bounce';
+	notification.innerText = message;
+	document.body.appendChild( notification );
+	setTimeout( () => {
+		notification.remove();
+	}, 3000 );
+}
+
+/**
+ * Show the sick mode modal.
+ *
+ * @return {void}
+ */
+function showSickModeModal() {
+	const modal = document.getElementById( 'sick-mode-modal' );
+	if ( modal ) {
+		modal.classList.add( 'open' );
+		updateShieldDisplay();
+	}
+}
+
+/**
+ * Close the sick mode modal.
+ *
+ * @return {void}
+ */
+function closeSickModeModal() {
+	const modal = document.getElementById( 'sick-mode-modal' );
+	if ( modal ) {
+		modal.classList.remove( 'open' );
+	}
+}
+
+/**
+ * Activate recovery mode for today.
+ *
+ * Marks today as a recovery day, disables normal exercises, and shows
+ * recovery activities instead.
+ *
+ * @return {void}
+ */
+function activateRecoveryMode() {
+	const today = getLocalISODate( new Date() );
+	localStorage.setItem( `${RECOVERY_PREFIX}${today}_active`, 'true' );
+	closeSickModeModal();
+	renderSchedule(); // Re-render to show recovery activities
+}
+
+/**
+ * Use a shield for severe illness.
+ *
+ * Uses a shield to mark today as sick day with only hydration requirement.
+ * Can also be used without shield, which will break the streak.
+ *
+ * @return {void}
+ */
+function useSickShield() {
+	const shields = getShields();
+	const today = getLocalISODate( new Date() );
+
+	// Check if already in recovery or sick mode today
+	if ( localStorage.getItem( `${RECOVERY_PREFIX}${today}_active` ) === 'true' ) {
+		alert( 'Heute ist bereits als Recovery-Tag markiert!' );
+		return;
+	}
+
+	if ( localStorage.getItem( `${SICK_PREFIX}${today}_active` ) === 'true' ) {
+		alert( 'Heute ist bereits als Krank-Tag markiert!' );
+		return;
+	}
+
+	if ( shields === 0 ) {
+		// No shields available - offer to use sick mode without shield
+		if ( confirm( '⚠️ Keine Schutzschilder verfügbar!\n\nMöchtest du trotzdem den Krank-Modus aktivieren?\n\nDein Streak wird unterbrochen, aber du kannst die Krankheit dokumentieren.' ) ) {
+			// Mark as sick day without shield
+			localStorage.setItem( `${SICK_PREFIX}${today}_active`, 'true' );
+			localStorage.setItem( `${SICK_PREFIX}${today}_shield`, 'false' );
+			closeSickModeModal();
+			renderSchedule();
+			alert( '✅ Krank-Modus aktiviert (ohne Schild).\n\nGute Besserung! Trinke heute ausreichend Wasser/Tee.\n\n⚠️ Dein Streak wird unterbrochen.' );
+		}
+		return;
+	}
+
+	// Shields available - ask to use one
+	if ( confirm( `Einen Schutzschild verwenden?\n\nDu hast noch ${shields} Schild(e) verfügbar.\nDer Tag wird als Ruhetag gezählt und dein Streak bleibt erhalten.\n\n(Alternativ: Abbrechen und ohne Schild fortfahren - Streak bricht)` ) ) {
+		// Mark as sick day with shield
+		localStorage.setItem( `${SICK_PREFIX}${today}_active`, 'true' );
+		localStorage.setItem( `${SICK_PREFIX}${today}_shield`, 'true' );
+		// Decrement shields
+		localStorage.setItem( SHIELDS_KEY, ( shields - 1 ).toString() );
+		updateShieldDisplay();
+		closeSickModeModal();
+		renderSchedule();
+		alert( '✅ Schutzschild aktiviert! Gute Besserung!\n\nTrinke heute ausreichend Wasser/Tee.\n\n✅ Dein Streak bleibt erhalten.' );
+	} else {
+		// User cancelled - ask if they want to use without shield
+		if ( confirm( '⚠️ Ohne Schild fortfahren?\n\nDein Streak wird unterbrochen, aber du kannst die Krankheit dokumentieren.' ) ) {
+			localStorage.setItem( `${SICK_PREFIX}${today}_active`, 'true' );
+			localStorage.setItem( `${SICK_PREFIX}${today}_shield`, 'false' );
+			closeSickModeModal();
+			renderSchedule();
+			alert( '✅ Krank-Modus aktiviert (ohne Schild).\n\nGute Besserung!\n\n⚠️ Dein Streak wird unterbrochen.' );
+		}
+	}
+}
+
+/**
+ * Return to normal training mode from recovery or sick mode.
+ *
+ * Removes recovery/sick mode flags and restores normal exercises.
+ * Requires confirmation. Also refunds shield if it was used today.
+ *
+ * @param {string} dateIso - ISO date string of the day.
+ * @return {void}
+ */
+function backToNormal( dateIso ) {
+	if ( ! confirm( 'Zurück zum normalen Training?\n\nAlle Recovery- oder Krank-Aktivitäten werden entfernt und normale Übungen wiederhergestellt.' ) ) {
+		return;
+	}
+
+	// Check if shield was used and refund it
+	const usedShield = localStorage.getItem( `${SICK_PREFIX}${dateIso}_shield` ) === 'true';
+	if ( usedShield ) {
+		const shields = getShields();
+		if ( shields < MAX_SHIELDS ) {
+			localStorage.setItem( SHIELDS_KEY, ( shields + 1 ).toString() );
+			updateShieldDisplay();
+		}
+	}
+
+	// Remove all recovery activities
+	recoveryActivities.forEach( activity => {
+		localStorage.removeItem( `${RECOVERY_PREFIX}${dateIso}_${activity.id}` );
+	} );
+	localStorage.removeItem( `${RECOVERY_PREFIX}${dateIso}_active` );
+
+	// Remove sick day data
+	localStorage.removeItem( `${SICK_PREFIX}${dateIso}_active` );
+	localStorage.removeItem( `${SICK_PREFIX}${dateIso}_shield` );
+	localStorage.removeItem( `${SICK_PREFIX}${dateIso}_hydration` );
+
+	// Re-render to show normal day
+	renderSchedule();
+	calculateStreak();
+
+	alert( '✅ Zurück zum normalen Training!' + ( usedShield ? '\n🛡️ Schild wurde zurückerstattet.' : '' ) );
 }
 
 // START APP

@@ -80,6 +80,10 @@ $version = '9.1.0';
 				<span id="streak-count">0</span>
 			</div>
 
+			<div id="shields-container" class="flex gap-1" title="Streak-Schutzschilder">
+				<!-- Shields will be rendered here by JS -->
+			</div>
+
 			<button id="menu-btn" onclick="toggleMenu(event)"
 					class="p-2 bg-slate-800/80 backdrop-blur rounded-lg text-slate-300 border border-slate-700 hover:bg-slate-700 transition">
 				<i data-lucide="menu" class="w-6 h-6"></i>
@@ -88,6 +92,10 @@ $version = '9.1.0';
 
 		<div id="menu-dropdown"
 			 class="hidden absolute right-0 top-16 w-60 bg-slate-800/95 backdrop-blur border border-slate-700 rounded-xl shadow-2xl overflow-hidden flex-col">
+			<button onclick="showSickModeModal()"
+					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3">
+				<i data-lucide="heart-pulse" class="w-4 h-4 text-red-400"></i> Krank / Recovery
+			</button>
 			<button onclick="exportData()"
 					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3">
 				<i data-lucide="download" class="w-4 h-4 text-blue-400"></i> Backup speichern
@@ -149,6 +157,61 @@ $version = '9.1.0';
 			</a>
 		</div>
 	</footer>
+
+	</div>
+
+	<!-- Sick Mode Modal -->
+	<div id="sick-mode-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+		<div class="bg-slate-800 rounded-3xl border-2 border-slate-700 p-6 max-w-md w-full">
+			<div class="text-center mb-6">
+				<div class="text-5xl mb-3">🏥</div>
+				<h2 class="text-2xl font-bold text-white mb-2">Nicht fit für Training?</h2>
+				<p class="text-sm text-slate-400">Wähle eine Option für heute</p>
+			</div>
+
+			<!-- Shield Status -->
+			<div class="bg-slate-900/50 rounded-xl p-3 mb-6 border border-slate-700 text-center">
+				<div class="flex items-center justify-center gap-2 text-sm text-slate-400">
+					<span>Verfügbare Schutzschilder:</span>
+					<div id="shields-container-modal" class="flex gap-1">
+						<!-- Shields rendered by JS -->
+					</div>
+				</div>
+			</div>
+
+			<!-- Recovery Mode Option -->
+			<button onclick="activateRecoveryMode()" class="w-full mb-4 bg-emerald-500/20 hover:bg-emerald-500/30 border-2 border-emerald-500 text-white font-bold py-4 rounded-xl transition group">
+				<div class="flex items-center justify-center gap-3 mb-2">
+					<div class="text-3xl">🌱</div>
+					<div class="text-left flex-1">
+						<div class="text-lg font-bold">Recovery Modus</div>
+						<div class="text-xs text-emerald-300 opacity-80">Leichte Aktivitäten</div>
+					</div>
+				</div>
+				<div class="text-xs text-slate-300 opacity-70 px-4">
+					→ Atemübungen, Stretching, Flüssigkeit
+				</div>
+			</button>
+
+			<!-- Sick Mode Option -->
+			<button onclick="useSickShield()" class="w-full mb-6 bg-red-500/20 hover:bg-red-500/30 border-2 border-red-500 text-white font-bold py-4 rounded-xl transition group">
+				<div class="flex items-center justify-center gap-3 mb-2">
+					<div class="text-3xl">🛡️</div>
+					<div class="text-left flex-1">
+						<div class="text-lg font-bold">Krank (Schild nutzen)</div>
+						<div class="text-xs text-red-300 opacity-80">Bei schwerer Krankheit</div>
+					</div>
+				</div>
+				<div class="text-xs text-slate-300 opacity-70 px-4">
+					→ Nur Flüssigkeit trinken (benötigt 1 Schild)
+				</div>
+			</button>
+
+			<button onclick="closeSickModeModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition">
+				Abbrechen
+			</button>
+		</div>
+	</div>
 
 </div>
 
