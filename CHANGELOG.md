@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Text-to-speech improved for iOS**: Better voice selection (Anna/Helena/Markus preferred), slower rate (0.95 instead of 1.1), natural pitch and volume settings for more natural-sounding timer announcements
+
+## [9.1.0] - 2026-01-03
+
 ### Added
 
 - **Schedule Editor/Generator**: Web-based tool for creating and editing schedule JSON files
@@ -14,14 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Create new schedules with date selection
   - Import schedules from files or paste JSON directly
   - Visual day-by-day editor with tabbed interface
+  - **Drag-and-drop exercise sorting**: Reorder exercises by dragging with grip handle
   - Add, edit, remove, and reorder exercises
   - Full support for all exercise types (warmup, main, cool, alternatives)
   - Built-in validation with error reporting
   - Export schedules as JSON files for Git deployment
+  - **Exercise ID autocomplete**: Suggests existing exercise IDs while allowing new ones
   - Comprehensive form for exercise properties (timers, weights, units, descriptions)
-
-### Changed
-
+- **Schedule Editor Documentation** (`docs/schedule-editor.md`) - Complete guide with workflows, tips, and troubleshooting
 - Changelog file following Keep a Changelog conventions
 - AI Schedule Creation Guide for creating new training schedules
 - Automatic changelog maintenance via .cursorrules
@@ -188,7 +194,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for client-side data
 - Responsive design for mobile devices
 
-[Unreleased]: https://github.com/apermo/bodyrefactoring/compare/v9.0.0...HEAD
+[9.1.0]: https://github.com/apermo/bodyrefactoring/compare/v9.0.0...v9.1.0
 
 [9.0.0]: https://github.com/apermo/bodyrefactoring/compare/v8.0.0...v9.0.0
 

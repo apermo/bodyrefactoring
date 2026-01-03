@@ -8,7 +8,35 @@ serve dynamic, evolvable training schedules without breaking historical data.
 
 ## **📚 Documentation**
 
+- **[Changelog](CHANGELOG.md)** - Complete version history and release notes
+- **[Schedule Editor Guide](docs/schedule-editor.md)** - Complete guide for using the visual schedule editor
 - **[Schedule Validation Guide](docs/schedule-validation.md)** - Complete guide for creating and validating training schedules
+- **[AI Schedule Creation Guide](docs/ai-schedule-creation.md)** - Comprehensive guide for AI assistants to generate new schedule JSON files
+
+## **🛠️ Tools**
+
+### **Schedule Editor**
+
+A web-based visual editor for creating and managing training schedule JSON files.
+
+**Access:** `https://your-domain.com/schedule-editor.php`
+
+**Quick Overview:**
+- 📝 Visual day-by-day editor with tabbed interface
+- 📁 Load existing schedules from server
+- 📤 Import from JSON files or clipboard
+- 📥 Export schedules for Git deployment
+- ➕ Add, edit, remove, and reorder exercises
+- ✅ Built-in validation with error reporting
+
+📖 **[Complete Schedule Editor Documentation](docs/schedule-editor.md)** - Features, workflows, tips, and troubleshooting
+
+**Quick Start:**
+1. Navigate to `schedule-editor.php`
+2. Create new or load existing schedule
+3. Edit days and exercises visually
+4. Validate and export
+5. Deploy via Git workflow
 
 ## **✨ Features**
 

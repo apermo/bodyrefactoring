@@ -96,6 +96,10 @@ $version = '9.1.0';
 					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3">
 				<i data-lucide="heart-pulse" class="w-4 h-4 text-red-400"></i> Krank / Recovery
 			</button>
+			<a href="schedule-editor.php" target="_blank"
+			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3">
+				<i data-lucide="edit" class="w-4 h-4 text-purple-400"></i> Schedule Editor
+			</a>
 			<button onclick="exportData()"
 					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3">
 				<i data-lucide="download" class="w-4 h-4 text-blue-400"></i> Backup speichern
