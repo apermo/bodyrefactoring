@@ -19,8 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Speech synthesis compatibility**: Fixed audio not working on iOS Safari and Chrome macOS by removing immediate cancel() call, adding proper voice loading, and implementing queue management
 - **Timer animation**: Rep counter animations now properly scoped to modal only, preventing interference with FAB timer
 
-## [9.3.2] - 2026-01-03
-
+## [10.0.0] - 2026-01-03
 
 ### Changed
 
