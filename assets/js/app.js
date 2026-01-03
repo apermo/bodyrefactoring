@@ -1206,20 +1206,26 @@ function startRepCountdown() {
 	document.getElementById('rep-total').textContent = '';
 	document.getElementById('rep-status-text').textContent = 'Bereit...';
 
-	// Ensure voices are loaded before speaking
-	if (window.speechSynthesis.getVoices().length === 0) {
-		window.speechSynthesis.onvoiceschanged = () => {
-			speak('5');
-		};
-	} else {
-		speak('5');
+	// Only speak 3, 2, 1 (not 5, 4)
+	if (countdown === 3) {
+		// Ensure voices are loaded before speaking
+		if (window.speechSynthesis.getVoices().length === 0) {
+			window.speechSynthesis.onvoiceschanged = () => {
+				speak('3');
+			};
+		} else {
+			speak('3');
+		}
 	}
 
 	const countdownInterval = setInterval(() => {
 		countdown--;
 		if (countdown > 0) {
 			document.getElementById('rep-current-number').textContent = countdown;
-			speak(`${countdown}`);
+			// Only speak 3, 2, 1
+			if (countdown <= 3) {
+				speak(`${countdown}`);
+			}
 		} else {
 			clearInterval(countdownInterval);
 			document.getElementById('rep-status-text').textContent = 'Los!';
@@ -1237,13 +1243,27 @@ function startRepCountdown() {
  * @return {void}
  */
 function startRepCounting() {
-	repCounterState.currentRep = 0;
+	repCounterState.currentRep = 1;
 
-	// Update display
+	// Update display and speak first rep immediately
 	updateRepCounterModal();
 	document.getElementById('rep-status-text').textContent = 'Führe Wiederholungen aus...';
+	speak('1');
 
-	// Start automatic rep counting
+	// Vibrate on first rep
+	if (navigator.vibrate) {
+		navigator.vibrate(50);
+	}
+
+	// Check if this was the only rep
+	if (repCounterState.currentRep >= repCounterState.repsPerSet) {
+		setTimeout(() => {
+			completeSet();
+		}, 300);
+		return;
+	}
+
+	// Start automatic rep counting for remaining reps
 	repCounterInterval = setInterval(() => {
 		repCounterState.currentRep++;
 		updateRepCounterModal();
@@ -1261,7 +1281,7 @@ function startRepCounting() {
 			clearInterval(repCounterInterval);
 			setTimeout(() => {
 				completeSet();
-			}, 300);
+			}, repCounterState.delaySeconds * 1000);
 		}
 	}, repCounterState.delaySeconds * 1000);
 }
@@ -1382,22 +1402,29 @@ function finishRepCounter() {
 	document.getElementById('rep-current-number').textContent = '✓';
 	document.getElementById('rep-total').textContent = '';
 
-	// Mark exercise as complete
+	// Mark exercise as complete by triggering checkbox click
 	if (repCounterState.exerciseStorageKey) {
-		localStorage.setItem(repCounterState.exerciseStorageKey, 'true');
-		checkDayCompletion(repCounterState.exerciseDate);
-		calculateStreak();
+		// Find the checkbox element for this exercise
+		const checkboxElements = document.querySelectorAll('.check-circle');
+		let clicked = false;
+		checkboxElements.forEach(checkbox => {
+			const row = checkbox.parentElement;
+			// Check if this row's onclick contains our storage key
+			const onclickAttr = checkbox.getAttribute('onclick');
+			if (onclickAttr && onclickAttr.includes(repCounterState.exerciseStorageKey)) {
+				// Only click if not already completed
+				if (!row.classList.contains('completed') && !clicked) {
+					checkbox.click();
+					clicked = true;
+				}
+			}
+		});
 	}
 
 	// Close modal after celebration
 	setTimeout(() => {
 		repCounterState.active = false;
 		hideRepCounterModal();
-
-		// Reload schedule to show completed checkmark
-		if (state.currentDate) {
-			loadSchedule(state.currentDate);
-		}
 	}, 2000);
 }
 

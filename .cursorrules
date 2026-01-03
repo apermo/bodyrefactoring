@@ -290,6 +290,13 @@ bodyrefactoring/
 5. Automatic deployment via webhook (if configured)
 6. Verify deployment on production
 
+## AI Assistant Guidelines
+
+- **Do NOT provide summaries** of changes made
+- After completing changes, simply confirm completion without detailed explanations
+- Only provide technical details if explicitly requested by the user
+- Focus on executing the task efficiently
+
 ## Future Considerations
 
 - Consider separating JavaScript into external file (currently inline)

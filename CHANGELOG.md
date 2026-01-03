@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.3.1] - 2026-01-03
+
+### Changed
+
+- **Rep counter screen update**: Exercise now marked as complete immediately without requiring page reload (triggers checkbox click instead of just setting localStorage)
+- **Rep counter countdown voice**: Now only speaks "3, 2, 1, Los!" instead of "5, 4, 3, 2, 1, Los!" while still displaying all 5 numbers
+- **Rep counter timing**: Now starts counting at 1 (beginning of rep) instead of 0, so the last rep number is visible for the full delay duration before transitioning
+
 ## [9.3.0] - 2026-01-03
 
 ### Changed
@@ -246,27 +254,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for client-side data
 - Responsive design for mobile devices
 
-[9.2.1]: https://github.com/apermo/bodyrefactoring/compare/v9.2.0...v9.2.1
-
-[9.2.0]: https://github.com/apermo/bodyrefactoring/compare/v9.1.0...v9.2.0
-
-[9.1.0]: https://github.com/apermo/bodyrefactoring/compare/v9.0.0...v9.1.0
-
-[9.0.0]: https://github.com/apermo/bodyrefactoring/compare/v8.0.0...v9.0.0
-
-[8.0.0]: https://github.com/apermo/bodyrefactoring/compare/v7.0.0...v8.0.0
-
-[7.0.0]: https://github.com/apermo/bodyrefactoring/compare/v6.0.0...v7.0.0
-
-[6.0.0]: https://github.com/apermo/bodyrefactoring/compare/v5.0.0...v6.0.0
-
-[5.0.0]: https://github.com/apermo/bodyrefactoring/compare/v4.0.0...v5.0.0
-
-[4.0.0]: https://github.com/apermo/bodyrefactoring/compare/v3.0.0...v4.0.0
-
-[3.0.0]: https://github.com/apermo/bodyrefactoring/compare/v2.0.0...v3.0.0
-
-[2.0.0]: https://github.com/apermo/bodyrefactoring/compare/v1.0.0...v2.0.0
-
-[1.0.0]: https://github.com/apermo/bodyrefactoring/releases/tag/v1.0.0
 
