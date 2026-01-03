@@ -5,11 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [9.2.0] - 2026-01-03
+
+### Added
+
+- **Rep Counter (Experimental)**: Automatic vocal rep counting for strength training
+  - Full-screen modal with large display (similar to sick/recovery overlay)
+  - Tap rep counter chip to start workout
+  - 5-second countdown: "5, 4, 3, 2, 1, Los!"
+  - Automatic rep counting based on configurable delay (e.g., every 3-4 seconds)
+  - Voice counts: "1, 2, 3..." automatically timed to your rep pace
+  - Big numbers display with pulse animation on each rep change
+  - Color coding: Blue for regular reps, Green for last 3 reps
+  - Glowing text shadow effect for visual clarity
+  - Set progress shown: "Satz 1 von 3"
+  - Automatic rest timer after completing set with countdown display
+  - Seamless transition to next set after rest
+  - Click abort button to cancel workout
+  - **Automatic exercise completion**: Exercise marked as complete upon successful finish
+  - Abort does not mark exercise as complete
+  - Schedule reloads to show checkmark after completion
+  - Confetti and "Fertig!" on completion
+  - Configured via `repCounter` object with `delaySeconds` for rep timing
+  - Added to all strength training exercises on Monday and Wednesday
+- **JSON Schema updated**: Added `repCounter` object definition to schema-schedule-v1.json (optional field, still v1)
+
+### Fixed
+
+- **Voice-over initialization**: Fixed speech synthesis not loading voices on first use, now properly waits for voice initialization
+- **Shield reward bug**: Shields were being awarded multiple times on app reload. Now tracks awarded milestones to prevent duplicate shield awards at 7, 14, 21+ day intervals
+- **Menu dropdown width**: Fixed burger menu items being too wide, added proper text truncation and consistent width
 
 ### Changed
 
-- **Text-to-speech improved for iOS**: Better voice selection (Anna/Helena/Markus preferred), slower rate (0.95 instead of 1.1), natural pitch and volume settings for more natural-sounding timer announcements
+- **Text-to-speech improved for iOS**: Better voice selection (Anna/Helena/Markus preferred), adjusted rate, natural pitch and volume settings for more natural-sounding timer announcements
 
 ## [9.1.0] - 2026-01-03
 
@@ -193,6 +222,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHP backend for dynamic content
 - LocalStorage for client-side data
 - Responsive design for mobile devices
+
+[9.2.0]: https://github.com/apermo/bodyrefactoring/compare/v9.1.0...v9.2.0
 
 [9.1.0]: https://github.com/apermo/bodyrefactoring/compare/v9.0.0...v9.1.0
 

@@ -91,34 +91,41 @@ $version = '9.1.0';
 		</div>
 
 		<div id="menu-dropdown"
-			 class="hidden absolute right-0 top-16 w-60 bg-slate-800/95 backdrop-blur border border-slate-700 rounded-xl shadow-2xl overflow-hidden flex-col">
+			 class="hidden absolute right-0 top-16 w-56 bg-slate-800/95 backdrop-blur border border-slate-700 rounded-xl shadow-2xl overflow-hidden flex-col">
 			<button onclick="showSickModeModal()"
-					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3">
-				<i data-lucide="heart-pulse" class="w-4 h-4 text-red-400"></i> Krank / Recovery
+					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
+				<i data-lucide="heart-pulse" class="w-4 h-4 text-red-400 flex-shrink-0"></i>
+				<span class="truncate">Krank / Recovery</span>
 			</button>
 			<a href="schedule-editor.php" target="_blank"
-			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3">
-				<i data-lucide="edit" class="w-4 h-4 text-purple-400"></i> Schedule Editor
+			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
+				<i data-lucide="edit" class="w-4 h-4 text-purple-400 flex-shrink-0"></i>
+				<span class="truncate">Schedule Editor</span>
 			</a>
 			<button onclick="exportData()"
-					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3">
-				<i data-lucide="download" class="w-4 h-4 text-blue-400"></i> Backup speichern
+					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
+				<i data-lucide="download" class="w-4 h-4 text-blue-400 flex-shrink-0"></i>
+				<span class="truncate">Backup speichern</span>
 			</button>
 			<button onclick="triggerImport()"
-					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3">
-				<i data-lucide="upload" class="w-4 h-4 text-emerald-400"></i> Backup laden
+					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
+				<i data-lucide="upload" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+				<span class="truncate">Backup laden</span>
 			</button>
 			<button onclick="forceUpdate()"
-					class="px-4 py-3 text-left text-sm text-yellow-400 hover:bg-slate-700 hover:text-yellow-300 flex items-center gap-3 border-b border-slate-700">
-				<i data-lucide="refresh-cw" class="w-4 h-4"></i> App aktualisieren
+					class="px-4 py-3 text-left text-sm text-yellow-400 hover:bg-slate-700 hover:text-yellow-300 flex items-center gap-3 border-b border-slate-700 w-full">
+				<i data-lucide="refresh-cw" class="w-4 h-4 flex-shrink-0"></i>
+				<span class="truncate">App aktualisieren</span>
 			</button>
 			<a href="https://christoph-daum.de" target="_blank"
-			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-3">
-				<i data-lucide="globe" class="w-4 h-4"></i> Website
+			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-3 w-full">
+				<i data-lucide="globe" class="w-4 h-4 flex-shrink-0"></i>
+				<span class="truncate">Website</span>
 			</a>
 			<a href="https://github.com/apermo/bodyrefactoring" target="_blank"
-			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-3">
-				<i data-lucide="github" class="w-4 h-4"></i> GitHub Repo
+			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-3 w-full">
+				<i data-lucide="github" class="w-4 h-4 flex-shrink-0"></i>
+				<span class="truncate">GitHub Repo</span>
 			</a>
 		</div>
 	</div>
@@ -212,6 +219,36 @@ $version = '9.1.0';
 			</button>
 
 			<button onclick="closeSickModeModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition">
+				Abbrechen
+			</button>
+		</div>
+	</div>
+
+	<!-- Rep Counter Modal -->
+	<div id="rep-counter-modal" class="hidden fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[100] flex flex-col items-center justify-center p-8">
+		<div class="w-full max-w-2xl">
+			<!-- Exercise Title -->
+			<div class="text-center mb-8">
+				<h2 id="rep-exercise-title" class="text-3xl font-bold text-white mb-2">Übung</h2>
+				<div id="rep-set-info" class="text-xl text-slate-400">Satz 1 von 3</div>
+			</div>
+
+			<!-- Big Counter Display -->
+			<div class="bg-slate-800/50 rounded-3xl border-2 border-blue-500/30 p-12 mb-8">
+				<div id="rep-counter-display" class="text-center">
+					<div class="text-9xl font-bold rep-number-blue mb-4" id="rep-current-number">0</div>
+					<div class="text-3xl text-slate-400" id="rep-total">von 12</div>
+				</div>
+			</div>
+
+			<!-- Status Text -->
+			<div id="rep-status-text" class="text-center text-2xl text-white mb-8">
+				Bereit...
+			</div>
+
+			<!-- Abort Button -->
+			<button onclick="abortRepCounter()" class="w-full bg-red-500/20 hover:bg-red-500/30 border-2 border-red-500 text-white font-bold py-4 rounded-xl transition">
+				<i data-lucide="x" class="w-6 h-6 inline mr-2"></i>
 				Abbrechen
 			</button>
 		</div>

@@ -111,6 +111,34 @@
 					"items": {
 						"$ref": "#/definitions/timer"
 					}
+				},
+				"repCounter": {
+					"type": "object",
+					"description": "Rep counter configuration for automatic vocal counting",
+					"required": ["sets", "reps", "restSeconds", "delaySeconds"],
+					"properties": {
+						"sets": {
+							"type": "integer",
+							"description": "Number of sets",
+							"minimum": 1
+						},
+						"reps": {
+							"type": "integer",
+							"description": "Repetitions per set",
+							"minimum": 1
+						},
+						"restSeconds": {
+							"type": "integer",
+							"description": "Rest duration between sets in seconds",
+							"minimum": 1
+						},
+						"delaySeconds": {
+							"type": "number",
+							"description": "Seconds per rep for automatic counting",
+							"minimum": 1
+						}
+					},
+					"additionalProperties": false
 				}
 			},
 			"additionalProperties": false
