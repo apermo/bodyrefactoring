@@ -8,7 +8,35 @@ serve dynamic, evolvable training schedules without breaking historical data.
 
 ## **📚 Documentation**
 
+- **[Changelog](CHANGELOG.md)** - Complete version history and release notes
+- **[Schedule Editor Guide](docs/schedule-editor.md)** - Complete guide for using the visual schedule editor
 - **[Schedule Validation Guide](docs/schedule-validation.md)** - Complete guide for creating and validating training schedules
+- **[AI Schedule Creation Guide](docs/ai-schedule-creation.md)** - Comprehensive guide for AI assistants to generate new schedule JSON files
+
+## **🛠️ Tools**
+
+### **Schedule Editor**
+
+A web-based visual editor for creating and managing training schedule JSON files.
+
+**Access:** `https://your-domain.com/schedule-editor.php`
+
+**Quick Overview:**
+- 📝 Visual day-by-day editor with tabbed interface
+- 📁 Load existing schedules from server
+- 📤 Import from JSON files or clipboard
+- 📥 Export schedules for Git deployment
+- ➕ Add, edit, remove, and reorder exercises
+- ✅ Built-in validation with error reporting
+
+📖 **[Complete Schedule Editor Documentation](docs/schedule-editor.md)** - Features, workflows, tips, and troubleshooting
+
+**Quick Start:**
+1. Navigate to `schedule-editor.php`
+2. Create new or load existing schedule
+3. Edit days and exercises visually
+4. Validate and export
+5. Deploy via Git workflow
 
 ## **✨ Features**
 
@@ -23,10 +51,19 @@ serve dynamic, evolvable training schedules without breaking historical data.
 
 * **Visual Feedback:** Confetti showers for every completed set and a massive fireworks display when a day is fully
   completed.
-* **Streaks:** Tracks your consistency with visual flame counters and medals (Bronze/Silver/Gold).
+* **Streaks:** Tracks your consistency with visual flame counters.
+* **Streak Insurance:** Earn up to 3 shields (🛡️) by completing 7 consecutive training days. Use shields when severely ill to maintain your streak.
 * **NoSleep Mode:** Prevents iOS Safari from locking the screen during workouts using a background video hack.
 * **Sound & Speech:** Integrated Text-to-Speech announces timer starts and completion naturally (e.g., "5 Minutes Rowing
   started").
+
+### **🏥 Sick Mode / Recovery System**
+
+* **Recovery Mode:** When feeling under the weather but not fully sick, activate recovery mode with 3 light activities (breathing exercises, light stretching, hydration). Completing all 3 maintains your streak.
+* **Sick Mode with Shield:** Use a streak insurance shield when severely ill. Only requires hydration tracking and preserves your streak.
+* **Sick Mode without Shield:** Document longer illnesses even without shields. Breaks the streak but maintains honest tracking.
+* **Back to Normal:** Cancel recovery or sick mode anytime during the day if you feel better. Shields are refunded automatically.
+* **Visual Integration:** Original exercises are shown as disabled/greyed out, recovery or sick activities are displayed inline with clear visual distinction.
 
 ### **📈 Smart Progressive Overload**
 
@@ -199,6 +236,61 @@ tail -f deploy.log
 1. Open the URL in **Safari**.
 2. Tap the **Share Button** (square with an upward arrow).
 3. Select **"Add to Home Screen"**.
+
+## **💪 Usage**
+
+### **Daily Training**
+
+- Complete exercises by tapping the checkboxes
+- Adjust weights inline - they automatically carry forward to future workouts
+- Use timers for cardio and timed exercises
+- Add notes in the logbook section
+
+### **Sick Mode / Recovery**
+
+**When to use:**
+- **Recovery Mode**: Minor illness, not feeling 100%, or preventive rest day
+- **Sick Mode**: Moderate to severe illness, unable to complete normal training
+
+**How to use:**
+
+1. **Access Sick Mode:**
+   - Click the menu button (☰) in the top right
+   - Select "Krank / Recovery"
+
+2. **Choose Your Option:**
+
+   **🌱 Recovery Mode** (No shield required)
+   - Light activities to maintain streak
+   - Complete 3 simple tasks:
+     - 5 Min breathing exercises
+     - Light stretching
+     - Hydration (2L water/tea)
+   - Streak continues ✅
+   - Original exercises shown as disabled
+   
+   **🛡️ Sick Mode with Shield** (Requires 1 shield)
+   - Only requires hydration tracking
+   - Streak continues ✅
+   - Shield is consumed
+   - Best for severe illness
+   
+   **🛡️ Sick Mode without Shield**
+   - Available when no shields left
+   - Only requires hydration tracking
+   - Streak breaks ⚠️
+   - Allows proper documentation of longer illness
+
+3. **Back to Normal:**
+   - If you feel better during the day, click "Zurück zu Normal" button
+   - Restores normal exercises
+   - Automatically refunds shield if one was used
+
+**Earning Shields:**
+- Complete 7 consecutive training days → earn 1 shield 🛡️
+- Maximum 3 shields can be stored
+- Shields shown in header next to streak counter
+- Recovery days don't count toward earning shields (only full training days)
 
 ## **⚙️ Configuration (JSON)**
 
