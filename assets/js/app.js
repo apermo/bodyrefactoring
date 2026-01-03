@@ -954,16 +954,71 @@ function enableNoSleep() {
 /**
  * Use text-to-speech to speak a message in German.
  *
+ * Enhanced for iOS with better voice selection and more natural speech settings.
+ *
  * @param {string} text - The text to speak.
  * @return {void}
  */
 function speak(text) {
 	if ('speechSynthesis' in window) {
+		// Cancel any ongoing speech
+		window.speechSynthesis.cancel();
+
 		const utterance = new SpeechSynthesisUtterance(text);
 		utterance.lang = 'de-DE';
-		utterance.rate = 1.1;
-		window.speechSynthesis.speak(utterance);
+
+		// Get available voices
+		let voices = window.speechSynthesis.getVoices();
+
+		// If voices aren't loaded yet, wait for them
+		if (voices.length === 0) {
+			window.speechSynthesis.onvoiceschanged = () => {
+				voices = window.speechSynthesis.getVoices();
+				selectVoiceAndSpeak(utterance, voices);
+			};
+		} else {
+			selectVoiceAndSpeak(utterance, voices);
+		}
 	}
+}
+
+/**
+ * Select the best German voice and speak.
+ *
+ * @param {SpeechSynthesisUtterance} utterance - The utterance object.
+ * @param {Array} voices - Available voices.
+ * @return {void}
+ */
+function selectVoiceAndSpeak(utterance, voices) {
+	// Prefer iOS German voices in order of preference
+	const preferredVoices = [
+		'Anna',           // High quality German female voice (iOS)
+		'Helena',         // Alternative German female voice
+		'Markus',         // German male voice
+		'de-DE',          // Generic German
+	];
+
+	// Find the best available voice
+	let selectedVoice = null;
+	for (const preferred of preferredVoices) {
+		selectedVoice = voices.find(voice =>
+			voice.name.includes(preferred) || voice.lang.startsWith('de')
+		);
+		if (selectedVoice) {
+			break;
+		}
+	}
+
+	if (selectedVoice) {
+		utterance.voice = selectedVoice;
+	}
+
+	// Natural speech settings
+	utterance.rate = 0.95;      // Slightly slower for clarity
+	utterance.pitch = 1.0;      // Normal pitch
+	utterance.volume = 0.9;     // Slightly lower volume
+
+	window.speechSynthesis.speak(utterance);
 }
 
 /**
