@@ -1,0 +1,26 @@
+{
+	"name": "apermo/bodyrefactoring",
+	"description": "Body Refactoring - Personal Training Tracker with Dynamic Scheduling",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"version": "9.2.1",
+	"authors": [
+		{
+			"name": "Christoph Daum",
+			"homepage": "https://christoph-daum.de"
+		}
+	],
+	"require": {
+		"php": ">=8.3"
+	},
+	"config": {
+		"vendor-dir": "vendor",
+		"optimize-autoloader": true
+	},
+	"autoload": {
+		"files": [
+			"tools.php"
+		]
+	}
+}
+

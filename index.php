@@ -1,8 +1,6 @@
 <?php
-require_once 'assets/cachebuster.php';
-
-$version = '9.1.0';
-
+require_once __DIR__ . '/tools.php';
+require_once __DIR__ . '/assets/cachebuster.php';
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -16,7 +14,7 @@ $version = '9.1.0';
 	<link rel="apple-touch-icon" href="assets/img/gymlogo.png">
 	<link rel="icon" type="image/png" href="assets/img/gymlogo.png">
 	<meta name="robots" content="noindex, nofollow, noarchive">
-	<title>Body Refactoring App v<?php echo $version; ?></title>
+	<title>Body Refactoring App v<?php echo APP_VERSION; ?></title>
 
 	<script src="https://cdn.tailwindcss.com"></script>
 	<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -60,7 +58,7 @@ $version = '9.1.0';
 <div id="splash-screen">
 	<h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 mb-4 animate-pulse">
 		BODY REFACTORING</h1>
-	<div class="text-slate-500 font-mono text-xs">INITIALIZING v<?php echo $version; ?>...</div>
+	<div class="text-slate-500 font-mono text-xs">INITIALIZING v<?php echo APP_VERSION; ?>...</div>
 </div>
 
 <div class="app-container">
@@ -70,9 +68,9 @@ $version = '9.1.0';
 			<h1 class="text-xl font-black text-white uppercase leading-none">
 				<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Body</span>
 				Refactoring
-			</h1>
-			<p class="text-slate-500 font-mono text-[10px] mt-1">v<?php echo $version; ?></p>
-		</div>
+		</h1>
+		<p class="text-slate-500 font-mono text-[10px] mt-1">v<?php echo APP_VERSION; ?></p>
+	</div>
 
 		<div class="flex items-center gap-3">
 			<div id="streak-container" class="streak-badge hidden">
