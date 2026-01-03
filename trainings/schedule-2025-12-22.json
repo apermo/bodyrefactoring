@@ -41,7 +41,7 @@
 						"sets": 2,
 						"reps": 15,
 						"restSeconds": 60,
-						"delaySeconds": 3
+						"delayMilliseconds": 3000
 					}
 				},
 				{
@@ -55,7 +55,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delaySeconds": 4
+						"delayMilliseconds": 4000
 					}
 				},
 				{
@@ -69,7 +69,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delaySeconds": 3
+						"delayMilliseconds": 3000
 					}
 				},
 				{
@@ -83,7 +83,7 @@
 						"sets": 2,
 						"reps": 12,
 						"restSeconds": 60,
-						"delaySeconds": 3
+						"delayMilliseconds": 3000
 					}
 				},
 				{
@@ -187,7 +187,7 @@
 						"sets": 2,
 						"reps": 15,
 						"restSeconds": 60,
-						"delaySeconds": 3
+						"delayMilliseconds": 3000
 					}
 				},
 				{
@@ -201,7 +201,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delaySeconds": 4
+						"delayMilliseconds": 4000
 					}
 				},
 				{
@@ -215,7 +215,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delaySeconds": 3
+						"delayMilliseconds": 3000
 					}
 				},
 				{
@@ -229,7 +229,7 @@
 						"sets": 2,
 						"reps": 12,
 						"restSeconds": 60,
-						"delaySeconds": 3
+						"delayMilliseconds": 3000
 					}
 				},
 				{
