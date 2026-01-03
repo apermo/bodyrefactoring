@@ -360,26 +360,57 @@ body {
 	}
 }
 
-.rep-pulse {
-	animation: repPulse 0.4s ease-out;
+@keyframes repBreathe {
+	0% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(0.75);
+	}
+	100% {
+		transform: scale(0.5);
+	}
 }
 
-.rep-number-blue {
+/* Only apply animations within rep counter modal */
+#rep-counter-modal .rep-pulse {
+	animation: repPulse 0.2s ease-out;
+	animation-fill-mode: forwards;
+}
+
+#rep-counter-modal .rep-breathe {
+	animation: repBreathe var(--rep-delay) linear;
+	animation-fill-mode: forwards;
+}
+
+#rep-counter-modal .rep-number-blue {
 	color: #60a5fa;
-	text-shadow: 0 0 30px rgba(96, 165, 250, 0.5);
+	text-shadow: 0 0 40px rgba(96, 165, 250, 0.8), 0 0 20px rgba(96, 165, 250, 0.6);
+	transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
-.rep-number-green {
+#rep-counter-modal .rep-number-blue-dim {
+	color: #2563eb;
+	text-shadow: 0 0 20px rgba(37, 99, 235, 0.5), 0 0 10px rgba(37, 99, 235, 0.3);
+}
+
+#rep-counter-modal .rep-number-green {
 	color: #34d399;
-	text-shadow: 0 0 30px rgba(52, 211, 153, 0.5);
+	text-shadow: 0 0 40px rgba(52, 211, 153, 0.8), 0 0 20px rgba(52, 211, 153, 0.6);
+	transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
-.rep-number-countdown {
+#rep-counter-modal .rep-number-green-dim {
+	color: #059669;
+	text-shadow: 0 0 20px rgba(5, 150, 105, 0.5), 0 0 10px rgba(5, 150, 105, 0.3);
+}
+
+#rep-counter-modal .rep-number-countdown {
 	color: #fbbf24;
 	text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
 }
 
-.rep-number-go {
+#rep-counter-modal .rep-number-go {
 	color: #10b981;
 	text-shadow: 0 0 40px rgba(16, 185, 129, 0.7);
 }

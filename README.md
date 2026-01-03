@@ -40,6 +40,42 @@ A web-based visual editor for creating and managing training schedule JSON files
 
 ## **✨ Features**
 
+### **🎯 Rep Counter (Experimental)**
+
+* **Automatic Vocal Counting:** Full-screen modal with hands-free rep guidance for strength exercises
+* **Visual Breathing Animation:** Numbers animate from 100% → 75% → 50% to represent rep motion (up/down)
+* **Color-Coded Progress:** Blue for regular reps, green for last 3 reps
+* **5-Second Countdown:** "5, 4, 3, 2, 1, Los!" with breathing animation
+* **Rest Timer Management:** Automatic 60s rest between sets with vocal countdown
+* **Quick Rest Option:** Tap rest timer to skip to 5 seconds for faster pace
+* **Auto-Completion:** Exercise automatically marked complete upon successful finish
+* **Configurable Timing:** Millisecond-precision delay per exercise (e.g., 3000ms, 4000ms)
+* **Enhanced Audio:** Natural German voice with proper iOS Safari and Chrome support
+
+**How to use:**
+- Tap the purple rep counter chip (🔁 3 x 12) on any configured exercise
+- Follow the countdown and automated rep counting
+- Rest periods happen automatically
+- Click "Abbrechen" to cancel anytime
+
+**Configuration example:**
+```json
+{
+  "id": "ex_benchpress",
+  "type": "main",
+  "title": "Bench Press",
+  "desc": "3 x 12 Reps",
+  "weight": "60",
+  "defaultUnit": "KG",
+  "repCounter": {
+    "sets": 3,
+    "reps": 12,
+    "restSeconds": 60,
+    "delayMilliseconds": 3000
+  }
+}
+```
+
 ### **🧠 Dynamic Scheduling Engine**
 
 * **Evolvable Plans:** Workout routines are stored as JSON files (schedule-YYYY-MM-DD.json) in a trainings/ directory.
@@ -78,6 +114,14 @@ A web-based visual editor for creating and managing training schedule JSON files
 * **JSON Backup:** Full export/import functionality to move data between devices.
 * **Privacy:** No external tracking. No cookies. No consent banners needed (private use).
 
+### **🔧 Developer Tools**
+
+* **Debug Mode:** Access with `#debug` in URL to remove day editing restrictions (indicated by 🐛 DEBUG badge)
+* **Composer Integration:** Professional dependency management with centralized version control
+* **Version Management:** Single source of truth in `composer.json`, auto-loaded via `tools.php`
+* **Cache Busting:** Automatic cache invalidation using file modification timestamps
+* **Pull Request Templates:** Standardized contribution workflow with `.github/pull_request_template.md`
+
 ### **📱 iOS Native Feel**
 
 * Optimized as a **PWA** for the iOS Home Screen.
@@ -91,19 +135,31 @@ A web-based visual editor for creating and managing training schedule JSON files
 ```
 bodyrefactoring/
 ├── index.php                  # Main application entry point (PHP for cache busting)
+├── schedule-editor.php        # Visual schedule editor tool
+├── composer.json              # Project metadata and version management
+├── tools.php                  # Shared utilities (version function, APP_VERSION constant)
+├── deploy.php                 # GitHub webhook handler
+├── .env                       # Environment configuration (not in repo)
+├── .htaccess                  # Apache configuration
+├── .cursorrules               # AI assistant guidelines
+├── .github/
+│   └── pull_request_template.md  # PR template for standardized contributions
 ├── assets/
 │   ├── cachebuster.php       # Cache busting helper function
 │   ├── css/
-│   │   └── styles.css        # All application styles
+│   │   └── styles.css        # All application styles and animations
 │   └── js/
-│       └── app.js            # All application logic
+│       └── app.js            # All application logic (fully documented with JSDoc)
 ├── trainings/
 │   ├── index.php             # API endpoint for available schedules
 │   ├── validate-schedule.php # Schedule validator (CLI only)
-│   └── *.json                # Training schedule files
-├── deploy.php                # GitHub webhook handler
-├── .env                      # Environment configuration (not in repo)
-└── .htaccess                 # Apache configuration
+│   ├── schema-schedule-v1.json   # JSON Schema for IDE integration
+│   ├── template-schedule.json    # Template for new schedules
+│   └── schedule-*.json       # Training schedule files
+└── docs/
+    ├── schedule-editor.md        # Complete schedule editor guide
+    ├── schedule-validation.md    # Validation system documentation
+    └── ai-schedule-creation.md   # Guide for AI-assisted schedule creation
 ```
 
 ### **Cache Busting**
@@ -244,7 +300,34 @@ tail -f deploy.log
 - Complete exercises by tapping the checkboxes
 - Adjust weights inline - they automatically carry forward to future workouts
 - Use timers for cardio and timed exercises
+- **Use rep counter** for strength exercises with configured rep counting (tap 🔁 chip)
 - Add notes in the logbook section
+
+### **Rep Counter (Strength Training)**
+
+**Starting a rep counter workout:**
+1. Find an exercise with the purple rep counter chip (🔁 3 x 12)
+2. Tap the chip to start
+3. Watch the 5-second countdown with breathing animation
+4. Follow the automated rep counting - voice will count each rep
+5. Rest automatically between sets (60s by default)
+6. Tap rest timer to skip to 5 seconds if you're ready earlier
+7. Click "Abbrechen" to cancel anytime
+
+**Visual Feedback:**
+- Countdown: Yellow numbers breathing (5-4-3-2-1)
+- Regular reps: Blue numbers with breathing animation
+- Last 3 reps: Green numbers with enhanced glow
+- Rest timer: Yellow countdown with breathing animation
+- Completion: Green checkmark + confetti
+
+### **Debug Mode**
+
+Access the app with `#debug` in the URL to remove day editing restrictions:
+- Edit any day regardless of date (past, present, future)
+- Useful for testing, corrections, or historical data updates
+- Indicated by 🐛 DEBUG badge in header
+- Example: `https://your-domain.com/#debug`
 
 ### **Sick Mode / Recovery**
 
@@ -387,6 +470,11 @@ A schedule is a JSON object with a version number and an array of days. Each day
 - Unique IDs for days and exercises (lowercase, underscores only)
 - dayIndex: 0 or 7 = Sunday, 1 = Monday, ..., 6 = Saturday
 - Required day fields: id, dayIndex, name, theme, details
+
+**Optional Exercise Features:**
+- `timers`: Array of timer options with label and seconds
+- `weight` + `defaultUnit`: Weight tracking with unit selection (KG, LBS, STUFE)
+- `repCounter`: Automatic rep counting configuration (sets, reps, restSeconds, delayMilliseconds)
 
 📖 **[Complete Field Reference](docs/schedule-validation.md#field-reference)** - Detailed field documentation and validation rules
 

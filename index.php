@@ -68,9 +68,12 @@ require_once __DIR__ . '/assets/cachebuster.php';
 			<h1 class="text-xl font-black text-white uppercase leading-none">
 				<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Body</span>
 				Refactoring
-		</h1>
-		<p class="text-slate-500 font-mono text-[10px] mt-1">v<?php echo APP_VERSION; ?></p>
-	</div>
+			</h1>
+			<p class="text-slate-500 font-mono text-[10px] mt-1">
+				v<?php echo APP_VERSION; ?>
+				<span id="debug-indicator" class="hidden ml-2 text-yellow-400 font-bold">🐛 DEBUG</span>
+			</p>
+		</div>
 
 		<div class="flex items-center gap-3">
 			<div id="streak-container" class="streak-badge hidden">

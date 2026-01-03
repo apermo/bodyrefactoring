@@ -572,7 +572,11 @@ function renderRegularExerciseForm( exercise ) {
 			</div>
 			<div>
 				<label class="text-xs text-slate-400 block mb-1">Unit</label>
-				<input type="text" id="ex-unit" value="${exercise.defaultUnit || 'KG'}" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2" />
+				<input type="text" id="ex-unit" list="unit-suggestions" value="${exercise.defaultUnit || 'KG'}" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2" placeholder="KG, STUFE, LBS..." />
+				<datalist id="unit-suggestions">
+					<option value="KG">
+					<option value="STUFE">
+				</datalist>
 			</div>
 		</div>
 		<div>
