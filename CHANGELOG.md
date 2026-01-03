@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Countdown breathing animation**: 5-4-3-2-1 countdown numbers now breathe with 1-second animation each
 - **Rest timer breathing animation**: Rest timer between sets now breathes with 1-second animation and announces "X Sekunden Pause" at start
 - **Debug mode**: Access app with `#debug` in URL to remove day editing restrictions (indicated by 🐛 DEBUG badge in header)
+- **Schedule editor unit suggestions**: Unit field now suggests KG, STUFE, and LBS while allowing freetext input
 
 ### Fixed
 
