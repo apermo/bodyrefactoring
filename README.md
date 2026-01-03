@@ -6,6 +6,10 @@ habit building like a software project.
 It runs primarily in the browser using LocalStorage for data persistence, but utilizes a lightweight **PHP backend** to
 serve dynamic, evolvable training schedules without breaking historical data.
 
+## **📚 Documentation**
+
+- **[Schedule Validation Guide](docs/schedule-validation.md)** - Complete guide for creating and validating training schedules
+
 ## **✨ Features**
 
 ### **🧠 Dynamic Scheduling Engine**
@@ -58,6 +62,7 @@ bodyrefactoring/
 │       └── app.js            # All application logic
 ├── trainings/
 │   ├── index.php             # API endpoint for available schedules
+│   ├── validate-schedule.php # Schedule validator (CLI only)
 │   └── *.json                # Training schedule files
 ├── deploy.php                # GitHub webhook handler
 ├── .env                      # Environment configuration (not in repo)
@@ -200,64 +205,102 @@ tail -f deploy.log
 You define your workouts in the trainings/ folder. The file name must follow the pattern schedule-YYYY-MM-DD.json. The
 app always selects the schedule that is closest to (but not after) the current date being viewed.
 
+### **Schedule Validation**
+
+All schedules should be validated before deployment. The validator runs from the command line and checks for proper JSON structure, required fields, and data integrity.
+
+📖 **[Complete Validation Guide](docs/schedule-validation.md)** - Commands, workflow, error reference, and troubleshooting
+
+**Quick Start:**
+```bash
+cd trainings/
+php validate-schedule.php  # Validates all schedules
+```
+
 ### **Example JSON Structure**
 
 ```json
-[
-  {
-    "id": "mon",
-    "dayIndex": 1,
-    "name": "MONDAY",
-    "theme": "Push Day",
-    "details": [
-      {
-        "id": "warmup_row",
-        "type": "warmup",
-        "title": "Rowing",
-        "desc": "Warmup",
-        "timers": [
-          {
-            "l": "5 Min",
-            "s": 300
-          },
-          {
-            "l": "10 Min",
-            "s": 600
-          }
-        ]
-      },
-      {
-        "id": "ex_benchpress",
-        "type": "main",
-        "title": "Bench Press",
-        "desc": "3 x 12 Reps",
-        "weight": "40",
-        "defaultUnit": "KG"
-      },
-      {
-        "id": "alt_cardio",
-        "type": "alternatives",
-        "alternatives": [
-          {
-            "title": "Outdoor Run",
-            "desc": "Good weather",
-            "timers": [
-              ...
-            ]
-          },
-          {
-            "title": "Treadmill",
-            "desc": "Rainy day",
-            "timers": [
-              ...
-            ]
-          }
-        ]
-      }
-    ]
-  }
-]
+{
+  "version": 1,
+  "days": [
+    {
+      "id": "mon",
+      "dayIndex": 1,
+      "name": "MONDAY",
+      "theme": "Push Day",
+      "details": [
+        {
+          "id": "warmup_row",
+          "type": "warmup",
+          "title": "Rowing",
+          "desc": "Warmup",
+          "timers": [
+            {
+              "l": "5 Min",
+              "s": 300
+            },
+            {
+              "l": "10 Min",
+              "s": 600
+            }
+          ]
+        },
+        {
+          "id": "ex_benchpress",
+          "type": "main",
+          "title": "Bench Press",
+          "desc": "3 x 12 Reps",
+          "weight": "40",
+          "defaultUnit": "KG"
+        },
+        {
+          "id": "alt_cardio",
+          "type": "alternatives",
+          "alternatives": [
+            {
+              "title": "Outdoor Run",
+              "desc": "Good weather",
+              "timers": [
+                {
+                  "l": "20 Min",
+                  "s": 1200
+                }
+              ]
+            },
+            {
+              "title": "Treadmill",
+              "desc": "Rainy day",
+              "timers": [
+                {
+                  "l": "20 Min",
+                  "s": 1200
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
 ```
+
+### **Schedule Structure**
+
+A schedule is a JSON object with a version number and an array of days. Each day contains exercises that can be of three types: warmup, main (weighted), cool, or alternatives (multiple options).
+
+**Key Requirements:**
+- Root level: `version` (integer, currently 1) and `days` (array)
+- Filename: `schedule-YYYY-MM-DD.json`
+- Unique IDs for days and exercises (lowercase, underscores only)
+- dayIndex: 0 or 7 = Sunday, 1 = Monday, ..., 6 = Saturday
+- Required day fields: id, dayIndex, name, theme, details
+
+📖 **[Complete Field Reference](docs/schedule-validation.md#field-reference)** - Detailed field documentation and validation rules
+
+### **JSON Schema**
+
+A complete JSON Schema is available at `trainings/schema-schedule-v1.json` for IDE integration (VS Code, PhpStorm, etc.).
 
 ## **⚠️ Disclaimer**
 

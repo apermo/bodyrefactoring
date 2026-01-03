@@ -1,0 +1,121 @@
+{
+	"version": 1,
+	"days": [
+		{
+			"id": "mon",
+			"dayIndex": 1,
+			"name": "MONDAY",
+			"theme": "Upper Body Strength",
+			"icon": "dumbbell",
+			"colorClass": "text-blue-400",
+			"bgClass": "bg-blue-500/10",
+			"details": [
+				{
+					"id": "warmup_cardio",
+					"type": "warmup",
+					"title": "Rowing Machine",
+					"desc": "Warm up",
+					"timers": [
+						{
+							"l": "5 Min",
+							"s": 300
+						},
+						{
+							"l": "10 Min",
+							"s": 600
+						}
+					]
+				},
+				{
+					"id": "ex_benchpress",
+					"type": "main",
+					"title": "Bench Press",
+					"desc": "3 x 12 Reps",
+					"weight": "40",
+					"defaultUnit": "KG"
+				},
+				{
+					"id": "ex_rows",
+					"type": "main",
+					"title": "Bent-Over Rows",
+					"desc": "3 x 12 Reps",
+					"weight": "30",
+					"defaultUnit": "KG"
+				},
+				{
+					"id": "alt_cardio",
+					"type": "alternatives",
+					"alternatives": [
+						{
+							"title": "Outdoor Run",
+							"desc": "Good weather",
+							"timers": [
+								{
+									"l": "20 Min",
+									"s": 1200
+								},
+								{
+									"l": "30 Min",
+									"s": 1800
+								}
+							]
+						},
+						{
+							"title": "Indoor Bike",
+							"desc": "Rainy day",
+							"timers": [
+								{
+									"l": "20 Min",
+									"s": 1200
+								},
+								{
+									"l": "30 Min",
+									"s": 1800
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": "cool_stretch",
+					"type": "cool",
+					"title": "Cooldown",
+					"desc": "Full body stretching",
+					"timers": [
+						{
+							"l": "5 Min",
+							"s": 300
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "tue",
+			"dayIndex": 2,
+			"name": "TUESDAY",
+			"theme": "Active Recovery",
+			"icon": "footprints",
+			"colorClass": "text-emerald-400",
+			"bgClass": "bg-emerald-500/10",
+			"details": [
+				{
+					"id": "ex_walking",
+					"type": "main",
+					"title": "Walking",
+					"desc": "Light activity",
+					"timers": [
+						{
+							"l": "30 Min",
+							"s": 1800
+						},
+						{
+							"l": "45 Min",
+							"s": 2700
+						}
+					]
+				}
+			]
+		}
+	]
+}

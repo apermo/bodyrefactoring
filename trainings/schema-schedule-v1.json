@@ -1,0 +1,191 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Body Refactoring Training Schedule v1",
+	"description": "Schema for validating training schedule JSON files (version 1)",
+	"type": "object",
+	"required": ["version", "days"],
+	"properties": {
+		"version": {
+			"type": "integer",
+			"description": "Schema version number",
+			"const": 1
+		},
+		"days": {
+			"type": "array",
+			"description": "Array of training days",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"required": ["id", "dayIndex", "name", "theme", "details"],
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Unique identifier for the day (e.g., 'mon', 'tue')",
+						"pattern": "^[a-z_]+$"
+					},
+					"dayIndex": {
+						"type": "integer",
+						"description": "Day of the week (0 or 7 = Sunday, 1 = Monday, ..., 6 = Saturday)",
+						"minimum": 0,
+						"maximum": 7
+					},
+					"name": {
+						"type": "string",
+						"description": "Display name of the day",
+						"minLength": 1
+					},
+					"theme": {
+						"type": "string",
+						"description": "Theme or focus of the training day",
+						"minLength": 1
+					},
+					"icon": {
+						"type": "string",
+						"description": "Lucide icon name"
+					},
+					"colorClass": {
+						"type": "string",
+						"description": "Tailwind color class for text"
+					},
+					"bgClass": {
+						"type": "string",
+						"description": "Tailwind background color class"
+					},
+					"details": {
+						"type": "array",
+						"description": "List of exercises for this day",
+						"minItems": 1,
+						"items": {
+							"oneOf": [
+								{
+									"$ref": "#/definitions/regularExercise"
+								},
+								{
+									"$ref": "#/definitions/alternativeExercise"
+								}
+							]
+						}
+					}
+				},
+				"additionalProperties": false
+			}
+		}
+	},
+	"additionalProperties": false,
+	"definitions": {
+		"regularExercise": {
+			"type": "object",
+			"required": ["id", "type", "title", "desc"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique identifier for the exercise",
+					"pattern": "^[a-z_]+$"
+				},
+				"type": {
+					"type": "string",
+					"description": "Exercise type",
+					"enum": ["warmup", "main", "cool"]
+				},
+				"title": {
+					"type": "string",
+					"description": "Exercise title",
+					"minLength": 1
+				},
+				"desc": {
+					"type": "string",
+					"description": "Exercise description",
+					"minLength": 1
+				},
+				"weight": {
+					"type": "string",
+					"description": "Default weight value"
+				},
+				"defaultUnit": {
+					"type": "string",
+					"description": "Unit for weight (KG, LBS, STUFE, etc.)"
+				},
+				"timers": {
+					"type": "array",
+					"description": "Timer options for this exercise",
+					"items": {
+						"$ref": "#/definitions/timer"
+					}
+				}
+			},
+			"additionalProperties": false
+		},
+		"alternativeExercise": {
+			"type": "object",
+			"required": ["id", "type", "alternatives"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique identifier for the alternative group",
+					"pattern": "^[a-z_]+$"
+				},
+				"type": {
+					"type": "string",
+					"description": "Must be 'alternatives'",
+					"enum": ["alternatives"]
+				},
+				"alternatives": {
+					"type": "array",
+					"description": "List of alternative exercises",
+					"minItems": 2,
+					"items": {
+						"type": "object",
+						"required": ["title", "desc"],
+						"properties": {
+							"title": {
+								"type": "string",
+								"description": "Alternative exercise title",
+								"minLength": 1
+							},
+							"desc": {
+								"type": "string",
+								"description": "Alternative exercise description",
+								"minLength": 1
+							},
+							"weight": {
+								"type": "string",
+								"description": "Default weight value"
+							},
+							"defaultUnit": {
+								"type": "string",
+								"description": "Unit for weight"
+							},
+							"timers": {
+								"type": "array",
+								"description": "Timer options",
+								"items": {
+									"$ref": "#/definitions/timer"
+								}
+							}
+						},
+						"additionalProperties": false
+					}
+				}
+			},
+			"additionalProperties": false
+		},
+		"timer": {
+			"type": "object",
+			"required": ["l", "s"],
+			"properties": {
+				"l": {
+					"type": "string",
+					"description": "Timer label (e.g., '5 Min')",
+					"minLength": 1
+				},
+				"s": {
+					"type": "integer",
+					"description": "Timer duration in seconds",
+					"minimum": 1
+				}
+			},
+			"additionalProperties": false
+		}
+	}
+}
+

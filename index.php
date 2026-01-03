@@ -1,7 +1,7 @@
 <?php
 require_once 'assets/cachebuster.php';
 
-$version = '8.1.0';
+$version = '9.0.0';
 
 ?>
 <!DOCTYPE html>
@@ -231,8 +231,17 @@ $version = '8.1.0';
 		// Fetch
 		const res = await fetch(`trainings/${bestMatch.file}`);
 		const json = await res.json();
-		state.scheduleCache[bestMatch.file] = json;
-		return json;
+
+		// Handle new structure: { version: 1, days: [...] }
+		// Extract the days array and validate version
+		if (json.version !== 1) {
+			console.error(`Unsupported schedule version: ${json.version}`);
+			return null;
+		}
+
+		// Cache the days array (not the wrapper object)
+		state.scheduleCache[bestMatch.file] = json.days;
+		return json.days;
 	}
 
 	// --- CORE FUNCTIONS ---

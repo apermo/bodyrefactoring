@@ -145,6 +145,17 @@ bodyrefactoring/
 - App loads the most recent schedule ≤ current date
 - Enables plan evolution without breaking historical data
 - Cache schedules in memory to avoid repeated fetches
+- **Always validate schedules** with `php validate-schedule.php` before committing
+
+### Schedule Validation
+- Validator script: `trainings/validate-schedule.php`
+- JSON Schema: `trainings/schema-schedule-v1.json`
+- Template: `trainings/template-schedule.json`
+- Validates: structure, required fields, data types, ID uniqueness, filename format
+- **Schema version**: All schedules must have `version: 1` at root level
+- Usage: `cd trainings/ && php validate-schedule.php` (auto-scans all schedules)
+- Validate specific: `cd trainings/ && php validate-schedule.php schedule-2026-01-15.json`
+- **CLI only** - web access is blocked for security
 
 ### Progressive Overload Logic
 - Weight increases apply to all future workouts
@@ -176,7 +187,7 @@ bodyrefactoring/
 - Test as installed PWA (Add to Home Screen)
 - Verify offline functionality
 - Test with different screen sizes
-- Validate JSON schedule files before deployment
+- **Validate JSON schedule files** before committing: `cd trainings/ && php validate-schedule.php`
 - Check localStorage limits (typically 5-10MB)
 
 ## Security Considerations
