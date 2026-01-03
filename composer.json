@@ -3,7 +3,7 @@
 	"description": "Body Refactoring - Personal Training Tracker with Dynamic Scheduling",
 	"type": "project",
 	"license": "GPL-2.0-or-later",
-	"version": "9.2.1",
+	"version": "9.3.0",
 	"authors": [
 		{
 			"name": "Christoph Daum",
