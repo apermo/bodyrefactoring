@@ -90,22 +90,36 @@ $pusher  = $data['pusher']['name'] ?? 'unknown';
 $commits = count( $data['commits'] ?? [] );
 logMessage( "INFO: Deployment started by {$pusher} ({$commits} commits)" );
 
-// Execute git pull
+// Execute git commands to force update
 chdir( REPO_PATH );
-exec( 'git pull origin main 2>&1', $output, $returnCode );
+
+// First, fetch latest changes
+exec( 'git fetch origin main 2>&1', $fetchOutput, $fetchCode );
+logMessage( 'INFO: Git fetch - ' . implode( ' ', $fetchOutput ) );
+
+// Reset to match remote (discard local changes)
+exec( 'git reset --hard origin/main 2>&1', $resetOutput, $resetCode );
+logMessage( 'INFO: Git reset - ' . implode( ' ', $resetOutput ) );
+
+// Pull to update (should be fast-forward now)
+exec( 'git pull origin main 2>&1', $pullOutput, $pullCode );
+
+// Combine all output
+$output     = array_merge( $fetchOutput, $resetOutput, $pullOutput );
+$returnCode = max( $fetchCode, $resetCode, $pullCode );
 
 if ( $returnCode === 0 ) {
-	logMessage( 'SUCCESS: Git pull completed successfully' );
+	logMessage( 'SUCCESS: Deployment completed successfully (local changes discarded)' );
 	logMessage( 'OUTPUT: ' . implode( "\n", $output ) );
 
 	http_response_code( 200 );
 	echo json_encode( [
 		'status'  => 'success',
-		'message' => 'Deployment successful',
+		'message' => 'Deployment successful (local changes overwritten)',
 		'commits' => $commits
 	] );
 } else {
-	logMessage( 'ERROR: Git pull failed with code ' . $returnCode );
+	logMessage( 'ERROR: Deployment failed with code ' . $returnCode );
 	logMessage( 'OUTPUT: ' . implode( "\n", $output ) );
 
 	http_response_code( 500 );
