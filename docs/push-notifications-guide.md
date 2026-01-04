@@ -113,21 +113,6 @@ Push Notifications erinnern dich automatisch an dein Training zur gewünschten Z
 - Wenn diese nicht erscheint → Permission-Problem
 - Wenn sie erscheint → Timing-Problem (falsche Zeit eingestellt?)
 
-**5. Debug-Modus verwenden:**
-- Menü → Benachrichtigungen → "🧪 Debug: Erinnerung in 1 Minute"
-- Setzt temporär eine Erinnerung in 1 Minute
-- Öffne Browser-Konsole (F12) für detaillierte Logs
-- Prüfe ob die Benachrichtigung kommt
-- Wenn Debug-Benachrichtigung kommt, aber normale nicht → Zeit-Einstellung prüfen
-
-### Debug-Informationen in den Einstellungen
-
-Das Settings-Modal zeigt jetzt:
-- **Status**: Permission-Status (granted/denied)
-- **Aktuelle Zeit**: Zum Vergleich mit Erinnerungszeit
-- **Nächste Erinnerung**: Wann die nächste Erinnerung kommt
-- **Check-Intervall**: Wie oft geprüft wird (1 Minute)
-
 ### Service Worker Probleme?
 
 **App aktualisieren:**
@@ -151,9 +136,8 @@ Das Settings-Modal zeigt jetzt:
 
 ### Notification Manager
 - Datei: `/assets/js/push-notifications.js`
-- Prüfintervall: **1 Minute** (wenn App offen)
-- Reminder-Fenster: **10 Minuten** nach eingestellter Zeit
-- Debug-Modus: Test-Erinnerung in 1 Minute verfügbar
+- Prüfintervall: 5 Minuten (wenn App offen)
+- Reminder-Fenster: ±5 Minuten um eingestellte Zeit
 
 ### Browser-Support
 - ✅ iOS Safari 16.4+ (als PWA)

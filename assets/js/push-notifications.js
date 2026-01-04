@@ -102,13 +102,10 @@ class PushNotificationManager {
 			}
 		});
 
-		// Check reminders every minute when app is open
+		// Check reminders every 5 minutes when app is open
 		setInterval(() => {
 			this.checkWorkoutTime();
-		}, 60 * 1000); // Changed from 5 minutes to 1 minute
-
-		// Initial check
-		this.checkWorkoutTime();
+		}, 5 * 60 * 1000);
 	}
 
 	/**
@@ -179,14 +176,7 @@ class PushNotificationManager {
 	checkWorkoutTime() {
 		const settings = this.getSettings();
 
-		console.log('[Push] Checking workout time...', {
-			enabled: settings.enabled,
-			permission: Notification.permission,
-			times: settings.times
-		});
-
 		if (!settings.enabled || Notification.permission !== 'granted') {
-			console.log('[Push] Check skipped - not enabled or no permission');
 			return;
 		}
 
@@ -195,45 +185,17 @@ class PushNotificationManager {
 		const lastCheck = localStorage.getItem('last_reminder_check');
 		const today = now.toDateString();
 
-		console.log('[Push] Current time:', {
-			time: `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`,
-			minutes: currentTime,
-			today: today,
-			lastCheck: lastCheck
-		});
-
 		// Check each scheduled time
 		for (const scheduledTime of settings.times) {
-			const isTime = this.isTimeForReminder(currentTime, scheduledTime);
-			const alreadySent = lastCheck === `${today}-${scheduledTime}`;
-
-			console.log('[Push] Checking scheduled time:', {
-				scheduledTime: scheduledTime,
-				scheduledTimeFormatted: this.formatTimeFromMinutes(scheduledTime),
-				currentTime: currentTime,
-				isTimeForReminder: isTime,
-				alreadySentToday: alreadySent
-			});
-
-			if (isTime && !alreadySent) {
-				console.log('[Push] ✅ Sending workout reminder NOW!');
-				this.sendWorkoutReminder();
-				localStorage.setItem('last_reminder_check', `${today}-${scheduledTime}`);
-				break;
+			if (this.isTimeForReminder(currentTime, scheduledTime)) {
+				// Don't send multiple reminders for same time
+				if (lastCheck !== `${today}-${scheduledTime}`) {
+					this.sendWorkoutReminder();
+					localStorage.setItem('last_reminder_check', `${today}-${scheduledTime}`);
+					break;
+				}
 			}
 		}
-	}
-
-	/**
-	 * Format minutes since midnight to HH:MM string
-	 *
-	 * @param {number} minutes - Minutes since midnight
-	 * @return {string} Formatted time
-	 */
-	formatTimeFromMinutes(minutes) {
-		const hours = Math.floor(minutes / 60);
-		const mins = minutes % 60;
-		return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
 	}
 
 	/**
@@ -244,10 +206,8 @@ class PushNotificationManager {
 	 * @return {boolean}
 	 */
 	isTimeForReminder(currentTime, scheduledTime) {
-		// Within 10-minute window (before or after scheduled time)
-		// This ensures we don't miss reminders if check interval is 5 minutes
-		const timeDiff = currentTime - scheduledTime;
-		return timeDiff >= 0 && timeDiff <= 10;
+		// Within 5-minute window
+		return Math.abs(currentTime - scheduledTime) < 5;
 	}
 
 	/**
@@ -470,24 +430,6 @@ async function toggleNotifications() {
  */
 function showNotificationSettings() {
 	const settings = pushNotificationManager.getSettings();
-	const permission = pushNotificationManager.getPermissionStatus();
-	const now = new Date();
-	const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-	// Calculate next reminder time
-	let nextReminderText = 'Keine geplant';
-	if (settings.enabled && settings.times.length > 0) {
-		const scheduledTime = settings.times[0];
-		const timeUntil = scheduledTime - currentMinutes;
-
-		if (timeUntil > 0) {
-			const hours = Math.floor(timeUntil / 60);
-			const mins = timeUntil % 60;
-			nextReminderText = `In ${hours}h ${mins}min`;
-		} else {
-			nextReminderText = `Morgen um ${formatTime(scheduledTime)}`;
-		}
-	}
 
 	// Create modal (will be styled properly)
 	const modal = document.createElement('div');
@@ -500,28 +442,6 @@ function showNotificationSettings() {
 				<button onclick="closeNotificationSettings()" class="text-slate-400 hover:text-white">
 					<i data-lucide="x" class="w-6 h-6"></i>
 				</button>
-			</div>
-
-			<!-- Debug Info -->
-			<div class="mb-4 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-				<div class="text-xs text-slate-400 space-y-1">
-					<div class="flex justify-between">
-						<span>Status:</span>
-						<span class="font-mono ${permission === 'granted' ? 'text-green-400' : 'text-red-400'}">${permission}</span>
-					</div>
-					<div class="flex justify-between">
-						<span>Aktuelle Zeit:</span>
-						<span class="font-mono text-cyan-400">${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}</span>
-					</div>
-					<div class="flex justify-between">
-						<span>Nächste Erinnerung:</span>
-						<span class="font-mono text-blue-400">${nextReminderText}</span>
-					</div>
-					<div class="flex justify-between">
-						<span>Check-Intervall:</span>
-						<span class="font-mono text-slate-300">1 Minute</span>
-					</div>
-				</div>
 			</div>
 
 			<div class="space-y-4">
@@ -538,19 +458,12 @@ function showNotificationSettings() {
 
 				<div>
 					<label class="block text-sm font-medium text-slate-300 mb-2">Erinnerungszeit</label>
-					<input type="time" value="${formatTime(settings.times[0])}" onchange="updateNotificationTime(this)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white">
-					<div class="text-xs text-slate-500 mt-1">Zeitfenster: 10 Minuten nach eingestellter Zeit</div>
+					<input type="time" value="${this.formatTime(settings.times[0])}" onchange="updateNotificationTime(this)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white">
 				</div>
 
 				<div class="pt-4 border-t border-slate-700">
 					<button onclick="pushNotificationManager.sendWorkoutReminder()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition">
 						Test-Benachrichtigung senden
-					</button>
-				</div>
-
-				<div class="pt-2">
-					<button onclick="testImmediateReminder()" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg transition text-sm">
-						🧪 Debug: Erinnerung in 1 Minute
 					</button>
 				</div>
 
@@ -626,37 +539,6 @@ function updateNotificationTime(input) {
 	pushNotificationManager.saveSettings({
 		times: [totalMinutes]
 	});
-
-	console.log('[Push] Time updated to:', input.value, '(' + totalMinutes + ' minutes)');
-}
-
-/**
- * Test immediate reminder (1 minute from now)
- *
- * @return {void}
- */
-function testImmediateReminder() {
-	const now = new Date();
-	const testTime = (now.getHours() * 60 + now.getMinutes() + 1); // 1 minute from now
-
-	// Temporarily save as reminder time
-	const originalSettings = pushNotificationManager.getSettings();
-	pushNotificationManager.saveSettings({
-		enabled: true,
-		times: [testTime]
-	});
-
-	const testTimeFormatted = formatTime(testTime);
-	console.log('[Push] 🧪 DEBUG: Reminder set for', testTimeFormatted, '(in ~1 minute)');
-	console.log('[Push] Original time will be restored after test');
-
-	alert(`🧪 Debug-Modus:\n\nErinnerung gesetzt für ${testTimeFormatted}\n(in ~1 Minute)\n\nÖffne die Konsole für Details.\n\nOriginalzeit wird nach Test wiederhergestellt.`);
-
-	// Restore original time after 2 minutes
-	setTimeout(() => {
-		pushNotificationManager.saveSettings(originalSettings);
-		console.log('[Push] Original reminder time restored');
-	}, 2 * 60 * 1000);
 }
 
 /**
