@@ -1,6 +1,7 @@
 ## Description
 
 <!-- Provide a brief description of the changes in this PR -->
+<!-- An AI-generated summary will be automatically posted as a comment below -->
 
 ## Type of Change
 

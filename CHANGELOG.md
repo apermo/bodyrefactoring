@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Auto-checkbox: Automatically checks completed items in PR description
   - Summary comments: Posts validation results to PR
   - Merge blocking: Prevents merging if validations fail (with branch protection)
+  - Smart triggers: Version and schedule validation only run on code changes, not description edits
+  - Early exit optimization: Schedule validation skips when no training files changed
+- **AI PR Summary**: Automatically generates structured summary comment for pull requests
+  - Analyzes commits, diffs, and file changes
+  - Posts summary as first comment (appears after description)
+  - Updates on new commits
+  - Identifies impact areas (JS, CSS, PHP, schedules, workflows)
 - **Workflow documentation**: Complete guide in `.github/workflows/README.md`
 
 ### Changed

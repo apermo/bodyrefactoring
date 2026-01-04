@@ -4,6 +4,45 @@ This directory contains automated workflows for the Body Refactoring project.
 
 ## Workflows
 
+### AI PR Summary (`pr-summary.yml`)
+
+Automatically generates an AI-powered summary for pull requests.
+
+**Triggered on:** Pull request open or sync to `main` branch
+
+**What it does:**
+1. Analyzes PR diff, commits, and changed files
+2. Generates structured summary with:
+   - What changed (technical overview)
+   - Key changes (from commit messages)
+   - Files modified (with stats)
+   - Impact analysis (affected areas)
+3. Posts as first comment on PR (appears right after description)
+4. Updates summary when new commits are pushed
+
+**Example output:**
+```markdown
+## 🤖 AI-Generated Summary
+
+### What Changed
+This PR modifies JavaScript functionality, styling and animations.
+
+### Key Changes
+- feat: add rep counter breathing animation
+- fix: resolve timer animation conflict
+- docs: update README with new features
+
+### Files Modified
+📊 3 file(s) changed
+assets/js/app.js | 120 +++++++++++++++++++++++++++++
+assets/css/styles.css | 45 +++++++++++
+README.md | 30 +++++++-
+
+### Impact
+- ⚡ Frontend functionality and user interactions
+- 🎨 Visual appearance and animations
+```
+
 ### PR Validation (`pr-validation.yml`)
 
 Automatically validates pull requests to ensure quality and consistency.
