@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.0] - 2026-01-04
+
+### Added
+
+- **Push Notifications System**: Full implementation with Service Worker and PWA support
+  - Service Worker (`/assets/js/sw.js`) for offline caching and background notifications
+  - Push Notification Manager (`push-notifications.js`) for frontend control
+  - Workout reminders at configurable times (default 18:00)
+  - In-app reminder banners as fallback
+  - Permission management with user-friendly UI
+  - Test notification functionality
+  - PWA installation instructions
+- **PWA Enhancements**:
+  - Complete `manifest.json` for app installation
+  - Offline support with asset caching
+  - Standalone app mode support
+  - iOS Home Screen optimization
+  - Update notifications when new version available
+- **Notification Settings UI**:
+  - Toggle notifications on/off
+  - Configurable reminder time
+  - PWA installation guide
+  - Test notification button
+  - Status indicators
+- **Menu Integration**: "Benachrichtigungen" option in main menu
+- **Dynamic Cache Versioning**: Service Worker cache version automatically syncs with app version from composer.json
+
+### Changed
+
+- Enhanced meta tags for better PWA support
+- Added Service Worker registration on app load
+- Improved offline experience
+
+### Technical
+
+- Service Worker caching strategy: Network first, fallback to cache
+- Cache version dynamically fetched from `/assets/js/sw-version.php` endpoint
+- Periodic sync for reminder checks (when supported)
+- Notification permission flow optimized for iOS Safari
+- PWA detection and adaptive UI
+
 ## [10.2.0] - 2026-01-04
 
 ### Added
