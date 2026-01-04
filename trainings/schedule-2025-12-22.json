@@ -55,7 +55,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 4000
+						"delayMilliseconds": 3000
 					}
 				},
 				{
@@ -83,7 +83,7 @@
 						"sets": 2,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2500
 					}
 				},
 				{
@@ -201,7 +201,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 4000
+						"delayMilliseconds": 3000
 					}
 				},
 				{
@@ -229,7 +229,7 @@
 						"sets": 2,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2500
 					}
 				},
 				{
