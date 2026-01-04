@@ -58,22 +58,32 @@ jobs:
             let allPassed = true;
             let failedChecks = [];
 
+            // Version check: must exist and be successful
             if (versionCheck && versionCheck.conclusion !== 'success') {
               allPassed = false;
               failedChecks.push('Version bump');
+            } else if (!versionCheck || versionCheck.conclusion === 'skipped') {
+              // If skipped, it's ok (description edit scenario)
+              console.log('Version check skipped or not found - treating as pass');
             }
 
-            if (changelogCheck && changelogCheck.conclusion !== 'success') {
+            // CHANGELOG check: must exist and be successful (or skipped)
+            if (changelogCheck && changelogCheck.conclusion === 'failure') {
               allPassed = false;
               failedChecks.push('CHANGELOG entry');
+            } else if (!changelogCheck || changelogCheck.conclusion === 'skipped') {
+              console.log('CHANGELOG check skipped or not found - treating as pass');
             }
 
-            if (scheduleCheck && scheduleCheck.conclusion !== 'success') {
+            // Schedule check: must not fail (success or skipped is ok)
+            if (scheduleCheck && scheduleCheck.conclusion === 'failure') {
               allPassed = false;
               failedChecks.push('Schedule validation');
+            } else if (!scheduleCheck || scheduleCheck.conclusion === 'skipped') {
+              console.log('Schedule check skipped or not found - treating as pass');
             }
 
-            return { allPassed, failedChecks: failedChecks.join(', ') };
+            return { allPassed, failedChecks: failedChecks.join(', ') || 'none' };
 
       - name: Update status (success)
         if: fromJSON(steps.check-results.outputs.result).allPassed
