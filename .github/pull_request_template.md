@@ -31,7 +31,6 @@
 
 - [ ] Tested locally
 - [ ] Tested on mobile device (iOS/Android)
-- [ ] Validated JSON schedules with `validate-schedule.php`
 - [ ] Checked browser console for errors
 - [ ] Tested with different workout scenarios
 
