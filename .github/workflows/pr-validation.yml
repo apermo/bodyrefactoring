@@ -15,6 +15,8 @@ jobs:
   validate-version:
     name: Check Version Bump
     runs-on: ubuntu-latest
+    # Only run on code changes, not description edits
+    if: github.event.action != 'edited'
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
@@ -109,6 +111,8 @@ jobs:
   validate-schedules:
     name: Validate Training Schedules
     runs-on: ubuntu-latest
+    # Only run on code changes, not description edits
+    if: github.event.action != 'edited'
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
