@@ -70,33 +70,7 @@ jobs:
 
             const commitMessages = commits.map(c => c.commit.message).join('\n');
 
-            // Prepare prompt for summary
-            const prompt = `Analyze this pull request and generate a concise technical summary.
-
-PR Title: ${pr.title}
-PR Description: ${pr.body || 'No description provided'}
-
-Commit Messages:
-${commitMessages}
-
-File Changes:
-${stats}
-
-Code Diff (truncated):
-${diff.substring(0, 10000)}
-
-Generate a summary with:
-1. **What Changed**: Brief technical overview
-2. **Key Changes**: Bullet points of main changes
-3. **Files Modified**: List of affected files with change type
-4. **Impact**: What this affects (features, performance, dependencies, etc.)
-
-Keep it concise and technical. Use markdown formatting.`;
-
-            // Note: This uses GitHub's context but doesn't actually call an AI API
-            // You would need to integrate with OpenAI API, Anthropic, or similar
-            // For now, we'll generate a structured summary based on the data
-
+            // Generate summary based on changes
             const changedFiles = stats.split('\n').filter(line => line.includes('|'));
             const fileCount = changedFiles.length;
             const hasTrainings = diff.includes('trainings/');
