@@ -299,7 +299,7 @@ jobs:
             } else if (scheduleResult === 'failed') {
               summary += '❌ **Schedule Validation**: Failed - Validation errors found\n';
             } else if (scheduleResult === 'skipped') {
-              summary += '⏭️ **Schedule Validation**: Skipped - No training files changed\n';
+              summary += '⏭️ **Schedule Validation**: Skipped - No changes to training files, validation not required\n';
             } else {
               summary += '⏭️ **Schedule Validation**: Skipped\n';
             }
