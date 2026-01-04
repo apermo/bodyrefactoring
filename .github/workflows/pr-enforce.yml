@@ -1,0 +1,108 @@
+name: Enforce PR Requirements
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
+permissions:
+  contents: read
+  statuses: write
+  checks: write
+
+jobs:
+  enforce-requirements:
+    name: Enforce PR Requirements
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set initial status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: 'pending',
+              context: 'PR Requirements',
+              description: 'Checking version, changelog, and schedules...'
+            });
+
+      - name: Wait for validation jobs
+        run: sleep 30
+
+      - name: Check validation results
+        id: check-results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Get all check runs for this commit
+            const { data: checkRuns } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.payload.pull_request.head.sha
+            });
+
+            console.log('Check runs:', JSON.stringify(checkRuns.check_runs.map(cr => ({
+              name: cr.name,
+              conclusion: cr.conclusion,
+              status: cr.status
+            })), null, 2));
+
+            // Find our validation jobs
+            const versionCheck = checkRuns.check_runs.find(cr => cr.name === 'Check Version Bump');
+            const changelogCheck = checkRuns.check_runs.find(cr => cr.name === 'Check CHANGELOG Entry');
+            const scheduleCheck = checkRuns.check_runs.find(cr => cr.name === 'Validate Training Schedules');
+
+            let allPassed = true;
+            let failedChecks = [];
+
+            if (versionCheck && versionCheck.conclusion !== 'success') {
+              allPassed = false;
+              failedChecks.push('Version bump');
+            }
+
+            if (changelogCheck && changelogCheck.conclusion !== 'success') {
+              allPassed = false;
+              failedChecks.push('CHANGELOG entry');
+            }
+
+            if (scheduleCheck && scheduleCheck.conclusion !== 'success') {
+              allPassed = false;
+              failedChecks.push('Schedule validation');
+            }
+
+            return { allPassed, failedChecks: failedChecks.join(', ') };
+
+      - name: Update status (success)
+        if: fromJSON(steps.check-results.outputs.result).allPassed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: 'success',
+              context: 'PR Requirements',
+              description: '✅ All requirements met'
+            });
+
+      - name: Update status (failure)
+        if: "!fromJSON(steps.check-results.outputs.result).allPassed"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const result = ${{ steps.check-results.outputs.result }};
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: 'failure',
+              context: 'PR Requirements',
+              description: `❌ Failed: ${result.failedChecks}`
+            });
+
+            core.setFailed(`PR requirements not met: ${result.failedChecks}`);
+

@@ -5,7 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [10.0.2] - 2026-01-04
+## [10.1.0] - 2026-01-04
+
+### Added
+
+- **GitHub Actions PR validation**: Automated workflows to validate pull requests
+  - Version bump check: Ensures `composer.json` version is incremented
+  - CHANGELOG entry check: Verifies new version has CHANGELOG entry
+  - Schedule validation: Runs `validate-schedule.php` on all schedule files
+  - Auto-checkbox: Automatically checks completed items in PR description
+  - Summary comments: Posts validation results to PR
+  - Merge blocking: Prevents merging if validations fail (with branch protection)
+- **Workflow documentation**: Complete guide in `.github/workflows/README.md`
 
 ### Changed
 - **Rep counter timing**: Adjusted the Rep Counter delay to measured values

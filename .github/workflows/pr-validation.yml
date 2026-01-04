@@ -1,0 +1,304 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  validate-version:
+    name: Check Version Bump
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          path: base
+
+      - name: Compare versions
+        id: version-check
+        run: |
+          # Get version from PR branch
+          PR_VERSION=$(php -r "echo json_decode(file_get_contents('composer.json'))->version;")
+          echo "PR Version: $PR_VERSION"
+
+          # Get version from base branch
+          BASE_VERSION=$(php -r "echo json_decode(file_get_contents('base/composer.json'))->version;")
+          echo "Base Version: $BASE_VERSION"
+
+          # Compare versions
+          if [ "$PR_VERSION" = "$BASE_VERSION" ]; then
+            echo "result=failed" >> $GITHUB_OUTPUT
+            echo "message=❌ Version not bumped in composer.json. Current: $BASE_VERSION, PR: $PR_VERSION" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "result=success" >> $GITHUB_OUTPUT
+            echo "message=✅ Version bumped from $BASE_VERSION to $PR_VERSION" >> $GITHUB_OUTPUT
+            echo "pr_version=$PR_VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR (failure)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## ⚠️ Version Check Failed\n\n${{ steps.version-check.outputs.message }}\n\nPlease update the version in `composer.json`.'
+            })
+
+    outputs:
+      pr_version: ${{ steps.version-check.outputs.pr_version }}
+      result: ${{ steps.version-check.outputs.result }}
+
+  validate-changelog:
+    name: Check CHANGELOG Entry
+    runs-on: ubuntu-latest
+    needs: validate-version
+    if: needs.validate-version.outputs.result == 'success'
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check CHANGELOG
+        id: changelog-check
+        run: |
+          PR_VERSION="${{ needs.validate-version.outputs.pr_version }}"
+
+          # Check if CHANGELOG.md contains the new version
+          if grep -q "\[$PR_VERSION\]" CHANGELOG.md; then
+            echo "result=success" >> $GITHUB_OUTPUT
+            echo "message=✅ CHANGELOG.md contains entry for version $PR_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "result=failed" >> $GITHUB_OUTPUT
+            echo "message=❌ CHANGELOG.md missing entry for version $PR_VERSION" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Comment on PR (failure)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## ⚠️ CHANGELOG Check Failed\n\n${{ steps.changelog-check.outputs.message }}\n\nPlease add an entry for version `${{ needs.validate-version.outputs.pr_version }}` to `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/) format.'
+            })
+
+    outputs:
+      result: ${{ steps.changelog-check.outputs.result }}
+
+  validate-schedules:
+    name: Validate Training Schedules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: json
+
+      - name: Validate schedules
+        id: schedule-validation
+        run: |
+          cd trainings
+
+          # Run validation
+          OUTPUT=$(php validate-schedule.php 2>&1)
+          EXIT_CODE=$?
+
+          echo "Validation output:"
+          echo "$OUTPUT"
+
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "result=success" >> $GITHUB_OUTPUT
+            echo "message=✅ All training schedules are valid" >> $GITHUB_OUTPUT
+            # Escape newlines for multiline output
+            ESCAPED_OUTPUT="${OUTPUT//'%'/'%25'}"
+            ESCAPED_OUTPUT="${ESCAPED_OUTPUT//$'\n'/'%0A'}"
+            ESCAPED_OUTPUT="${ESCAPED_OUTPUT//$'\r'/'%0D'}"
+            echo "output=$ESCAPED_OUTPUT" >> $GITHUB_OUTPUT
+          else
+            echo "result=failed" >> $GITHUB_OUTPUT
+            echo "message=❌ Schedule validation failed" >> $GITHUB_OUTPUT
+            ESCAPED_OUTPUT="${OUTPUT//'%'/'%25'}"
+            ESCAPED_OUTPUT="${ESCAPED_OUTPUT//$'\n'/'%0A'}"
+            ESCAPED_OUTPUT="${ESCAPED_OUTPUT//$'\r'/'%0D'}"
+            echo "output=$ESCAPED_OUTPUT" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Comment on PR (failure)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `${{ steps.schedule-validation.outputs.output }}`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## ⚠️ Schedule Validation Failed\n\n```\n' + output + '\n```\n\nPlease fix the validation errors in your schedule JSON files.'
+            })
+
+    outputs:
+      result: ${{ steps.schedule-validation.outputs.result }}
+
+  update-pr-checkboxes:
+    name: Update PR Checkboxes
+    runs-on: ubuntu-latest
+    needs: [validate-version, validate-changelog, validate-schedules]
+    if: always()
+    steps:
+      - name: Update PR description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Get current PR body
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            let body = pr.body || '';
+
+            // Update checkboxes based on results
+            const versionResult = '${{ needs.validate-version.outputs.result }}';
+            const changelogResult = '${{ needs.validate-changelog.outputs.result }}';
+            const scheduleResult = '${{ needs.validate-schedules.outputs.result }}';
+
+            // Update version checkbox
+            if (versionResult === 'success') {
+              body = body.replace(
+                /- \[ \] I have updated the version number in `composer\.json` \(if releasing\)/,
+                '- [x] I have updated the version number in `composer.json` (if releasing) ✅'
+              );
+            }
+
+            // Update CHANGELOG checkbox
+            if (changelogResult === 'success') {
+              body = body.replace(
+                /- \[ \] I have updated the CHANGELOG\.md following/,
+                '- [x] I have updated the CHANGELOG.md following'
+              );
+            }
+
+            // Update validation checkbox
+            if (scheduleResult === 'success') {
+              body = body.replace(
+                /- \[ \] I have validated schedule JSON files \(if modified\)/,
+                '- [x] I have validated schedule JSON files (if modified) ✅'
+              );
+            }
+
+            // Update PR
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: body
+            });
+
+  post-results:
+    name: Post Validation Results
+    runs-on: ubuntu-latest
+    needs: [validate-version, validate-changelog, validate-schedules]
+    if: always()
+    steps:
+      - name: Create summary comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const versionResult = '${{ needs.validate-version.outputs.result }}';
+            const changelogResult = '${{ needs.validate-changelog.outputs.result }}';
+            const scheduleResult = '${{ needs.validate-schedules.outputs.result }}';
+
+            let summary = '## 🤖 Automated PR Validation Results\n\n';
+
+            // Version check
+            if (versionResult === 'success') {
+              summary += '✅ **Version Check**: Passed - Version bumped to `${{ needs.validate-version.outputs.pr_version }}`\n';
+            } else if (versionResult === 'failed') {
+              summary += '❌ **Version Check**: Failed - Version not bumped in composer.json\n';
+            } else {
+              summary += '⏭️ **Version Check**: Skipped\n';
+            }
+
+            // CHANGELOG check
+            if (changelogResult === 'success') {
+              summary += '✅ **CHANGELOG Check**: Passed - Entry found for version `${{ needs.validate-version.outputs.pr_version }}`\n';
+            } else if (changelogResult === 'failed') {
+              summary += '❌ **CHANGELOG Check**: Failed - Missing entry for new version\n';
+            } else {
+              summary += '⏭️ **CHANGELOG Check**: Skipped\n';
+            }
+
+            // Schedule validation
+            if (scheduleResult === 'success') {
+              summary += '✅ **Schedule Validation**: Passed - All schedules are valid\n';
+            } else if (scheduleResult === 'failed') {
+              summary += '❌ **Schedule Validation**: Failed - Validation errors found\n';
+            } else {
+              summary += '⏭️ **Schedule Validation**: Skipped\n';
+            }
+
+            // Overall status
+            const allPassed = versionResult === 'success' && changelogResult === 'success' && scheduleResult === 'success';
+            if (allPassed) {
+              summary += '\n---\n✨ **All checks passed!** This PR is ready for review.\n';
+            } else {
+              summary += '\n---\n⚠️ **Some checks failed.** Please review the issues above before merging.\n';
+            }
+
+            // Find and update or create comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Automated PR Validation Results')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: summary
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: summary
+              });
+            }
+
