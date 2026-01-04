@@ -89,7 +89,6 @@ A web-based visual editor for creating and managing training schedule JSON files
   completed.
 * **Streaks:** Tracks your consistency with visual flame counters.
 * **Streak Insurance:** Earn up to 3 shields (🛡️) by completing 7 consecutive training days. Use shields when severely ill to maintain your streak.
-* **Push Notifications:** Workout reminders at configurable times (PWA/Service Worker based)
 * **NoSleep Mode:** Prevents iOS Safari from locking the screen during workouts using a background video hack.
 * **Sound & Speech:** Integrated Text-to-Speech announces timer starts and completion naturally (e.g., "5 Minutes Rowing
   started").

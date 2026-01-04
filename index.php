@@ -7,13 +7,10 @@ require_once __DIR__ . '/assets/cachebuster.php';
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport"
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	<meta name="description" content="Personal Training Tracker with Dynamic Scheduling">
-	<meta name="theme-color" content="#38bdf8">
+		  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="apple-mobile-web-app-title" content="BodyRefactoring">
-	<link rel="manifest" href="/manifest.json">
 	<link rel="apple-touch-icon" href="assets/img/gymlogo.png">
 	<link rel="icon" type="image/png" href="assets/img/gymlogo.png">
 	<meta name="robots" content="noindex, nofollow, noarchive">
@@ -27,7 +24,6 @@ require_once __DIR__ . '/assets/cachebuster.php';
 	<script src="https://unpkg.com/lucide@latest"></script>
 
 	<link rel="stylesheet" href="<?php echo asset( 'assets/css/styles.css' ); ?>">
-	<script src="<?php echo asset( 'assets/js/push-notifications.js' ); ?>" defer></script>
 	<script src="<?php echo asset( 'assets/js/app.js' ); ?>" defer></script>
 </head>
 <body onclick="closeMenuOutside(event)">
@@ -97,11 +93,6 @@ require_once __DIR__ . '/assets/cachebuster.php';
 
 		<div id="menu-dropdown"
 			 class="hidden absolute right-0 top-16 w-56 bg-slate-800/95 backdrop-blur border border-slate-700 rounded-xl shadow-2xl overflow-hidden flex-col">
-			<button onclick="toggleNotifications()"
-					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
-				<i data-lucide="bell" class="w-4 h-4 text-blue-400 flex-shrink-0"></i>
-				<span class="truncate">Benachrichtigungen</span>
-			</button>
 			<button onclick="showSickModeModal()"
 					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
 				<i data-lucide="heart-pulse" class="w-4 h-4 text-red-400 flex-shrink-0"></i>
