@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Rep counter timing**: Adjusted the Rep Counter delay to measured values
+- **Pull Request Template**: Updated PR template to remove unused entries
 
 ## [10.0.1] - 2026-01-03
 

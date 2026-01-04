@@ -12,8 +12,6 @@
 - [ ] 📝 Documentation update
 - [ ] 🎨 Style/UI update (non-functional changes)
 - [ ] ♻️ Code refactoring (no functional changes)
-- [ ] ⚡ Performance improvement
-- [ ] ✅ Test update
 - [ ] 🔧 Configuration change
 
 ## Related Issues
@@ -24,8 +22,6 @@
 
 <!-- List the specific changes made in this PR -->
 
-- 
-- 
 - 
 
 ## Testing
@@ -38,13 +34,8 @@
 - [ ] Checked browser console for errors
 - [ ] Tested with different workout scenarios
 
-## Screenshots
-
-<!-- If applicable, add screenshots to demonstrate the changes -->
-
 ## Checklist
 
-- [ ] My code follows the WordPress coding standards
 - [ ] I have commented my code where necessary
 - [ ] I have updated the CHANGELOG.md following [Keep a Changelog](https://keepachangelog.com/) format
 - [ ] I have updated the documentation (if applicable)
