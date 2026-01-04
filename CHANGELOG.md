@@ -8,7 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [10.2.0] - 2026-01-04
 
 ### Added
+
 - Schedule for week starting 2026-01-05
+
+### Fixed
+
+- **PR enforce workflow**: Now properly treats skipped validation jobs as success, preventing false failures when only PR description is edited
 
 ## [10.1.1] - 2026-01-04
 
