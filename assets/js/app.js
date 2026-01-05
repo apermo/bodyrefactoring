@@ -114,23 +114,24 @@ async function initApp() {
 
 		state.availableSchedules = await response.json();
 
-		if (state.availableSchedules.length > 0) {
-			state.startDate = new Date(state.availableSchedules[0].date + 'T00:00:00');
-			await renderSchedule(); // Initial render
-			updateShieldDisplay(); // Initialize shields display
-			setTimeout(() => {
-				document.getElementById('splash-screen').style.opacity = '0';
-			}, 800);
-			setTimeout(() => {
-				document.getElementById('splash-screen').style.display = 'none';
-			}, 1300);
-		} else {
-			alert('Keine Trainingspläne gefunden.');
-		}
-	} catch (e) {
-		console.error(e);
-		alert('Fehler beim Laden der Trainingspläne. Webserver erforderlich!');
+	if (state.availableSchedules.length > 0) {
+		state.startDate = new Date(state.availableSchedules[0].date + 'T00:00:00');
+		await renderSchedule(); // Initial render
+		updateShieldDisplay(); // Initialize shields display
+		updateDebugToggleButton(); // Update debug toggle button text
+		setTimeout(() => {
+			document.getElementById('splash-screen').style.opacity = '0';
+		}, 800);
+		setTimeout(() => {
+			document.getElementById('splash-screen').style.display = 'none';
+		}, 1300);
+	} else {
+		alert('Keine Trainingspläne gefunden.');
 	}
+} catch (e) {
+	console.error(e);
+	alert('Fehler beim Laden der Trainingspläne. Webserver erforderlich!');
+}
 }
 
 /**
@@ -993,6 +994,54 @@ function forceUpdate() {
 		const url = new URL(window.location.href);
 		url.searchParams.set('update', Date.now());
 		window.location.href = url.toString();
+	}
+}
+
+/**
+ * Toggle debug mode on/off.
+ *
+ * Adds or removes #debug from URL hash and reloads the page.
+ * Updates button text to reflect current state.
+ *
+ * @return {void}
+ */
+function toggleDebugMode() {
+	const isDebugActive = window.location.hash === '#debug';
+
+	if (isDebugActive) {
+		// Disable debug mode
+		window.location.hash = '';
+		window.location.reload();
+	} else {
+		// Enable debug mode
+		window.location.hash = 'debug';
+		window.location.reload();
+	}
+}
+
+/**
+ * Update debug toggle button text based on current state.
+ *
+ * Called on page load to reflect whether debug mode is active.
+ *
+ * @return {void}
+ */
+function updateDebugToggleButton() {
+	const button = document.getElementById('debug-toggle-btn');
+	const text = document.getElementById('debug-toggle-text');
+
+	if (!button || !text) {
+		return;
+	}
+
+	const isDebugActive = window.location.hash === '#debug';
+
+	if (isDebugActive) {
+		text.textContent = 'Debug Mode deaktivieren';
+		button.classList.add('bg-orange-500/20');
+	} else {
+		text.textContent = 'Debug Mode aktivieren';
+		button.classList.remove('bg-orange-500/20');
 	}
 }
 
@@ -2050,6 +2099,8 @@ window.showSickModeModal = showSickModeModal;
 window.exportData = exportData;
 window.triggerImport = triggerImport;
 window.forceUpdate = forceUpdate;
+window.toggleDebugMode = toggleDebugMode;
+window.updateDebugToggleButton = updateDebugToggleButton;
 window.changeWeek = changeWeek;
 window.toggleTimer = toggleTimer;
 window.activateRecoveryMode = activateRecoveryMode;

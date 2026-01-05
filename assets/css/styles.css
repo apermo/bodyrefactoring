@@ -426,3 +426,10 @@ body {
 	text-shadow: 0 0 40px rgba(16, 185, 129, 0.7);
 }
 
+/* Debug Mode Toggle - Hide in standalone (web app) mode */
+@media (display-mode: standalone) {
+	.hide-in-standalone {
+		display: none !important;
+	}
+}
+

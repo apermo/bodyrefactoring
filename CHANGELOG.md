@@ -45,6 +45,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Single source of truth for rep timing
   - Debug mode (`#debug`) overrides delay to 1000ms for faster testing
   - Allows quick rep counter testing without waiting full configured delay (3-4 seconds)
+- **Debug mode toggle in menu**: Added easy toggle for debug mode in burger menu
+  - Only visible in browser mode (hidden in standalone/web app mode via CSS media query)
+  - Toggle button shows current state (aktivieren/deaktivieren)
+  - Visual indicator when active (orange highlight)
+  - Automatically reloads page to apply debug mode changes
 
 ### Changed
 
