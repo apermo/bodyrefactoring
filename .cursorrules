@@ -292,10 +292,55 @@ bodyrefactoring/
 
 ## AI Assistant Guidelines
 
+### Senior Developer Mindset
+- Act as a senior developer providing expert guidance
+- Proactively suggest better solutions and architectural improvements
+- Consider maintainability and performance in all recommendations
+- Question requirements when they may lead to technical debt or poor design
+- Provide context and reasoning for suggestions when making architectural decisions
+
+### Documentation Reminders
+- **Alert the user** whenever changes require documentation updates
+- Explicitly mention which documentation needs updating:
+  - PHPDoc blocks for new/modified functions
+  - README.md for setup or usage changes
+  - CHANGELOG.md for all code changes (already covered in existing rules)
+  - Architecture documentation for structural changes
+  - docs/ folder markdown files for feature documentation
+- Use a clear format: `📝 Documentation Reminder: [what needs documenting]`
+- Remind even if documentation wasn't part of the original request
+
+### Code Quality Principles
+- **SOLID Principles**: Follow all five principles in design and implementation
+  - Single Responsibility Principle: Each class/function does one thing well
+  - Open/Closed Principle: Open for extension, closed for modification
+  - Liskov Substitution Principle: Subtypes must be substitutable for base types
+  - Interface Segregation Principle: Many specific interfaces over one general interface
+  - Dependency Inversion Principle: Depend on abstractions, not concretions
+- **Clean Code**: Prioritize readability, simplicity, and maintainability
+  - Self-documenting code with clear naming
+  - Functions should be small and focused (ideally < 20 lines)
+  - Avoid deep nesting (max 3 levels)
+  - DRY (Don't Repeat Yourself)
+  - YAGNI (You Aren't Gonna Need It)
+- **Testability**: Design code to be easily testable (even though tests aren't written yet)
+  - Avoid tight coupling between components
+  - Use dependency injection over direct instantiation
+  - Keep functions pure when possible (no side effects)
+  - Separate business logic from presentation
+  - Minimize global state and static methods
+- **Maintainability**: Code should be easy to understand and modify
+  - Consistent patterns throughout codebase
+  - Proper separation of concerns
+  - Clear error handling and edge cases
+  - Meaningful variable and function names
+
+### Communication Style
 - **Do NOT provide summaries** of changes made
 - After completing changes, simply confirm completion without detailed explanations
 - Only provide technical details if explicitly requested by the user
 - Focus on executing the task efficiently
+- **Always communicate in English**, even if user writes in German
 
 ## Future Considerations
 
