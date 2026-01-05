@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Module Test - Body Refactoring</title>
+	<style>
+		body {
+			font-family: system-ui, -apple-system, sans-serif;
+			max-width: 800px;
+			margin: 50px auto;
+			padding: 20px;
+			background: #1e293b;
+			color: #e2e8f0;
+		}
+		.test-section {
+			background: #334155;
+			padding: 20px;
+			margin: 20px 0;
+			border-radius: 8px;
+			border-left: 4px solid #3b82f6;
+		}
+		.success {
+			color: #22c55e;
+		}
+		.error {
+			color: #ef4444;
+		}
+		h1 {
+			color: #60a5fa;
+		}
+		h2 {
+			color: #94a3b8;
+			font-size: 1.2rem;
+		}
+		pre {
+			background: #1e293b;
+			padding: 10px;
+			border-radius: 4px;
+			overflow-x: auto;
+		}
+		.badge {
+			display: inline-block;
+			padding: 4px 8px;
+			border-radius: 4px;
+			font-size: 0.8rem;
+			font-weight: bold;
+			margin-left: 10px;
+		}
+		.badge.pass {
+			background: #22c55e;
+			color: #1e293b;
+		}
+		.badge.fail {
+			background: #ef4444;
+			color: white;
+		}
+	</style>
+</head>
+<body>
+	<h1>🧪 v13.0 Module Tests</h1>
+	<p>Testing Phase 1 modules independently before integration.</p>
+
+	<div id="results"></div>
+
+	<script type="module">
+		import { STORAGE_KEYS, CONFIG, APP_STATES } from './assets/js/modules/constants.js';
+		import { StateMachine } from './assets/js/modules/state-machine.js';
+		import { StorageService } from './assets/js/modules/storage-service.js';
+		import { StateManager } from './assets/js/modules/state-manager.js';
+		import { getLocalISODate, formatTime, isToday } from './assets/js/modules/utils.js';
+		import { SpeechService } from './assets/js/modules/speech-service.js';
+
+		const resultsDiv = document.getElementById('results');
+
+		function addTest(name, passed, details = '') {
+			const section = document.createElement('div');
+			section.className = 'test-section';
+			section.innerHTML = `
+				<h2>${name} <span class="badge ${passed ? 'pass' : 'fail'}">${passed ? 'PASS' : 'FAIL'}</span></h2>
+				${details ? `<pre>${details}</pre>` : ''}
+			`;
+			resultsDiv.appendChild(section);
+		}
+
+		// Test 1: Constants
+		try {
+			const testKey = STORAGE_KEYS.exercise('2026-01-05', 'test');
+			const passed = testKey === 'body_refactoring_v1_2026-01-05_test' &&
+						   CONFIG.MAX_SHIELDS === 3 &&
+						   APP_STATES.INITIALIZING === 'initializing';
+			addTest('Constants Module', passed, `
+Exercise key: ${testKey}
+Max shields: ${CONFIG.MAX_SHIELDS}
+Initial state: ${APP_STATES.INITIALIZING}
+			`);
+		} catch (e) {
+			addTest('Constants Module', false, `Error: ${e.message}`);
+		}
+
+		// Test 2: State Machine
+		try {
+			const machine = new StateMachine(APP_STATES, APP_STATES.INITIALIZING);
+			machine.allow(APP_STATES.INITIALIZING, APP_STATES.SCHEDULE_VIEW);
+
+			const canTransition = machine.can(APP_STATES.SCHEDULE_VIEW);
+			const successTransition = machine.transition(APP_STATES.SCHEDULE_VIEW);
+			const failTransition = machine.transition(APP_STATES.TIMER_ACTIVE);
+
+			const passed = canTransition && successTransition && !failTransition;
+			addTest('State Machine Module', passed, `
+Can transition to SCHEDULE_VIEW: ${canTransition}
+Valid transition succeeded: ${successTransition}
+Invalid transition blocked: ${!failTransition}
+Current state: ${machine.getState()}
+			`);
+		} catch (e) {
+			addTest('State Machine Module', false, `Error: ${e.message}`);
+		}
+
+		// Test 3: Storage Service
+		try {
+			const storage = new StorageService();
+			const testDate = '2026-01-05';
+			const testExercise = 'module_test';
+
+			// Set and get
+			storage.setExerciseCompleted(testDate, testExercise, true);
+			const isCompleted = storage.isExerciseCompleted(testDate, testExercise);
+
+			// Weight test
+			storage.setWeight(testExercise, testDate, 50);
+			const weight = storage.getWeight(testExercise, testDate);
+
+			// Shields test
+			storage.setShields(2);
+			const shields = storage.getShields();
+
+			const passed = isCompleted && weight === '50' && shields === 2;
+
+			// Cleanup
+			storage.setExerciseCompleted(testDate, testExercise, false);
+			storage.remove(STORAGE_KEYS.weight(testExercise, testDate));
+			storage.setShields(0);
+
+			addTest('Storage Service Module', passed, `
+Exercise completed: ${isCompleted}
+Weight stored: ${weight}
+Shields: ${shields}
+			`);
+		} catch (e) {
+			addTest('Storage Service Module', false, `Error: ${e.message}`);
+		}
+
+		// Test 4: State Manager
+		try {
+			const stateManager = new StateManager();
+
+			// Test week offset
+			stateManager.setCurrentWeekOffset(1);
+			const weekOffset = stateManager.getCurrentWeekOffset();
+
+			// Test subscription
+			let callbackFired = false;
+			stateManager.subscribe('currentWeekOffset', (offset) => {
+				callbackFired = true;
+			});
+			stateManager.setCurrentWeekOffset(2);
+
+			const passed = weekOffset === 1 && callbackFired && stateManager.getCurrentWeekOffset() === 2;
+			addTest('State Manager Module', passed, `
+Initial week offset: ${weekOffset}
+Callback fired: ${callbackFired}
+Updated week offset: ${stateManager.getCurrentWeekOffset()}
+			`);
+		} catch (e) {
+			addTest('State Manager Module', false, `Error: ${e.message}`);
+		}
+
+		// Test 5: Utils
+		try {
+			const today = new Date();
+			const isoDate = getLocalISODate(today);
+			const timeFormat = formatTime(125);
+			const todayCheck = isToday(new Date());
+
+			const passed = isoDate.match(/^\d{4}-\d{2}-\d{2}$/) &&
+						   timeFormat === '2:05' &&
+						   todayCheck === true;
+
+			addTest('Utils Module', passed, `
+ISO date: ${isoDate}
+Format 125s: ${timeFormat}
+Is today: ${todayCheck}
+			`);
+		} catch (e) {
+			addTest('Utils Module', false, `Error: ${e.message}`);
+		}
+
+		// Test 6: Speech Service
+		try {
+			const speech = new SpeechService();
+			const isAvailable = speech.isAvailable;
+			const converted = speech.convertTimerLabel('5 Min');
+
+			const passed = converted === '5 Minuten';
+			addTest('Speech Service Module', passed, `
+Speech available: ${isAvailable}
+Convert "5 Min": ${converted}
+German voices: ${speech.getGermanVoices().length}
+			`);
+		} catch (e) {
+			addTest('Speech Service Module', false, `Error: ${e.message}`);
+		}
+
+		// Summary
+		const allTests = document.querySelectorAll('.badge');
+		const passCount = document.querySelectorAll('.badge.pass').length;
+		const totalCount = allTests.length;
+
+		const summary = document.createElement('div');
+		summary.className = 'test-section';
+		summary.style.borderLeftColor = passCount === totalCount ? '#22c55e' : '#f59e0b';
+		summary.innerHTML = `
+			<h2>Summary</h2>
+			<p><strong>${passCount}/${totalCount}</strong> tests passed</p>
+			<p>${passCount === totalCount ? '✅ All modules working correctly!' : '⚠️ Some tests failed - check console for details'}</p>
+		`;
+		resultsDiv.appendChild(summary);
+	</script>
+</body>
+</html>
+

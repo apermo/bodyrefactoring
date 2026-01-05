@@ -130,6 +130,15 @@ A web-based visual editor for creating and managing training schedule JSON files
 
 ## **🏗️ Architecture**
 
+**Version 13.0+** introduces a modular architecture with improved code quality, maintainability, and testability. See **[Architecture Documentation](docs/architecture.md)** for full details.
+
+### **Design Principles**
+
+- **SOLID Principles**: Single responsibility, dependency injection, clear interfaces
+- **Clean Code**: Small functions (<20 lines), minimal nesting, self-documenting
+- **Testability**: Pure functions, dependency injection, separation of concerns
+- **State Machines**: Explicit state management for timers, modals, and app lifecycle
+
 ### **File Structure**
 
 ```
@@ -149,7 +158,14 @@ bodyrefactoring/
 │   ├── css/
 │   │   └── styles.css        # All application styles and animations
 │   └── js/
-│       └── app.js            # All application logic (fully documented with JSDoc)
+│       ├── app.js            # Main application (being refactored)
+│       └── modules/          # 🆕 Modular architecture (v13.0+)
+│           ├── constants.js          # Constants, enums, configuration
+│           ├── state-machine.js      # Generic state machine implementation
+│           ├── storage-service.js    # localStorage abstraction layer
+│           ├── state-manager.js      # Centralized application state
+│           ├── utils.js              # Common utility functions
+│           └── speech-service.js     # Text-to-speech service
 ├── trainings/
 │   ├── index.php             # API endpoint for available schedules
 │   ├── validate-schedule.php # Schedule validator (CLI only)
@@ -157,10 +173,29 @@ bodyrefactoring/
 │   ├── template-schedule.json    # Template for new schedules
 │   └── schedule-*.json       # Training schedule files
 └── docs/
+    ├── architecture.md           # 🆕 Architecture documentation
     ├── schedule-editor.md        # Complete schedule editor guide
     ├── schedule-validation.md    # Validation system documentation
     └── ai-schedule-creation.md   # Guide for AI-assisted schedule creation
 ```
+
+### **Module System (v13.0+)**
+
+**Phase 1 Complete** - Core foundation modules:
+
+- **constants.js**: Single source of truth for all constants and configuration
+- **state-machine.js**: Generic state machine with transition validation
+- **storage-service.js**: localStorage abstraction with type-safe methods
+- **state-manager.js**: Centralized reactive state management
+- **utils.js**: Common utilities (dates, formatting, notifications)
+- **speech-service.js**: Text-to-speech with voice selection
+
+**Upcoming Phases**:
+- Phase 2: State machine integration (app, timer, modal state machines)
+- Phase 3: Feature module extraction (rendering, streak calculation, etc.)
+- Phase 4: Integration and optimization
+
+See **[Architecture Documentation](docs/architecture.md)** for migration strategy and module details.
 
 ### **Cache Busting**
 
@@ -174,7 +209,7 @@ The app uses file modification timestamps for automatic cache invalidation:
 
 - **HTML (index.php)**: Structure and layout only
 - **CSS (assets/css/styles.css)**: All styling and animations
-- **JavaScript (assets/js/app.js)**: All application logic and interactivity
+- **JavaScript (assets/js/)**: Application logic (modular from v13.0+)
 - **PHP Backend**: Dynamic schedule loading and cache busting
 
 ## **🚀 Installation & Setup**
