@@ -530,7 +530,15 @@ This project was built using **Vibe Coding** — a fluid, iterative collaboratio
 capability.
 
 * **Concept & Vision:** [apermo](https://github.com/apermo)
-* **AI Co-Pilot:** Google Gemini (Code generation, Logic implementation, UI Design)
+* **AI Co-Pilots:** 
+  - Google Gemini (Initial Code generation, Logic implementation, UI Design)
+  - GitHub Copilot using Claude Sonnet 4.5 (Refactoring, Architecture design, Code quality improvements, Continuous development)
+
+### **Special Thanks**
+
+A heartfelt thank you to **[Alexikon](https://www.instagram.com/alexikon_official)** whose educational and entertaining Instagram Reels sparked a profound shift in my relationship with food and drink. His content was the catalyst that led me to rethink my habits and ultimately inspired the creation of this project. 
+
+Sometimes the smallest nudge creates the biggest change. 🙏
 
 ## **📄 License**
 
