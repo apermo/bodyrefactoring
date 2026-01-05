@@ -342,6 +342,14 @@ bodyrefactoring/
 - Focus on executing the task efficiently
 - **Always communicate in English**, even if user writes in German
 
+### Git Workflow
+- **Do NOT perform git commands** (add, commit, push) unless:
+  1. User explicitly requests git operations
+  2. Something needs to be checked/verified (e.g., `git status`, `git diff`)
+- When work is complete, notify user: "✅ Done - ready to check and commit"
+- User handles all git operations (staging, committing, pushing)
+- Only use `git status`, `git diff`, or similar read-only commands for verification when needed
+
 ## Future Considerations
 
 - Consider separating JavaScript into external file (currently inline)
