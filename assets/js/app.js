@@ -1993,6 +1993,35 @@ function backToNormal( dateIso ) {
 	alert( '✅ Zurück zum normalen Training!' + ( usedShield ? '\n🛡️ Schild wurde zurückerstattet.' : '' ) );
 }
 
+// --- EXPOSE FUNCTIONS TO GLOBAL SCOPE FOR INLINE EVENT HANDLERS ---
+// Since app.js is now a module, functions are not automatically global.
+// We need to explicitly expose functions that are called from inline HTML event handlers.
+
+window.toggleCheck = toggleCheck;
+window.closeMenuOutside = closeMenuOutside;
+window.closeModal = closeModal;
+window.toggleMenu = toggleMenu;
+window.showSickModeModal = showSickModeModal;
+window.exportData = exportData;
+window.triggerImport = triggerImport;
+window.forceUpdate = forceUpdate;
+window.changeWeek = changeWeek;
+window.toggleTimer = toggleTimer;
+window.activateRecoveryMode = activateRecoveryMode;
+window.useSickShield = useSickShield;
+window.closeSickModeModal = closeSickModeModal;
+window.abortRepCounter = abortRepCounter;
+window.startSpecificTimer = startSpecificTimer;
+window.startRepCounter = startRepCounter;
+window.backToNormal = backToNormal;
+window.importData = importData;
+window.miniConfetti = miniConfetti;
+window.toggleAccordion = toggleAccordion;
+window.toggleUnit = toggleUnit;
+window.handleWeightBlur = handleWeightBlur;
+window.saveNote = saveNote;
+window.saveWeight = saveWeight;
+
 // START APP
 window.onload = initApp;
 

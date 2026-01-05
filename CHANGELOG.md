@@ -20,11 +20,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `modules/app-state-machine.js`: High-level application state management (initializing, schedule view, timer active, rep counter active, modal open)
   - `modules/timer-state-machine.js`: Timer and rep counter state machines with proper lifecycle management
   - `modules/modal-state-machine.js`: Modal management ensuring only one modal open at a time
+- **Core Architecture - Phase 3**: Module integration (IN PROGRESS)
+  - Integrated all Phase 1 & 2 modules into app.js
+  - Migrated app.js to ES6 module system
+  - Replaced global constants with imported modules
+  - State machines and services now active in application
+  - Fixed duplicate function declaration (getLocalISODate)
+  - Replaced MAX_SHIELDS with CONFIG.MAX_SHIELDS
+  - Fixed timer-state-machine.js export issue (file was empty, recreated with proper content)
+  - Fixed module scope issue: Exposed 28 functions to global scope for inline event handlers
+  - Fixed weight/unit saving: Exposed handleWeightBlur, saveNote, and saveWeight to global scope
+  - Improved accordion UX: Auto-close siblings when opening a day, refresh weight values on open
+  - Fixed file corruption: Restored app.js after insert_edit_into_file removed functions
 
 ### Changed
 
-- `.cursorrules`: Enhanced AI development guidelines with senior developer mindset, mandatory documentation reminders, and strict code quality principles (SOLID, Clean Code, Testability, Maintainability). Thanks to David for the suggestion!
+- `.cursorrules`: Enhanced AI development guidelines 
+  - Senior developer mindset - Thanks to David for the suggestion!
+  - Mandatory documentation reminders
+  - Strict code quality principles (SOLID, Clean Code, Testability, Maintainability).
+  - Added git workflow guidelines: AI should not perform git operations unless explicitly requested or for verification.
 - **Architecture**: Modular foundation established with state machines for improved code organization and conflict prevention
+- **app.js**: Now loads as ES6 module with imported dependencies
 
 ## [12.0.0] - 2026-01-05
 

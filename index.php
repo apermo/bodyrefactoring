@@ -24,7 +24,7 @@ require_once __DIR__ . '/assets/cachebuster.php';
 	<script src="https://unpkg.com/lucide@latest"></script>
 
 	<link rel="stylesheet" href="<?php echo asset( 'assets/css/styles.css' ); ?>">
-	<script src="<?php echo asset( 'assets/js/app.js' ); ?>" defer></script>
+ 	<script type="module" src="<?php echo asset( 'assets/js/app.js' ); ?>"></script>
 </head>
 <body onclick="closeMenuOutside(event)">
 
