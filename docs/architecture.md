@@ -45,12 +45,12 @@ The refactoring follows these core principles:
     └── speech-service.js     # Text-to-speech service
 ```
 
-### Phase 2: State Machines (Planned)
+### Phase 2: State Machines (v13.0) ✅
 
 ```
 /assets/js/modules/
 ├── app-state-machine.js      # Main application state machine
-├── timer-state-machine.js    # Timer & rep counter state machine
+├── timer-state-machine.js    # Timer & rep counter state machines
 └── modal-state-machine.js    # Modal management state machine
 ```
 
@@ -199,12 +199,12 @@ speech.cancel(); // Stop all speech
 - [x] Centralize state management
 - [x] Extract speech service
 
-### Phase 2 (v13.1) - State Machine Integration
-- [ ] Implement app state machine
-- [ ] Implement timer state machine
-- [ ] Implement modal state machine
-- [ ] Wire up state transitions
-- [ ] Add state logging (debug mode)
+### Phase 2 (v13.0) ✅ COMPLETE
+- [x] Implement app state machine
+- [x] Implement timer state machine (+ rep counter state machine)
+- [x] Implement modal state machine
+- [ ] Wire up state transitions (Phase 3)
+- [ ] Add state logging (Phase 3)
 
 ### Phase 3 (v13.2) - Feature Module Extraction
 - [ ] Extract schedule service
@@ -272,6 +272,6 @@ All modules implement consistent error handling:
 
 ---
 
-**Last Updated**: 2026-01-05 (v13.0.0)
-**Status**: Phase 1 Complete, Phase 2 Planning
+**Last Updated**: 2026-01-05 (v13.0.0)  
+**Status**: Phase 2 Complete, Phase 3 Next
 

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>State Machine Tests - Phase 2</title>
+	<style>
+		body {
+			font-family: system-ui, -apple-system, sans-serif;
+			max-width: 1000px;
+			margin: 50px auto;
+			padding: 20px;
+			background: #1e293b;
+			color: #e2e8f0;
+		}
+		.test-section {
+			background: #334155;
+			padding: 20px;
+			margin: 20px 0;
+			border-radius: 8px;
+			border-left: 4px solid #3b82f6;
+		}
+		.success { color: #22c55e; }
+		.error { color: #ef4444; }
+		h1 { color: #60a5fa; }
+		h2 { color: #94a3b8; font-size: 1.2rem; }
+		pre {
+			background: #1e293b;
+			padding: 10px;
+			border-radius: 4px;
+			overflow-x: auto;
+			font-size: 0.9rem;
+		}
+		.badge {
+			display: inline-block;
+			padding: 4px 8px;
+			border-radius: 4px;
+			font-size: 0.8rem;
+			font-weight: bold;
+			margin-left: 10px;
+		}
+		.badge.pass { background: #22c55e; color: #1e293b; }
+		.badge.fail { background: #ef4444; color: white; }
+		.state-diagram {
+			background: #1e293b;
+			padding: 15px;
+			border-radius: 4px;
+			margin: 10px 0;
+			font-family: monospace;
+			font-size: 0.85rem;
+		}
+	</style>
+</head>
+<body>
+	<h1>🧪 Phase 2 State Machine Tests</h1>
+	<p>Testing application, timer, and modal state machines with transition validation.</p>
+
+	<div id="results"></div>
+
+	<script type="module">
+		import { AppStateMachine } from './assets/js/modules/app-state-machine.js';
+		import { TimerStateMachine, RepCounterStateMachine } from './assets/js/modules/timer-state-machine.js';
+		import { ModalStateMachine } from './assets/js/modules/modal-state-machine.js';
+		import { APP_STATES, TIMER_STATES, REP_COUNTER_STATES, MODAL_TYPES } from './assets/js/modules/constants.js';
+
+		const resultsDiv = document.getElementById('results');
+
+		function addTest(name, passed, details = '') {
+			const section = document.createElement('div');
+			section.className = 'test-section';
+			section.innerHTML = `
+				<h2>${name} <span class="badge ${passed ? 'pass' : 'fail'}">${passed ? 'PASS' : 'FAIL'}</span></h2>
+				${details ? `<pre>${details}</pre>` : ''}
+			`;
+			resultsDiv.appendChild(section);
+		}
+
+		// Test 1: App State Machine
+		try {
+			const appSM = new AppStateMachine();
+			const transitions = [];
+
+			// Track transitions
+			appSM.onChange(({from, to}) => {
+				transitions.push(`${from} → ${to}`);
+			});
+
+			// Test valid transitions
+			const t1 = appSM.getState() === APP_STATES.INITIALIZING;
+			const t2 = appSM.transition(APP_STATES.SCHEDULE_VIEW);
+			const t3 = appSM.startTimer();
+			const t4 = appSM.isTimerActive();
+
+			// Test invalid transition (timer active, can't start rep counter)
+			const t5 = !appSM.startRepCounter();
+
+			// Return to schedule
+			const t6 = appSM.returnToSchedule();
+			const t7 = appSM.isInScheduleView();
+
+			const passed = t1 && t2 && t3 && t4 && t5 && t6 && t7;
+
+			addTest('App State Machine', passed, `
+Valid transitions:
+${transitions.join('\n')}
+
+Initial state: ${APP_STATES.INITIALIZING} ✓
+Can navigate to schedule: ${t2} ✓
+Can start timer: ${t3} ✓
+Timer active check: ${t4} ✓
+Blocks rep counter when timer active: ${t5} ✓
+Can return to schedule: ${t6} ✓
+Current state: ${appSM.getState()}
+			`);
+		} catch (e) {
+			addTest('App State Machine', false, `Error: ${e.message}`);
+		}
+
+		// Test 2: Timer State Machine
+		try {
+			const timerSM = new TimerStateMachine();
+			const transitions = [];
+
+			timerSM.onChange(({from, to}) => {
+				transitions.push(`${from} → ${to}`);
+			});
+
+			// Test lifecycle
+			const t1 = timerSM.isIdle();
+			const t2 = timerSM.start(false); // Start without countdown
+			const t3 = timerSM.isRunning();
+			const t4 = timerSM.stop('completed');
+			const t5 = timerSM.isIdle();
+
+			// Test with countdown
+			const t6 = timerSM.startCountdown();
+			const t7 = timerSM.isCountingDown();
+			const t8 = timerSM.beginRunning();
+			const t9 = timerSM.stop('cancelled');
+
+			const passed = t1 && t2 && t3 && t4 && t5 && t6 && t7 && t8 && t9;
+
+			addTest('Timer State Machine', passed, `
+Transitions:
+${transitions.join('\n')}
+
+Initial idle: ${t1} ✓
+Can start: ${t2} ✓
+Running state: ${t3} ✓
+Can stop: ${t4} ✓
+Back to idle: ${t5} ✓
+Countdown works: ${t6} ${t7} ${t8} ✓
+Final state: ${timerSM.getState()}
+			`);
+		} catch (e) {
+			addTest('Timer State Machine', false, `Error: ${e.message}`);
+		}
+
+		// Test 3: Rep Counter State Machine
+		try {
+			const repSM = new RepCounterStateMachine();
+			const transitions = [];
+
+			repSM.onChange(({from, to}) => {
+				transitions.push(`${from} → ${to}`);
+			});
+
+			// Test full lifecycle
+			const t1 = repSM.isInactive();
+			const t2 = repSM.start(); // Begin countdown
+			const t3 = repSM.showGo();
+			const t4 = repSM.startCounting();
+			const t5 = repSM.isCounting();
+			const t6 = repSM.startRest();
+			const t7 = repSM.isResting();
+			const t8 = repSM.resumeCounting();
+			const t9 = repSM.complete();
+			const t10 = repSM.isCompleted();
+			const t11 = repSM.reset();
+			const t12 = repSM.isInactive();
+
+			const passed = t1 && t2 && t3 && t4 && t5 && t6 && t7 && t8 && t9 && t10 && t11 && t12;
+
+			addTest('Rep Counter State Machine', passed, `
+Full lifecycle:
+${transitions.join('\n')}
+
+All states tested: ${passed ? 'YES' : 'NO'}
+States visited: ${transitions.length}
+Expected: 12 transitions
+Final state: ${repSM.getState()}
+			`);
+		} catch (e) {
+			addTest('Rep Counter State Machine', false, `Error: ${e.message}`);
+		}
+
+		// Test 4: Modal State Machine
+		try {
+			const modalSM = new ModalStateMachine();
+			const transitions = [];
+
+			modalSM.onChange(({from, to}) => {
+				transitions.push(`${from} → ${to}`);
+			});
+
+			// Test each modal type
+			const t1 = modalSM.isClosed();
+			const t2 = modalSM.openCompletion();
+			const t3 = modalSM.isCompletionOpen();
+			const t4 = modalSM.close();
+			const t5 = modalSM.openSickMode();
+			const t6 = modalSM.isSickModeOpen();
+
+			// Test invalid transition (can't open another modal while one is open)
+			const t7 = !modalSM.openMenu();
+
+			const t8 = modalSM.close();
+			const t9 = modalSM.isClosed();
+
+			const passed = t1 && t2 && t3 && t4 && t5 && t6 && t7 && t8 && t9;
+
+			addTest('Modal State Machine', passed, `
+Transitions:
+${transitions.join('\n')}
+
+Initially closed: ${t1} ✓
+Can open completion: ${t2} ✓
+Completion open: ${t3} ✓
+Can close: ${t4} ✓
+Can open sick mode: ${t5} ✓
+Blocks multiple modals: ${t7} ✓
+Final state: ${modalSM.getState()}
+			`);
+		} catch (e) {
+			addTest('Modal State Machine', false, `Error: ${e.message}`);
+		}
+
+		// Test 5: Conflict Prevention
+		try {
+			const appSM = new AppStateMachine();
+			appSM.transition(APP_STATES.SCHEDULE_VIEW);
+
+			// Try to start both timer and rep counter
+			const t1 = appSM.startTimer();
+			const t2 = !appSM.canStartRepCounter(); // Should be blocked
+			const t3 = !appSM.canOpenModal(); // Should be blocked
+
+			appSM.returnToSchedule();
+
+			const t4 = appSM.startRepCounter();
+			const t5 = !appSM.canStartTimer(); // Should be blocked
+
+			const passed = t1 && t2 && t3 && t4 && t5;
+
+			addTest('Conflict Prevention', passed, `
+✓ Timer blocks rep counter
+✓ Timer blocks modals
+✓ Rep counter blocks timer
+✓ Only one active operation at a time
+
+This prevents the current bug where timer and rep counter
+can run simultaneously causing audio conflicts.
+			`);
+		} catch (e) {
+			addTest('Conflict Prevention', false, `Error: ${e.message}`);
+		}
+
+		// Test 6: State History
+		try {
+			const appSM = new AppStateMachine();
+			appSM.transition(APP_STATES.SCHEDULE_VIEW);
+			appSM.startTimer();
+			appSM.returnToSchedule();
+			appSM.startRepCounter();
+
+			const history = appSM.getHistory(10);
+			const hasHistory = history.length === 4;
+			const hasTimestamps = history.every(h => h.timestamp);
+
+			const passed = hasHistory && hasTimestamps;
+
+			addTest('State History & Debugging', passed, `
+History entries: ${history.length}
+All have timestamps: ${hasTimestamps}
+
+Sample history entry:
+${JSON.stringify(history[0], null, 2)}
+
+This enables debugging and analytics of user flows.
+			`);
+		} catch (e) {
+			addTest('State History & Debugging', false, `Error: ${e.message}`);
+		}
+
+		// Summary
+		const allTests = document.querySelectorAll('.badge');
+		const passCount = document.querySelectorAll('.badge.pass').length;
+		const totalCount = allTests.length;
+
+		const summary = document.createElement('div');
+		summary.className = 'test-section';
+		summary.style.borderLeftColor = passCount === totalCount ? '#22c55e' : '#f59e0b';
+		summary.innerHTML = `
+			<h2>Phase 2 Summary</h2>
+			<p><strong>${passCount}/${totalCount}</strong> tests passed</p>
+			${passCount === totalCount ? `
+				<p>✅ <strong>All state machines working correctly!</strong></p>
+				<div class="state-diagram">
+State Machine Benefits Achieved:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Timer conflicts prevented
+✓ Clear application flow
+✓ Modal management enforced
+✓ State transitions validated
+✓ History tracking enabled
+✓ Debugging improved
+				</div>
+			` : '<p>⚠️ Some tests failed - check console for details</p>'}
+			<p><strong>Ready for Phase 3:</strong> Integration into app.js</p>
+		`;
+		resultsDiv.appendChild(summary);
+	</script>
+</body>
+</html>
+

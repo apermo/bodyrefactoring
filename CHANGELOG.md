@@ -16,12 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `modules/state-manager.js`: Centralized application state management with reactive updates
   - `modules/utils.js`: Common utility functions (date handling, formatting, notifications)
   - `modules/speech-service.js`: Text-to-speech service with voice selection and queue management
+- **Core Architecture - Phase 2**: State machine integration
+  - `modules/app-state-machine.js`: High-level application state management (initializing, schedule view, timer active, rep counter active, modal open)
+  - `modules/timer-state-machine.js`: Timer and rep counter state machines with proper lifecycle management
+  - `modules/modal-state-machine.js`: Modal management ensuring only one modal open at a time
 
 ### Changed
 
-- `.cursorrules`: Enhanced AI development guidelines with senior developer mindset, mandatory documentation reminders, and strict code quality principles (SOLID, Clean Code, Testability, Maintainability) (Thanks to David for the suggestion!)
-- **Architecture**: Preparing for state machine integration and improved code organization (Phase 2 upcoming)
-
+- `.cursorrules`: Enhanced AI development guidelines with senior developer mindset, mandatory documentation reminders, and strict code quality principles (SOLID, Clean Code, Testability, Maintainability)  Thanks to David for the suggestion!
+- **Architecture**: Modular foundation established with state machines for improved code organization and conflict prevention
 
 ## [12.0.0] - 2026-01-05
 
