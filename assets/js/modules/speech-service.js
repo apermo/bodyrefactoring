@@ -102,12 +102,9 @@ export class SpeechService {
 		}
 
 		return new Promise( ( resolve, reject ) => {
-			// Wait if currently speaking
+			// Cancel any ongoing speech to prevent conflicts
 			if ( window.speechSynthesis.speaking ) {
-				setTimeout( () => {
-					this.speak( text, options ).then( resolve ).catch( reject );
-				}, 100 );
-				return;
+				window.speechSynthesis.cancel();
 			}
 
 			const utterance = new SpeechSynthesisUtterance( text );

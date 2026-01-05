@@ -2,23 +2,57 @@
  * Body Refactoring App - Main JavaScript
  *
  * @package BodyRefactoring
- * @version 9.0.0
+ * @version 13.0.0
  */
+
+// --- MODULE IMPORTS ---
+import {
+	STORAGE_KEYS,
+	CONFIG,
+	APP_STATES,
+	QUOTES,
+	RECOVERY_ACTIVITIES
+} from './modules/constants.js';
+
+import { AppStateMachine } from './modules/app-state-machine.js';
+import { TimerStateMachine, RepCounterStateMachine } from './modules/timer-state-machine.js';
+import { ModalStateMachine } from './modules/modal-state-machine.js';
+import { StorageService } from './modules/storage-service.js';
+import { StateManager } from './modules/state-manager.js';
+import { SpeechService } from './modules/speech-service.js';
+import { TimerCoordinator } from './modules/timer-coordinator.js';
+import { getLocalISODate, getToday, scrollToElement } from './modules/utils.js';
+
+// --- STATE MACHINES & SERVICES ---
+const appStateMachine = new AppStateMachine();
+const timerStateMachine = new TimerStateMachine();
+const repCounterStateMachine = new RepCounterStateMachine();
+const modalStateMachine = new ModalStateMachine();
+const storage = new StorageService();
+const stateManager = new StateManager();
+const speech = new SpeechService();
+const timerCoordinator = new TimerCoordinator();
+
+// Debug mode - removes day editing restrictions
+const DEBUG_MODE = CONFIG.DEBUG_MODE;
+
+// Legacy constants (to be replaced with STORAGE_KEYS and storage service)
+const STORAGE_PREFIX = STORAGE_KEYS.PREFIX;
+const NOTE_PREFIX = STORAGE_KEYS.NOTE_PREFIX;
+const WEIGHT_PREFIX = STORAGE_KEYS.WEIGHT_PREFIX;
+const UNIT_PREFIX = STORAGE_KEYS.UNIT_PREFIX;
+const SICK_PREFIX = STORAGE_KEYS.SICK_PREFIX;
+const RECOVERY_PREFIX = STORAGE_KEYS.RECOVERY_PREFIX;
+const SHIELDS_KEY = STORAGE_KEYS.SHIELDS;
+const SHIELDS_AWARDED_KEY = STORAGE_KEYS.SHIELDS_AWARDED;
+const MAX_SHIELDS = CONFIG.MAX_SHIELDS;
+
+// Use imported constants
+const quotes = QUOTES;
+const recoveryActivities = RECOVERY_ACTIVITIES;
 
 // --- GLOBAL STATE ---
 let currentWeekOffset = 0;
-const STORAGE_PREFIX = 'body_refactoring_v1_';
-const NOTE_PREFIX = 'body_refactoring_note_';
-const WEIGHT_PREFIX = 'body_refactoring_weight_';
-const UNIT_PREFIX = 'body_refactoring_unit_';
-const SICK_PREFIX = 'body_refactoring_sick_';
-const RECOVERY_PREFIX = 'body_refactoring_recovery_';
-const SHIELDS_KEY = 'body_refactoring_shields';
-const SHIELDS_AWARDED_KEY = 'body_refactoring_shields_awarded';
-const MAX_SHIELDS = 3;
-
-// Debug mode - removes day editing restrictions
-const DEBUG_MODE = window.location.hash === '#debug';
 
 // Global State for Dynamic Scheduling
 const state = {
@@ -33,23 +67,6 @@ let isRunning = false;
 let timeLeft = 0;
 let currentTimerLabel = '';
 
-const quotes = [
-	'Stark! Wieder einen Tag geschafft.',
-	'Konsistenz ist der Schlüssel zum Erfolg.',
-	'Dein Zukunfts-Ich dankt dir.',
-	'Keine Ausreden, nur Ergebnisse.',
-	'Level Up! Du wirst jeden Tag besser.',
-	'Schweiß ist nur Fett, das weint.',
-	'Disziplin ist Freiheit.',
-	'Ein Schritt näher am Ziel.'
-];
-
-// Recovery Mode Activities (light activities for sick days)
-const recoveryActivities = [
-	{ id: 'breathing', title: '5 Min Atemübungen', desc: 'Tiefes Ein- und Ausatmen' },
-	{ id: 'stretching', title: 'Leichtes Stretching', desc: '5 Minuten sanfte Dehnübungen' },
-	{ id: 'hydration', title: 'Flüssigkeitszufuhr', desc: '2 Liter Wasser/Tee trinken' }
-];
 
 // --- INIT & DATA FETCHING ---
 
@@ -70,6 +87,23 @@ async function initApp() {
 			debugIndicator.classList.remove('hidden');
 		}
 		console.log('🐛 DEBUG MODE ACTIVE - All day restrictions removed');
+
+		// Add state machine logging in debug mode
+		appStateMachine.onChange(({from, to, data}) => {
+			console.log(`[AppState] ${from} → ${to}`, data);
+		});
+
+		timerStateMachine.onChange(({from, to, data}) => {
+			console.log(`[TimerState] ${from} → ${to}`, data);
+		});
+
+		repCounterStateMachine.onChange(({from, to, data}) => {
+			console.log(`[RepCounterState] ${from} → ${to}`, data);
+		});
+
+		modalStateMachine.onChange(({from, to, data}) => {
+			console.log(`[ModalState] ${from} → ${to}`, data);
+		});
 	}
 
 	try {
@@ -149,17 +183,6 @@ async function fetchScheduleForDate(dateStr) {
 
 // --- CORE FUNCTIONS ---
 
-/**
- * Convert a Date object to ISO date string in local timezone.
- *
- * @param {Date} date - The date to convert.
- * @return {string} ISO date string (YYYY-MM-DD) in local timezone.
- */
-function getLocalISODate(date) {
-	const offset = date.getTimezoneOffset();
-	const localDate = new Date(date.getTime() - (offset * 60 * 1000));
-	return localDate.toISOString().split('T')[0];
-}
 
 /**
  * Compute the schedule for the current week being displayed.
@@ -988,85 +1011,13 @@ function enableNoSleep() {
 /**
  * Use text-to-speech to speak a message in German.
  *
- * Enhanced for iOS with better voice selection and more natural speech settings.
+ * Now uses timerCoordinator for centralized speech management and cleanup.
  *
  * @param {string} text - The text to speak.
- * @return {void}
+ * @return {Promise<void>} Resolves when speech complete.
  */
-function speak(text) {
-	if (!('speechSynthesis' in window)) {
-		return;
-	}
-
-	// Wait a bit if speech is currently speaking to avoid conflicts
-	if (window.speechSynthesis.speaking) {
-		setTimeout(() => speak(text), 100);
-		return;
-	}
-
-	const utterance = new SpeechSynthesisUtterance(text);
-	utterance.lang = 'de-DE';
-
-	// Natural speech settings - set before voice selection
-	utterance.rate = 0.95;
-	utterance.pitch = 1.0;
-	utterance.volume = 0.9;
-
-	// Get available voices
-	let voices = window.speechSynthesis.getVoices();
-
-	// If voices aren't loaded yet, wait for them
-	if (voices.length === 0) {
-		// Only set the handler once
-		if (!window.speechSynthesis.onvoiceschanged) {
-			window.speechSynthesis.onvoiceschanged = () => {
-				const loadedVoices = window.speechSynthesis.getVoices();
-				selectAndSpeak(utterance, loadedVoices);
-			};
-		}
-		// Trigger voice loading
-		window.speechSynthesis.getVoices();
-	} else {
-		selectAndSpeak(utterance, voices);
-	}
-}
-
-/**
- * Select the best German voice and speak.
- *
- * @param {SpeechSynthesisUtterance} utterance - The utterance object.
- * @param {Array} voices - Available voices.
- * @return {void}
- */
-function selectAndSpeak(utterance, voices) {
-	// Find German voices
-	const germanVoices = voices.filter(voice => voice.lang.startsWith('de'));
-
-	// Prefer specific voices in order
-	const preferredNames = ['Anna', 'Helena', 'Markus'];
-	let selectedVoice = null;
-
-	// Try to find preferred voice
-	for (const name of preferredNames) {
-		selectedVoice = germanVoices.find(voice => voice.name.includes(name));
-		if (selectedVoice) break;
-	}
-
-	// Fallback to any German voice
-	if (!selectedVoice && germanVoices.length > 0) {
-		selectedVoice = germanVoices[0];
-	}
-
-	if (selectedVoice) {
-		utterance.voice = selectedVoice;
-	}
-
-	// Speak with error handling
-	try {
-		window.speechSynthesis.speak(utterance);
-	} catch (error) {
-		console.error('Speech synthesis error:', error);
-	}
+async function speak(text) {
+	return timerCoordinator.speak(text);
 }
 
 /**
@@ -1088,11 +1039,24 @@ function getSpokenText(label) {
  */
 function startSpecificTimer(seconds, label) {
 	event.stopPropagation();
+
+	// Check if we can start a timer (state machine validation)
+	if (!appStateMachine.canStartTimer()) {
+		console.warn('[Timer] Blocked - another operation is active');
+		alert('⚠️ Bitte schließe erst die andere aktive Aktion.');
+		return;
+	}
+
 	resetTimer();
 	timeLeft = seconds;
 	currentTimerLabel = label;
 	document.getElementById('timer-text').innerText = label;
 	const spokenLabel = getSpokenText(label);
+
+	// Transition app state to TIMER_ACTIVE
+	appStateMachine.startTimer();
+	timerStateMachine.start(false); // Start without countdown
+
 	startTimerLogic(spokenLabel);
 }
 
@@ -1115,6 +1079,23 @@ let repCountdownInterval = null;
 let repStartTimeout = null;
 
 /**
+ * Get the rep counter delay with debug mode override.
+ *
+ * Returns the configured delay in milliseconds, or 1000ms in debug mode for faster testing.
+ * This provides a single source of truth for rep timing.
+ *
+ * @param {number} configuredDelay - The delay configured in the schedule (milliseconds).
+ * @return {number} Actual delay to use (milliseconds).
+ */
+function getRepDelay(configuredDelay) {
+	if (DEBUG_MODE) {
+		console.log(`[RepCounter] Debug mode: Overriding delay ${configuredDelay}ms → 1000ms`);
+		return 1000;
+	}
+	return configuredDelay;
+}
+
+/**
  * Start rep counter workflow.
  *
  * @param {string} exerciseId - Exercise identifier.
@@ -1130,13 +1111,28 @@ let repStartTimeout = null;
 function startRepCounter(exerciseId, sets, reps, restSeconds, delayMilliseconds, title, date, storageKey) {
 	event.stopPropagation();
 
+	// Check if we can start rep counter (state machine validation)
+	if (!appStateMachine.canStartRepCounter()) {
+		console.warn('[RepCounter] Blocked - another operation is active');
+		alert('⚠️ Bitte schließe erst die andere aktive Aktion.');
+		return;
+	}
+
 	// Reset any existing timer
 	resetTimer();
 	if (repCounterInterval) {
 		clearInterval(repCounterInterval);
 	}
 
-	// Initialize state
+	// Transition app state to REP_COUNTER_ACTIVE
+	appStateMachine.startRepCounter();
+	repCounterStateMachine.start();
+
+	// Mark rep counter as active in coordinator
+	timerCoordinator.startRepCounter();
+
+	// Initialize state with debug mode delay override
+	const actualDelay = getRepDelay(delayMilliseconds);
 	repCounterState = {
 		active: true,
 		exerciseId: exerciseId,
@@ -1146,7 +1142,7 @@ function startRepCounter(exerciseId, sets, reps, restSeconds, delayMilliseconds,
 		totalSets: sets,
 		repsPerSet: reps,
 		restSeconds: restSeconds,
-		delayMilliseconds: delayMilliseconds,
+		delayMilliseconds: actualDelay,
 		currentSet: 1,
 		currentRep: 0
 	};
@@ -1154,10 +1150,10 @@ function startRepCounter(exerciseId, sets, reps, restSeconds, delayMilliseconds,
 	// Show modal
 	showRepCounterModal();
 
-	// Start with 5-second countdown
-	setTimeout(() => {
+	// Start with 5-second countdown using timerCoordinator
+	timerCoordinator.setTimeout(() => {
 		startRepCountdown();
-	}, 300);
+	}, 300, 'rep_counter_init');
 }
 
 /**
@@ -1278,7 +1274,8 @@ function startRepCountdown() {
 		}
 	}
 
-	repCountdownInterval = setInterval(() => {
+	// Use timerCoordinator.setInterval for countdown
+	timerCoordinator.setInterval(() => {
 		countdown--;
 		if (countdown > 0) {
 			currentNumberEl.textContent = countdown;
@@ -1293,7 +1290,8 @@ function startRepCountdown() {
 				speak(`${countdown}`);
 			}
 		} else {
-			clearInterval(repCountdownInterval);
+			// Clear this specific interval
+			timerCoordinator.clearInterval('rep_countdown');
 
 			// Show "Los!" in big text with green color
 			currentNumberEl.textContent = 'Los!';
@@ -1303,12 +1301,12 @@ function startRepCountdown() {
 			document.getElementById('rep-status-text').textContent = '';
 			speak('Los!');
 
-			// Wait 2 seconds, then start rep counting
-			repStartTimeout = setTimeout(() => {
+			// Wait shortly, then start rep counting using timerCoordinator
+			timerCoordinator.setTimeout(() => {
 				startRepCounting();
-			}, 2000);
+			}, 500, 'rep_start_counting');
 		}
-	}, 1000);
+	}, 1000, 'rep_countdown');
 }
 
 /**
@@ -1331,14 +1329,14 @@ function startRepCounting() {
 
 	// Check if this was the only rep
 	if (repCounterState.currentRep >= repCounterState.repsPerSet) {
-		setTimeout(() => {
+		timerCoordinator.setTimeout(() => {
 			completeSet();
-		}, 300);
+		}, 300, 'complete_set');
 		return;
 	}
 
-	// Start automatic rep counting for remaining reps
-	repCounterInterval = setInterval(() => {
+	// Start automatic rep counting for remaining reps using timerCoordinator
+	timerCoordinator.setInterval(() => {
 		repCounterState.currentRep++;
 		updateRepCounterModal();
 
@@ -1352,21 +1350,26 @@ function startRepCounting() {
 
 		// Check if set complete
 		if (repCounterState.currentRep >= repCounterState.repsPerSet) {
-			clearInterval(repCounterInterval);
-			setTimeout(() => {
+			timerCoordinator.clearInterval('rep_counting');
+			timerCoordinator.setTimeout(() => {
 				completeSet();
-			}, repCounterState.delayMilliseconds);
+			}, repCounterState.delayMilliseconds, 'complete_set');
 		}
-	}, repCounterState.delayMilliseconds);
+	}, repCounterState.delayMilliseconds, 'rep_counting');
 }
 
 /**
  * Abort rep counter.
  *
+ * Uses timerCoordinator to ensure complete cleanup of all timers and speech.
+ *
  * @return {void}
  */
 function abortRepCounter() {
-	// Clear all intervals
+	// Use timerCoordinator to stop everything
+	timerCoordinator.stop();
+
+	// Clear legacy intervals if they exist
 	if (repCounterInterval) {
 		clearInterval(repCounterInterval);
 		repCounterInterval = null;
@@ -1380,26 +1383,27 @@ function abortRepCounter() {
 		timerInterval = null;
 	}
 
-	// Clear timeouts
+	// Clear legacy timeouts if they exist
 	if (repStartTimeout) {
 		clearTimeout(repStartTimeout);
 		repStartTimeout = null;
 	}
 
-	// Stop any ongoing speech
-	if (window.speechSynthesis && window.speechSynthesis.speaking) {
-		window.speechSynthesis.cancel();
-	}
-
 	repCounterState.active = false;
 	isRunning = false;
+
+	// Return to schedule view state
+	if (appStateMachine.isRepCounterActive()) {
+		appStateMachine.returnToSchedule('rep_counter_aborted');
+	}
+	repCounterStateMachine.cancel('user_aborted');
 
 	hideRepCounterModal();
 
 	// Speak after a short delay to ensure cancel has completed
-	setTimeout(() => {
+	timerCoordinator.setTimeout(() => {
 		speak('Abgebrochen');
-	}, 100);
+	}, 100, 'abort_speech');
 }
 
 /**
@@ -1455,7 +1459,8 @@ function startRestPeriod() {
 	};
 	currentNumberEl.addEventListener('click', quickRestHandler);
 
-	timerInterval = setInterval(() => {
+	// Use timerCoordinator.setInterval instead of setInterval
+	timerCoordinator.setInterval(() => {
 		currentNumberEl.textContent = `${timeLeft}s`;
 
 		// Restart breathing animation for each second
@@ -1480,7 +1485,7 @@ function startRestPeriod() {
 		}
 
 		if (timeLeft <= 0) {
-			clearInterval(timerInterval);
+			timerCoordinator.clearInterval('rest_period');
 			isRunning = false;
 
 			// Remove click handler and reset styles
@@ -1496,14 +1501,14 @@ function startRestPeriod() {
 
 			speak('Los!');
 
-			// Start next set
-			setTimeout(() => {
+			// Start next set using timerCoordinator
+			timerCoordinator.setTimeout(() => {
 				startRepCounting();
-			}, 500);
+			}, 500, 'next_set');
 		}
 
 		timeLeft--;
-	}, 1000);
+	}, 1000, 'rest_period');
 }
 
 /**
@@ -1554,6 +1559,13 @@ function finishRepCounter() {
 	setTimeout(() => {
 		repCounterState.active = false;
 		hideRepCounterModal();
+
+		// Return to schedule view state
+		if (appStateMachine.isRepCounterActive()) {
+			appStateMachine.returnToSchedule('rep_counter_completed');
+		}
+		repCounterStateMachine.complete();
+		repCounterStateMachine.reset();
 	}, 2000);
 }
 
@@ -1567,9 +1579,22 @@ function toggleTimer() {
 		resetTimer();
 		speak('Timer abgebrochen.');
 	} else {
+		// Check if we can start a timer (state machine validation)
+		if (!appStateMachine.canStartTimer()) {
+			console.warn('[Timer] Blocked - another operation is active');
+			alert('⚠️ Bitte schließe erst die andere aktive Aktion.');
+			return;
+		}
+
+		resetTimer(); // Clear any existing state
 		timeLeft = 60;
 		currentTimerLabel = '60s Pause';
 		document.getElementById('timer-text').innerText = currentTimerLabel;
+
+		// Transition app state to TIMER_ACTIVE
+		appStateMachine.startTimer();
+		timerStateMachine.start(false);
+
 		startTimerLogic('60 Sekunden Pause');
 	}
 }
@@ -1579,17 +1604,23 @@ function toggleTimer() {
  *
  * Enables NoSleep, announces start, updates UI every second,
  * provides time announcements, and triggers completion effects.
+ * Now uses timerCoordinator for proper cleanup.
  *
  * @param {string} spokenTextStart - The spoken announcement text.
  * @return {void}
  */
 function startTimerLogic(spokenTextStart) {
 	enableNoSleep();
+
+	// Mark timer as active in coordinator
+	timerCoordinator.startTimer();
+
 	speak(`${spokenTextStart} gestartet.`);
 	isRunning = true;
 	document.getElementById('fab-timer').classList.add('running');
 
-	timerInterval = setInterval(() => {
+	// Use timerCoordinator.setInterval instead of setInterval
+	timerCoordinator.setInterval(() => {
 		timeLeft--;
 		const mins = Math.floor(timeLeft / 60);
 		const secs = timeLeft % 60;
@@ -1621,23 +1652,37 @@ function startTimerLogic(spokenTextStart) {
 			navigator.vibrate([200, 100, 200]);
 			superConfetti();
 		}
-	}, 1000);
+	}, 1000, 'main_timer');
 }
 
 /**
  * Reset the timer to default state.
  *
- * Stops the countdown, resets UI, cancels speech synthesis.
+ * Stops countdown, resets UI, cancels all timers and speech via timerCoordinator.
+ * Returns to schedule view state.
  *
  * @return {void}
  */
 function resetTimer() {
-	clearInterval(timerInterval);
+	// Use timerCoordinator to stop everything
+	timerCoordinator.stop();
+
+	// Clear legacy timer interval if it exists
+	if (timerInterval) {
+		clearInterval(timerInterval);
+		timerInterval = null;
+	}
+
 	isRunning = false;
 	document.getElementById('fab-timer').classList.remove('running');
 	document.getElementById('fab-timer').innerHTML = '<i data-lucide="timer" class="w-6 h-6"></i><span id="timer-text">60s Pause</span>';
 	lucide.createIcons();
-	window.speechSynthesis.cancel();
+
+	// Return to schedule view state
+	if (appStateMachine.isTimerActive()) {
+		appStateMachine.returnToSchedule('timer_completed');
+	}
+	timerStateMachine.stop('completed');
 }
 
 /**
