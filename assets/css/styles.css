@@ -228,6 +228,17 @@ body {
 	border-radius: 0;
 }
 
+/* Remove spinner arrows on number input */
+.weight-input::-webkit-outer-spin-button,
+.weight-input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.weight-input[type=number] {
+	-moz-appearance: textfield;
+}
+
 .weight-input:focus {
 	outline: none;
 	border-bottom: 2px solid #38bdf8;

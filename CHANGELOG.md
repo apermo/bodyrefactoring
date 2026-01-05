@@ -43,6 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Architecture**: Modular foundation established with state machines for improved code organization and conflict prevention
 - **app.js**: Now loads as ES6 module with imported dependencies
 
+### Fixed
+
+- **Weight input display**: Removed spinner arrows from number input fields for better centered appearance on mobile devices
+
 ## [12.0.0] - 2026-01-05
 
 ### Changed
