@@ -116,6 +116,30 @@ Use these sections in order (omit empty sections):
 - **Fixed**: Bug fixes
 - **Security**: Vulnerability fixes
 
+### Important: What NOT to List as "Fixed"
+- **Do NOT list bugs introduced during refactoring/development in the same version**
+  - Example: If refactoring breaks something and you fix it in same PR, don't list it
+  - Reason: These are implementation details, not user-facing bug fixes
+  - Instead: Note fixes within the feature description (e.g., "resolved race condition during implementation")
+- **Only list in "Fixed"**:
+  - Bugs that existed in previous released versions
+  - User-facing issues that affected production
+  - Regressions from earlier releases
+- **Example of what NOT to do**:
+  ```markdown
+  ### Fixed
+  - State machine initialization bug (introduced during refactoring)
+  - Double speech announcement (broke during module integration)
+  ```
+- **Example of what TO do**:
+  ```markdown
+  ### Added
+  - Core Architecture - Phase 3: Module integration (COMPLETE)
+    - TimerCoordinator implementation
+    - Resolved race condition in voice loading during implementation
+    - Fixed state machine flow during integration
+  ```
+
 ### Update Process
 1. **For every code change**, update the `[Unreleased]` section
 2. Add entry under appropriate section (Added, Changed, Fixed, etc.)
