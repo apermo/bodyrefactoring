@@ -362,8 +362,8 @@ async function renderSchedule() {
 		let exercisesHtml = '';
 
 		// Check if this is a recovery or sick day
-		const isRecoveryDay = localStorage.getItem( `${RECOVERY_PREFIX}${day.storageDate}_active` ) === 'true';
-		const isSickDayActive = localStorage.getItem( `${SICK_PREFIX}${day.storageDate}_active` ) === 'true';
+		const isRecoveryDay = storage.get( `${RECOVERY_PREFIX}${day.storageDate}_active` ) === 'true';
+		const isSickDayActive = storage.get( `${SICK_PREFIX}${day.storageDate}_active` ) === 'true';
 
 		if ( isRecoveryDay || isSickDayActive ) {
 			// Show original exercises as disabled/greyed out
@@ -397,7 +397,7 @@ async function renderSchedule() {
 
 				recoveryActivities.forEach( activity => {
 					const uniqueKey = `${RECOVERY_PREFIX}${day.storageDate}_${activity.id}`;
-					let isChecked = localStorage.getItem( uniqueKey ) === 'true';
+					let isChecked = storage.get( uniqueKey ) === 'true';
 
 					exercisesHtml += `
 						<div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}">
@@ -419,8 +419,8 @@ async function renderSchedule() {
 			} else if ( isSickDayActive ) {
 				// Sick day - only hydration
 				const uniqueKey = `${SICK_PREFIX}${day.storageDate}_hydration`;
-				let isChecked = localStorage.getItem( uniqueKey ) === 'true';
-				const usedShield = localStorage.getItem( `${SICK_PREFIX}${day.storageDate}_shield` ) === 'true';
+				let isChecked = storage.get( uniqueKey ) === 'true';
+				const usedShield = storage.get( `${SICK_PREFIX}${day.storageDate}_shield` ) === 'true';
 
 				exercisesHtml += `
 					<div class="mt-4 pt-4 border-t-2 border-red-500/30">
@@ -450,10 +450,10 @@ async function renderSchedule() {
 				`;
 			}
 		} else {
-			// Normal day - render regular exercises
-			day.details.forEach(ex => {
+		// Normal day - render regular exercises
+		day.details.forEach(ex => {
 			const uniqueKey = `${STORAGE_PREFIX}${day.storageDate}_${ex.id}`;
-			let isChecked = localStorage.getItem(uniqueKey) === 'true';
+			let isChecked = storage.get(uniqueKey) === 'true';
 
 			// --- RENDER LOGIC ---
 			if (ex.type === 'alternatives') {
@@ -517,7 +517,7 @@ async function renderSchedule() {
 				let rightSide = '';
 				if (ex.weight) {
 					const unitKey = `${UNIT_PREFIX}${ex.id}`;
-					const userUnit = localStorage.getItem(unitKey) || ex.defaultUnit || 'KG';
+					const userUnit = storage.get(unitKey) || ex.defaultUnit || 'KG';
 					const currentWeight = getSmartWeight(ex.id, day.fullDateObj, ex.weight);
 
 					rightSide = `
@@ -556,7 +556,7 @@ async function renderSchedule() {
 		} // End of normal day rendering
 
 		const noteKey = `${NOTE_PREFIX}${day.storageDate}`;
-		const savedNote = localStorage.getItem(noteKey) || '';
+		const savedNote = storage.get(noteKey) || '';
 		const prevMemo = getPreviousMemo(day.storageDate);
 		let prevMemoHtml = prevMemo ? `<div class="mt-2 p-3 rounded-lg border border-dashed border-slate-700 bg-slate-800/50"><div class="text-[10px] text-slate-500 uppercase flex items-center gap-1 mb-1"><i data-lucide="history" class="w-3 h-3"></i> Memo von letzter Woche</div><div class="text-sm text-slate-400 italic">"${prevMemo}"</div></div>` : '';
 
@@ -613,7 +613,7 @@ function getSmartWeight(exerciseId, targetDate, defaultWeight) {
 	while (searchDate >= state.startDate) {
 		const dateStr = getLocalISODate(searchDate);
 		const key = `${WEIGHT_PREFIX}${exerciseId}_${dateStr}`;
-		const saved = localStorage.getItem(key);
+		const saved = storage.get(key);
 		if (saved) {
 			return saved;
 		}
@@ -633,7 +633,7 @@ function getPreviousMemo(targetDateIso) {
 	const prevDate = new Date(current);
 	prevDate.setDate(prevDate.getDate() - 7);
 	const prevIso = getLocalISODate(prevDate);
-	return localStorage.getItem(`${NOTE_PREFIX}${prevIso}`);
+	return storage.get(`${NOTE_PREFIX}${prevIso}`);
 }
 
 /**
@@ -699,24 +699,24 @@ function toggleCheck(row, storageKey, dateId) {
 
 	row.classList.toggle('completed');
 	if (row.classList.contains('completed')) {
-		localStorage.setItem(storageKey, 'true');
+		storage.set(storageKey, 'true');
 		miniConfetti(row.querySelector('.check-circle'));
 	} else {
-		localStorage.removeItem(storageKey);
+		storage.remove(storageKey);
 	}
 	checkDayCompletion(dateId);
 	calculateStreak();
 }
 
 /**
- * Save a note to localStorage.
+ * Save a note to storage.
  *
- * @param {string} key - LocalStorage key.
+ * @param {string} key - Storage key.
  * @param {string} value - Note content.
  * @return {void}
  */
 function saveNote(key, value) {
-	localStorage.setItem(key, value);
+	storage.set(key, value);
 }
 
 /**
@@ -728,7 +728,7 @@ function saveNote(key, value) {
  * @return {void}
  */
 function saveWeight(exId, dateIso, value) {
-	localStorage.setItem(`${WEIGHT_PREFIX}${exId}_${dateIso}`, value);
+	storage.set(`${WEIGHT_PREFIX}${exId}_${dateIso}`, value);
 }
 
 /**
@@ -743,7 +743,7 @@ function toggleUnit(exId, element) {
 	const current = element.innerText;
 	const newUnit = current === 'KG' ? 'STUFE' : 'KG';
 	element.innerText = newUnit;
-	localStorage.setItem(`${UNIT_PREFIX}${exId}`, newUnit);
+	storage.set(`${UNIT_PREFIX}${exId}`, newUnit);
 }
 
 /**
@@ -831,8 +831,8 @@ async function calculateStreak() {
 	let dayData = config ? config.find(d => d.dayIndex === dayIdx) : null;
 
 	const todayComplete = dayData && isDayComplete(todayIso, dayData.details);
-	const todayRecovery = localStorage.getItem( `${RECOVERY_PREFIX}${todayIso}_active` ) === 'true' && isDayComplete(todayIso, []);
-	const todaySickWithShield = localStorage.getItem( `${SICK_PREFIX}${todayIso}_active` ) === 'true' && localStorage.getItem( `${SICK_PREFIX}${todayIso}_shield` ) === 'true' && isDayComplete(todayIso, []);
+	const todayRecovery = storage.get( `${RECOVERY_PREFIX}${todayIso}_active` ) === 'true' && isDayComplete(todayIso, []);
+	const todaySickWithShield = storage.get( `${SICK_PREFIX}${todayIso}_active` ) === 'true' && storage.get( `${SICK_PREFIX}${todayIso}_shield` ) === 'true' && isDayComplete(todayIso, []);
 
 	if (todayComplete || todayRecovery || todaySickWithShield) {
 		streak++;
@@ -859,8 +859,8 @@ async function calculateStreak() {
 		dayData = config ? config.find(d => d.dayIndex === dayIdx) : null;
 
 		const dayComplete = dayData && isDayComplete(dateStr, dayData.details);
-		const recoveryComplete = localStorage.getItem( `${RECOVERY_PREFIX}${dateStr}_active` ) === 'true' && isDayComplete(dateStr, []);
-		const sickDayWithShield = localStorage.getItem( `${SICK_PREFIX}${dateStr}_active` ) === 'true' && localStorage.getItem( `${SICK_PREFIX}${dateStr}_shield` ) === 'true' && isDayComplete(dateStr, []);
+		const recoveryComplete = storage.get( `${RECOVERY_PREFIX}${dateStr}_active` ) === 'true' && isDayComplete(dateStr, []);
+		const sickDayWithShield = storage.get( `${SICK_PREFIX}${dateStr}_active` ) === 'true' && storage.get( `${SICK_PREFIX}${dateStr}_shield` ) === 'true' && isDayComplete(dateStr, []);
 
 		if (dayComplete || recoveryComplete || sickDayWithShield) {
 			streak++;
@@ -905,15 +905,15 @@ async function calculateStreak() {
  */
 function isDayComplete(dateIso, details) {
 	// Check if it's a recovery day
-	if ( localStorage.getItem( `${RECOVERY_PREFIX}${dateIso}_active` ) === 'true' ) {
+	if ( storage.get( `${RECOVERY_PREFIX}${dateIso}_active` ) === 'true' ) {
 		return recoveryActivities.every( activity => {
-			return localStorage.getItem( `${RECOVERY_PREFIX}${dateIso}_${activity.id}` ) === 'true';
+			return storage.get( `${RECOVERY_PREFIX}${dateIso}_${activity.id}` ) === 'true';
 		} );
 	}
 
 	// Check if it's a sick day
-	if ( localStorage.getItem( `${SICK_PREFIX}${dateIso}_active` ) === 'true' ) {
-		return localStorage.getItem( `${SICK_PREFIX}${dateIso}_hydration` ) === 'true';
+	if ( storage.get( `${SICK_PREFIX}${dateIso}_active` ) === 'true' ) {
+		return storage.get( `${SICK_PREFIX}${dateIso}_hydration` ) === 'true';
 	}
 
 	// Normal day
@@ -921,7 +921,7 @@ function isDayComplete(dateIso, details) {
 		return false;
 	}
 	return details.every(ex => {
-		return localStorage.getItem(`${STORAGE_PREFIX}${dateIso}_${ex.id}`) === 'true';
+		return storage.get(`${STORAGE_PREFIX}${dateIso}_${ex.id}`) === 'true';
 	});
 }
 
@@ -1865,7 +1865,7 @@ function superConfetti() {
  * @return {number} Number of shields (0-3).
  */
 function getShields() {
-	const shields = parseInt( localStorage.getItem( SHIELDS_KEY ) || '0' );
+	const shields = parseInt( storage.get( SHIELDS_KEY ) || '0' );
 	return Math.min( shields, MAX_SHIELDS );
 }
 
@@ -1875,7 +1875,7 @@ function getShields() {
  * @return {Set<number>} Set of milestone numbers that have been awarded.
  */
 function getAwardedShieldMilestones() {
-	const stored = localStorage.getItem( SHIELDS_AWARDED_KEY );
+	const stored = storage.get( SHIELDS_AWARDED_KEY );
 	if ( ! stored ) {
 		return new Set();
 	}
@@ -1896,7 +1896,7 @@ function getAwardedShieldMilestones() {
 function addAwardedShieldMilestone( milestone ) {
 	const milestones = getAwardedShieldMilestones();
 	milestones.add( milestone );
-	localStorage.setItem( SHIELDS_AWARDED_KEY, JSON.stringify( Array.from( milestones ) ) );
+	storage.set( SHIELDS_AWARDED_KEY, JSON.stringify( Array.from( milestones ) ) );
 }
 
 /**
@@ -1907,7 +1907,7 @@ function addAwardedShieldMilestone( milestone ) {
 function awardShield() {
 	const current = getShields();
 	if ( current < MAX_SHIELDS ) {
-		localStorage.setItem( SHIELDS_KEY, ( current + 1 ).toString() );
+		storage.set( SHIELDS_KEY, ( current + 1 ).toString() );
 		updateShieldDisplay();
 		// Show notification
 		showShieldNotification( 'Neuer Schutzschild verdient! 🛡️' );
@@ -1994,7 +1994,7 @@ function closeSickModeModal() {
  */
 function activateRecoveryMode() {
 	const today = getLocalISODate( new Date() );
-	localStorage.setItem( `${RECOVERY_PREFIX}${today}_active`, 'true' );
+	storage.set( `${RECOVERY_PREFIX}${today}_active`, 'true' );
 	closeSickModeModal();
 	renderSchedule(); // Re-render to show recovery activities
 }
@@ -2012,12 +2012,12 @@ function useSickShield() {
 	const today = getLocalISODate( new Date() );
 
 	// Check if already in recovery or sick mode today
-	if ( localStorage.getItem( `${RECOVERY_PREFIX}${today}_active` ) === 'true' ) {
+	if ( storage.get( `${RECOVERY_PREFIX}${today}_active` ) === 'true' ) {
 		alert( 'Heute ist bereits als Recovery-Tag markiert!' );
 		return;
 	}
 
-	if ( localStorage.getItem( `${SICK_PREFIX}${today}_active` ) === 'true' ) {
+	if ( storage.get( `${SICK_PREFIX}${today}_active` ) === 'true' ) {
 		alert( 'Heute ist bereits als Krank-Tag markiert!' );
 		return;
 	}
@@ -2026,8 +2026,8 @@ function useSickShield() {
 		// No shields available - offer to use sick mode without shield
 		if ( confirm( '⚠️ Keine Schutzschilder verfügbar!\n\nMöchtest du trotzdem den Krank-Modus aktivieren?\n\nDein Streak wird unterbrochen, aber du kannst die Krankheit dokumentieren.' ) ) {
 			// Mark as sick day without shield
-			localStorage.setItem( `${SICK_PREFIX}${today}_active`, 'true' );
-			localStorage.setItem( `${SICK_PREFIX}${today}_shield`, 'false' );
+			storage.set( `${SICK_PREFIX}${today}_active`, 'true' );
+			storage.set( `${SICK_PREFIX}${today}_shield`, 'false' );
 			closeSickModeModal();
 			renderSchedule();
 			alert( '✅ Krank-Modus aktiviert (ohne Schild).\n\nGute Besserung! Trinke heute ausreichend Wasser/Tee.\n\n⚠️ Dein Streak wird unterbrochen.' );
@@ -2038,10 +2038,10 @@ function useSickShield() {
 	// Shields available - ask to use one
 	if ( confirm( `Einen Schutzschild verwenden?\n\nDu hast noch ${shields} Schild(e) verfügbar.\nDer Tag wird als Ruhetag gezählt und dein Streak bleibt erhalten.\n\n(Alternativ: Abbrechen und ohne Schild fortfahren - Streak bricht)` ) ) {
 		// Mark as sick day with shield
-		localStorage.setItem( `${SICK_PREFIX}${today}_active`, 'true' );
-		localStorage.setItem( `${SICK_PREFIX}${today}_shield`, 'true' );
+		storage.set( `${SICK_PREFIX}${today}_active`, 'true' );
+		storage.set( `${SICK_PREFIX}${today}_shield`, 'true' );
 		// Decrement shields
-		localStorage.setItem( SHIELDS_KEY, ( shields - 1 ).toString() );
+		storage.set( SHIELDS_KEY, ( shields - 1 ).toString() );
 		updateShieldDisplay();
 		closeSickModeModal();
 		renderSchedule();
@@ -2049,8 +2049,8 @@ function useSickShield() {
 	} else {
 		// User cancelled - ask if they want to use without shield
 		if ( confirm( '⚠️ Ohne Schild fortfahren?\n\nDein Streak wird unterbrochen, aber du kannst die Krankheit dokumentieren.' ) ) {
-			localStorage.setItem( `${SICK_PREFIX}${today}_active`, 'true' );
-			localStorage.setItem( `${SICK_PREFIX}${today}_shield`, 'false' );
+			storage.set( `${SICK_PREFIX}${today}_active`, 'true' );
+			storage.set( `${SICK_PREFIX}${today}_shield`, 'false' );
 			closeSickModeModal();
 			renderSchedule();
 			alert( '✅ Krank-Modus aktiviert (ohne Schild).\n\nGute Besserung!\n\n⚠️ Dein Streak wird unterbrochen.' );
@@ -2073,25 +2073,25 @@ function backToNormal( dateIso ) {
 	}
 
 	// Check if shield was used and refund it
-	const usedShield = localStorage.getItem( `${SICK_PREFIX}${dateIso}_shield` ) === 'true';
+	const usedShield = storage.get( `${SICK_PREFIX}${dateIso}_shield` ) === 'true';
 	if ( usedShield ) {
 		const shields = getShields();
 		if ( shields < MAX_SHIELDS ) {
-			localStorage.setItem( SHIELDS_KEY, ( shields + 1 ).toString() );
+			storage.set( SHIELDS_KEY, ( shields + 1 ).toString() );
 			updateShieldDisplay();
 		}
 	}
 
 	// Remove all recovery activities
 	recoveryActivities.forEach( activity => {
-		localStorage.removeItem( `${RECOVERY_PREFIX}${dateIso}_${activity.id}` );
+		storage.remove( `${RECOVERY_PREFIX}${dateIso}_${activity.id}` );
 	} );
-	localStorage.removeItem( `${RECOVERY_PREFIX}${dateIso}_active` );
+	storage.remove( `${RECOVERY_PREFIX}${dateIso}_active` );
 
 	// Remove sick day data
-	localStorage.removeItem( `${SICK_PREFIX}${dateIso}_active` );
-	localStorage.removeItem( `${SICK_PREFIX}${dateIso}_shield` );
-	localStorage.removeItem( `${SICK_PREFIX}${dateIso}_hydration` );
+	storage.remove( `${SICK_PREFIX}${dateIso}_active` );
+	storage.remove( `${SICK_PREFIX}${dateIso}_shield` );
+	storage.remove( `${SICK_PREFIX}${dateIso}_hydration` );
 
 	// Re-render to show normal day
 	renderSchedule();

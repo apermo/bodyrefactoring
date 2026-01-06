@@ -40,7 +40,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Speech synthesis properly cancelled on operation switch
     - Fixes stuck voice-over when switching apps or starting new operations
     - Complete cleanup ensures no orphaned timers or speech commands
-  - **Remaining**: Storage service migration (~50+ instances), feature extraction (schedule service, renderer, etc.)
+- **Core Architecture - Phase 4**: Storage service migration (COMPLETE)
+  - Migrated all ~50 localStorage calls to StorageService abstraction
+  - Functions updated: renderSchedule, getSmartWeight, getPreviousMemo, toggleCheck, saveNote, saveWeight, toggleUnit
+  - Streak calculation: calculateStreak, isDayComplete
+  - Shield management: getShields, getAwardedShieldMilestones, addAwardedShieldMilestone, awardShield
+  - Sick mode: activateRecoveryMode, useSickShield, backToNormal
+  - Export/import functions keep direct localStorage access for key enumeration
+  - Type-safe storage operations throughout
+  - Single source of truth for all data persistence
+- **Core Architecture - Phase 5**: Feature extraction (COMPLETE)
+  - Created ScheduleService for schedule data management
+    - Handles schedule fetching, caching, and week calculations
+    - Centralized week navigation logic
+    - Schedule version validation
+  - Created StreakCalculatorService for streak management
+    - Calculates streaks with recovery/sick day support
+    - Manages shield awards and milestones
+    - Integrates with storage and schedule services
+  - Services follow dependency injection pattern
+  - Clear separation of concerns
+  - Easier to test and maintain
 - **Rep counter debug mode**: Added `getRepDelay()` function for centralized delay management
   - Single source of truth for rep timing
   - Debug mode (`#debug`) overrides delay to 1000ms for faster testing
