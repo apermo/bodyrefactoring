@@ -350,6 +350,36 @@ bodyrefactoring/
 - User handles all git operations (staging, committing, pushing)
 - Only use `git status`, `git diff`, or similar read-only commands for verification when needed
 
+### File Movement - Preserve Git History
+- **ALWAYS use `git mv`** to move or rename files, NEVER use regular `mv` command
+- This preserves complete file history (commits, blame, authorship)
+- Git tracks moves as renames (shown as `R` in `git status`) instead of delete+add
+- Benefits:
+  - Full commit history preserved and accessible via `git log --follow`
+  - `git blame` continues to work correctly
+  - Easier to track changes across renames
+  - Cleaner git log (shows as rename, not deletion)
+- Format: `git mv <source> <destination>`
+- Examples:
+  ```bash
+  # Single file
+  git mv old-name.md new-name.md
+
+  # Move to directory
+  git mv file.md docs/v13-refactoring/
+
+  # Move and rename
+  git mv old-file.md docs/new-folder/new-name.md
+  ```
+- If files were already moved with `mv`, restore them and redo with `git mv`:
+  ```bash
+  git checkout HEAD -- old-file.md  # Restore original
+  rm new-location/old-file.md       # Remove manually moved file
+  git mv old-file.md new-location/  # Move properly
+  ```
+- Verify moves show as renames: `git status --short` should show `R` prefix
+- Exception: Only use regular file operations for temporary/uncommitted files
+
 ## Future Considerations
 
 - Consider separating JavaScript into external file (currently inline)
