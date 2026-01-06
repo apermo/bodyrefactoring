@@ -64,7 +64,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Weight input display**: Removed spinner arrows from number input fields for better centered appearance on mobile devices
-- **Double speech announcement**: Fixed 60-second timer speaking "60 sekunden gestartet" twice on first start by removing recursive speech retry logic in SpeechService and adding proper state machine validation to toggleTimer()
+- **Double speech announcement**: Fixed 60-second timer speaking "60 sekunden gestartet" twice
+  - Root cause: Voice loading logic had race condition where both setInterval AND setTimeout called speakUtterance()
+  - Solution: Added `hasSpoken` flag to ensure speakUtterance() is only called once
+  - When voices load via setInterval: speaks immediately and sets flag
+  - When timeout fires after 3s: only speaks if flag is false (voices never loaded)
+  - Prevents duplicate speech synthesis calls on first app load
+- **State machine initialization**: Fixed app state machine not transitioning from INITIALIZING to SCHEDULE_VIEW after load, causing "Bitte schließe erst die andere aktive Aktion" error on all timer/rep counter starts
 
 ## [12.0.0] - 2026-01-05
 

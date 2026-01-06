@@ -119,6 +119,10 @@ async function initApp() {
 		await renderSchedule(); // Initial render
 		updateShieldDisplay(); // Initialize shields display
 		updateDebugToggleButton(); // Update debug toggle button text
+
+		// Transition app state from INITIALIZING to SCHEDULE_VIEW
+		appStateMachine.transition(APP_STATES.SCHEDULE_VIEW, { action: 'app_ready' });
+
 		setTimeout(() => {
 			document.getElementById('splash-screen').style.opacity = '0';
 		}, 800);
@@ -1106,6 +1110,9 @@ function startSpecificTimer(seconds, label) {
 	appStateMachine.startTimer();
 	timerStateMachine.start(false); // Start without countdown
 
+	// Mark timer as active in coordinator (clears everything)
+	timerCoordinator.startTimer();
+
 	startTimerLogic(spokenLabel);
 }
 
@@ -1644,6 +1651,9 @@ function toggleTimer() {
 		appStateMachine.startTimer();
 		timerStateMachine.start(false);
 
+		// Mark timer as active in coordinator (clears everything)
+		timerCoordinator.startTimer();
+
 		startTimerLogic('60 Sekunden Pause');
 	}
 }
@@ -1655,16 +1665,19 @@ function toggleTimer() {
  * provides time announcements, and triggers completion effects.
  * Now uses timerCoordinator for proper cleanup.
  *
+ * Note: Caller should call timerCoordinator.startTimer() before this function.
+ *
  * @param {string} spokenTextStart - The spoken announcement text.
  * @return {void}
  */
 function startTimerLogic(spokenTextStart) {
 	enableNoSleep();
 
-	// Mark timer as active in coordinator
-	timerCoordinator.startTimer();
+	// Small delay to ensure speech cancellation from timerCoordinator.startTimer() completes
+	setTimeout(() => {
+		speak(`${spokenTextStart} gestartet.`);
+	}, 100);
 
-	speak(`${spokenTextStart} gestartet.`);
 	isRunning = true;
 	document.getElementById('fab-timer').classList.add('running');
 
