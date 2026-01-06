@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [13.0.0] - 2026-01-05
 
+**Complete architectural refactoring with 6 phases and 13 modules.**  
+📖 **[Full Documentation](docs/v13-refactoring/README.md)** - Comprehensive refactoring documentation
+
 ### Added
 
 - **Core Architecture - Phase 1**: Modularization and state management foundation
