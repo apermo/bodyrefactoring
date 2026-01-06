@@ -61,6 +61,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Services follow dependency injection pattern
   - Clear separation of concerns
   - Easier to test and maintain
+- **Core Architecture - Phase 6**: Domain storage layer (COMPLETE)
+  - Created DomainStorageService for business-logic storage operations
+  - Encapsulates key structure (no more string concatenation in app.js)
+  - Type-safe methods with clear intent
+  - Domain methods: `isRecoveryDay()`, `isSickDay()`, `isExerciseComplete()`, etc.
+  - Self-documenting code - method names speak business language
+  - Easy refactoring - change key structure in one place
+  - ~50 call sites migrated to domain methods
+  - Follows Adapter Pattern - wraps generic StorageService with domain layer
 - **Rep counter debug mode**: Added `getRepDelay()` function for centralized delay management
   - Single source of truth for rep timing
   - Debug mode (`#debug`) overrides delay to 1000ms for faster testing
