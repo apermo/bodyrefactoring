@@ -23,26 +23,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `modules/app-state-machine.js`: High-level application state management (initializing, schedule view, timer active, rep counter active, modal open)
   - `modules/timer-state-machine.js`: Timer and rep counter state machines with proper lifecycle management
   - `modules/modal-state-machine.js`: Modal management ensuring only one modal open at a time
-- **Core Architecture - Phase 3**: Module integration (NEARLY COMPLETE - ~85%)
+- **Core Architecture - Phase 3**: Module integration (COMPLETE)
   - Integrated all Phase 1 & 2 modules into app.js
   - Migrated app.js to ES6 module system
   - Replaced global constants with imported modules
   - State machines and services instantiated and active
-  - Fixed duplicate function declaration (getLocalISODate) - removed local duplicate, using imported version
-  - Replaced MAX_SHIELDS with CONFIG.MAX_SHIELDS
-  - Fixed timer-state-machine.js export issue (file was empty, recreated with proper content)
-  - Fixed module scope issue: Exposed 28 functions to global scope for inline event handlers
-  - Fixed weight/unit saving: Exposed handleWeightBlur, saveNote, and saveWeight to global scope
+  - Exposed 28 functions to global scope for inline event handlers
   - Improved accordion UX: Auto-close siblings when opening a day, refresh weight values on open
-  - Fixed file corruption: Restored app.js after insert_edit_into_file removed functions
-  - ✅ **State machine integration**: Added validation to timer and rep counter functions
-  - ✅ **Timer conflict bug FIXED**: App state machine prevents timer/rep counter running simultaneously
+  - ✅ **State machine integration**: Implemented validation to prevent timer/rep counter conflicts
   - ✅ **Debug mode logging**: State transitions logged in debug mode for troubleshooting
-  - ✅ **Voice-over bug FIXED**: Created TimerCoordinator to centralize all timers/timeouts/speech
+  - ✅ **TimerCoordinator**: Created centralized timer/timeout/speech management
     - All setTimeout/setInterval calls now tracked and cleanable
     - Speech synthesis properly cancelled on operation switch
-    - Fixes stuck voice-over when switching apps or starting new operations
     - Complete cleanup ensures no orphaned timers or speech commands
+    - Resolved race condition in voice loading (hasSpoken flag)
 - **Core Architecture - Phase 4**: Storage service migration (COMPLETE)
   - Migrated all ~50 localStorage calls to StorageService abstraction
   - Functions updated: renderSchedule, getSmartWeight, getPreviousMemo, toggleCheck, saveNote, saveWeight, toggleUnit
@@ -92,17 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added git workflow guidelines: AI should not perform git operations unless explicitly requested or for verification.
 - **Architecture**: Modular foundation established with state machines for improved code organization and conflict prevention
 - **app.js**: Now loads as ES6 module with imported dependencies
-
-### Fixed
-
 - **Weight input display**: Removed spinner arrows from number input fields for better centered appearance on mobile devices
-- **Double speech announcement**: Fixed 60-second timer speaking "60 sekunden gestartet" twice
-  - Root cause: Voice loading logic had race condition where both setInterval AND setTimeout called speakUtterance()
-  - Solution: Added `hasSpoken` flag to ensure speakUtterance() is only called once
-  - When voices load via setInterval: speaks immediately and sets flag
-  - When timeout fires after 3s: only speaks if flag is false (voices never loaded)
-  - Prevents duplicate speech synthesis calls on first app load
-- **State machine initialization**: Fixed app state machine not transitioning from INITIALIZING to SCHEDULE_VIEW after load, causing "Bitte schließe erst die andere aktive Aktion" error on all timer/rep counter starts
 
 ## [12.0.0] - 2026-01-05
 
