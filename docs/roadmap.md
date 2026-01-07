@@ -335,6 +335,27 @@ All features optimized for iPhone/PWA:
 - Follows WordPress coding standards
 - Full JSDoc documentation required
 
+### GitHub Actions Architecture
+
+**Current Structure:**
+- Each validation check has its own workflow file for better reusability and maintainability
+- Files located in `.github/workflows/`:
+  - `validate-conventional-commits.yml` - Commit message format validation
+  - `pr-validation.yml` - Version bump and CHANGELOG checks
+  - `pr-summary.yml` - AI-generated PR summaries
+
+**Benefits:**
+- ✅ **Modular** - Each check is independent
+- ✅ **Reusable** - Workflows can be reused across projects
+- ✅ **Maintainable** - Easy to update/debug individual checks
+- ✅ **Clear separation** - Each file has single responsibility
+- ✅ **Faster debugging** - Failed checks are immediately identifiable
+
+**Future Additions:**
+- Schedule JSON validation workflow (when implementing v16.0.0 schema v2)
+- Automated changelog generation workflow
+- Release automation workflow
+
 ---
 
 **Last Updated**: January 7, 2026  

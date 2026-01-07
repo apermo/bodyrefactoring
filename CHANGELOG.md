@@ -76,6 +76,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Toggle button shows current state (aktivieren/deaktivieren)
   - Visual indicator when active (orange highlight)
   - Automatically reloads page to apply debug mode changes
+- **Git Hooks for Conventional Commits**: Local commit message validation
+  - Pre-commit hook validates Conventional Commits format
+  - Enforces 50/72 character rules (subject: 50 recommended, 72 max; body: 72 max per line)
+  - Detects BREAKING CHANGE markers for major version bumps
+  - Encourages scope usage (e.g., `feat(auth):`) when feasible
+  - Setup script: `bash .githooks/setup.sh`
+  - Provides helpful error messages with examples
+  - Instant feedback before commit completes
+- **GitHub Action for Commit Validation**: Remote enforcement of commit standards
+  - Separate workflow file: `.github/workflows/validate-conventional-commits.yml`
+  - Validates all commits in PRs and pushes to main
+  - Catches commits that bypass local hooks
+  - Works with web-based commits (GitHub UI)
+  - Modular architecture for better reusability
 - **Consent Layer**: GDPR-friendly consent screen for first-time visitors
   - Lists all external CDN resources (Tailwind CSS, Canvas Confetti, Google Fonts, Lucide Icons)
   - Blocks CDN loading until consent is accepted

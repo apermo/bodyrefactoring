@@ -519,6 +519,65 @@ A schedule is a JSON object with a version number and an array of days. Each day
 
 A complete JSON Schema is available at `trainings/schema-schedule-v1.json` for IDE integration (VS Code, PhpStorm, etc.).
 
+## **👨‍💻 Developer Setup**
+
+### **Git Hooks (Commit Validation)**
+
+This project uses Git hooks to enforce Conventional Commits format. Set up hooks to get instant feedback before commits:
+
+```bash
+bash .githooks/setup.sh
+```
+
+**What this enables:**
+- ✅ Validates commit message format (type, scope, subject)
+- ✅ Enforces 50/72 character rules (subject/body)
+- ✅ Detects BREAKING CHANGE markers
+- ✅ Provides helpful error messages with examples
+- ✅ Runs locally (instant feedback, no CI wait)
+
+**Commit Format:**
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Examples:**
+```bash
+feat(intro): add welcome modal for first-time users
+fix(timer): resolve voice-over stuck after app switch
+docs: update roadmap with v14-v16 features
+refactor(storage)!: migrate to domain storage service
+```
+
+**Valid Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`
+
+**Rules:**
+- Scope: Optional but encouraged (e.g., `feat(auth):`)
+- Subject: Max 72 characters (50 recommended)
+- Body lines: Max 72 characters
+- Use imperative mood: "add" not "added"
+
+**Bypass (not recommended):**
+```bash
+git commit --no-verify
+```
+
+📖 **[Complete Commit Guidelines](.cursorrules)** - Full conventional commits documentation
+
+### **GitHub Actions**
+
+The repository includes automated checks that run on every PR and push to main:
+- Conventional Commits validation
+- Version bump verification
+- CHANGELOG entry validation  
+- Schedule JSON validation
+
+These run automatically - no setup required.
+
 ## **⚠️ Disclaimer**
 
 1. **No Medical Advice:** This software is for informational purposes only. Consult a physician before starting any

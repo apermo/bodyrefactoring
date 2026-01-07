@@ -94,11 +94,48 @@
   - `chore:` Maintenance tasks
   - `perf:` Performance improvements
 
-- Format: `<type>: <description>`
-- Example: `feat: add confirmation dialog for unchecking past exercises`
-- Keep the first line under 72 characters
-- Use imperative mood: "add" not "added"
-- Provide detailed body if needed (separated by blank line)
+- **Format**: `<type>(<scope>): <subject>`
+- **Scope**: Optional but **strongly encouraged** when feasible
+  - Helps identify which part of codebase changed
+  - Examples: `feat(auth):`, `fix(timer):`, `docs(roadmap):`
+  - Use when change is specific to a module, feature, or component
+  - Omit for global changes or when scope isn't clear
+
+- **Subject Line Rules (50/72 rule)**:
+  - **50 characters recommended** for subject line
+  - **72 characters maximum** (hard limit, enforced by hooks)
+  - Keep it concise and descriptive
+  - Use imperative mood: "add" not "added"
+
+- **Body**:
+  - Separate from subject with blank line
+  - Wrap at **72 characters per line** (hard limit)
+  - Explain what and why, not how
+  - Reference issues/PRs when relevant
+
+- **Breaking Changes**:
+  - Use `BREAKING CHANGE:` in commit body for major version bumps
+  - Or add `!` after type: `feat(api)!: remove deprecated endpoint`
+  - Clearly explain what breaks and migration path
+
+- **Examples**:
+  ```
+  feat(intro): add welcome modal for first-time users
+
+  fix(timer): resolve voice-over stuck after app switch
+
+  docs: update roadmap with v14-v16 features
+
+  refactor(storage)!: migrate to domain storage service
+
+  BREAKING CHANGE: All localStorage calls must use DomainStorageService.
+  See migration guide in docs/v13-refactoring/
+  ```
+
+- **Git Hooks**:
+  - Run `.githooks/setup.sh` to enable local commit validation
+  - Hooks enforce format and length limits before commit
+  - Bypass only when necessary: `git commit --no-verify`
 
 ## Changelog Management
 
