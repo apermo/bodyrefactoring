@@ -1,0 +1,32 @@
+# Code Owners for Body Refactoring
+#
+# These owners will be requested for review when someone opens a pull request
+# that modifies code in the specified paths.
+#
+# More info: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+* @apermo
+
+# Specific ownership rules (optional - currently all owned by apermo)
+
+# Training schedules - require review for schedule changes
+/trainings/*.json @apermo
+
+# GitHub workflows and automation
+/.github/ @apermo
+
+# Core application files
+/index.php @apermo
+/assets/js/ @apermo
+
+# Documentation
+/docs/ @apermo
+/README.md @apermo
+/CHANGELOG.md @apermo
+
+# Configuration and security
+/.cursorrules @apermo
+/composer.json @apermo
+/deploy.php @apermo
+

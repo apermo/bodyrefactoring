@@ -5,6 +5,122 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [13.0.0] - 2026-01-05
+
+**Complete architectural refactoring with 6 phases and 13 modules.**  
+📖 **[Full Documentation](docs/v13-refactoring/README.md)** - Comprehensive refactoring documentation
+
+### Added
+
+- **Core Architecture - Phase 1**: Modularization and state management foundation
+  - `modules/constants.js`: Centralized constants, storage keys, and configuration
+  - `modules/state-machine.js`: Generic state machine implementation with transition validation
+  - `modules/storage-service.js`: localStorage abstraction layer with type-safe methods
+  - `modules/state-manager.js`: Centralized application state management with reactive updates
+  - `modules/utils.js`: Common utility functions (date handling, formatting, notifications)
+  - `modules/speech-service.js`: Text-to-speech service with voice selection and queue management
+- **Core Architecture - Phase 2**: State machine integration
+  - `modules/app-state-machine.js`: High-level application state management (initializing, schedule view, timer active, rep counter active, modal open)
+  - `modules/timer-state-machine.js`: Timer and rep counter state machines with proper lifecycle management
+  - `modules/modal-state-machine.js`: Modal management ensuring only one modal open at a time
+- **Core Architecture - Phase 3**: Module integration (COMPLETE)
+  - Integrated all Phase 1 & 2 modules into app.js
+  - Migrated app.js to ES6 module system
+  - Replaced global constants with imported modules
+  - State machines and services instantiated and active
+  - Exposed 28 functions to global scope for inline event handlers
+  - Improved accordion UX: Auto-close siblings when opening a day, refresh weight values on open
+  - ✅ **State machine integration**: Implemented validation to prevent timer/rep counter conflicts
+  - ✅ **Debug mode logging**: State transitions logged in debug mode for troubleshooting
+  - ✅ **TimerCoordinator**: Created centralized timer/timeout/speech management
+    - All setTimeout/setInterval calls now tracked and cleanable
+    - Speech synthesis properly cancelled on operation switch
+    - Complete cleanup ensures no orphaned timers or speech commands
+    - Resolved race condition in voice loading (hasSpoken flag)
+- **Core Architecture - Phase 4**: Storage service migration (COMPLETE)
+  - Migrated all ~50 localStorage calls to StorageService abstraction
+  - Functions updated: renderSchedule, getSmartWeight, getPreviousMemo, toggleCheck, saveNote, saveWeight, toggleUnit
+  - Streak calculation: calculateStreak, isDayComplete
+  - Shield management: getShields, getAwardedShieldMilestones, addAwardedShieldMilestone, awardShield
+  - Sick mode: activateRecoveryMode, useSickShield, backToNormal
+  - Export/import functions keep direct localStorage access for key enumeration
+  - Type-safe storage operations throughout
+  - Single source of truth for all data persistence
+- **Core Architecture - Phase 5**: Feature extraction (COMPLETE)
+  - Created ScheduleService for schedule data management
+    - Handles schedule fetching, caching, and week calculations
+    - Centralized week navigation logic
+    - Schedule version validation
+  - Created StreakCalculatorService for streak management
+    - Calculates streaks with recovery/sick day support
+    - Manages shield awards and milestones
+    - Integrates with storage and schedule services
+  - Services follow dependency injection pattern
+  - Clear separation of concerns
+  - Easier to test and maintain
+- **Core Architecture - Phase 6**: Domain storage layer (COMPLETE)
+  - Created DomainStorageService for business-logic storage operations
+  - Encapsulates key structure (no more string concatenation in app.js)
+  - Type-safe methods with clear intent
+  - Domain methods: `isRecoveryDay()`, `isSickDay()`, `isExerciseComplete()`, etc.
+  - Self-documenting code - method names speak business language
+  - Easy refactoring - change key structure in one place
+  - ~50 call sites migrated to domain methods
+  - Follows Adapter Pattern - wraps generic StorageService with domain layer
+- **Rep counter debug mode**: Added `getRepDelay()` function for centralized delay management
+  - Single source of truth for rep timing
+  - Debug mode (`#debug`) overrides delay to 1000ms for faster testing
+  - Allows quick rep counter testing without waiting full configured delay (3-4 seconds)
+- **Debug mode toggle in menu**: Added easy toggle for debug mode in burger menu
+  - Only visible in browser mode (hidden in standalone/web app mode via CSS media query)
+  - Toggle button shows current state (aktivieren/deaktivieren)
+  - Visual indicator when active (orange highlight)
+  - Automatically reloads page to apply debug mode changes
+- **Git Hooks for Conventional Commits**: Local commit message validation
+  - Pre-commit hook validates Conventional Commits format
+  - Enforces 50/72 character rules (subject: 50 recommended, 72 max; body: 72 max per line)
+  - Detects BREAKING CHANGE markers for major version bumps
+  - Encourages scope usage (e.g., `feat(auth):`) when feasible
+  - Setup script: `bash .githooks/setup.sh`
+  - Provides helpful error messages with examples
+  - Instant feedback before commit completes
+- **GitHub Action for Commit Validation**: Remote enforcement of commit standards
+  - Separate workflow file: `.github/workflows/validate-conventional-commits.yml`
+  - Validates all commits in PRs and pushes to main
+  - Catches commits that bypass local hooks
+  - Works with web-based commits (GitHub UI)
+  - Modular architecture for better reusability
+  - Local testing helper script: `.github/test-workflows.sh` (uses act if available)
+- **Consent Layer**: GDPR-friendly consent screen for first-time visitors
+  - Lists all external CDN resources (Tailwind CSS, Canvas Confetti, Google Fonts, Lucide Icons)
+  - Blocks CDN loading until consent is accepted
+  - Consent stored indefinitely in cookie
+  - Clear privacy notice: all training data stays local (LocalStorage only)
+  - Links to personal site (christoph-daum.de) and GitHub repository
+- **Introduction Modal**: Welcome screen for new users
+  - Shows on first visit only (dismissed state stored in localStorage)
+  - ES6 module: `assets/js/intro-modal.js` (imported by app.js)
+  - Uses DomainStorageService for state management (`hasSeenIntroduction()`, `setIntroductionSeen()`)
+  - Functions accept domainStorage as dependency injection parameter
+  - Highlights privacy-first approach (all data stored locally)
+  - Lists all app features (Rep Counter, Notes, Gamification, Streaks, Sick Mode, Progressive Overload)
+  - Links to personal website (christoph-daum.de) and GitHub repository
+  - Encourages forking the GitHub project for personal customization
+  - Notes that this is a private app with personal training schedules
+  - Confetti celebration on dismissal
+  - Gym logo displayed prominently
+
+### Changed
+
+- `.cursorrules`: Enhanced AI development guidelines 
+  - Senior developer mindset - Thanks to David for the suggestion!
+  - Mandatory documentation reminders
+  - Strict code quality principles (SOLID, Clean Code, Testability, Maintainability).
+  - Added git workflow guidelines: AI should not perform git operations unless explicitly requested or for verification.
+- **Architecture**: Modular foundation established with state machines for improved code organization and conflict prevention
+- **app.js**: Now loads as ES6 module with imported dependencies
+- **Weight input display**: Removed spinner arrows from number input fields for better centered appearance on mobile devices
+
 ## [12.0.0] - 2026-01-05
 
 ### Changed

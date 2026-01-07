@@ -2,23 +2,60 @@
  * Body Refactoring App - Main JavaScript
  *
  * @package BodyRefactoring
- * @version 9.0.0
+ * @version 13.0.0
  */
+
+// --- MODULE IMPORTS ---
+import {
+	STORAGE_KEYS,
+	CONFIG,
+	APP_STATES,
+	QUOTES,
+	RECOVERY_ACTIVITIES
+} from './modules/constants.js';
+
+import { AppStateMachine } from './modules/app-state-machine.js';
+import { TimerStateMachine, RepCounterStateMachine } from './modules/timer-state-machine.js';
+import { ModalStateMachine } from './modules/modal-state-machine.js';
+import { StorageService } from './modules/storage-service.js';
+import { DomainStorageService } from './modules/domain-storage-service.js';
+import { StateManager } from './modules/state-manager.js';
+import { SpeechService } from './modules/speech-service.js';
+import { TimerCoordinator } from './modules/timer-coordinator.js';
+import { getLocalISODate, getToday, scrollToElement } from './modules/utils.js';
+import { checkAndShowIntroModal, closeIntroModal } from './intro-modal.js';
+
+// --- STATE MACHINES & SERVICES ---
+const appStateMachine = new AppStateMachine();
+const timerStateMachine = new TimerStateMachine();
+const repCounterStateMachine = new RepCounterStateMachine();
+const modalStateMachine = new ModalStateMachine();
+const storage = new StorageService();
+const domainStorage = new DomainStorageService(storage);
+const stateManager = new StateManager();
+const speech = new SpeechService();
+const timerCoordinator = new TimerCoordinator();
+
+// Debug mode - removes day editing restrictions
+const DEBUG_MODE = CONFIG.DEBUG_MODE;
+
+// Legacy constants (to be replaced with STORAGE_KEYS and storage service)
+const STORAGE_PREFIX = STORAGE_KEYS.PREFIX;
+const NOTE_PREFIX = STORAGE_KEYS.NOTE_PREFIX;
+const WEIGHT_PREFIX = STORAGE_KEYS.WEIGHT_PREFIX;
+const UNIT_PREFIX = STORAGE_KEYS.UNIT_PREFIX;
+const SICK_PREFIX = STORAGE_KEYS.SICK_PREFIX;
+const RECOVERY_PREFIX = STORAGE_KEYS.RECOVERY_PREFIX;
+const SHIELDS_KEY = STORAGE_KEYS.SHIELDS;
+const SHIELDS_AWARDED_KEY = STORAGE_KEYS.SHIELDS_AWARDED;
+const MAX_SHIELDS = CONFIG.MAX_SHIELDS;
+
+// Use imported constants
+const quotes = QUOTES;
+const recoveryActivities = RECOVERY_ACTIVITIES;
 
 // --- GLOBAL STATE ---
 let currentWeekOffset = 0;
-const STORAGE_PREFIX = 'body_refactoring_v1_';
-const NOTE_PREFIX = 'body_refactoring_note_';
-const WEIGHT_PREFIX = 'body_refactoring_weight_';
-const UNIT_PREFIX = 'body_refactoring_unit_';
-const SICK_PREFIX = 'body_refactoring_sick_';
-const RECOVERY_PREFIX = 'body_refactoring_recovery_';
-const SHIELDS_KEY = 'body_refactoring_shields';
-const SHIELDS_AWARDED_KEY = 'body_refactoring_shields_awarded';
-const MAX_SHIELDS = 3;
-
-// Debug mode - removes day editing restrictions
-const DEBUG_MODE = window.location.hash === '#debug';
 
 // Global State for Dynamic Scheduling
 const state = {
@@ -33,23 +70,6 @@ let isRunning = false;
 let timeLeft = 0;
 let currentTimerLabel = '';
 
-const quotes = [
-	'Stark! Wieder einen Tag geschafft.',
-	'Konsistenz ist der Schlüssel zum Erfolg.',
-	'Dein Zukunfts-Ich dankt dir.',
-	'Keine Ausreden, nur Ergebnisse.',
-	'Level Up! Du wirst jeden Tag besser.',
-	'Schweiß ist nur Fett, das weint.',
-	'Disziplin ist Freiheit.',
-	'Ein Schritt näher am Ziel.'
-];
-
-// Recovery Mode Activities (light activities for sick days)
-const recoveryActivities = [
-	{ id: 'breathing', title: '5 Min Atemübungen', desc: 'Tiefes Ein- und Ausatmen' },
-	{ id: 'stretching', title: 'Leichtes Stretching', desc: '5 Minuten sanfte Dehnübungen' },
-	{ id: 'hydration', title: 'Flüssigkeitszufuhr', desc: '2 Liter Wasser/Tee trinken' }
-];
 
 // --- INIT & DATA FETCHING ---
 
@@ -70,6 +90,23 @@ async function initApp() {
 			debugIndicator.classList.remove('hidden');
 		}
 		console.log('🐛 DEBUG MODE ACTIVE - All day restrictions removed');
+
+		// Add state machine logging in debug mode
+		appStateMachine.onChange(({from, to, data}) => {
+			console.log(`[AppState] ${from} → ${to}`, data);
+		});
+
+		timerStateMachine.onChange(({from, to, data}) => {
+			console.log(`[TimerState] ${from} → ${to}`, data);
+		});
+
+		repCounterStateMachine.onChange(({from, to, data}) => {
+			console.log(`[RepCounterState] ${from} → ${to}`, data);
+		});
+
+		modalStateMachine.onChange(({from, to, data}) => {
+			console.log(`[ModalState] ${from} → ${to}`, data);
+		});
 	}
 
 	try {
@@ -80,24 +117,33 @@ async function initApp() {
 
 		state.availableSchedules = await response.json();
 
-		if (state.availableSchedules.length > 0) {
-			state.startDate = new Date(state.availableSchedules[0].date + 'T00:00:00');
-			await renderSchedule(); // Initial render
-			updateShieldDisplay(); // Initialize shields display
-			setTimeout(() => {
-				document.getElementById('splash-screen').style.opacity = '0';
-			}, 800);
-			setTimeout(() => {
-				document.getElementById('splash-screen').style.display = 'none';
-			}, 1300);
-		} else {
-			alert('Keine Trainingspläne gefunden.');
-		}
-	} catch (e) {
-		console.error(e);
-		alert('Fehler beim Laden der Trainingspläne. Webserver erforderlich!');
+	if (state.availableSchedules.length > 0) {
+		state.startDate = new Date(state.availableSchedules[0].date + 'T00:00:00');
+		await renderSchedule(); // Initial render
+		updateShieldDisplay(); // Initialize shields display
+		updateDebugToggleButton(); // Update debug toggle button text
+
+		// Transition app state from INITIALIZING to SCHEDULE_VIEW
+		appStateMachine.transition(APP_STATES.SCHEDULE_VIEW, { action: 'app_ready' });
+
+		setTimeout(() => {
+			document.getElementById('splash-screen').style.opacity = '0';
+		}, 800);
+		setTimeout(() => {
+			document.getElementById('splash-screen').style.display = 'none';
+		}, 1300);
+
+		// Show introduction modal on first visit
+		checkAndShowIntroModal( domainStorage );
+	} else {
+		alert('Keine Trainingspläne gefunden.');
 	}
+} catch (e) {
+	console.error(e);
+	alert('Fehler beim Laden der Trainingspläne. Webserver erforderlich!');
 }
+}
+
 
 /**
  * Fetch the schedule configuration for a specific date.
@@ -149,17 +195,6 @@ async function fetchScheduleForDate(dateStr) {
 
 // --- CORE FUNCTIONS ---
 
-/**
- * Convert a Date object to ISO date string in local timezone.
- *
- * @param {Date} date - The date to convert.
- * @return {string} ISO date string (YYYY-MM-DD) in local timezone.
- */
-function getLocalISODate(date) {
-	const offset = date.getTimezoneOffset();
-	const localDate = new Date(date.getTime() - (offset * 60 * 1000));
-	return localDate.toISOString().split('T')[0];
-}
 
 /**
  * Compute the schedule for the current week being displayed.
@@ -334,8 +369,8 @@ async function renderSchedule() {
 		let exercisesHtml = '';
 
 		// Check if this is a recovery or sick day
-		const isRecoveryDay = localStorage.getItem( `${RECOVERY_PREFIX}${day.storageDate}_active` ) === 'true';
-		const isSickDayActive = localStorage.getItem( `${SICK_PREFIX}${day.storageDate}_active` ) === 'true';
+		const isRecoveryDay = domainStorage.isRecoveryDay(day.storageDate);
+		const isSickDayActive = domainStorage.isSickDay(day.storageDate);
 
 		if ( isRecoveryDay || isSickDayActive ) {
 			// Show original exercises as disabled/greyed out
@@ -369,7 +404,7 @@ async function renderSchedule() {
 
 				recoveryActivities.forEach( activity => {
 					const uniqueKey = `${RECOVERY_PREFIX}${day.storageDate}_${activity.id}`;
-					let isChecked = localStorage.getItem( uniqueKey ) === 'true';
+					let isChecked = domainStorage.isRecoveryActivityComplete(day.storageDate, activity.id);
 
 					exercisesHtml += `
 						<div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}">
@@ -391,8 +426,8 @@ async function renderSchedule() {
 			} else if ( isSickDayActive ) {
 				// Sick day - only hydration
 				const uniqueKey = `${SICK_PREFIX}${day.storageDate}_hydration`;
-				let isChecked = localStorage.getItem( uniqueKey ) === 'true';
-				const usedShield = localStorage.getItem( `${SICK_PREFIX}${day.storageDate}_shield` ) === 'true';
+				let isChecked = domainStorage.isSickDayHydrationComplete(day.storageDate);
+				const usedShield = domainStorage.wasSickDayShieldUsed(day.storageDate);
 
 				exercisesHtml += `
 					<div class="mt-4 pt-4 border-t-2 border-red-500/30">
@@ -422,10 +457,10 @@ async function renderSchedule() {
 				`;
 			}
 		} else {
-			// Normal day - render regular exercises
-			day.details.forEach(ex => {
+		// Normal day - render regular exercises
+		day.details.forEach(ex => {
 			const uniqueKey = `${STORAGE_PREFIX}${day.storageDate}_${ex.id}`;
-			let isChecked = localStorage.getItem(uniqueKey) === 'true';
+			let isChecked = domainStorage.isExerciseComplete(day.storageDate, ex.id);
 
 			// --- RENDER LOGIC ---
 			if (ex.type === 'alternatives') {
@@ -488,8 +523,7 @@ async function renderSchedule() {
 
 				let rightSide = '';
 				if (ex.weight) {
-					const unitKey = `${UNIT_PREFIX}${ex.id}`;
-					const userUnit = localStorage.getItem(unitKey) || ex.defaultUnit || 'KG';
+					const userUnit = domainStorage.getUnit(ex.id) || ex.defaultUnit || 'KG';
 					const currentWeight = getSmartWeight(ex.id, day.fullDateObj, ex.weight);
 
 					rightSide = `
@@ -528,7 +562,7 @@ async function renderSchedule() {
 		} // End of normal day rendering
 
 		const noteKey = `${NOTE_PREFIX}${day.storageDate}`;
-		const savedNote = localStorage.getItem(noteKey) || '';
+		const savedNote = domainStorage.getNote(day.storageDate);
 		const prevMemo = getPreviousMemo(day.storageDate);
 		let prevMemoHtml = prevMemo ? `<div class="mt-2 p-3 rounded-lg border border-dashed border-slate-700 bg-slate-800/50"><div class="text-[10px] text-slate-500 uppercase flex items-center gap-1 mb-1"><i data-lucide="history" class="w-3 h-3"></i> Memo von letzter Woche</div><div class="text-sm text-slate-400 italic">"${prevMemo}"</div></div>` : '';
 
@@ -584,8 +618,7 @@ function getSmartWeight(exerciseId, targetDate, defaultWeight) {
 
 	while (searchDate >= state.startDate) {
 		const dateStr = getLocalISODate(searchDate);
-		const key = `${WEIGHT_PREFIX}${exerciseId}_${dateStr}`;
-		const saved = localStorage.getItem(key);
+		const saved = domainStorage.getWeight(exerciseId, dateStr);
 		if (saved) {
 			return saved;
 		}
@@ -605,7 +638,7 @@ function getPreviousMemo(targetDateIso) {
 	const prevDate = new Date(current);
 	prevDate.setDate(prevDate.getDate() - 7);
 	const prevIso = getLocalISODate(prevDate);
-	return localStorage.getItem(`${NOTE_PREFIX}${prevIso}`);
+	return domainStorage.getNote(prevIso);
 }
 
 /**
@@ -671,24 +704,53 @@ function toggleCheck(row, storageKey, dateId) {
 
 	row.classList.toggle('completed');
 	if (row.classList.contains('completed')) {
-		localStorage.setItem(storageKey, 'true');
+		// Extract date and exercise ID from storage key
+		// Key format: "br_YYYY-MM-DD_exerciseId" or "recovery_YYYY-MM-DD_activityId" or "sick_YYYY-MM-DD_hydration"
+		const parts = storageKey.split('_');
+		const prefix = parts[0];
+		const date = parts[1];
+		const id = parts.slice(2).join('_');
+
+		if (prefix === 'br') {
+			domainStorage.setExerciseComplete(date, id);
+		} else if (prefix === 'recovery' && parts.length > 3) {
+			// Recovery activity: recovery_YYYY-MM-DD_activityId
+			domainStorage.setRecoveryActivityComplete(date, id);
+		} else {
+			// Fallback to generic storage for other cases (sick day hydration, etc.)
+			storage.set(storageKey, 'true');
+		}
 		miniConfetti(row.querySelector('.check-circle'));
 	} else {
-		localStorage.removeItem(storageKey);
+		// Extract date and ID to use domain methods
+		const parts = storageKey.split('_');
+		const prefix = parts[0];
+		const date = parts[1];
+		const id = parts.slice(2).join('_');
+
+		if (prefix === 'br') {
+			domainStorage.setExerciseIncomplete(date, id);
+		} else if (prefix === 'recovery' && parts.length > 3) {
+			domainStorage.removeRecoveryActivity(date, id);
+		} else {
+			storage.remove(storageKey);
+		}
 	}
 	checkDayCompletion(dateId);
 	calculateStreak();
 }
 
 /**
- * Save a note to localStorage.
+ * Save a note to storage.
  *
- * @param {string} key - LocalStorage key.
+ * @param {string} key - Storage key (format: "note_YYYY-MM-DD").
  * @param {string} value - Note content.
  * @return {void}
  */
 function saveNote(key, value) {
-	localStorage.setItem(key, value);
+	// Extract date from key (format: "note_YYYY-MM-DD")
+	const date = key.replace(NOTE_PREFIX, '');
+	domainStorage.setNote(date, value);
 }
 
 /**
@@ -700,7 +762,7 @@ function saveNote(key, value) {
  * @return {void}
  */
 function saveWeight(exId, dateIso, value) {
-	localStorage.setItem(`${WEIGHT_PREFIX}${exId}_${dateIso}`, value);
+	domainStorage.setWeight(exId, dateIso, value);
 }
 
 /**
@@ -715,7 +777,7 @@ function toggleUnit(exId, element) {
 	const current = element.innerText;
 	const newUnit = current === 'KG' ? 'STUFE' : 'KG';
 	element.innerText = newUnit;
-	localStorage.setItem(`${UNIT_PREFIX}${exId}`, newUnit);
+	domainStorage.setUnit(exId, newUnit);
 }
 
 /**
@@ -803,8 +865,8 @@ async function calculateStreak() {
 	let dayData = config ? config.find(d => d.dayIndex === dayIdx) : null;
 
 	const todayComplete = dayData && isDayComplete(todayIso, dayData.details);
-	const todayRecovery = localStorage.getItem( `${RECOVERY_PREFIX}${todayIso}_active` ) === 'true' && isDayComplete(todayIso, []);
-	const todaySickWithShield = localStorage.getItem( `${SICK_PREFIX}${todayIso}_active` ) === 'true' && localStorage.getItem( `${SICK_PREFIX}${todayIso}_shield` ) === 'true' && isDayComplete(todayIso, []);
+	const todayRecovery = domainStorage.isRecoveryDay(todayIso) && isDayComplete(todayIso, []);
+	const todaySickWithShield = domainStorage.isSickDay(todayIso) && domainStorage.wasSickDayShieldUsed(todayIso) && isDayComplete(todayIso, []);
 
 	if (todayComplete || todayRecovery || todaySickWithShield) {
 		streak++;
@@ -831,8 +893,8 @@ async function calculateStreak() {
 		dayData = config ? config.find(d => d.dayIndex === dayIdx) : null;
 
 		const dayComplete = dayData && isDayComplete(dateStr, dayData.details);
-		const recoveryComplete = localStorage.getItem( `${RECOVERY_PREFIX}${dateStr}_active` ) === 'true' && isDayComplete(dateStr, []);
-		const sickDayWithShield = localStorage.getItem( `${SICK_PREFIX}${dateStr}_active` ) === 'true' && localStorage.getItem( `${SICK_PREFIX}${dateStr}_shield` ) === 'true' && isDayComplete(dateStr, []);
+		const recoveryComplete = domainStorage.isRecoveryDay(dateStr) && isDayComplete(dateStr, []);
+		const sickDayWithShield = domainStorage.isSickDay(dateStr) && domainStorage.wasSickDayShieldUsed(dateStr) && isDayComplete(dateStr, []);
 
 		if (dayComplete || recoveryComplete || sickDayWithShield) {
 			streak++;
@@ -877,15 +939,15 @@ async function calculateStreak() {
  */
 function isDayComplete(dateIso, details) {
 	// Check if it's a recovery day
-	if ( localStorage.getItem( `${RECOVERY_PREFIX}${dateIso}_active` ) === 'true' ) {
+	if ( domainStorage.isRecoveryDay(dateIso) ) {
 		return recoveryActivities.every( activity => {
-			return localStorage.getItem( `${RECOVERY_PREFIX}${dateIso}_${activity.id}` ) === 'true';
+			return domainStorage.isRecoveryActivityComplete(dateIso, activity.id);
 		} );
 	}
 
 	// Check if it's a sick day
-	if ( localStorage.getItem( `${SICK_PREFIX}${dateIso}_active` ) === 'true' ) {
-		return localStorage.getItem( `${SICK_PREFIX}${dateIso}_hydration` ) === 'true';
+	if ( domainStorage.isSickDay(dateIso) ) {
+		return domainStorage.isSickDayHydrationComplete(dateIso);
 	}
 
 	// Normal day
@@ -893,7 +955,7 @@ function isDayComplete(dateIso, details) {
 		return false;
 	}
 	return details.every(ex => {
-		return localStorage.getItem(`${STORAGE_PREFIX}${dateIso}_${ex.id}`) === 'true';
+		return domainStorage.isExerciseComplete(dateIso, ex.id);
 	});
 }
 
@@ -974,6 +1036,54 @@ function forceUpdate() {
 }
 
 /**
+ * Toggle debug mode on/off.
+ *
+ * Adds or removes #debug from URL hash and reloads the page.
+ * Updates button text to reflect current state.
+ *
+ * @return {void}
+ */
+function toggleDebugMode() {
+	const isDebugActive = window.location.hash === '#debug';
+
+	if (isDebugActive) {
+		// Disable debug mode
+		window.location.hash = '';
+		window.location.reload();
+	} else {
+		// Enable debug mode
+		window.location.hash = 'debug';
+		window.location.reload();
+	}
+}
+
+/**
+ * Update debug toggle button text based on current state.
+ *
+ * Called on page load to reflect whether debug mode is active.
+ *
+ * @return {void}
+ */
+function updateDebugToggleButton() {
+	const button = document.getElementById('debug-toggle-btn');
+	const text = document.getElementById('debug-toggle-text');
+
+	if (!button || !text) {
+		return;
+	}
+
+	const isDebugActive = window.location.hash === '#debug';
+
+	if (isDebugActive) {
+		text.textContent = 'Debug Mode deaktivieren';
+		button.classList.add('bg-orange-500/20');
+	} else {
+		text.textContent = 'Debug Mode aktivieren';
+		button.classList.remove('bg-orange-500/20');
+	}
+}
+
+/**
  * Enable NoSleep mode by playing a silent video.
  *
  * Prevents the device screen from locking during workouts.
@@ -988,85 +1098,13 @@ function enableNoSleep() {
 /**
  * Use text-to-speech to speak a message in German.
  *
- * Enhanced for iOS with better voice selection and more natural speech settings.
+ * Now uses timerCoordinator for centralized speech management and cleanup.
  *
  * @param {string} text - The text to speak.
- * @return {void}
+ * @return {Promise<void>} Resolves when speech complete.
  */
-function speak(text) {
-	if (!('speechSynthesis' in window)) {
-		return;
-	}
-
-	// Wait a bit if speech is currently speaking to avoid conflicts
-	if (window.speechSynthesis.speaking) {
-		setTimeout(() => speak(text), 100);
-		return;
-	}
-
-	const utterance = new SpeechSynthesisUtterance(text);
-	utterance.lang = 'de-DE';
-
-	// Natural speech settings - set before voice selection
-	utterance.rate = 0.95;
-	utterance.pitch = 1.0;
-	utterance.volume = 0.9;
-
-	// Get available voices
-	let voices = window.speechSynthesis.getVoices();
-
-	// If voices aren't loaded yet, wait for them
-	if (voices.length === 0) {
-		// Only set the handler once
-		if (!window.speechSynthesis.onvoiceschanged) {
-			window.speechSynthesis.onvoiceschanged = () => {
-				const loadedVoices = window.speechSynthesis.getVoices();
-				selectAndSpeak(utterance, loadedVoices);
-			};
-		}
-		// Trigger voice loading
-		window.speechSynthesis.getVoices();
-	} else {
-		selectAndSpeak(utterance, voices);
-	}
-}
-
-/**
- * Select the best German voice and speak.
- *
- * @param {SpeechSynthesisUtterance} utterance - The utterance object.
- * @param {Array} voices - Available voices.
- * @return {void}
- */
-function selectAndSpeak(utterance, voices) {
-	// Find German voices
-	const germanVoices = voices.filter(voice => voice.lang.startsWith('de'));
-
-	// Prefer specific voices in order
-	const preferredNames = ['Anna', 'Helena', 'Markus'];
-	let selectedVoice = null;
-
-	// Try to find preferred voice
-	for (const name of preferredNames) {
-		selectedVoice = germanVoices.find(voice => voice.name.includes(name));
-		if (selectedVoice) break;
-	}
-
-	// Fallback to any German voice
-	if (!selectedVoice && germanVoices.length > 0) {
-		selectedVoice = germanVoices[0];
-	}
-
-	if (selectedVoice) {
-		utterance.voice = selectedVoice;
-	}
-
-	// Speak with error handling
-	try {
-		window.speechSynthesis.speak(utterance);
-	} catch (error) {
-		console.error('Speech synthesis error:', error);
-	}
+async function speak(text) {
+	return timerCoordinator.speak(text);
 }
 
 /**
@@ -1088,11 +1126,27 @@ function getSpokenText(label) {
  */
 function startSpecificTimer(seconds, label) {
 	event.stopPropagation();
+
+	// Check if we can start a timer (state machine validation)
+	if (!appStateMachine.canStartTimer()) {
+		console.warn('[Timer] Blocked - another operation is active');
+		alert('⚠️ Bitte schließe erst die andere aktive Aktion.');
+		return;
+	}
+
 	resetTimer();
 	timeLeft = seconds;
 	currentTimerLabel = label;
 	document.getElementById('timer-text').innerText = label;
 	const spokenLabel = getSpokenText(label);
+
+	// Transition app state to TIMER_ACTIVE
+	appStateMachine.startTimer();
+	timerStateMachine.start(false); // Start without countdown
+
+	// Mark timer as active in coordinator (clears everything)
+	timerCoordinator.startTimer();
+
 	startTimerLogic(spokenLabel);
 }
 
@@ -1115,6 +1169,23 @@ let repCountdownInterval = null;
 let repStartTimeout = null;
 
 /**
+ * Get the rep counter delay with debug mode override.
+ *
+ * Returns the configured delay in milliseconds, or 1000ms in debug mode for faster testing.
+ * This provides a single source of truth for rep timing.
+ *
+ * @param {number} configuredDelay - The delay configured in the schedule (milliseconds).
+ * @return {number} Actual delay to use (milliseconds).
+ */
+function getRepDelay(configuredDelay) {
+	if (DEBUG_MODE) {
+		console.log(`[RepCounter] Debug mode: Overriding delay ${configuredDelay}ms → 1000ms`);
+		return 1000;
+	}
+	return configuredDelay;
+}
+
+/**
  * Start rep counter workflow.
  *
  * @param {string} exerciseId - Exercise identifier.
@@ -1130,13 +1201,28 @@ let repStartTimeout = null;
 function startRepCounter(exerciseId, sets, reps, restSeconds, delayMilliseconds, title, date, storageKey) {
 	event.stopPropagation();
 
+	// Check if we can start rep counter (state machine validation)
+	if (!appStateMachine.canStartRepCounter()) {
+		console.warn('[RepCounter] Blocked - another operation is active');
+		alert('⚠️ Bitte schließe erst die andere aktive Aktion.');
+		return;
+	}
+
 	// Reset any existing timer
 	resetTimer();
 	if (repCounterInterval) {
 		clearInterval(repCounterInterval);
 	}
 
-	// Initialize state
+	// Transition app state to REP_COUNTER_ACTIVE
+	appStateMachine.startRepCounter();
+	repCounterStateMachine.start();
+
+	// Mark rep counter as active in coordinator
+	timerCoordinator.startRepCounter();
+
+	// Initialize state with debug mode delay override
+	const actualDelay = getRepDelay(delayMilliseconds);
 	repCounterState = {
 		active: true,
 		exerciseId: exerciseId,
@@ -1146,7 +1232,7 @@ function startRepCounter(exerciseId, sets, reps, restSeconds, delayMilliseconds,
 		totalSets: sets,
 		repsPerSet: reps,
 		restSeconds: restSeconds,
-		delayMilliseconds: delayMilliseconds,
+		delayMilliseconds: actualDelay,
 		currentSet: 1,
 		currentRep: 0
 	};
@@ -1154,10 +1240,10 @@ function startRepCounter(exerciseId, sets, reps, restSeconds, delayMilliseconds,
 	// Show modal
 	showRepCounterModal();
 
-	// Start with 5-second countdown
-	setTimeout(() => {
+	// Start with 5-second countdown using timerCoordinator
+	timerCoordinator.setTimeout(() => {
 		startRepCountdown();
-	}, 300);
+	}, 300, 'rep_counter_init');
 }
 
 /**
@@ -1278,7 +1364,8 @@ function startRepCountdown() {
 		}
 	}
 
-	repCountdownInterval = setInterval(() => {
+	// Use timerCoordinator.setInterval for countdown
+	timerCoordinator.setInterval(() => {
 		countdown--;
 		if (countdown > 0) {
 			currentNumberEl.textContent = countdown;
@@ -1293,7 +1380,8 @@ function startRepCountdown() {
 				speak(`${countdown}`);
 			}
 		} else {
-			clearInterval(repCountdownInterval);
+			// Clear this specific interval
+			timerCoordinator.clearInterval('rep_countdown');
 
 			// Show "Los!" in big text with green color
 			currentNumberEl.textContent = 'Los!';
@@ -1303,12 +1391,12 @@ function startRepCountdown() {
 			document.getElementById('rep-status-text').textContent = '';
 			speak('Los!');
 
-			// Wait 2 seconds, then start rep counting
-			repStartTimeout = setTimeout(() => {
+			// Wait shortly, then start rep counting using timerCoordinator
+			timerCoordinator.setTimeout(() => {
 				startRepCounting();
-			}, 2000);
+			}, 500, 'rep_start_counting');
 		}
-	}, 1000);
+	}, 1000, 'rep_countdown');
 }
 
 /**
@@ -1331,14 +1419,14 @@ function startRepCounting() {
 
 	// Check if this was the only rep
 	if (repCounterState.currentRep >= repCounterState.repsPerSet) {
-		setTimeout(() => {
+		timerCoordinator.setTimeout(() => {
 			completeSet();
-		}, 300);
+		}, 300, 'complete_set');
 		return;
 	}
 
-	// Start automatic rep counting for remaining reps
-	repCounterInterval = setInterval(() => {
+	// Start automatic rep counting for remaining reps using timerCoordinator
+	timerCoordinator.setInterval(() => {
 		repCounterState.currentRep++;
 		updateRepCounterModal();
 
@@ -1352,21 +1440,26 @@ function startRepCounting() {
 
 		// Check if set complete
 		if (repCounterState.currentRep >= repCounterState.repsPerSet) {
-			clearInterval(repCounterInterval);
-			setTimeout(() => {
+			timerCoordinator.clearInterval('rep_counting');
+			timerCoordinator.setTimeout(() => {
 				completeSet();
-			}, repCounterState.delayMilliseconds);
+			}, repCounterState.delayMilliseconds, 'complete_set');
 		}
-	}, repCounterState.delayMilliseconds);
+	}, repCounterState.delayMilliseconds, 'rep_counting');
 }
 
 /**
  * Abort rep counter.
  *
+ * Uses timerCoordinator to ensure complete cleanup of all timers and speech.
+ *
  * @return {void}
  */
 function abortRepCounter() {
-	// Clear all intervals
+	// Use timerCoordinator to stop everything
+	timerCoordinator.stop();
+
+	// Clear legacy intervals if they exist
 	if (repCounterInterval) {
 		clearInterval(repCounterInterval);
 		repCounterInterval = null;
@@ -1380,26 +1473,27 @@ function abortRepCounter() {
 		timerInterval = null;
 	}
 
-	// Clear timeouts
+	// Clear legacy timeouts if they exist
 	if (repStartTimeout) {
 		clearTimeout(repStartTimeout);
 		repStartTimeout = null;
 	}
 
-	// Stop any ongoing speech
-	if (window.speechSynthesis && window.speechSynthesis.speaking) {
-		window.speechSynthesis.cancel();
-	}
-
 	repCounterState.active = false;
 	isRunning = false;
+
+	// Return to schedule view state
+	if (appStateMachine.isRepCounterActive()) {
+		appStateMachine.returnToSchedule('rep_counter_aborted');
+	}
+	repCounterStateMachine.cancel('user_aborted');
 
 	hideRepCounterModal();
 
 	// Speak after a short delay to ensure cancel has completed
-	setTimeout(() => {
+	timerCoordinator.setTimeout(() => {
 		speak('Abgebrochen');
-	}, 100);
+	}, 100, 'abort_speech');
 }
 
 /**
@@ -1455,7 +1549,8 @@ function startRestPeriod() {
 	};
 	currentNumberEl.addEventListener('click', quickRestHandler);
 
-	timerInterval = setInterval(() => {
+	// Use timerCoordinator.setInterval instead of setInterval
+	timerCoordinator.setInterval(() => {
 		currentNumberEl.textContent = `${timeLeft}s`;
 
 		// Restart breathing animation for each second
@@ -1480,7 +1575,7 @@ function startRestPeriod() {
 		}
 
 		if (timeLeft <= 0) {
-			clearInterval(timerInterval);
+			timerCoordinator.clearInterval('rest_period');
 			isRunning = false;
 
 			// Remove click handler and reset styles
@@ -1496,14 +1591,14 @@ function startRestPeriod() {
 
 			speak('Los!');
 
-			// Start next set
-			setTimeout(() => {
+			// Start next set using timerCoordinator
+			timerCoordinator.setTimeout(() => {
 				startRepCounting();
-			}, 500);
+			}, 500, 'next_set');
 		}
 
 		timeLeft--;
-	}, 1000);
+	}, 1000, 'rest_period');
 }
 
 /**
@@ -1554,6 +1649,13 @@ function finishRepCounter() {
 	setTimeout(() => {
 		repCounterState.active = false;
 		hideRepCounterModal();
+
+		// Return to schedule view state
+		if (appStateMachine.isRepCounterActive()) {
+			appStateMachine.returnToSchedule('rep_counter_completed');
+		}
+		repCounterStateMachine.complete();
+		repCounterStateMachine.reset();
 	}, 2000);
 }
 
@@ -1567,9 +1669,25 @@ function toggleTimer() {
 		resetTimer();
 		speak('Timer abgebrochen.');
 	} else {
+		// Check if we can start a timer (state machine validation)
+		if (!appStateMachine.canStartTimer()) {
+			console.warn('[Timer] Blocked - another operation is active');
+			alert('⚠️ Bitte schließe erst die andere aktive Aktion.');
+			return;
+		}
+
+		resetTimer(); // Clear any existing state
 		timeLeft = 60;
 		currentTimerLabel = '60s Pause';
 		document.getElementById('timer-text').innerText = currentTimerLabel;
+
+		// Transition app state to TIMER_ACTIVE
+		appStateMachine.startTimer();
+		timerStateMachine.start(false);
+
+		// Mark timer as active in coordinator (clears everything)
+		timerCoordinator.startTimer();
+
 		startTimerLogic('60 Sekunden Pause');
 	}
 }
@@ -1579,17 +1697,26 @@ function toggleTimer() {
  *
  * Enables NoSleep, announces start, updates UI every second,
  * provides time announcements, and triggers completion effects.
+ * Now uses timerCoordinator for proper cleanup.
+ *
+ * Note: Caller should call timerCoordinator.startTimer() before this function.
  *
  * @param {string} spokenTextStart - The spoken announcement text.
  * @return {void}
  */
 function startTimerLogic(spokenTextStart) {
 	enableNoSleep();
-	speak(`${spokenTextStart} gestartet.`);
+
+	// Small delay to ensure speech cancellation from timerCoordinator.startTimer() completes
+	setTimeout(() => {
+		speak(`${spokenTextStart} gestartet.`);
+	}, 100);
+
 	isRunning = true;
 	document.getElementById('fab-timer').classList.add('running');
 
-	timerInterval = setInterval(() => {
+	// Use timerCoordinator.setInterval instead of setInterval
+	timerCoordinator.setInterval(() => {
 		timeLeft--;
 		const mins = Math.floor(timeLeft / 60);
 		const secs = timeLeft % 60;
@@ -1621,23 +1748,37 @@ function startTimerLogic(spokenTextStart) {
 			navigator.vibrate([200, 100, 200]);
 			superConfetti();
 		}
-	}, 1000);
+	}, 1000, 'main_timer');
 }
 
 /**
  * Reset the timer to default state.
  *
- * Stops the countdown, resets UI, cancels speech synthesis.
+ * Stops countdown, resets UI, cancels all timers and speech via timerCoordinator.
+ * Returns to schedule view state.
  *
  * @return {void}
  */
 function resetTimer() {
-	clearInterval(timerInterval);
+	// Use timerCoordinator to stop everything
+	timerCoordinator.stop();
+
+	// Clear legacy timer interval if it exists
+	if (timerInterval) {
+		clearInterval(timerInterval);
+		timerInterval = null;
+	}
+
 	isRunning = false;
 	document.getElementById('fab-timer').classList.remove('running');
 	document.getElementById('fab-timer').innerHTML = '<i data-lucide="timer" class="w-6 h-6"></i><span id="timer-text">60s Pause</span>';
 	lucide.createIcons();
-	window.speechSynthesis.cancel();
+
+	// Return to schedule view state
+	if (appStateMachine.isTimerActive()) {
+		appStateMachine.returnToSchedule('timer_completed');
+	}
+	timerStateMachine.stop('completed');
 }
 
 /**
@@ -1758,7 +1899,7 @@ function superConfetti() {
  * @return {number} Number of shields (0-3).
  */
 function getShields() {
-	const shields = parseInt( localStorage.getItem( SHIELDS_KEY ) || '0' );
+	const shields = domainStorage.getShieldCount();
 	return Math.min( shields, MAX_SHIELDS );
 }
 
@@ -1768,16 +1909,7 @@ function getShields() {
  * @return {Set<number>} Set of milestone numbers that have been awarded.
  */
 function getAwardedShieldMilestones() {
-	const stored = localStorage.getItem( SHIELDS_AWARDED_KEY );
-	if ( ! stored ) {
-		return new Set();
-	}
-	try {
-		const array = JSON.parse( stored );
-		return new Set( array );
-	} catch ( e ) {
-		return new Set();
-	}
+	return domainStorage.getShieldMilestones();
 }
 
 /**
@@ -1789,7 +1921,7 @@ function getAwardedShieldMilestones() {
 function addAwardedShieldMilestone( milestone ) {
 	const milestones = getAwardedShieldMilestones();
 	milestones.add( milestone );
-	localStorage.setItem( SHIELDS_AWARDED_KEY, JSON.stringify( Array.from( milestones ) ) );
+	domainStorage.setShieldMilestones(milestones);
 }
 
 /**
@@ -1800,7 +1932,7 @@ function addAwardedShieldMilestone( milestone ) {
 function awardShield() {
 	const current = getShields();
 	if ( current < MAX_SHIELDS ) {
-		localStorage.setItem( SHIELDS_KEY, ( current + 1 ).toString() );
+		domainStorage.setShieldCount(current + 1);
 		updateShieldDisplay();
 		// Show notification
 		showShieldNotification( 'Neuer Schutzschild verdient! 🛡️' );
@@ -1887,7 +2019,7 @@ function closeSickModeModal() {
  */
 function activateRecoveryMode() {
 	const today = getLocalISODate( new Date() );
-	localStorage.setItem( `${RECOVERY_PREFIX}${today}_active`, 'true' );
+	domainStorage.setRecoveryDay(today);
 	closeSickModeModal();
 	renderSchedule(); // Re-render to show recovery activities
 }
@@ -1905,12 +2037,12 @@ function useSickShield() {
 	const today = getLocalISODate( new Date() );
 
 	// Check if already in recovery or sick mode today
-	if ( localStorage.getItem( `${RECOVERY_PREFIX}${today}_active` ) === 'true' ) {
+	if ( domainStorage.isRecoveryDay(today) ) {
 		alert( 'Heute ist bereits als Recovery-Tag markiert!' );
 		return;
 	}
 
-	if ( localStorage.getItem( `${SICK_PREFIX}${today}_active` ) === 'true' ) {
+	if ( domainStorage.isSickDay(today) ) {
 		alert( 'Heute ist bereits als Krank-Tag markiert!' );
 		return;
 	}
@@ -1919,8 +2051,7 @@ function useSickShield() {
 		// No shields available - offer to use sick mode without shield
 		if ( confirm( '⚠️ Keine Schutzschilder verfügbar!\n\nMöchtest du trotzdem den Krank-Modus aktivieren?\n\nDein Streak wird unterbrochen, aber du kannst die Krankheit dokumentieren.' ) ) {
 			// Mark as sick day without shield
-			localStorage.setItem( `${SICK_PREFIX}${today}_active`, 'true' );
-			localStorage.setItem( `${SICK_PREFIX}${today}_shield`, 'false' );
+			domainStorage.setSickDay(today, false);
 			closeSickModeModal();
 			renderSchedule();
 			alert( '✅ Krank-Modus aktiviert (ohne Schild).\n\nGute Besserung! Trinke heute ausreichend Wasser/Tee.\n\n⚠️ Dein Streak wird unterbrochen.' );
@@ -1931,10 +2062,9 @@ function useSickShield() {
 	// Shields available - ask to use one
 	if ( confirm( `Einen Schutzschild verwenden?\n\nDu hast noch ${shields} Schild(e) verfügbar.\nDer Tag wird als Ruhetag gezählt und dein Streak bleibt erhalten.\n\n(Alternativ: Abbrechen und ohne Schild fortfahren - Streak bricht)` ) ) {
 		// Mark as sick day with shield
-		localStorage.setItem( `${SICK_PREFIX}${today}_active`, 'true' );
-		localStorage.setItem( `${SICK_PREFIX}${today}_shield`, 'true' );
+		domainStorage.setSickDay(today, true);
 		// Decrement shields
-		localStorage.setItem( SHIELDS_KEY, ( shields - 1 ).toString() );
+		domainStorage.setShieldCount(shields - 1);
 		updateShieldDisplay();
 		closeSickModeModal();
 		renderSchedule();
@@ -1942,8 +2072,7 @@ function useSickShield() {
 	} else {
 		// User cancelled - ask if they want to use without shield
 		if ( confirm( '⚠️ Ohne Schild fortfahren?\n\nDein Streak wird unterbrochen, aber du kannst die Krankheit dokumentieren.' ) ) {
-			localStorage.setItem( `${SICK_PREFIX}${today}_active`, 'true' );
-			localStorage.setItem( `${SICK_PREFIX}${today}_shield`, 'false' );
+			domainStorage.setSickDay(today, false);
 			closeSickModeModal();
 			renderSchedule();
 			alert( '✅ Krank-Modus aktiviert (ohne Schild).\n\nGute Besserung!\n\n⚠️ Dein Streak wird unterbrochen.' );
@@ -1966,25 +2095,23 @@ function backToNormal( dateIso ) {
 	}
 
 	// Check if shield was used and refund it
-	const usedShield = localStorage.getItem( `${SICK_PREFIX}${dateIso}_shield` ) === 'true';
+	const usedShield = domainStorage.wasSickDayShieldUsed(dateIso);
 	if ( usedShield ) {
 		const shields = getShields();
 		if ( shields < MAX_SHIELDS ) {
-			localStorage.setItem( SHIELDS_KEY, ( shields + 1 ).toString() );
+			domainStorage.setShieldCount(shields + 1);
 			updateShieldDisplay();
 		}
 	}
 
 	// Remove all recovery activities
 	recoveryActivities.forEach( activity => {
-		localStorage.removeItem( `${RECOVERY_PREFIX}${dateIso}_${activity.id}` );
+		domainStorage.removeRecoveryActivity(dateIso, activity.id);
 	} );
-	localStorage.removeItem( `${RECOVERY_PREFIX}${dateIso}_active` );
+	domainStorage.removeRecoveryDay(dateIso);
 
 	// Remove sick day data
-	localStorage.removeItem( `${SICK_PREFIX}${dateIso}_active` );
-	localStorage.removeItem( `${SICK_PREFIX}${dateIso}_shield` );
-	localStorage.removeItem( `${SICK_PREFIX}${dateIso}_hydration` );
+	domainStorage.removeSickDay(dateIso);
 
 	// Re-render to show normal day
 	renderSchedule();
@@ -1992,6 +2119,45 @@ function backToNormal( dateIso ) {
 
 	alert( '✅ Zurück zum normalen Training!' + ( usedShield ? '\n🛡️ Schild wurde zurückerstattet.' : '' ) );
 }
+
+// --- EXPOSE FUNCTIONS TO GLOBAL SCOPE FOR INLINE EVENT HANDLERS ---
+// Since app.js is now a module, functions are not automatically global.
+// We need to explicitly expose functions that are called from inline HTML event handlers.
+
+// Expose domainStorage for inline scripts (introduction modal, etc.)
+window.domainStorage = domainStorage;
+
+// Wrap closeIntroModal to pass domainStorage dependency
+window.closeIntroModal = function() {
+	closeIntroModal( domainStorage );
+};
+
+window.toggleCheck = toggleCheck;
+window.closeMenuOutside = closeMenuOutside;
+window.closeModal = closeModal;
+window.toggleMenu = toggleMenu;
+window.showSickModeModal = showSickModeModal;
+window.exportData = exportData;
+window.triggerImport = triggerImport;
+window.forceUpdate = forceUpdate;
+window.toggleDebugMode = toggleDebugMode;
+window.updateDebugToggleButton = updateDebugToggleButton;
+window.changeWeek = changeWeek;
+window.toggleTimer = toggleTimer;
+window.activateRecoveryMode = activateRecoveryMode;
+window.useSickShield = useSickShield;
+window.closeSickModeModal = closeSickModeModal;
+window.abortRepCounter = abortRepCounter;
+window.startSpecificTimer = startSpecificTimer;
+window.startRepCounter = startRepCounter;
+window.backToNormal = backToNormal;
+window.importData = importData;
+window.miniConfetti = miniConfetti;
+window.toggleAccordion = toggleAccordion;
+window.toggleUnit = toggleUnit;
+window.handleWeightBlur = handleWeightBlur;
+window.saveNote = saveNote;
+window.saveWeight = saveWeight;
 
 // START APP
 window.onload = initApp;

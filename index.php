@@ -1,6 +1,12 @@
 <?php
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/assets/cachebuster.php';
+
+// Check for consent cookie
+if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' ) {
+	require_once __DIR__ . '/consent.php';
+	exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -24,7 +30,7 @@ require_once __DIR__ . '/assets/cachebuster.php';
 	<script src="https://unpkg.com/lucide@latest"></script>
 
 	<link rel="stylesheet" href="<?php echo asset( 'assets/css/styles.css' ); ?>">
-	<script src="<?php echo asset( 'assets/js/app.js' ); ?>" defer></script>
+ 	<script type="module" src="<?php echo asset( 'assets/js/app.js' ); ?>"></script>
 </head>
 <body onclick="closeMenuOutside(event)">
 
@@ -93,6 +99,11 @@ require_once __DIR__ . '/assets/cachebuster.php';
 
 		<div id="menu-dropdown"
 			 class="hidden absolute right-0 top-16 w-56 bg-slate-800/95 backdrop-blur border border-slate-700 rounded-xl shadow-2xl overflow-hidden flex-col">
+			<button id="debug-toggle-btn" onclick="toggleDebugMode()"
+					class="hide-in-standalone px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
+				<i data-lucide="bug" class="w-4 h-4 text-orange-400 flex-shrink-0"></i>
+				<span class="truncate" id="debug-toggle-text">Debug Mode aktivieren</span>
+			</button>
 			<button onclick="showSickModeModal()"
 					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
 				<i data-lucide="heart-pulse" class="w-4 h-4 text-red-400 flex-shrink-0"></i>
@@ -254,6 +265,140 @@ require_once __DIR__ . '/assets/cachebuster.php';
 			</button>
 		</div>
 	</div>
+
+	<!-- Introduction Modal -->
+	<div id="intro-modal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[200] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+		<div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl border-2 border-slate-700 p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+			<div class="text-center mb-6">
+				<img src="assets/img/gymlogo.png" alt="Body Refactoring" class="w-24 h-24 mx-auto rounded-2xl mb-4 shadow-lg">
+				<h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 mb-2">
+					Willkommen bei Body Refactoring!
+				</h2>
+				<p class="text-slate-400">Meine persönliche Fitness-Tracking App</p>
+			</div>
+
+			<!-- Privacy First -->
+			<div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-6">
+				<div class="flex items-start gap-3">
+					<div class="text-2xl">🔒</div>
+					<div>
+						<h3 class="font-bold text-emerald-400 mb-1">100% Privat & Lokal</h3>
+						<p class="text-sm text-slate-300">Alle Daten werden ausschließlich lokal in deinem Browser gespeichert. Du kannst die App gefahrlos testen und ausprobieren!</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Features -->
+			<div class="space-y-4 mb-6">
+				<h3 class="font-bold text-white text-lg mb-3">✨ Features</h3>
+
+				<div class="flex items-start gap-3 text-sm">
+					<div class="text-xl">🎯</div>
+					<div>
+						<strong class="text-white">Rep Counter:</strong>
+						<span class="text-slate-300"> Automatische Wiederholungszählung mit Sprachausgabe für freihändiges Training</span>
+					</div>
+				</div>
+
+				<div class="flex items-start gap-3 text-sm">
+					<div class="text-xl">📝</div>
+					<div>
+						<strong class="text-white">Notizen:</strong>
+						<span class="text-slate-300"> Hinterlasse Nachrichten an dein zukünftiges Ich (werden bei der nächsten Woche angezeigt)</span>
+					</div>
+				</div>
+
+				<div class="flex items-start gap-3 text-sm">
+					<div class="text-xl">🎮</div>
+					<div>
+						<strong class="text-white">Gamification:</strong>
+						<span class="text-slate-300"> Streaks, Schutzschilder, Konfetti-Effekte und motivierende Zitate</span>
+					</div>
+				</div>
+
+				<div class="flex items-start gap-3 text-sm">
+					<div class="text-xl">🔥</div>
+					<div>
+						<strong class="text-white">Streak-System:</strong>
+						<span class="text-slate-300"> Baue deine Trainings-Serie auf und verdiene Schutzschilder (1 pro 7-Tage-Streak)</span>
+					</div>
+				</div>
+
+				<div class="flex items-start gap-3 text-sm">
+					<div class="text-xl">🏥</div>
+					<div>
+						<strong class="text-white">Sick/Recovery Mode:</strong>
+						<span class="text-slate-300"> Nutze Schutzschilder bei Krankheit oder wähle Recovery-Aktivitäten</span>
+					</div>
+				</div>
+
+				<div class="flex items-start gap-3 text-sm">
+					<div class="text-xl">📊</div>
+					<div>
+						<strong class="text-white">Progressive Overload:</strong>
+						<span class="text-slate-300"> Automatische Gewichtsvorschläge basierend auf deiner Historie</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Personal Note -->
+			<div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6">
+				<div class="flex items-start gap-3">
+					<div class="text-2xl">💡</div>
+					<div>
+						<h3 class="font-bold text-yellow-400 mb-1">Wichtiger Hinweis</h3>
+						<p class="text-sm text-slate-300 mb-2">
+							Dies ist eine <strong>private App</strong>, die auf meinen persönlichen Trainingsplan zugeschnitten ist.
+						</p>
+						<p class="text-sm text-slate-300">
+							<strong>Gefällt dir die Idee?</strong> Forke das Projekt auf GitHub und erstelle deinen eigenen Trainingsplan!
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Links -->
+			<div class="space-y-3 mb-6">
+				<!-- Personal Website -->
+				<div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+					<div class="flex items-center justify-between">
+						<div class="flex items-center gap-3">
+							<i data-lucide="globe" class="w-6 h-6 text-slate-400"></i>
+							<div>
+								<div class="text-sm font-bold text-white">Christoph Daum</div>
+								<div class="text-xs text-slate-400">Entwickelt von Christoph</div>
+							</div>
+						</div>
+						<a href="https://christoph-daum.de" target="_blank" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-bold text-white transition">
+							Website
+						</a>
+					</div>
+				</div>
+
+				<!-- GitHub Link -->
+				<div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+					<div class="flex items-center justify-between">
+						<div class="flex items-center gap-3">
+							<i data-lucide="github" class="w-6 h-6 text-slate-400"></i>
+							<div>
+								<div class="text-sm font-bold text-white">Open Source auf GitHub</div>
+								<div class="text-xs text-slate-400">Fork it, customize it, make it yours!</div>
+							</div>
+						</div>
+						<a href="https://github.com/apermo/bodyrefactoring" target="_blank" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-bold text-white transition">
+							Zum Repo
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Close Button -->
+			<button onclick="closeIntroModal()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg">
+				Los geht's! 🚀
+			</button>
+		</div>
+	</div>
+
 
 </div>
 

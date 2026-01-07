@@ -55,7 +55,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2750
 					}
 				},
 				{
@@ -69,7 +69,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2500
 					}
 				},
 				{
@@ -83,7 +83,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2500
 					}
 				},
 				{
@@ -111,7 +111,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2750
 					}
 				},
 				{
@@ -229,7 +229,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2750
 					}
 				},
 				{
@@ -243,7 +243,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2500
 					}
 				},
 				{
@@ -257,7 +257,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2500
 					}
 				},
 				{
@@ -278,14 +278,14 @@
 					"id": "ex_butter_rev",
 					"type": "main",
 					"title": "Butterfly Reverse",
-					"desc": "3 x 12 Wdh (Neu: Hintere Schulter)",
+					"desc": "2 x 12 Wdh (Neu: Hintere Schulter)",
 					"weight": "2",
 					"defaultUnit": "KG",
 					"repCounter": {
-						"sets": 3,
+						"sets": 2,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2500
 					}
 				},
 				{
@@ -299,7 +299,7 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2750
 					}
 				},
 				{

@@ -94,11 +94,48 @@
   - `chore:` Maintenance tasks
   - `perf:` Performance improvements
 
-- Format: `<type>: <description>`
-- Example: `feat: add confirmation dialog for unchecking past exercises`
-- Keep the first line under 72 characters
-- Use imperative mood: "add" not "added"
-- Provide detailed body if needed (separated by blank line)
+- **Format**: `<type>(<scope>): <subject>`
+- **Scope**: Optional but **strongly encouraged** when feasible
+  - Helps identify which part of codebase changed
+  - Examples: `feat(auth):`, `fix(timer):`, `docs(roadmap):`
+  - Use when change is specific to a module, feature, or component
+  - Omit for global changes or when scope isn't clear
+
+- **Subject Line Rules (50/72 rule)**:
+  - **50 characters recommended** for subject line
+  - **72 characters maximum** (hard limit, enforced by hooks)
+  - Keep it concise and descriptive
+  - Use imperative mood: "add" not "added"
+
+- **Body**:
+  - Separate from subject with blank line
+  - Wrap at **72 characters per line** (hard limit)
+  - Explain what and why, not how
+  - Reference issues/PRs when relevant
+
+- **Breaking Changes**:
+  - Use `BREAKING CHANGE:` in commit body for major version bumps
+  - Or add `!` after type: `feat(api)!: remove deprecated endpoint`
+  - Clearly explain what breaks and migration path
+
+- **Examples**:
+  ```
+  feat(intro): add welcome modal for first-time users
+
+  fix(timer): resolve voice-over stuck after app switch
+
+  docs: update roadmap with v14-v16 features
+
+  refactor(storage)!: migrate to domain storage service
+
+  BREAKING CHANGE: All localStorage calls must use DomainStorageService.
+  See migration guide in docs/v13-refactoring/
+  ```
+
+- **Git Hooks**:
+  - Run `.githooks/setup.sh` to enable local commit validation
+  - Hooks enforce format and length limits before commit
+  - Bypass only when necessary: `git commit --no-verify`
 
 ## Changelog Management
 
@@ -115,6 +152,30 @@ Use these sections in order (omit empty sections):
 - **Removed**: Removed features
 - **Fixed**: Bug fixes
 - **Security**: Vulnerability fixes
+
+### Important: What NOT to List as "Fixed"
+- **Do NOT list bugs introduced during refactoring/development in the same version**
+  - Example: If refactoring breaks something and you fix it in same PR, don't list it
+  - Reason: These are implementation details, not user-facing bug fixes
+  - Instead: Note fixes within the feature description (e.g., "resolved race condition during implementation")
+- **Only list in "Fixed"**:
+  - Bugs that existed in previous released versions
+  - User-facing issues that affected production
+  - Regressions from earlier releases
+- **Example of what NOT to do**:
+  ```markdown
+  ### Fixed
+  - State machine initialization bug (introduced during refactoring)
+  - Double speech announcement (broke during module integration)
+  ```
+- **Example of what TO do**:
+  ```markdown
+  ### Added
+  - Core Architecture - Phase 3: Module integration (COMPLETE)
+    - TimerCoordinator implementation
+    - Resolved race condition in voice loading during implementation
+    - Fixed state machine flow during integration
+  ```
 
 ### Update Process
 1. **For every code change**, update the `[Unreleased]` section
@@ -292,10 +353,115 @@ bodyrefactoring/
 
 ## AI Assistant Guidelines
 
+### Senior Developer Mindset
+- Act as a senior developer providing expert guidance
+- Proactively suggest better solutions and architectural improvements
+- Consider maintainability and performance in all recommendations
+- Question requirements when they may lead to technical debt or poor design
+- Provide context and reasoning for suggestions when making architectural decisions
+
+### Documentation Reminders
+- **Alert the user** whenever changes require documentation updates
+- Explicitly mention which documentation needs updating:
+  - PHPDoc blocks for new/modified functions
+  - README.md for setup or usage changes
+  - CHANGELOG.md for all code changes (already covered in existing rules)
+  - Architecture documentation for structural changes
+  - docs/ folder markdown files for feature documentation
+- Use a clear format: `📝 Documentation Reminder: [what needs documenting]`
+- Remind even if documentation wasn't part of the original request
+
+### Code Quality Principles
+- **SOLID Principles**: Follow all five principles in design and implementation
+  - Single Responsibility Principle: Each class/function does one thing well
+  - Open/Closed Principle: Open for extension, closed for modification
+  - Liskov Substitution Principle: Subtypes must be substitutable for base types
+  - Interface Segregation Principle: Many specific interfaces over one general interface
+  - Dependency Inversion Principle: Depend on abstractions, not concretions
+- **Clean Code**: Prioritize readability, simplicity, and maintainability
+  - Self-documenting code with clear naming
+  - Functions should be small and focused (ideally < 20 lines)
+  - Avoid deep nesting (max 3 levels)
+  - DRY (Don't Repeat Yourself)
+  - YAGNI (You Aren't Gonna Need It)
+- **Testability**: Design code to be easily testable (even though tests aren't written yet)
+  - Avoid tight coupling between components
+  - Use dependency injection over direct instantiation
+  - Keep functions pure when possible (no side effects)
+  - Separate business logic from presentation
+  - Minimize global state and static methods
+- **Maintainability**: Code should be easy to understand and modify
+  - Consistent patterns throughout codebase
+  - Proper separation of concerns
+  - Clear error handling and edge cases
+  - Meaningful variable and function names
+
+### Communication Style
 - **Do NOT provide summaries** of changes made
 - After completing changes, simply confirm completion without detailed explanations
 - Only provide technical details if explicitly requested by the user
 - Focus on executing the task efficiently
+- **Always communicate in English**, even if user writes in German
+
+### Git Workflow
+- **Do NOT perform git commands** (add, commit, push) unless:
+  1. User explicitly requests git operations
+  2. Something needs to be checked/verified (e.g., `git status`, `git diff`)
+- When work is complete, notify user: "✅ Done - ready to check and commit"
+- User handles all git operations (staging, committing, pushing)
+- Only use `git status`, `git diff`, or similar read-only commands for verification when needed
+
+### GitHub Actions Testing
+- **Local testing with `act`**: The repository owner has [act](https://github.com/nektos/act) installed for local GitHub Actions testing
+- When creating or modifying GitHub Actions workflows:
+  1. **Test locally first** (if act is available): `act -l` to list workflows, `act pull_request` to test PR workflows
+  2. **Always include graceful fallbacks** for users who don't have act installed
+  3. **Document testing steps** in workflow comments or docs
+  4. **Check if act is installed** before attempting to use it: `which act >/dev/null 2>&1`
+- Example testing workflow:
+  ```bash
+  # Check if act is available
+  if command -v act >/dev/null 2>&1; then
+    echo "Testing workflow locally with act..."
+    act pull_request -W .github/workflows/your-workflow.yml
+  else
+    echo "⚠️  act not installed - skipping local test"
+    echo "Install act: https://github.com/nektos/act"
+    echo "Workflow will be tested on first push to GitHub"
+  fi
+  ```
+- When suggesting GitHub Actions changes, always mention: "You can test this locally with `act pull_request` if desired"
+- Don't assume act is installed when writing automation scripts for other contributors
+
+### File Movement - Preserve Git History
+- **ALWAYS use `git mv`** to move or rename files, NEVER use regular `mv` command
+- This preserves complete file history (commits, blame, authorship)
+- Git tracks moves as renames (shown as `R` in `git status`) instead of delete+add
+- Benefits:
+  - Full commit history preserved and accessible via `git log --follow`
+  - `git blame` continues to work correctly
+  - Easier to track changes across renames
+  - Cleaner git log (shows as rename, not deletion)
+- Format: `git mv <source> <destination>`
+- Examples:
+  ```bash
+  # Single file
+  git mv old-name.md new-name.md
+
+  # Move to directory
+  git mv file.md docs/v13-refactoring/
+
+  # Move and rename
+  git mv old-file.md docs/new-folder/new-name.md
+  ```
+- If files were already moved with `mv`, restore them and redo with `git mv`:
+  ```bash
+  git checkout HEAD -- old-file.md  # Restore original
+  rm new-location/old-file.md       # Remove manually moved file
+  git mv old-file.md new-location/  # Move properly
+  ```
+- Verify moves show as renames: `git status --short` should show `R` prefix
+- Exception: Only use regular file operations for temporary/uncommitted files
 
 ## Future Considerations
 

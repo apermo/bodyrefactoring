@@ -1,0 +1,110 @@
+#!/bin/bash
+#
+# Git commit-msg hook to validate Conventional Commits format
+# Format: <type>(<scope>): <subject>
+#
+# This hook enforces:
+# - Conventional commit types (feat, fix, docs, style, refactor, test, chore, perf)
+# - Optional scope in parentheses
+# - 50 character limit for subject line
+# - 72 character limit for body lines
+# - Detection of BREAKING CHANGE for major version bumps
+
+commit_msg_file=$1
+commit_msg=$(cat "$commit_msg_file")
+
+# Get first line (subject) and rest (body)
+subject=$(echo "$commit_msg" | head -n 1)
+body=$(echo "$commit_msg" | tail -n +3)
+
+# Color codes for output
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Conventional commit pattern
+# Allows: type: subject OR type(scope): subject
+pattern="^(feat|fix|docs|style|refactor|test|chore|perf)(\(.+\))?: .{1,}$"
+
+# Check conventional commit format
+if ! echo "$subject" | grep -qE "$pattern"; then
+    echo -e "${RED}❌ Invalid commit message format!${NC}"
+    echo ""
+    echo "Commit message must follow Conventional Commits:"
+    echo "  <type>(<scope>): <subject>"
+    echo ""
+    echo "Types: feat, fix, docs, style, refactor, test, chore, perf"
+    echo "Scope: Optional but recommended (e.g., feat(auth): add login)"
+    echo ""
+    echo "Examples:"
+    echo "  feat: add consent layer"
+    echo "  feat(intro): add welcome modal"
+    echo "  fix: repair timer conflict"
+    echo "  fix(rep-counter): resolve voice-over stuck bug"
+    echo "  docs: update roadmap"
+    echo "  refactor(storage): extract domain service layer"
+    echo ""
+    echo -e "${YELLOW}Your message:${NC}"
+    echo "  $subject"
+    exit 1
+fi
+
+# Extract type and check subject length
+type=$(echo "$subject" | sed -E 's/^([a-z]+).*/\1/')
+subject_only=$(echo "$subject" | sed -E 's/^[a-z]+(\(.+\))?: //')
+subject_length=${#subject}
+
+# Check subject line length (50 character soft limit, 72 hard limit)
+if [ "$subject_length" -gt 72 ]; then
+    echo -e "${RED}❌ Subject line too long!${NC}"
+    echo ""
+    echo "Subject line must be 72 characters or less (50 recommended)."
+    echo "Current length: $subject_length characters"
+    echo ""
+    echo -e "${YELLOW}Your subject:${NC}"
+    echo "  $subject"
+    echo ""
+    echo "Try to be more concise or split into subject + body."
+    exit 1
+elif [ "$subject_length" -gt 50 ]; then
+    echo -e "${YELLOW}⚠️  Warning: Subject line is longer than 50 characters${NC}"
+    echo "Current length: $subject_length (recommended: ≤50)"
+    echo "Consider making it more concise."
+    echo ""
+fi
+
+# Check body line length (72 character limit)
+if [ ! -z "$body" ]; then
+    while IFS= read -r line; do
+        # Skip empty lines and lines that start with # (comments)
+        if [ ! -z "$line" ] && ! echo "$line" | grep -qE "^#"; then
+            line_length=${#line}
+            if [ "$line_length" -gt 72 ]; then
+                echo -e "${RED}❌ Body line too long!${NC}"
+                echo ""
+                echo "Body lines must be 72 characters or less."
+                echo "Line length: $line_length characters"
+                echo ""
+                echo -e "${YELLOW}Problem line:${NC}"
+                echo "  $line"
+                echo ""
+                echo "Please wrap long lines."
+                exit 1
+            fi
+        fi
+    done <<< "$body"
+fi
+
+# Check for BREAKING CHANGE
+if echo "$commit_msg" | grep -qE "^BREAKING CHANGE:|^[a-z]+(\(.+\))?!:"; then
+    echo -e "${YELLOW}⚠️  BREAKING CHANGE detected${NC}"
+    echo "This commit includes breaking changes and may require a MAJOR version bump."
+    echo ""
+fi
+
+# Success message
+echo -e "${GREEN}✓ Commit message format valid${NC}"
+
+exit 0
+ppe

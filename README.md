@@ -9,6 +9,8 @@ serve dynamic, evolvable training schedules without breaking historical data.
 ## **📚 Documentation**
 
 - **[Changelog](CHANGELOG.md)** - Complete version history and release notes
+- **[Roadmap](docs/roadmap.md)** - Planned features and future development
+- **[v13.0.0 Refactoring](docs/v13-refactoring/README.md)** - Complete architectural refactoring documentation (6 phases, 13 modules)
 - **[Schedule Editor Guide](docs/schedule-editor.md)** - Complete guide for using the visual schedule editor
 - **[Schedule Validation Guide](docs/schedule-validation.md)** - Complete guide for creating and validating training schedules
 - **[AI Schedule Creation Guide](docs/ai-schedule-creation.md)** - Comprehensive guide for AI assistants to generate new schedule JSON files
@@ -130,6 +132,15 @@ A web-based visual editor for creating and managing training schedule JSON files
 
 ## **🏗️ Architecture**
 
+**Version 13.0+** introduces a modular architecture with improved code quality, maintainability, and testability. See **[Architecture Documentation](docs/architecture.md)** for full details.
+
+### **Design Principles**
+
+- **SOLID Principles**: Single responsibility, dependency injection, clear interfaces
+- **Clean Code**: Small functions (<20 lines), minimal nesting, self-documenting
+- **Testability**: Pure functions, dependency injection, separation of concerns
+- **State Machines**: Explicit state management for timers, modals, and app lifecycle
+
 ### **File Structure**
 
 ```
@@ -149,7 +160,14 @@ bodyrefactoring/
 │   ├── css/
 │   │   └── styles.css        # All application styles and animations
 │   └── js/
-│       └── app.js            # All application logic (fully documented with JSDoc)
+│       ├── app.js            # Main application (being refactored)
+│       └── modules/          # 🆕 Modular architecture (v13.0+)
+│           ├── constants.js          # Constants, enums, configuration
+│           ├── state-machine.js      # Generic state machine implementation
+│           ├── storage-service.js    # localStorage abstraction layer
+│           ├── state-manager.js      # Centralized application state
+│           ├── utils.js              # Common utility functions
+│           └── speech-service.js     # Text-to-speech service
 ├── trainings/
 │   ├── index.php             # API endpoint for available schedules
 │   ├── validate-schedule.php # Schedule validator (CLI only)
@@ -157,10 +175,29 @@ bodyrefactoring/
 │   ├── template-schedule.json    # Template for new schedules
 │   └── schedule-*.json       # Training schedule files
 └── docs/
+    ├── architecture.md           # 🆕 Architecture documentation
     ├── schedule-editor.md        # Complete schedule editor guide
     ├── schedule-validation.md    # Validation system documentation
     └── ai-schedule-creation.md   # Guide for AI-assisted schedule creation
 ```
+
+### **Module System (v13.0+)**
+
+**Phase 1 Complete** - Core foundation modules:
+
+- **constants.js**: Single source of truth for all constants and configuration
+- **state-machine.js**: Generic state machine with transition validation
+- **storage-service.js**: localStorage abstraction with type-safe methods
+- **state-manager.js**: Centralized reactive state management
+- **utils.js**: Common utilities (dates, formatting, notifications)
+- **speech-service.js**: Text-to-speech with voice selection
+
+**Upcoming Phases**:
+- Phase 2: State machine integration (app, timer, modal state machines)
+- Phase 3: Feature module extraction (rendering, streak calculation, etc.)
+- Phase 4: Integration and optimization
+
+See **[Architecture Documentation](docs/architecture.md)** for migration strategy and module details.
 
 ### **Cache Busting**
 
@@ -174,7 +211,7 @@ The app uses file modification timestamps for automatic cache invalidation:
 
 - **HTML (index.php)**: Structure and layout only
 - **CSS (assets/css/styles.css)**: All styling and animations
-- **JavaScript (assets/js/app.js)**: All application logic and interactivity
+- **JavaScript (assets/js/)**: Application logic (modular from v13.0+)
 - **PHP Backend**: Dynamic schedule loading and cache busting
 
 ## **🚀 Installation & Setup**
@@ -482,6 +519,87 @@ A schedule is a JSON object with a version number and an array of days. Each day
 
 A complete JSON Schema is available at `trainings/schema-schedule-v1.json` for IDE integration (VS Code, PhpStorm, etc.).
 
+## **👨‍💻 Developer Setup**
+
+### **Git Hooks (Commit Validation)**
+
+This project uses Git hooks to enforce Conventional Commits format. Set up hooks to get instant feedback before commits:
+
+```bash
+bash .githooks/setup.sh
+```
+
+**What this enables:**
+- ✅ Validates commit message format (type, scope, subject)
+- ✅ Enforces 50/72 character rules (subject/body)
+- ✅ Detects BREAKING CHANGE markers
+- ✅ Provides helpful error messages with examples
+- ✅ Runs locally (instant feedback, no CI wait)
+
+**Commit Format:**
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Examples:**
+```bash
+feat(intro): add welcome modal for first-time users
+fix(timer): resolve voice-over stuck after app switch
+docs: update roadmap with v14-v16 features
+refactor(storage)!: migrate to domain storage service
+```
+
+**Valid Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`
+
+**Rules:**
+- Scope: Optional but encouraged (e.g., `feat(auth):`)
+- Subject: Max 72 characters (50 recommended)
+- Body lines: Max 72 characters
+- Use imperative mood: "add" not "added"
+
+**Bypass (not recommended):**
+```bash
+git commit --no-verify
+```
+
+📖 **[Complete Commit Guidelines](.cursorrules)** - Full conventional commits documentation
+
+### **GitHub Actions**
+
+The repository includes automated checks that run on every PR and push to main:
+- Conventional Commits validation
+- Version bump verification
+- CHANGELOG entry validation  
+- Schedule JSON validation
+
+These run automatically - no setup required.
+
+**Local Testing (Optional):**
+
+If you have [act](https://github.com/nektos/act) installed, you can test GitHub Actions workflows locally before pushing:
+
+```bash
+# Helper script (checks for act, lists workflows, offers to test)
+bash .github/test-workflows.sh
+
+# Or use act directly:
+act -l                    # List all workflows
+act pull_request --dryrun # Test PR workflows (dry run)
+act push --dryrun         # Test push workflows (dry run)
+```
+
+Install act (optional):
+```bash
+brew install act  # macOS
+# Other platforms: https://github.com/nektos/act#installation
+```
+
+**Note**: act is completely optional. If not installed, workflows are automatically tested when you push to GitHub.
+
 ## **⚠️ Disclaimer**
 
 1. **No Medical Advice:** This software is for informational purposes only. Consult a physician before starting any
@@ -495,7 +613,15 @@ This project was built using **Vibe Coding** — a fluid, iterative collaboratio
 capability.
 
 * **Concept & Vision:** [apermo](https://github.com/apermo)
-* **AI Co-Pilot:** Google Gemini (Code generation, Logic implementation, UI Design)
+* **AI Co-Pilots:** 
+  - Google Gemini (Initial code generation, logic implementation, UI design)
+  - GitHub Copilot using Claude Sonnet 3.5 (Refactoring, architecture design, code quality improvements, continuous development)
+
+### **Special Thanks**
+
+A heartfelt thank you to **[Alexikon](https://www.instagram.com/alexikon_official)** whose educational and entertaining Instagram Reels sparked a profound shift in my relationship with food and drink. His content was the catalyst that led me to rethink my habits and ultimately inspired the creation of this project.
+
+Sometimes the smallest nudge creates the biggest change. 🙏
 
 ## **📄 License**
 
