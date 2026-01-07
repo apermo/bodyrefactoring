@@ -411,6 +411,28 @@ bodyrefactoring/
 - User handles all git operations (staging, committing, pushing)
 - Only use `git status`, `git diff`, or similar read-only commands for verification when needed
 
+### GitHub Actions Testing
+- **Local testing with `act`**: The repository owner has [act](https://github.com/nektos/act) installed for local GitHub Actions testing
+- When creating or modifying GitHub Actions workflows:
+  1. **Test locally first** (if act is available): `act -l` to list workflows, `act pull_request` to test PR workflows
+  2. **Always include graceful fallbacks** for users who don't have act installed
+  3. **Document testing steps** in workflow comments or docs
+  4. **Check if act is installed** before attempting to use it: `which act >/dev/null 2>&1`
+- Example testing workflow:
+  ```bash
+  # Check if act is available
+  if command -v act >/dev/null 2>&1; then
+    echo "Testing workflow locally with act..."
+    act pull_request -W .github/workflows/your-workflow.yml
+  else
+    echo "⚠️  act not installed - skipping local test"
+    echo "Install act: https://github.com/nektos/act"
+    echo "Workflow will be tested on first push to GitHub"
+  fi
+  ```
+- When suggesting GitHub Actions changes, always mention: "You can test this locally with `act pull_request` if desired"
+- Don't assume act is installed when writing automation scripts for other contributors
+
 ### File Movement - Preserve Git History
 - **ALWAYS use `git mv`** to move or rename files, NEVER use regular `mv` command
 - This preserves complete file history (commits, blame, authorship)

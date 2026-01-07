@@ -76,6 +76,44 @@ git commit --no-verify
 - Enforced for all contributors
 - Required for branch protection
 
+**Local Testing (Optional):**
+If you have [act](https://github.com/nektos/act) installed, you can test the workflow locally:
+
+```bash
+# Use the helper script (recommended)
+bash .github/test-workflows.sh
+
+# Or use act directly:
+# List all workflows
+act -l
+
+# Test pull_request event (dry run)
+act pull_request --dryrun
+
+# Test pull_request event (actual run)
+act pull_request -W .github/workflows/validate-conventional-commits.yml
+
+# Test push to main
+act push
+```
+
+**Helper Script Features:**
+- Checks if act is installed
+- Lists all available workflows
+- Provides usage examples
+- Offers to test conventional commits workflow
+- Graceful fallback if act not installed
+
+**Note**: act is not required. If not installed, workflows will be tested automatically when pushed to GitHub.
+
+Install act (optional):
+```bash
+# macOS
+brew install act
+
+# Other platforms: https://github.com/nektos/act#installation
+```
+
 ---
 
 ### 4. Updated Documentation

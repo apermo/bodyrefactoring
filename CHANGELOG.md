@@ -90,6 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Catches commits that bypass local hooks
   - Works with web-based commits (GitHub UI)
   - Modular architecture for better reusability
+  - Local testing helper script: `.github/test-workflows.sh` (uses act if available)
 - **Consent Layer**: GDPR-friendly consent screen for first-time visitors
   - Lists all external CDN resources (Tailwind CSS, Canvas Confetti, Google Fonts, Lucide Icons)
   - Blocks CDN loading until consent is accepted

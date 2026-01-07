@@ -578,6 +578,28 @@ The repository includes automated checks that run on every PR and push to main:
 
 These run automatically - no setup required.
 
+**Local Testing (Optional):**
+
+If you have [act](https://github.com/nektos/act) installed, you can test GitHub Actions workflows locally before pushing:
+
+```bash
+# Helper script (checks for act, lists workflows, offers to test)
+bash .github/test-workflows.sh
+
+# Or use act directly:
+act -l                    # List all workflows
+act pull_request --dryrun # Test PR workflows (dry run)
+act push --dryrun         # Test push workflows (dry run)
+```
+
+Install act (optional):
+```bash
+brew install act  # macOS
+# Other platforms: https://github.com/nektos/act#installation
+```
+
+**Note**: act is completely optional. If not installed, workflows are automatically tested when you push to GitHub.
+
 ## **⚠️ Disclaimer**
 
 1. **No Medical Advice:** This software is for informational purposes only. Consult a physician before starting any
