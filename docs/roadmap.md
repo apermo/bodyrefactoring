@@ -9,6 +9,27 @@ This document outlines planned features and improvements for the Body Refactorin
 **Priority: High**  
 **Focus**: Improved rep counter usability and interaction during workouts
 
+#### Navigation Improvements
+- **"Today" Button in Week Navigation**
+  - Appears in week navigation bar (right side of week display)
+  - Only visible when viewing a week other than current week
+  - Quick jump back to today's date
+  - Keeps week display centered as long as space available
+  - Mobile-optimized placement (doesn't interfere with week arrows)
+
+#### Sick/Recovery Completion Modal
+- **Subdued Completion Celebration**
+  - Modal appears when completing sick/recovery day
+  - Less celebrational tone than normal streak modal
+  - Shows updated streak status (maintained/paused)
+  - Different visual style:
+    - Softer colors (blues/purples instead of bright colors)
+    - Calmer messaging ("Taking care of yourself" vs "Great job!")
+    - Minimal confetti (10-20 particles vs 100+)
+    - Recovery icon (🩹 or 💊) instead of trophy/medal
+  - Acknowledges effort while respecting recovery state
+  - Quick dismiss (no excessive celebration)
+
 #### Rep Cooldown Timer Improvements
 - **Quick Access Panel During Cooldown**
   - Access day's logbook/notes without aborting rep counter
@@ -38,7 +59,38 @@ This document outlines planned features and improvements for the Body Refactorin
     - "Down" phase: Green
     - Creates visual rhythm matching exercise tempo
 
+- **Transition Bug Fixes**
+  - Add small delay (500-1000ms) after last rep before switching to cooldown
+  - Ensure color changes happen simultaneously with content changes
+  - Smooth state transitions (rep completion → cooldown start)
+  - State machine should handle transition timing
+  - Visual feedback should be consistent throughout all state changes
+  - Current issue: Abrupt switch from last rep to cooldown, color/content mismatch
+
 **Technical Implementation:**
+- Add "Today" button to week navigation component
+  - Conditionally render based on `currentWeekOffset !== 0`
+  - Position: Right side of week display (after week text)
+  - Button style: Minimal, icon-based (🏠 or 📅 icon)
+  - Click handler: Reset week offset to 0, reload current day view
+- Update week navigation layout:
+  - Use flexbox with space-between for arrows, week text, and today button
+  - Keep week text centered when today button not visible
+  - Adjust layout for mobile (ensure touch targets are 44x44px minimum)
+- State management:
+  - Track current week offset in app state
+  - Compare against today's date to determine button visibility
+  - Smooth transition animation when jumping to today
+- Create sick/recovery completion modal component
+  - Separate modal styles for sick vs recovery mode
+  - Reduced confetti configuration (particleCount: 10-20, spread: 40)
+  - Custom messaging based on mode:
+    - Sick: "Ruhe dich gut aus 💊" / "Rest and recover"
+    - Recovery: "Gut gemacht, sanft erholt 🩹" / "Well done, gentle recovery"
+  - Display current streak status with context
+  - Icon selection: 🩹 for recovery, 💊 for sick
+  - Softer color palette (blues, purples, muted tones)
+  - Quick fade-out after 2-3 seconds (vs 5+ for normal modal)
 - Modify `RepCounterStateMachine` to include cooldown states
 - Create `QuickAccessPanel` component for cooldown overlay
 - Update `getRepDelay()` to return object with phases: `{ upPhase: ms, downPhase: ms }`
@@ -47,6 +99,15 @@ This document outlines planned features and improvements for the Body Refactorin
 - Implement SVG circle animation with stroke-dasharray/stroke-dashoffset
 - Add state machine transitions for "Ready?" confirmation
 - Store quick-access changes via DomainStorageService
+- Fix rep counter transitions:
+  - Add transition delay state between last rep completion and cooldown start
+  - Duration: 500-1000ms hold on completion state
+  - Synchronize color changes with content updates (atomic state change)
+  - Update `RepCounterStateMachine` states:
+    - Add `REP_COMPLETE` state (brief hold after last rep)
+    - Transition: `COUNTING` → `REP_COMPLETE` → `COOLDOWN` or `SET_COMPLETE`
+  - Ensure UI updates happen together (no color/content mismatch)
+  - Visual feedback: Brief "✓" or completion animation before cooldown
 
 ---
 
