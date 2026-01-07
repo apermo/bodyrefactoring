@@ -9,6 +9,7 @@ serve dynamic, evolvable training schedules without breaking historical data.
 ## **📚 Documentation**
 
 - **[Changelog](CHANGELOG.md)** - Complete version history and release notes
+- **[Roadmap](docs/roadmap.md)** - Planned features and future development
 - **[v13.0.0 Refactoring](docs/v13-refactoring/README.md)** - Complete architectural refactoring documentation (6 phases, 13 modules)
 - **[Schedule Editor Guide](docs/schedule-editor.md)** - Complete guide for using the visual schedule editor
 - **[Schedule Validation Guide](docs/schedule-validation.md)** - Complete guide for creating and validating training schedules
