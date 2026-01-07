@@ -23,6 +23,7 @@ import { StateManager } from './modules/state-manager.js';
 import { SpeechService } from './modules/speech-service.js';
 import { TimerCoordinator } from './modules/timer-coordinator.js';
 import { getLocalISODate, getToday, scrollToElement } from './modules/utils.js';
+import { checkAndShowIntroModal, closeIntroModal } from './intro-modal.js';
 
 // --- STATE MACHINES & SERVICES ---
 const appStateMachine = new AppStateMachine();
@@ -131,6 +132,9 @@ async function initApp() {
 		setTimeout(() => {
 			document.getElementById('splash-screen').style.display = 'none';
 		}, 1300);
+
+		// Show introduction modal on first visit
+		checkAndShowIntroModal( domainStorage );
 	} else {
 		alert('Keine Trainingspläne gefunden.');
 	}
@@ -139,6 +143,7 @@ async function initApp() {
 	alert('Fehler beim Laden der Trainingspläne. Webserver erforderlich!');
 }
 }
+
 
 /**
  * Fetch the schedule configuration for a specific date.
@@ -2118,6 +2123,14 @@ function backToNormal( dateIso ) {
 // --- EXPOSE FUNCTIONS TO GLOBAL SCOPE FOR INLINE EVENT HANDLERS ---
 // Since app.js is now a module, functions are not automatically global.
 // We need to explicitly expose functions that are called from inline HTML event handlers.
+
+// Expose domainStorage for inline scripts (introduction modal, etc.)
+window.domainStorage = domainStorage;
+
+// Wrap closeIntroModal to pass domainStorage dependency
+window.closeIntroModal = function() {
+	closeIntroModal( domainStorage );
+};
 
 window.toggleCheck = toggleCheck;
 window.closeMenuOutside = closeMenuOutside;

@@ -22,6 +22,7 @@ export const STORAGE_KEYS = {
 	RECOVERY_PREFIX: 'body_refactoring_recovery_',
 	SHIELDS: 'body_refactoring_shields',
 	SHIELDS_AWARDED: 'body_refactoring_shields_awarded',
+	INTRO_SEEN: 'body_refactoring_intro_seen',
 
 	/**
 	 * Generate exercise completion key.

@@ -76,6 +76,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Toggle button shows current state (aktivieren/deaktivieren)
   - Visual indicator when active (orange highlight)
   - Automatically reloads page to apply debug mode changes
+- **Consent Layer**: GDPR-friendly consent screen for first-time visitors
+  - Lists all external CDN resources (Tailwind CSS, Canvas Confetti, Google Fonts, Lucide Icons)
+  - Blocks CDN loading until consent is accepted
+  - Consent stored indefinitely in cookie
+  - Clear privacy notice: all training data stays local (LocalStorage only)
+  - Links to personal site (christoph-daum.de) and GitHub repository
+- **Introduction Modal**: Welcome screen for new users
+  - Shows on first visit only (dismissed state stored in localStorage)
+  - ES6 module: `assets/js/intro-modal.js` (imported by app.js)
+  - Uses DomainStorageService for state management (`hasSeenIntroduction()`, `setIntroductionSeen()`)
+  - Functions accept domainStorage as dependency injection parameter
+  - Highlights privacy-first approach (all data stored locally)
+  - Lists all app features (Rep Counter, Notes, Gamification, Streaks, Sick Mode, Progressive Overload)
+  - Links to personal website (christoph-daum.de) and GitHub repository
+  - Encourages forking the GitHub project for personal customization
+  - Notes that this is a private app with personal training schedules
+  - Confetti celebration on dismissal
+  - Gym logo displayed prominently
 
 ### Changed
 

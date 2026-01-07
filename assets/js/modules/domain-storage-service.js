@@ -320,6 +320,26 @@ export class DomainStorageService {
 		this.storage.set(STORAGE_KEYS.SHIELDS_AWARDED, JSON.stringify(Array.from(milestones)));
 	}
 
+	// --- UI State ---
+
+	/**
+	 * Check if user has seen the introduction modal.
+	 *
+	 * @return {boolean} True if user has seen the intro.
+	 */
+	hasSeenIntroduction() {
+		return this.storage.get(STORAGE_KEYS.INTRO_SEEN) === 'true';
+	}
+
+	/**
+	 * Mark introduction modal as seen.
+	 *
+	 * @return {void}
+	 */
+	setIntroductionSeen() {
+		this.storage.set(STORAGE_KEYS.INTRO_SEEN, 'true');
+	}
+
 	// --- Direct Storage Access (for export/import) ---
 
 	/**
