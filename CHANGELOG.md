@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Smooth transition back to current week
   - Week display remains centered with flex layout
   - Mobile-optimized with proper touch target size (44x44px)
+- **Sick/Recovery Completion Modal**: Subdued celebration for rest days
+  - Separate modals for recovery (🩹) and sick days (💊)
+  - Different visual style from normal completion:
+    - Softer gradient backgrounds (blue/purple for recovery, red/purple for sick)
+    - Calmer messaging acknowledging rest ("Gut gemacht!" vs "Training Complete!")
+    - Reduced confetti (75 particles and reduced spread)
+    - Shows current streak with context
+    - Recovery: "Streak pausiert - erholt dich gut!"
+    - Sick with shield: "Schild verwendet - Streak geschützt!"
+    - Sick without shield: "Kein Schild - Streak unterbrochen!"
+  - Quick dismiss buttons with appropriate styling
+  - Automatically detects day type and shows appropriate modal
+  - Modified `checkDayCompletion()` to be async and detect recovery/sick days
+  - Filters disabled exercises when counting completion (recovery/sick mode compatibility)
 
 ## [13.0.0] - 2026-01-05
 

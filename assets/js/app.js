@@ -698,12 +698,15 @@ function toggleAccordion(dateId) {
  * Handles checking/unchecking exercises, with confirmation for unchecking past days.
  * Updates localStorage, triggers confetti on completion, and recalculates streak.
  *
+ * @async
  * @param {HTMLElement} row - The exercise row element.
  * @param {string} storageKey - LocalStorage key for this exercise.
  * @param {string} dateId - ISO date string of the day.
- * @return {void}
+ * @return {Promise<void>}
  */
-function toggleCheck(row, storageKey, dateId) {
+async function toggleCheck(row, storageKey, dateId) {
+	console.log('[toggleCheck] Called with dateId:', dateId, 'storageKey:', storageKey);
+
 	const isCurrentlyCompleted = row.classList.contains('completed');
 
 	// Check if this is from yesterday or before
@@ -722,41 +725,102 @@ function toggleCheck(row, storageKey, dateId) {
 	}
 
 	row.classList.toggle('completed');
+
+	console.log('[toggleCheck] Row completed:', row.classList.contains('completed'));
+
 	if (row.classList.contains('completed')) {
 		// Extract date and exercise ID from storage key
-		// Key format: "br_YYYY-MM-DD_exerciseId" or "recovery_YYYY-MM-DD_activityId" or "sick_YYYY-MM-DD_hydration"
-		const parts = storageKey.split('_');
-		const prefix = parts[0];
-		const date = parts[1];
-		const id = parts.slice(2).join('_');
+		// Key formats:
+		// - Normal: "body_refactoring_YYYY-MM-DD_exerciseId"
+		// - Recovery: "body_refactoring_recovery_YYYY-MM-DD_activityId"
+		// - Sick: "body_refactoring_sick_YYYY-MM-DD_hydration"
+
+		// Determine prefix type
+		let prefix, date, id;
+		if (storageKey.startsWith('body_refactoring_recovery_')) {
+			prefix = 'recovery';
+			// Remove "body_refactoring_recovery_" prefix
+			const remainder = storageKey.substring('body_refactoring_recovery_'.length);
+			const parts = remainder.split('_');
+			date = parts[0]; // YYYY-MM-DD
+			id = parts.slice(1).join('_'); // activity id
+		} else if (storageKey.startsWith('body_refactoring_sick_')) {
+			prefix = 'sick';
+			// Remove "body_refactoring_sick_" prefix
+			const remainder = storageKey.substring('body_refactoring_sick_'.length);
+			const parts = remainder.split('_');
+			date = parts[0];
+			id = parts.slice(1).join('_');
+		} else if (storageKey.startsWith('body_refactoring_')) {
+			prefix = 'br';
+			// Remove "body_refactoring_" prefix
+			const remainder = storageKey.substring('body_refactoring_'.length);
+			const parts = remainder.split('_');
+			date = parts[0];
+			id = parts.slice(1).join('_');
+		} else {
+			// Fallback for unknown format
+			const parts = storageKey.split('_');
+			prefix = parts[0];
+			date = parts[1];
+			id = parts.slice(2).join('_');
+		}
+
+		console.log('[toggleCheck] Marking complete - prefix:', prefix, 'date:', date, 'id:', id);
 
 		if (prefix === 'br') {
 			domainStorage.setExerciseComplete(date, id);
-		} else if (prefix === 'recovery' && parts.length > 3) {
-			// Recovery activity: recovery_YYYY-MM-DD_activityId
+		} else if (prefix === 'recovery') {
 			domainStorage.setRecoveryActivityComplete(date, id);
+		} else if (prefix === 'sick') {
+			storage.set(storageKey, 'true');
 		} else {
-			// Fallback to generic storage for other cases (sick day hydration, etc.)
+			// Fallback to generic storage
 			storage.set(storageKey, 'true');
 		}
 		miniConfetti(row.querySelector('.check-circle'));
 	} else {
-		// Extract date and ID to use domain methods
-		const parts = storageKey.split('_');
-		const prefix = parts[0];
-		const date = parts[1];
-		const id = parts.slice(2).join('_');
+		// Extract date and ID for unchecking
+		let prefix, date, id;
+		if (storageKey.startsWith('body_refactoring_recovery_')) {
+			prefix = 'recovery';
+			const remainder = storageKey.substring('body_refactoring_recovery_'.length);
+			const parts = remainder.split('_');
+			date = parts[0];
+			id = parts.slice(1).join('_');
+		} else if (storageKey.startsWith('body_refactoring_sick_')) {
+			prefix = 'sick';
+			const remainder = storageKey.substring('body_refactoring_sick_'.length);
+			const parts = remainder.split('_');
+			date = parts[0];
+			id = parts.slice(1).join('_');
+		} else if (storageKey.startsWith('body_refactoring_')) {
+			prefix = 'br';
+			const remainder = storageKey.substring('body_refactoring_'.length);
+			const parts = remainder.split('_');
+			date = parts[0];
+			id = parts.slice(1).join('_');
+		} else {
+			const parts = storageKey.split('_');
+			prefix = parts[0];
+			date = parts[1];
+			id = parts.slice(2).join('_');
+		}
 
 		if (prefix === 'br') {
 			domainStorage.setExerciseIncomplete(date, id);
-		} else if (prefix === 'recovery' && parts.length > 3) {
+		} else if (prefix === 'recovery') {
 			domainStorage.removeRecoveryActivity(date, id);
 		} else {
 			storage.remove(storageKey);
 		}
 	}
-	checkDayCompletion(dateId);
-	calculateStreak();
+
+	console.log('[toggleCheck] Calling checkDayCompletion...');
+	await checkDayCompletion(dateId);
+	console.log('[toggleCheck] Calling calculateStreak...');
+	await calculateStreak();
+	console.log('[toggleCheck] Done');
 }
 
 /**
@@ -833,26 +897,73 @@ function handleWeightBlur(exId, dateIso, input) {
 /**
  * Check if a day is fully completed and update UI accordingly.
  *
- * Counts completed exercises and shows completion popup if all are done.
+ * Detects normal, recovery, or sick day completion and displays
+ * the appropriate celebration modal. Counts completed exercises
+ * and shows completion popup if all are done.
  *
+ * @async
  * @param {string} dateId - ISO date string of the day.
- * @return {void}
+ * @return {Promise<void>}
  */
-function checkDayCompletion(dateId) {
+async function checkDayCompletion(dateId) {
+	console.log('[checkDayCompletion] Called with dateId:', dateId);
+
 	const container = document.getElementById(`details-${dateId}`);
 	const card = document.getElementById(`card-${dateId}`);
 	const badge = document.getElementById(`badge-${dateId}`);
 
-	const total = container.querySelectorAll('.exercise-row').length;
-	const done = container.querySelectorAll('.exercise-row.completed').length;
+	// Only count exercise rows that are not disabled (opacity-30 class is used for disabled exercises)
+	const allRows = container.querySelectorAll('.exercise-row');
+	const activeRows = Array.from(allRows).filter(row => !row.classList.contains('opacity-30'));
+	const total = activeRows.length;
+	const done = activeRows.filter(row => row.classList.contains('completed')).length;
+
+	console.log('[checkDayCompletion] Total exercises:', total, 'Done:', done);
 
 	if (total > 0 && total === done) {
+		console.log('[checkDayCompletion] All exercises complete!');
+
 		if (!card.classList.contains('day-complete')) {
+			console.log('[checkDayCompletion] Day not yet marked complete, processing...');
 			card.classList.add('day-complete');
 			badge.style.display = 'inline-block';
-			showCompletionPopup();
+
+			// Determine which type of day was completed
+			const isRecovery = domainStorage.isRecoveryDay(dateId);
+			const isSick = domainStorage.isSickDay(dateId);
+
+			console.log('[checkDayCompletion] isRecovery:', isRecovery, 'isSick:', isSick);
+
+			if (isRecovery || isSick) {
+				console.log('[checkDayCompletion] Recovery/Sick day detected, calculating streak...');
+
+				// Wait for streak to be calculated
+				await calculateStreak();
+
+				// Get current streak
+				const streakText = document.getElementById('streak-count').innerText;
+				const streak = parseInt(streakText) || 0;
+
+				console.log('[checkDayCompletion] Current streak:', streak);
+
+				if (isSick) {
+					const usedShield = domainStorage.wasSickDayShieldUsed(dateId);
+					console.log('[checkDayCompletion] Showing sick modal, usedShield:', usedShield);
+					showSickModal(streak, usedShield);
+				} else {
+					console.log('[checkDayCompletion] Showing recovery modal');
+					showRecoveryModal(streak);
+				}
+			} else {
+				console.log('[checkDayCompletion] Normal day - showing regular completion');
+				// Normal day - show regular completion
+				showCompletionPopup();
+			}
+		} else {
+			console.log('[checkDayCompletion] Day already marked complete, skipping modal');
 		}
 	} else {
+		console.log('[checkDayCompletion] Not all exercises complete');
 		card.classList.remove('day-complete');
 		badge.style.display = 'none';
 	}
@@ -995,12 +1106,99 @@ function showCompletionPopup() {
 }
 
 /**
+ * Show recovery completion modal.
+ *
+ * Displays subdued celebration for recovery day completion.
+ * Uses minimal confetti and calmer messaging.
+ *
+ * @param {number} streak - Current streak count.
+ * @return {void}
+ */
+function showRecoveryModal(streak) {
+	console.log('[showRecoveryModal] Called with streak:', streak);
+	const modal = document.getElementById('recovery-modal');
+	console.log('[showRecoveryModal] Modal element:', modal);
+	const streakEl = document.getElementById('modal-recovery-streak');
+	console.log('[showRecoveryModal] Streak element:', streakEl);
+	streakEl.innerText = `${streak} Tage`;
+	modal.classList.add('open');
+	console.log('[showRecoveryModal] Modal classes after add:', modal.classList.toString());
+	subduedConfetti();
+}
+
+/**
+ * Show sick day completion modal.
+ *
+ * Displays subdued celebration for sick day completion.
+ * Shows shield status and uses minimal confetti.
+ *
+ * @param {number} streak - Current streak count.
+ * @param {boolean} usedShield - Whether shield was used.
+ * @return {void}
+ */
+function showSickModal(streak, usedShield) {
+	console.log('[showSickModal] Called with streak:', streak, 'usedShield:', usedShield);
+	const modal = document.getElementById('sick-modal');
+	const streakEl = document.getElementById('modal-sick-streak');
+	const shieldStatus = document.getElementById('sick-shield-status');
+
+	streakEl.innerText = `${streak} Tage`;
+
+	if (usedShield) {
+		shieldStatus.innerText = 'Schild verwendet - Streak geschützt!';
+	} else {
+		shieldStatus.innerText = 'Kein Schild - Streak unterbrochen!';
+	}
+
+	modal.classList.add('open');
+	console.log('[showSickModal] Modal classes after add:', modal.classList.toString());
+	subduedConfetti();
+}
+
+/**
+ * Subdued confetti effect for recovery/sick day completion.
+ *
+ * Reduced confetti with lesser particle count than normal celebration.
+ * Calmer celebration appropriate for rest days.
+ *
+ * @return {void}
+ */
+function subduedConfetti() {
+	if (typeof confetti !== 'undefined') {
+		confetti({
+			particleCount: 75,
+			spread: 40,
+			origin: { y: 0.6 },
+			colors: ['#3b82f6', '#8b5cf6', '#6366f1']
+		});
+	}
+}
+
+/**
  * Close the completion modal.
  *
  * @return {void}
  */
 function closeModal() {
 	document.getElementById('completion-modal').classList.remove('open');
+}
+
+/**
+ * Close the recovery modal.
+ *
+ * @return {void}
+ */
+function closeRecoveryModal() {
+	document.getElementById('recovery-modal').classList.remove('open');
+}
+
+/**
+ * Close the sick modal.
+ *
+ * @return {void}
+ */
+function closeSickModal() {
+	document.getElementById('sick-modal').classList.remove('open');
 }
 
 /**
@@ -2154,6 +2352,8 @@ window.closeIntroModal = function() {
 window.toggleCheck = toggleCheck;
 window.closeMenuOutside = closeMenuOutside;
 window.closeModal = closeModal;
+window.closeRecoveryModal = closeRecoveryModal;
+window.closeSickModal = closeSickModal;
 window.toggleMenu = toggleMenu;
 window.showSickModeModal = showSickModeModal;
 window.exportData = exportData;

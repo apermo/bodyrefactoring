@@ -61,6 +61,42 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 	</div>
 </div>
 
+<div id="recovery-modal" class="modal-overlay">
+	<div class="modal-content" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border-color: rgba(139, 92, 246, 0.3);">
+		<div class="text-6xl mb-4">🩹</div>
+		<h2 class="text-2xl font-black mb-2 uppercase" style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Gut gemacht!</h2>
+		<p class="text-slate-400 mb-6">Du hast auf deinen Körper gehört und sanft erholt.</p>
+		<div class="bg-slate-800/50 rounded-xl p-4 mb-6 border border-purple-500/30">
+			<div class="text-xs text-slate-500 uppercase tracking-widest">Aktuelle Streak</div>
+			<div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500"
+				 id="modal-recovery-streak">0 Tage
+			</div>
+			<div class="text-xs text-purple-300 mt-2">Streak pausiert - erholt dich gut!</div>
+		</div>
+		<button onclick="closeRecoveryModal()"
+				class="w-full bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/80 hover:to-purple-600/80 text-white font-bold py-3 rounded-xl transition">Verstanden
+		</button>
+	</div>
+</div>
+
+<div id="sick-modal" class="modal-overlay">
+	<div class="modal-content" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%); border-color: rgba(239, 68, 68, 0.3);">
+		<div class="text-6xl mb-4">💊</div>
+		<h2 class="text-2xl font-black mb-2 uppercase" style="background: linear-gradient(135deg, #ef4444 0%, #9333ea 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Ruhe dich gut aus</h2>
+		<p class="text-slate-400 mb-6">Gute Entscheidung, Erholung hat Priorität.</p>
+		<div class="bg-slate-800/50 rounded-xl p-4 mb-6 border border-red-500/30">
+			<div class="text-xs text-slate-500 uppercase tracking-widest">Aktuelle Streak</div>
+			<div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-purple-500"
+				 id="modal-sick-streak">0 Tage
+			</div>
+			<div class="text-xs text-red-300 mt-2" id="sick-shield-status">Schild verwendet - Streak geschützt!</div>
+		</div>
+		<button onclick="closeSickModal()"
+				class="w-full bg-gradient-to-r from-red-500/80 to-purple-500/80 hover:from-red-600/80 hover:to-purple-600/80 text-white font-bold py-3 rounded-xl transition">Gute Besserung
+		</button>
+	</div>
+</div>
+
 <div id="splash-screen">
 	<h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 mb-4 animate-pulse">
 		BODY REFACTORING</h1>

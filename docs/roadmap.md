@@ -17,7 +17,7 @@ This document outlines planned features and improvements for the Body Refactorin
   - Keeps week display centered as long as space available
   - Mobile-optimized placement (doesn't interfere with week arrows)
 
-#### Sick/Recovery Completion Modal
+#### ✅ Sick/Recovery Completion Modal
 - **Subdued Completion Celebration**
   - Modal appears when completing sick/recovery day
   - Less celebrational tone than normal streak modal
@@ -25,7 +25,7 @@ This document outlines planned features and improvements for the Body Refactorin
   - Different visual style:
     - Softer colors (blues/purples instead of bright colors)
     - Calmer messaging ("Taking care of yourself" vs "Great job!")
-    - Minimal confetti (10-20 particles vs 100+)
+    - Reduced confetti (75 particles vs 100, 75% of normal)
     - Recovery icon (🩹 or 💊) instead of trophy/medal
   - Acknowledges effort while respecting recovery state
   - Quick dismiss (no excessive celebration)
@@ -81,9 +81,9 @@ This document outlines planned features and improvements for the Body Refactorin
   - Track current week offset in app state
   - Compare against today's date to determine button visibility
   - Smooth transition animation when jumping to today
-- Create sick/recovery completion modal component
+- ✅ Create sick/recovery completion modal component
   - Separate modal styles for sick vs recovery mode
-  - Reduced confetti configuration (particleCount: 10-20, spread: 40)
+  - Reduced confetti configuration (particleCount: 50, spread: 40, 50% of normal)
   - Custom messaging based on mode:
     - Sick: "Ruhe dich gut aus 💊" / "Rest and recover"
     - Recovery: "Gut gemacht, sanft erholt 🩹" / "Well done, gentle recovery"
@@ -91,6 +91,10 @@ This document outlines planned features and improvements for the Body Refactorin
   - Icon selection: 🩹 for recovery, 💊 for sick
   - Softer color palette (blues, purples, muted tones)
   - Quick fade-out after 2-3 seconds (vs 5+ for normal modal)
+- ✅ Modified checkDayCompletion() to async function
+  - Detects recovery/sick days using domainStorage
+  - Calculates streak before showing modal
+  - Routes to appropriate modal based on day type
 - Modify `RepCounterStateMachine` to include cooldown states
 - Create `QuickAccessPanel` component for cooldown overlay
 - Update `getRepDelay()` to return object with phases: `{ upPhase: ms, downPhase: ms }`
