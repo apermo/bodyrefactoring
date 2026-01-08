@@ -40,6 +40,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Character counting instructions for AI-generated commits
   - Common mistakes and how to avoid them
   - Strategies for handling messages that exceed limits
+- **`.cursorrules` enhanced**: Added code quality and commenting guidelines
+  - **Git workflow**: Strict separation of code changes and git operations - AI must always ask before committing
+  - **Comment guidelines**: PHPDoc/JSDoc required, inline comments only when adding value (explain regex, complex logic, workarounds)
+  - **No obvious comments**: Avoid tutorial-style or code-restating comments
+  - **No clever coding**: Write clear, maintainable code over concise "tricks"
+  - Examples of good vs bad comments and code clarity
 - **README.md**: Added Development section with commit standards
   - Quick reference for commit message format
   - Examples of good vs bad commits

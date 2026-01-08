@@ -82,6 +82,105 @@
 - Use arrow functions for callbacks where appropriate
 - Prefer template literals for string concatenation
 
+## Code Quality & Comments
+
+### Comment Guidelines
+
+**Rule of thumb: Code should be self-documenting. Comments explain WHY, not WHAT.**
+
+**Always use PHPDoc/JSDoc for functions:**
+- Required for all functions (public and private)
+- Describe purpose, parameters, return values, and exceptions
+- Keep documentation concise but complete
+
+**Inline comments - only when they add value:**
+- ✅ **Good reasons to comment**:
+  - Explain complex regular expressions
+  - Clarify non-obvious business logic
+  - Document performance optimizations
+  - Explain workarounds for browser bugs
+  - Note security considerations
+  - Explain "magic numbers" or constants
+- ❌ **Bad comments (avoid these)**:
+  - Obvious statements: `// Loop through array`
+  - Restating code: `// Set variable to true`
+  - Tutorial-style explanations of basic language features
+  - Commented-out code (delete it, it's in git history)
+  - Placeholder comments like `// TODO` without context
+
+**Examples:**
+
+Good comment (explains WHY):
+```javascript
+// Use regex to match ISO date format (YYYY-MM-DD) in filename
+if (preg_match('/schedule-(\d{4}-\d{2}-\d{2})\.json/', $file, $matches)) {
+```
+
+Bad comment (explains WHAT - already obvious):
+```javascript
+// Check if file matches pattern
+if (preg_match('/schedule-(\d{4}-\d{2}-\d{2})\.json/', $file, $matches)) {
+```
+
+Good comment (explains non-obvious logic):
+```javascript
+// Subtract 1 from week offset because week picker uses 0-based indexing
+// but display shows 1-based week numbers
+const actualOffset = weekOffset - 1;
+```
+
+Bad comment (tutorial style):
+```javascript
+// This loop iterates through each day
+for (const day of days) {
+```
+
+### Code Clarity Guidelines
+
+**Avoid "clever" coding:**
+- ❌ Nested ternaries: `x ? y ? z : a : b`
+- ❌ One-liners that do too much: `arr.filter(...).map(...).reduce(...).sort(...)`
+- ❌ Regex when simple string methods work: Use `includes()` instead of `/pattern/.test()`
+- ❌ Bitwise operators for non-bitwise operations: `~~x` instead of `Math.floor(x)`
+- ❌ Implicit type coercion: `!!value` when `Boolean(value)` is clearer
+
+**Write clear, maintainable code:**
+- ✅ Use descriptive variable names: `isUserActive` not `flag`
+- ✅ Break complex expressions into named variables
+- ✅ Prefer readable over concise when there's a trade-off
+- ✅ Use standard language features over tricks
+- ✅ One responsibility per function
+- ✅ Early returns over nested conditions
+
+**Example - Clever vs Clear:**
+
+Clever (hard to read):
+```javascript
+return users.filter(u=>u.age>18&&u.active&&!u.banned).map(u=>({...u,status:'verified'})).sort((a,b)=>a.name.localeCompare(b.name));
+```
+
+Clear (easy to understand):
+```javascript
+const adults = users.filter(user => user.age > 18);
+const activeUsers = adults.filter(user => user.active && !user.banned);
+const verifiedUsers = activeUsers.map(user => ({
+    ...user,
+    status: 'verified'
+}));
+return verifiedUsers.sort((a, b) => a.name.localeCompare(b.name));
+```
+
+Or even better with a descriptive function name:
+```javascript
+function getVerifiedActiveAdults(users) {
+    return users
+        .filter(isAdultUser)
+        .filter(isActiveAndNotBanned)
+        .map(addVerifiedStatus)
+        .sort(sortByName);
+}
+```
+
 ## Git Commit Standards
 
 - Use **Conventional Commits** format:
@@ -543,12 +642,28 @@ Mark features with status indicators to track development progress:
 - **Rule of thumb**: If the user never experienced it in production, it's not a "fix"
 
 ### Git Workflow
+
+**CRITICAL RULE: Never mix code changes with git operations in the same step**
+
+- **Separate code changes from git operations**:
+  1. Complete all code changes first
+  2. ALWAYS ask user: "Ready to commit?" or "Shall I commit these changes?"
+  3. Wait for user confirmation before performing any git operations
+  4. If user rejects: They may want to test, fix bugs, or commit manually
 - **Do NOT perform git commands** (add, commit, push) unless:
-  1. User explicitly requests git operations
+  1. User explicitly requests git operations ("commit this", "push now", etc.)
   2. Something needs to be checked/verified (e.g., `git status`, `git diff`)
-- When work is complete, notify user: "✅ Done - ready to check and commit"
-- User handles all git operations (staging, committing, pushing)
-- Only use `git status`, `git diff`, or similar read-only commands for verification when needed
+- **When work is complete**:
+  1. Summarize what was changed
+  2. Ask: "Ready to commit these changes?"
+  3. Wait for user response
+- **Read-only git commands** are allowed anytime for verification:
+  - `git status`, `git diff`, `git log`, `git show`, etc.
+- **User controls all write operations**:
+  - Staging, committing, pushing
+  - Branch creation/switching
+  - Merging, rebasing
+- **Exception**: Only commit if user explicitly says "commit" or "commit this" or similar direct instruction
 
 ### GitHub Actions Testing
 - **Local testing with `act`**: The repository owner has [act](https://github.com/nektos/act) installed for local GitHub Actions testing
