@@ -154,27 +154,42 @@ Use these sections in order (omit empty sections):
 - **Security**: Vulnerability fixes
 
 ### Important: What NOT to List as "Fixed"
-- **Do NOT list bugs introduced during refactoring/development in the same version**
-  - Example: If refactoring breaks something and you fix it in same PR, don't list it
-  - Reason: These are implementation details, not user-facing bug fixes
-  - Instead: Note fixes within the feature description (e.g., "resolved race condition during implementation")
-- **Only list in "Fixed"**:
-  - Bugs that existed in previous released versions
+- **CRITICAL RULE: Do NOT list bugs introduced during development of the same version**
+  - If you introduce a bug while implementing a feature and fix it in the same version, do NOT list it in "Fixed"
+  - Reason: These are implementation details, not user-facing bug fixes from previous releases
+  - The user never experienced the bug, so it's not a "fix" from their perspective
+  - Instead: Note implementation challenges within the feature description if relevant
+  - Example phrases: "resolved during implementation", "fixed edge case during development"
+- **Only list in "Fixed" section**:
+  - Bugs that existed in previous **released** versions (merged to main)
   - User-facing issues that affected production
   - Regressions from earlier releases
+  - Issues reported by users or found in released code
+- **Decision rule**: Ask yourself: "Did the user experience this bug in a released version?"
+  - If YES → "Fixed" section
+  - If NO (introduced during current development) → Part of feature description or omit entirely
 - **Example of what NOT to do**:
   ```markdown
+  ### Added
+  - New feature X with great functionality
+
   ### Fixed
-  - State machine initialization bug (introduced during refactoring)
-  - Double speech announcement (broke during module integration)
+  - Modal not appearing after completing feature X (introduced during v14.0.0 development)
+  - Async function not awaiting properly (broke during implementation)
   ```
 - **Example of what TO do**:
   ```markdown
   ### Added
-  - Core Architecture - Phase 3: Module integration (COMPLETE)
-    - TimerCoordinator implementation
-    - Resolved race condition in voice loading during implementation
-    - Fixed state machine flow during integration
+  - **New Feature X**: Great functionality with modal
+    - Modal appears after completion
+    - Properly handles async operations
+    - Resolved edge cases during implementation
+  ```
+  OR simply:
+  ```markdown
+  ### Added
+  - **New Feature X**: Great functionality with modal
+    (Don't mention implementation bugs that were fixed before release)
   ```
 
 ### Update Process
@@ -481,6 +496,15 @@ Mark features with status indicators to track development progress:
 - Only provide technical details if explicitly requested by the user
 - Focus on executing the task efficiently
 - **Always communicate in English**, even if user writes in German
+
+### CHANGELOG Rules Reminder
+- **NEVER add bugs to "Fixed" section if they were introduced in the current version**
+- Implementation bugs fixed during development are NOT user-facing fixes
+- Only list bugs from **previous released versions** in "Fixed" section
+- When implementing a feature, if you introduce and fix bugs during development, either:
+  1. Mention resolved challenges in feature description (optional)
+  2. Don't mention them at all (preferred)
+- **Rule of thumb**: If the user never experienced it in production, it's not a "fix"
 
 ### Git Workflow
 - **Do NOT perform git commands** (add, commit, push) unless:
