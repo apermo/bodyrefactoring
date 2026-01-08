@@ -9,7 +9,7 @@ This document outlines planned features and improvements for the Body Refactorin
 **Priority: High**  
 **Focus**: Improved rep counter usability and interaction during workouts
 
-#### Navigation Improvements
+#### ✅ Navigation Improvements
 - **"Today" Button in Week Navigation**
   - Appears in week navigation bar (right side of week display)
   - Only visible when viewing a week other than current week
@@ -17,7 +17,7 @@ This document outlines planned features and improvements for the Body Refactorin
   - Keeps week display centered as long as space available
   - Mobile-optimized placement (doesn't interfere with week arrows)
 
-#### Sick/Recovery Completion Modal
+#### ✅ Sick/Recovery Completion Modal
 - **Subdued Completion Celebration**
   - Modal appears when completing sick/recovery day
   - Less celebrational tone than normal streak modal
@@ -25,10 +25,438 @@ This document outlines planned features and improvements for the Body Refactorin
   - Different visual style:
     - Softer colors (blues/purples instead of bright colors)
     - Calmer messaging ("Taking care of yourself" vs "Great job!")
-    - Minimal confetti (10-20 particles vs 100+)
+    - Reduced confetti (75 particles vs 100, 75% of normal)
     - Recovery icon (🩹 or 💊) instead of trophy/medal
   - Acknowledges effort while respecting recovery state
   - Quick dismiss (no excessive celebration)
+
+#### ✅ Schedule Editor: Rep Counter Support
+- **Simple JSON Input Field**
+  - Added rep counter configuration to exercise editor
+  - Same approach as existing timer configuration
+  - JSON format: `{"sets": 3, "reps": 12, "restSeconds": 60, "delayMilliseconds": 3000}`
+  - All fields optional but recommended for complete rep counter functionality
+  - Validates JSON on save
+  - Makes it easy to add/edit rep counter without manual JSON file editing
+  - Note: Full editor refactoring planned for v17.0.0
+
+
+**Technical Implementation:**
+- ✅ Add "Today" button to week navigation component
+  - Conditionally render based on `currentWeekOffset !== 0`
+  - Position: Right side of week display (after week text)
+  - Button style: Minimal, icon-based (🏠 or 📅 icon)
+  - Click handler: Reset week offset to 0, reload current day view
+- ✅ Update week navigation layout:
+  - Use flexbox with space-between for arrows, week text, and today button
+  - Keep week text centered when today button not visible
+  - Adjust layout for mobile (ensure touch targets are 44x44px minimum)
+- ✅ State management:
+  - Track current week offset in app state
+  - Compare against today's date to determine button visibility
+  - Smooth transition animation when jumping to today
+- ✅ Create sick/recovery completion modal component
+  - Separate modal styles for sick vs recovery mode
+  - Reduced confetti configuration (particleCount: 50, spread: 40, 50% of normal)
+  - Custom messaging based on mode:
+    - Sick: "Ruhe dich gut aus 💊" / "Rest and recover"
+    - Recovery: "Gut gemacht, sanft erholt 🩹" / "Well done, gentle recovery"
+  - Display current streak status with context
+  - Icon selection: 🩹 for recovery, 💊 for sick
+  - Softer color palette (blues, purples, muted tones)
+  - Quick fade-out after 2-3 seconds (vs 5+ for normal modal)
+- ✅ Modified checkDayCompletion() to async function
+  - Detects recovery/sick days using domainStorage
+  - Calculates streak before showing modal
+  - Routes to appropriate modal based on day type
+- ✅ Schedule Editor: Rep Counter Field
+  - Added textarea input for rep counter JSON (id: ex-repcounter)
+  - Parses and validates JSON on exercise save
+  - Saves repCounter object to exercise data
+  - Simple implementation - full editor refactoring in v17.0.0
+
+---
+
+### v14.1.0 - Linting & Code Quality
+
+**Priority: High**  
+**Focus**: Automated code quality enforcement and consistency
+
+#### PHP Linting
+- **WordPress Coding Standards (Opinionated)**
+  - Install and configure PHP_CodeSniffer (PHPCS)
+  - Use WordPress-Extra ruleset as base
+  - Custom ruleset configuration for project-specific rules
+  - Automatic fixing with PHP Code Beautifier (PHPCBF)
+  - Integration with PHPStorm/VS Code for real-time feedback
+
+- **Linting Scope**
+  - All PHP files in project root
+  - `/trainings/` PHP files
+  - `/assets/` PHP files (cachebuster.php)
+  - Excludes: `/vendor/`, `/node_modules/`
+
+#### JavaScript Linting
+- **ESLint with WordPress-inspired Rules**
+  - Configure ESLint with WordPress JavaScript standards (loosely)
+  - Custom rules adapted for ES6 modules
+  - Support for async/await patterns
+  - JSDoc validation for all functions
+  - Code complexity warnings (cyclomatic complexity)
+
+- **Linting Scope**
+  - `/assets/js/app.js`
+  - `/assets/js/schedule-editor.js`
+  - All `/assets/js/modules/*.js` files
+  - Excludes: External libraries, minified files
+
+#### CSS Linting
+- **Stylelint with WordPress CSS Standards**
+  - Configure Stylelint with WordPress CSS Coding Standards
+  - Tailwind CSS compatibility
+  - Custom properties validation
+  - Selector complexity warnings
+  - Automatic fixing for formatting issues
+
+- **Linting Scope**
+  - `/assets/css/styles.css`
+  - Any additional CSS files
+  - Inline styles detection (warnings only)
+
+#### CI/CD Integration
+- **Pre-commit Hooks**
+  - Husky + lint-staged configuration
+  - Auto-fix on commit (when possible)
+  - Block commits with unfixable errors
+  - Fast: Only lints staged files
+
+- **GitHub Actions Workflow**
+  - New workflow: `.github/workflows/lint.yml`
+  - Runs on: Pull requests, pushes to main
+  - Separate jobs for PHP, JS, CSS
+  - Annotates PR with lint errors
+  - Fails CI if errors found
+  - Caches dependencies for speed
+
+#### Developer Experience
+- **IDE Integration**
+  - PHPStorm/IntelliJ IDEA configuration files
+  - VS Code settings and extensions recommendations
+  - Real-time linting while coding
+  - Quick-fix suggestions
+  - Format on save configuration
+
+- **Documentation**
+  - CONTRIBUTING.md with code style guide
+  - Setup instructions for linters
+  - Common errors and how to fix them
+  - Ignore patterns documentation
+
+**Technical Implementation:**
+
+- **PHP Setup**
+  - Install via Composer: `squizlabs/php_codesniffer`, `wp-coding-standards/wpcs`
+  - Custom ruleset: `phpcs.xml` in project root
+  - NPM script: `npm run lint:php`
+  - NPM script: `npm run lint:php:fix`
+
+- **JavaScript Setup**
+  - Install via NPM: `eslint`, `@wordpress/eslint-plugin` (as base)
+  - Custom config: `.eslintrc.json`
+  - NPM script: `npm run lint:js`
+  - NPM script: `npm run lint:js:fix`
+
+- **CSS Setup**
+  - Install via NPM: `stylelint`, `stylelint-config-wordpress`
+  - Custom config: `.stylelintrc.json`
+  - NPM script: `npm run lint:css`
+  - NPM script: `npm run lint:css:fix`
+
+- **Combined Scripts**
+  - `npm run lint` - Run all linters
+  - `npm run lint:fix` - Auto-fix all files
+  - `npm run lint:check` - Check without fixing (for CI)
+
+- **Pre-commit Hook**
+  - Install Husky: `npx husky install`
+  - Install lint-staged: `npm install --save-dev lint-staged`
+  - Configuration in `package.json`
+  - Runs appropriate linter based on file type
+
+- **GitHub Actions**
+  - Create `.github/workflows/lint.yml`
+  - Three parallel jobs: PHP, JavaScript, CSS
+  - Uses actions: `actions/checkout`, `shivammathur/setup-php`, `actions/setup-node`
+  - Cache Composer and NPM dependencies
+  - Annotate PR with errors using problem matchers
+
+**Configuration Files to Add:**
+- `phpcs.xml` - PHP_CodeSniffer ruleset
+- `.eslintrc.json` - ESLint configuration
+- `.stylelintrc.json` - Stylelint configuration
+- `.eslintignore` - Files to ignore (ESLint)
+- `.stylelintignore` - Files to ignore (Stylelint)
+- `.husky/pre-commit` - Pre-commit hook script
+- `package.json` - Updated with lint scripts and lint-staged config
+
+**Benefits:**
+- ✅ **Consistency** - All code follows same standards
+- ✅ **Quality** - Catch errors before they reach production
+- ✅ **Documentation** - JSDoc enforced for all functions
+- ✅ **Automated** - No manual checks needed
+- ✅ **Fast feedback** - IDE integration catches issues while coding
+
+**Estimated Effort:** 2-3 days
+- Setup linters and configurations (1 day)
+- CI/CD integration and testing (0.5 day)
+- Fix existing violations (0.5-1 day)
+- Documentation (0.5 day)
+
+---
+
+### v14.2.0 - Automated Testing with Playwright
+
+**Priority: High**  
+**Focus**: End-to-end testing for critical user flows
+
+#### Test Coverage
+- **Core User Flows**
+  - App initialization and splash screen
+  - Week navigation (prev, next, today button)
+  - Exercise completion (checkbox interactions)
+  - Day completion and modal display
+  - Recovery mode activation and completion
+  - Sick mode with/without shield
+  - Weight/level adjustments
+  - Notes/logbook functionality
+  - Rep counter (start, count, cooldown, complete)
+  - Timer functionality
+
+- **Mobile-Specific Tests**
+  - Touch interactions
+  - Swipe gestures (if implemented)
+  - Responsive layout checks
+  - PWA installation flow
+  - Offline functionality
+
+- **Edge Cases**
+  - Past day confirmation dialogs
+  - Empty schedule handling
+  - Corrupted localStorage recovery
+  - Invalid JSON handling
+  - Network errors
+
+#### Playwright Setup
+- **Configuration**
+  - Test multiple browsers: Chromium, WebKit (Safari), Mobile Safari
+  - Local server for tests (DDEV or PHP built-in server)
+  - Parallel test execution
+  - Screenshot on failure
+  - Video recording for debugging
+  - Trace viewer for detailed debugging
+
+- **Test Structure**
+  - Page Object Model (POM) pattern
+  - Reusable fixtures for common setups
+  - Helper functions for repetitive actions
+  - Mock data for predictable tests
+  - localStorage manipulation utilities
+
+#### CI/CD Integration
+- **GitHub Actions Workflow**
+  - New workflow: `.github/workflows/test.yml`
+  - Runs on: Pull requests, pushes to main
+  - Matrix testing: Multiple browsers
+  - Artifact storage for test results
+  - Comment PR with test summary
+  - Fail PR if tests fail
+
+- **Local Testing**
+  - NPM scripts for easy test running
+  - `npm run test` - Run all tests
+  - `npm run test:headed` - Run with browser visible
+  - `npm run test:debug` - Debug mode
+  - `npm run test:report` - Generate HTML report
+
+#### Test Examples
+
+**Basic Flow Test:**
+```javascript
+test('complete exercise and see day completion', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForSelector('#schedule-container');
+  
+  // Open today's card
+  const today = await page.locator('.day-active');
+  await today.click();
+  
+  // Complete first exercise
+  const firstExercise = await page.locator('.exercise-row').first();
+  await firstExercise.locator('.check-circle').click();
+  
+  // Verify confetti (canvas element)
+  await expect(page.locator('canvas')).toBeVisible();
+});
+```
+
+**Rep Counter Test:**
+```javascript
+test('rep counter completes set and shows cooldown', async ({ page }) => {
+  await page.goto('/');
+  
+  // Start rep counter
+  await page.click('.timer-chip:has-text("3 x 12")');
+  
+  // Wait for countdown (5,4,3,2,1,Los)
+  await page.waitForSelector('text=Los', { timeout: 10000 });
+  
+  // Rep counter should be visible
+  await expect(page.locator('#rep-modal')).toBeVisible();
+  
+  // Wait for first set to complete
+  await page.waitForSelector('text=60s Pause', { timeout: 40000 });
+  
+  // Cooldown timer should be visible
+  await expect(page.locator('text=60s Pause')).toBeVisible();
+});
+```
+
+**Technical Implementation:**
+
+- **Installation**
+  - Install Playwright: `npm install --save-dev @playwright/test`
+  - Install browsers: `npx playwright install`
+  - Initialize config: `npx playwright init`
+
+- **Project Structure**
+  ```
+  tests/
+    ├── e2e/
+    │   ├── app-initialization.spec.js
+    │   ├── navigation.spec.js
+    │   ├── exercise-completion.spec.js
+    │   ├── rep-counter.spec.js
+    │   ├── recovery-sick-mode.spec.js
+    │   └── data-persistence.spec.js
+    ├── fixtures/
+    │   ├── mock-schedule.json
+    │   └── test-helpers.js
+    ├── pages/
+    │   ├── AppPage.js (Page Object)
+    │   └── ScheduleEditorPage.js
+    └── playwright.config.js
+  ```
+
+- **Configuration File (`playwright.config.js`)**
+  - Base URL: `http://localhost:8080` or DDEV URL
+  - Timeout: 30 seconds (adjustable for rep counter tests)
+  - Retries: 1 (for flaky tests)
+  - Screenshots: On failure
+  - Videos: On first retry
+  - Trace: On first retry
+
+- **GitHub Actions Integration**
+  - Start local server (PHP or DDEV)
+  - Run Playwright tests
+  - Upload test results as artifacts
+  - Upload screenshots/videos on failure
+  - Generate test report
+
+- **Helper Utilities**
+  ```javascript
+  // tests/fixtures/test-helpers.js
+  export async function clearLocalStorage(page) {
+    await page.evaluate(() => localStorage.clear());
+  }
+  
+  export async function setMockSchedule(page, schedule) {
+    await page.evaluate((data) => {
+      localStorage.setItem('schedule_active', 'mock-schedule');
+      localStorage.setItem('schedule_data_mock-schedule', JSON.stringify(data));
+    }, schedule);
+  }
+  
+  export async function completeExercise(page, exerciseSelector) {
+    await page.locator(exerciseSelector).locator('.check-circle').click();
+    await page.waitForTimeout(500); // Wait for confetti
+  }
+  ```
+
+**Coverage Goals:**
+- ✅ 80%+ of critical user flows
+- ✅ All major features tested
+- ✅ Mobile and desktop viewports
+- ✅ Multiple browsers (Chromium, WebKit)
+- ✅ Regression prevention for major bugs
+
+**Benefits:**
+- ✅ **Confidence** - Catch regressions before deployment
+- ✅ **Documentation** - Tests serve as usage examples
+- ✅ **Faster debugging** - Trace viewer shows exact failure point
+- ✅ **Multi-browser** - Ensures cross-browser compatibility
+- ✅ **Automated** - No manual testing needed
+
+**Estimated Effort:** 3-4 days
+- Playwright setup and configuration (0.5 day)
+- Write core flow tests (1.5 days)
+- Page Object Model setup (0.5 day)
+- CI/CD integration (0.5 day)
+- Documentation (0.5 day)
+
+---
+
+### v14.3.0 - renderSchedule() Refactor
+
+**Priority: High**  
+**Focus**: Code quality and maintainability - refactor before complex features
+
+**Why Now?**
+- Clean foundation before advanced rep counter features (v14.4.0)
+- Playwright tests (v14.2.0) provide safety net for refactoring
+- Easier to add v15.0.0 overrides to clean, modular code
+- 307-line function is too large and handles too many responsibilities
+- Quality first: Better to delay rep counter slightly for cleaner codebase
+
+#### Current Problem
+- **renderSchedule()**: ~307 lines, handles too many responsibilities
+- Mixed concerns: DOM manipulation, business logic, state management
+- Difficult to test, maintain, and extend
+- Adding new features requires modifying massive function
+
+#### Solution: ScheduleRenderer Class
+
+**Extract into focused methods:**
+- `renderNavigation()` - Week navigation logic
+- `renderDayCard()` - Single day card
+- `renderExercise()` - Exercise rows (normal, alternatives)
+- `renderRecoveryDay()` - Recovery mode
+- `renderSickDay()` - Sick mode  
+- `renderNotes()` - Logbook section
+- Helper methods for weight inputs, timers, rep counter chips
+
+**Benefits:**
+- ✅ Small, testable methods (< 30 lines each)
+- ✅ Clear responsibilities
+- ✅ Easier to add rep counter features (v14.4.0)
+- ✅ Easier to add overrides (v15.0.0)
+- ✅ Easier to add XP badges (v16.0.0)
+
+**Refactoring Strategy:**
+1. Extract methods incrementally (test after each)
+2. Wrap in ScheduleRenderer class
+3. Update app.js to use new class
+4. Verify with Playwright tests
+
+**Estimated Effort:** 2-3 days
+
+---
+
+### v14.4.0 - Advanced Rep Counter Features
+
+**Priority: High**  
+**Focus**: Complex rep counter enhancements on clean foundation
+
+**Note**: Built on refactored renderSchedule() (v14.3.0) for cleaner integration. These features were originally in v14.0.0 but moved here to ensure proper test coverage (v14.2.0) and clean code foundation (v14.3.0) are in place first.
 
 #### Rep Cooldown Timer Improvements
 - **Quick Access Panel During Cooldown**
@@ -47,17 +475,34 @@ This document outlines planned features and improvements for the Body Refactorin
 - **Timing Adjustment**
   - Count on color change at 50% progress (not at start)
   - First 50% = "Tension" phase
-  - Second 50% = "Relax" phase
+  - Second 50% = "Release" phase
   - More accurate sync with actual movement
 
-- **Visual Progress Indicator**
-  - Animated circle with moving dot (clockwise)
-  - Odd reps: Draw circle progressively
-  - Even reps: Erase circle progressively
-  - Color coding:
-    - "Up" phase: Blue/cyan
-    - "Down" phase: Green
-    - Creates visual rhythm matching exercise tempo
+- **Visual Progress Indicator: Two-Layer Animated Circle**
+  - **Base Layer**: Grey circle (always visible, always 100% complete)
+  - **Drawing Layers**: Two circles that alternate between odd/even reps
+  - **Moving Ball**: Indicator travels clockwise, leaving colored trace
+  
+  **Color Schemes:**
+  - **Odd Reps (Scheme 1)**: Red → Yellow
+    - Tension phase (0° → 180°): Red (#ef4444) - High intensity, effort
+    - Release phase (180° → 360°): Yellow (#eab308) - Energy release, completion
+  - **Even Reps (Scheme 2)**: Purple → Cyan
+    - Tension phase (0° → 180°): Purple (#a855f7) - Focus, intensity
+    - Release phase (180° → 360°): Cyan (#06b6d4) - Cool, calm, recovery
+  
+  **Animation Behavior:**
+  - Rep 1: Ball paints red (tension) then yellow (release) over grey base
+  - Rep 2: Ball paints purple (tension) then cyan (release) over previous colors
+  - Rep 3: Layer 1 resets behind Layer 2, ball paints red/yellow again
+  - Pattern continues: Alternating schemes provide clear rep counting
+  
+  **Benefits:**
+  - Always see complete circle (no disappearing/erasing)
+  - Clear phase awareness (color changes at 50% mark)
+  - Visual rhythm from alternating color schemes
+  - Professional, polished animation
+  - Ball position shows exact progress within rep
 
 - **Transition Bug Fixes**
   - Add small delay (500-1000ms) after last rep before switching to cooldown
@@ -65,49 +510,213 @@ This document outlines planned features and improvements for the Body Refactorin
   - Smooth state transitions (rep completion → cooldown start)
   - State machine should handle transition timing
   - Visual feedback should be consistent throughout all state changes
-  - Current issue: Abrupt switch from last rep to cooldown, color/content mismatch
+  - Previous issue: Abrupt switch from last rep to cooldown, color/content mismatch
+
+**Why After v14.2.0 (Testing)?**
+- Complex state management needs test coverage
+- Timing-critical features (10s prompt, 50% progress) need verification
+- Tests catch edge cases before they reach production
+- Sleep prevention mechanism requires validation
+- Animation changes can break existing functionality
+- Tests speed up manual testing (no waiting through actual reps)
 
 **Technical Implementation:**
-- Add "Today" button to week navigation component
-  - Conditionally render based on `currentWeekOffset !== 0`
-  - Position: Right side of week display (after week text)
-  - Button style: Minimal, icon-based (🏠 or 📅 icon)
-  - Click handler: Reset week offset to 0, reload current day view
-- Update week navigation layout:
-  - Use flexbox with space-between for arrows, week text, and today button
-  - Keep week text centered when today button not visible
-  - Adjust layout for mobile (ensure touch targets are 44x44px minimum)
-- State management:
-  - Track current week offset in app state
-  - Compare against today's date to determine button visibility
-  - Smooth transition animation when jumping to today
-- Create sick/recovery completion modal component
-  - Separate modal styles for sick vs recovery mode
-  - Reduced confetti configuration (particleCount: 10-20, spread: 40)
-  - Custom messaging based on mode:
-    - Sick: "Ruhe dich gut aus 💊" / "Rest and recover"
-    - Recovery: "Gut gemacht, sanft erholt 🩹" / "Well done, gentle recovery"
-  - Display current streak status with context
-  - Icon selection: 🩹 for recovery, 💊 for sick
-  - Softer color palette (blues, purples, muted tones)
-  - Quick fade-out after 2-3 seconds (vs 5+ for normal modal)
-- Modify `RepCounterStateMachine` to include cooldown states
-- Create `QuickAccessPanel` component for cooldown overlay
-- Update `getRepDelay()` to return object with phases: `{ upPhase: ms, downPhase: ms }`
-  - Update the schedule.json schema to allow upPhase/downPhase configuration (optional)
+
+- **Modify `RepCounterStateMachine` to include cooldown states**
+  - Add `COOLDOWN_ACTIVE` state
+  - Add `COOLDOWN_READY_PROMPT` state (at 10s mark)
+  - Add `QUICK_ACCESS_OPEN` state (during cooldown)
+  - Transitions: `SET_COMPLETE` → `COOLDOWN_ACTIVE` → `COOLDOWN_READY_PROMPT` → next set or complete
+
+- **Create `QuickAccessPanel` component**
+  - Overlay during cooldown (doesn't hide cooldown timer)
+  - Three tabs: "Notes" | "Weight/Level" | "Timer Controls"
+  - Swipe up to reveal, swipe down to hide
+  - Auto-save changes to DomainStorageService
+  - Minimal UI, focused on essential controls
+
+- **Update `getRepDelay()` timing system**
+  - Return object with phases: `{ upPhase: ms, downPhase: ms }`
+  - Count at transition point (50% of total delay)
+  - Update schedule.json schema to support phase configuration (optional)
   - Default to equal split if not specified
-- Implement SVG circle animation with stroke-dasharray/stroke-dashoffset
-- Add state machine transitions for "Ready?" confirmation
-- Store quick-access changes via DomainStorageService
-- Fix rep counter transitions:
-  - Add transition delay state between last rep completion and cooldown start
-  - Duration: 500-1000ms hold on completion state
-  - Synchronize color changes with content updates (atomic state change)
-  - Update `RepCounterStateMachine` states:
-    - Add `REP_COMPLETE` state (brief hold after last rep)
-    - Transition: `COUNTING` → `REP_COMPLETE` → `COOLDOWN` or `SET_COMPLETE`
-  - Ensure UI updates happen together (no color/content mismatch)
-  - Visual feedback: Brief "✓" or completion animation before cooldown
+  - Example: `"delayMilliseconds": {"up": 1500, "down": 1500}` or `3000` (auto-split)
+
+- **Implement two-layer SVG circle animation**
+  - **SVG Structure**: 3 circles + 1 ball indicator
+    - Base circle: Grey, always 100% visible (#64748b)
+    - Odd rep layer: Red/Yellow scheme, z-index alternates
+    - Even rep layer: Purple/Cyan scheme, z-index alternates
+    - Ball indicator: White dot following circle path
+  - **Animation Logic**:
+    - Phase 1 (0° → 180°): Tension color, first half of delay
+    - Phase 2 (180° → 360°): Release color, second half of delay
+    - Use stroke-dasharray/stroke-dashoffset for progressive drawing
+    - Animate ball position along circle path (synchronized)
+  - **Layer Management**:
+    - Odd reps: Draw on Layer A (z-index: 2, front)
+    - Even reps: Draw on Layer B (z-index: 2, front)
+    - After each rep: Reset inactive layer (behind), swap z-indexes
+    - Result: User always sees full circle, no visual resets
+  - **Color Transitions**:
+    - Hard color switch at 180° (50% progress)
+    - Tension → Release color change
+    - Alternating schemes provide clear odd/even rep indication
+
+- **Fix rep counter state transitions**
+  - Add `REP_COMPLETE` intermediate state
+  - Duration: 500-1000ms hold after last rep
+  - Synchronize color/content updates (atomic state change)
+  - State flow: `COUNTING` → `REP_COMPLETE` → `COOLDOWN_ACTIVE` or `SET_COMPLETE`
+  - Visual feedback: Brief "✓" or pulse animation before cooldown
+
+- **Sleep prevention implementation**
+  - Countdown timer during cooldown (60s → 10s)
+  - At 10s: Show prominent "Ready?" button
+  - Button press: Continue to next set
+  - No interaction timeout: Show notification, restart countdown (safety)
+  - NoSleep.js integration for additional prevention
+
+**Playwright Test Coverage (v14.2.0 provides foundation):**
+- Test cooldown timer accuracy
+- Verify "Ready?" prompt at 10s
+- Test quick access panel interactions
+- Verify state persistence during cooldown
+- Test rep counting timing (50% mark)
+- Verify animation transitions
+- Test complete rep counter flow (start → count → cooldown → complete)
+- Verify no regression of transition bugs
+
+**Benefits:**
+- ✅ **Better workout flow** - No need to abort rep counter for notes/weight
+- ✅ **Sleep prevention** - Screen stays active during rest
+- ✅ **Accurate timing** - Count matches actual movement (50% transition)
+- ✅ **Professional visual feedback** - Two-layer circle with phase colors
+- ✅ **Clear rep counting** - Alternating color schemes (red/yellow vs purple/cyan)
+- ✅ **Always complete circle** - No disappearing/erasing, grey base always visible
+- ✅ **Phase awareness** - Color change at 50% shows tension → release transition
+- ✅ **Smooth transitions** - No jarring state changes, layer management behind scenes
+- ✅ **Test coverage** - Playwright tests ensure stability
+
+**Estimated Effort:** 4-5 days
+- State machine enhancement (0.5 day)
+- Quick access panel UI (1 day)
+- Two-layer circle animation system (1.5 days)
+  - SVG structure and layer management (0.5 day)
+  - Phase-based color animation (0.5 day)
+  - Ball indicator synchronization (0.5 day)
+- Timing and transitions (0.5 day)
+- Testing and refinement (1 day)
+- Documentation (0.5 day)
+
+---
+
+### v14.5.0 - calculateStreak() Refactor
+
+**Priority: Medium**  
+**Focus**: Clean up streak calculation logic and improve testability
+
+**Why Now?**
+- Current implementation works but mixes concerns (calculation + DOM)
+- Playwright tests (v14.2.0) provide safety net
+- v16.0.0 XP system will need streak data
+- Good time to refactor between feature development cycles
+- StreakCalculatorService already exists but is underutilized
+
+#### Current Problem
+- **calculateStreak()**: ~130 lines, handles too many responsibilities
+- Mixed concerns: Calculation logic + DOM updates
+- Streak calculation + Shield awarding + Display updates
+- Difficult to test without full DOM
+- Async with await in loop (performance consideration)
+
+#### Solution: Expand StreakCalculatorService
+
+**Current State:**
+- `StreakCalculatorService` exists in `modules/streak-calculator-service.js`
+- Currently only has `getDayCount()` helper
+- Underutilized - should be single source of truth for streak logic
+
+**Enhance to Include:**
+- `calculate()` - Main calculation, returns streak data object (no DOM)
+- `isDayCountable()` - Check if day counts (normal/recovery/sick with shield)
+- `checkShieldMilestone()` - Shield awarding logic
+- Separate display updates to app.js or new `StreakDisplayService`
+
+**Benefits:**
+- ✅ Pure calculation separated from display
+- ✅ Testable without DOM
+- ✅ Reusable in XP system (v16.0.0)
+- ✅ Better performance (can cache results)
+- ✅ Single source of truth for streak logic
+
+**Refactoring Strategy:**
+
+**Phase 1: Extract Pure Calculation** (0.5 day)
+- Move calculation logic to StreakCalculatorService.calculate()
+- Return data object: `{ streak, weekCounter, shields }`
+- Keep shield awarding logic separate
+
+**Phase 2: Separate Display** (0.5 day)
+- Extract DOM updates from calculateStreak()
+- Create `updateStreakDisplay(streakData)` function
+- Keep in app.js or create StreakDisplayService
+
+**Phase 3: Shield Management** (Optional, 0.5 day)
+- Consider separate `ShieldService` for shield logic
+- Or keep in StreakCalculatorService
+- Depends on complexity
+
+**Technical Implementation:**
+
+- **Enhance StreakCalculatorService:**
+  ```javascript
+  class StreakCalculatorService {
+    constructor(domainStorage, state) {
+      this.domainStorage = domainStorage;
+      this.state = state;
+    }
+
+    async calculate() {
+      // Pure calculation logic
+      // Returns: { streak, weekCounter, shieldsAwarded }
+    }
+
+    isDayCountable(dateIso, dayData) {
+      // Check normal/recovery/sick with shield
+    }
+
+    checkShieldMilestone(weekCounter, awardedMilestones) {
+      // Shield awarding logic
+    }
+  }
+  ```
+
+- **Update app.js:**
+  ```javascript
+  async function calculateStreak() {
+    const streakData = await streakCalculator.calculate();
+    updateStreakDisplay(streakData);
+  }
+
+  function updateStreakDisplay(streakData) {
+    // All DOM updates here
+    // streak-container, streak-count, modal-streak
+    // shield display updates
+  }
+  ```
+
+**Benefits for v16.0.0 (XP System):**
+- XP system can call `streakCalculator.calculate()` for data
+- No DOM coupling
+- Reusable streak logic
+- Clean integration
+
+**Estimated Effort:** 1-2 days
+- Expand StreakCalculatorService (0.5 day)
+- Refactor calculateStreak to use service (0.5 day)
+- Separate display logic (0.5 day)
+- Testing with Playwright (0.5 day)
 
 ---
 
@@ -279,14 +888,306 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
+### v17.0.0 - Schedule Management Refactoring (Phase 1)
+
+**Priority: High**  
+**Focus**: Privacy-first architecture with smooth transition
+
+**Note**: This is Phase 1 - localStorage implementation with fallback. Repository cleanup happens in v17.1.0 or v18.0.0.
+
+#### Core Changes
+- **localStorage Schedule Management**
+  - Upload schedules via in-app UI
+  - Store schedules in localStorage with versioning
+  - Multiple schedules support (archive old schedules)
+  - Schedule selection dropdown
+  - Active schedule indicator
+
+- **Smooth Transition Fallback**
+  - If no schedules in localStorage → Load from webspace (`/trainings/*.json`)
+  - Automatically imports existing schedule on first load
+  - Saves imported schedule to localStorage
+  - Seamless transition for existing user (no manual export/import needed)
+  - Schedules remain in repository during v17.0.0 for compatibility
+
+- **Repository Status (v17.0.0)**
+  - **Keep** all `schedule-*.json` files in `/trainings/` directory
+  - Keep `schema-schedule-v*.json` and `template-schedule.json`
+  - Schedules serve as fallback during transition
+  - Note: Repository cleanup planned for v17.1.0 or v18.0.0
+
+#### Upload & Validation System
+
+- **Schedule Upload UI**
+  - File upload button in settings/menu
+  - Drag & drop support for desktop
+  - Validates against schema before accepting
+  - Shows validation errors with helpful messages
+  - Preview schedule before confirming upload
+
+- **Client-Side Validation (JavaScript)**
+  - Validate JSON structure against schema
+  - Check version compatibility (v1, v2 support)
+  - Verify required fields (days, exercises, dates)
+  - Exercise ID uniqueness validation
+  - dayIndex validation (0-6, Sunday-Saturday)
+  - Date format validation (YYYY-MM-DD for filenames)
+  - Detailed error reporting with line numbers
+  
+- **Server-Side Validation (PHP) - Optional**
+  - Backup validation endpoint for security
+  - Same validation rules as client
+  - Returns structured error JSON
+  - Used when uploading via tools.php or API
+
+#### Enhanced Schedule Editor
+
+- **Improved Editor Integration**
+  - Direct integration with localStorage schedules
+  - No need to manually copy JSON anymore
+  - Edit active schedule in-app
+  - Save changes directly to localStorage
+  - Export edited schedule as JSON file (download)
+
+- **Schedule Management Features**
+  - List all stored schedules with metadata:
+    - Schedule name/date
+    - Version (v1/v2)
+    - Created date
+    - Last modified
+    - Active status
+  - Set active schedule
+  - Archive/delete old schedules
+  - Duplicate schedule (create variant)
+  - Import schedule from file
+  - Export schedule to file
+
+- **Enhanced Editor Features**
+  - Better autocomplete for exercise IDs (shows existing exercises across all schedules)
+  - Inline validation as you type
+  - Visual schema violation indicators
+  - Exercise library browser (see all exercises used in past schedules)
+  - Template selector (start from template or existing schedule)
+
+#### Privacy Benefits
+
+- **Personal Data Stays Local**
+  - Workout plans not visible in public repository
+  - No personal training details in commit history
+  - Other users can fork without seeing your schedule
+  - Easy to keep multiple private schedules
+
+- **Deployment Improvements**
+  - Faster deployments (no schedule JSON changes)
+  - Cleaner git history (code changes only)
+  - Easier to contribute code improvements
+  - Repository focuses on app functionality
+
+#### Multi-User Readiness
+
+- **Fork-Friendly**
+  - New users get clean app without personal data
+  - Upload their own schedules after setup
+  - No confusion about example vs real schedules
+  - README can include sample schedule for testing
+
+- **Demo Mode**
+  - App loads with sample/demo schedule if none found
+  - Prompt to upload own schedule
+  - Clear instructions for first-time users
+  - Sample schedule shows all features
+
+**Technical Implementation:**
+
+- **ScheduleStorageService Module**
+  - New module: `modules/schedule-storage-service.js`
+  - Methods:
+    - `uploadSchedule(jsonString)` - Validate and store schedule
+    - `getActiveSchedule()` - Retrieve current active schedule
+    - `listSchedules()` - Get all stored schedules metadata
+    - `setActiveSchedule(scheduleId)` - Switch active schedule
+    - `deleteSchedule(scheduleId)` - Remove schedule
+    - `exportSchedule(scheduleId)` - Generate JSON for download
+    - `validateSchedule(jsonObj)` - Client-side validation
+  - Storage keys: `schedule_active`, `schedule_list`, `schedule_data_{id}`
+
+- **Schedule Validator**
+  - JavaScript validator using schema file
+  - Load schema from `/trainings/schema-schedule-v*.json`
+  - Comprehensive validation with error details
+  - Support for v1 and v2 schemas
+  - Extensible for future schema versions
+
+- **Upload UI Component**
+  - Modal/page for schedule upload
+  - File picker with drag & drop
+  - JSON validation preview
+  - Error display with corrections
+  - Success confirmation
+
+- **Schedule Manager UI**
+  - List view of all schedules
+  - Active schedule highlighted
+  - Quick actions: Activate, Edit, Export, Delete
+  - Search/filter schedules by date/name
+  - Storage space indicator
+
+- **Modified Schedule Loading**
+  - Update `fetchScheduleForDate()` to check localStorage first
+  - Fallback to webspace (`/trainings/*.json`) if localStorage empty
+  - Automatically import webspace schedule to localStorage on first load
+  - Error handling for corrupted schedule data
+  - Automatic validation on load
+  - Seamless transition: Existing user sees no difference on first load
+
+- **Enhanced Schedule Editor**
+  - Integrate with ScheduleStorageService
+  - Load from localStorage, save back to localStorage
+  - Download button generates JSON file
+  - Upload button to import schedules
+  - Autocomplete backed by localStorage schedule library
+
+- **Repository Cleanup (v17.1.0 or v18.0.0)**
+  - Phase 2: Remove `schedule-2025-*.json` and `schedule-2026-*.json`
+  - Keep `template-schedule.json` as reference
+  - Keep `schema-schedule-v*.json` for validation
+  - Add updated onboarding screen:
+    - Prompt to upload schedule.json
+    - Option to use example.json
+    - Clear instructions for first-time users
+  - Update README with new upload instructions
+  - Add sample schedule to documentation (not in trainings/)
+
+**Schema Validation Rules:**
+
+```javascript
+// Required fields
+{
+  "version": 1 or 2,
+  "days": [ /* array of day objects */ ]
+}
+
+// Optional fields (v2)
+{
+  "targetDate": "ISO 8601 datetime"
+}
+
+// Day object validation
+{
+  "id": "string (unique, lowercase, underscores)",
+  "dayIndex": 0-6, // 0=Sunday, 6=Saturday
+  "name": "string",
+  "theme": "string",
+  "icon": "string (lucide icon name)",
+  "colorClass": "string (tailwind class)",
+  "bgClass": "string (tailwind class)",
+  "details": [ /* exercise array */ ]
+}
+
+// Exercise validation
+- Valid types: "warmup", "main", "cool", "alternatives"
+- Required fields based on type
+- Optional fields: timers, weight, defaultUnit, repCounter
+- ID uniqueness within day
+```
+
+**Demo/Sample Schedule:**
+
+- Include lightweight demo schedule in documentation
+- Shows all exercise types
+- 1-week example (not 4+ weeks)
+- Clearly marked as example/demo
+- Not loaded from repository
+- Used only if localStorage empty on first launch
+
+**Breaking Changes:**
+
+- ⚠️ **v17.0.0**: No breaking changes! Smooth transition with fallback
+  - localStorage preferred, webspace schedules as fallback
+  - Existing user: No action needed, automatic import on first load
+  - New users: Can upload schedules or use webspace fallback
+- ⚠️ **v17.1.0/v18.0.0**: Repository schedules removed (breaking)
+  - Must have schedule in localStorage or upload one
+  - Onboarding screen guides new users
+  - Demo/example schedule available
+
+**Migration Steps (for solo user):**
+
+**v17.0.0 - Automatic & Seamless:**
+1. Deploy v17.0.0 to production
+2. On first load:
+   - App checks localStorage (empty)
+   - Loads from webspace `/trainings/schedule-*.json`
+   - Automatically imports to localStorage
+   - Saves as active schedule
+3. Everything works as before - no manual intervention needed!
+4. Optionally: Use new upload UI to add more schedules
+
+**v17.1.0/v18.0.0 - Repository Cleanup:**
+1. Ensure schedule is in localStorage (already done in v17.0.0)
+2. Delete schedule JSON files from repository
+3. Update onboarding for new users
+4. Commit and push cleanup
+
+**Benefits:**
+
+- ✅ **Privacy**: Personal workout data stays local
+- ✅ **Clean Repository**: Only code and docs in version control
+- ✅ **Multi-User**: Others can fork and use immediately
+- ✅ **Flexibility**: Switch schedules, archive old ones, experiment freely
+- ✅ **Faster Deployments**: No schedule JSON changes to deploy
+- ✅ **Better UX**: In-app schedule management vs file editing
+
+**Estimated Effort:** 5-7 days
+- ScheduleStorageService module (1 day)
+- Schedule validator (1 day)
+- Upload UI (1 day)
+- Schedule manager UI (1 day)
+- Enhanced editor integration (1-2 days)
+- Testing and validation (1-2 days)
+
+---
+
 ## 🎯 Feature Prioritization & Rationale
 
-### High Priority (v14-v15)
-**Rep Counter Enhancements** and **Dynamic Rep/Set Management** are high priority because:
-1. **Immediate UX improvements** - Affect every workout session
-2. **Reduce friction** - No need to abort rep counter or edit JSON files
-3. **Safety** - Sleep prevention ensures proper rest timing
-4. **User feedback** - Requested features based on actual usage pain points
+### High Priority (v14.x, v15, v17)
+**Rep Counter Enhancements**, **Code Quality**, **Testing**, **Dynamic Rep/Set Management**, and **Schedule Management Refactoring** are high priority because:
+
+**v14.0 - Rep Counter Basics:**
+1. **Immediate UX improvements** - Basic rep counter functionality
+2. **Foundation features** - Navigation, modals, editor support
+3. **Quick wins** - Features that don't require complex state management
+
+**v14.1 - Linting:**
+1. **Code quality** - Consistent standards across entire codebase
+2. **Maintainability** - Easier to onboard contributors (or future self)
+3. **Bug prevention** - Catch errors before they reach production
+4. **Documentation** - Enforced JSDoc ensures code is self-documenting
+5. **Fast feedback** - IDE integration catches issues immediately
+
+**v14.2 - Testing:**
+1. **Confidence** - Deploy without fear of breaking existing features
+2. **Regression prevention** - Automated tests catch breaking changes
+3. **Documentation** - Tests serve as executable documentation
+4. **Faster development** - Less manual testing needed
+5. **Foundation** - Required before major refactorings (v14.3, v15-v17)
+
+**v14.3 - Advanced Rep Counter:**
+1. **Complex state management** - Requires test coverage from v14.2
+2. **Timing-critical features** - 10s prompts, 50% progress timing
+3. **Sleep prevention** - Mission-critical for workout safety
+4. **Animation refinements** - Visual polish with regression protection
+
+**v15 - Dynamic Management:**
+1. **Remove friction** - No JSON editing for common adjustments
+2. **Progressive overload** - Built-in support for training progression
+3. **Flexibility** - Quick adjustments without breaking base schedule
+
+**v17 - Schedule Management:**
+1. **Privacy-first** - Personal workout data stays out of public repository
+2. **Architecture shift** - Enables true multi-user functionality
+3. **Deployment efficiency** - Faster, cleaner deployments without schedule changes
+4. **Foundation for future** - Required before considering any multi-user features
 
 ### Medium Priority (v16)
 **XP System** is medium priority because:
@@ -294,6 +1195,37 @@ This document outlines planned features and improvements for the Body Refactorin
 2. **Complex implementation** - Requires schema changes and new systems
 3. **Schedule lifecycle** - Useful but not urgent (current schedule workflow functions)
 4. **AI integration** - Innovative but experimental feature
+5. **Depends on v15** - Overrides system provides foundation for auto-progression
+
+### Version Ordering Rationale
+
+**Why v14.1 and v14.2 before v15?**
+- Code quality and testing should come before major features
+- Linting ensures consistent code standards before refactoring
+- Tests prevent regressions during v15-v17 development
+- Establishes quality baseline for future work
+- Relatively quick to implement (5-7 days total)
+
+**Why v17 after v16 (not before)?**
+- v16 (XP system) still works with repository-based schedules
+- v17 is a breaking architectural change
+- Allows v16 to be developed/tested with current architecture
+- Clean separation: v16 = features, v17 = architecture
+- v17 makes sense after "schedule complete" workflow exists (v16)
+
+**Development Sequence:**
+1. v14.0: Core features (rep counter basics, modals, navigation) ✅ COMPLETE
+2. v14.1: Code quality foundation (linting) - 2-3 days
+3. v14.2: Safety net (automated testing) - 3-4 days  
+4. v14.3: Clean code (renderSchedule refactor) - 2-3 days
+5. v14.4: Complex features (advanced rep counter) - 4-5 days
+6. v14.5: Final cleanup (calculateStreak refactor) - 1-2 days
+7. v15.0: Dynamic features (rep/set management) - 3-4 days
+8. v16.0: Gamification (XP system) - 6-8 days
+9. v17.0: Architecture shift (localStorage schedules) - 5-7 days
+
+**v14.x Total Effort:** ~12-17 days (quality-first approach)
+**Rationale:** Build solid foundation before major features
 
 ---
 
@@ -419,7 +1351,246 @@ All features optimized for iPhone/PWA:
 
 ---
 
-**Last Updated**: January 7, 2026  
-**Current Version**: v13.0.0  
-**Next Version**: v14.0.0
+## 🗂️ Backlog - Code Quality & Refactoring
+
+**Note:** The two major refactoring tasks (renderSchedule and calculateStreak) have been scheduled in the v14.x cycle:
+- ✅ **renderSchedule() Refactor** → Scheduled for v14.3.0
+- ✅ **calculateStreak() Refactor** → Scheduled for v14.5.0
+
+This section is now empty but reserved for future refactoring tasks that arise during development.
+
+---
+
+## 🚀 Backlog - Infrastructure & DevOps
+
+### PR Preview Environments
+
+**Goal:** Automatic test environment for each pull request to review changes before merging.
+
+**Requirements:**
+- Isolated environment per PR
+- Automatic deployment on PR creation/update
+- Accessible via unique URL
+- Auto-cleanup when PR is closed/merged
+- No database dependencies (static site with localStorage)
+
+---
+
+#### Option 1: GitHub Pages (PR Preview Branches) ⭐ **Recommended**
+
+**How it works:**
+1. GitHub Action triggered on PR open/update
+2. Builds static site (PHP → HTML conversion if needed)
+3. Deploys to `gh-pages` branch in subdirectory: `/pr-{number}/`
+4. Accessible via: `https://apermo.github.io/bodyrefactoring/pr-123/`
+5. Auto-cleanup action removes directory when PR closes
+
+**Pros:**
+- ✅ Free (GitHub Pages)
+- ✅ No external services needed
+- ✅ Works with your stack (static HTML/CSS/JS)
+- ✅ GitHub integration built-in
+- ✅ HTTPS by default
+- ✅ Fast deployment (~30-60s)
+
+**Cons:**
+- ⚠️ PHP needs pre-rendering or removal
+- ⚠️ Public repository required (or GitHub Pro for private)
+- ⚠️ All previews share same domain
+
+**Implementation effort:** 1-2 days
+- GitHub Action workflow for build & deploy
+- PHP to static HTML conversion (or remove PHP)
+- Cleanup workflow for closed PRs
+- Comment bot to post preview URL
+
+**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
+- HTML/CSS/JS work perfectly
+- LocalStorage works (same domain per PR path)
+- Service Workers for PWA might need adjustment
+
+---
+
+#### Option 2: Netlify Deploy Previews ⭐⭐ **Easiest Setup**
+
+**How it works:**
+1. Connect GitHub repository to Netlify
+2. Netlify automatically builds & deploys PR previews
+3. Each PR gets unique subdomain: `deploy-preview-123--bodyrefactoring.netlify.app`
+4. Auto-cleanup on PR close
+
+**Pros:**
+- ✅ Zero configuration needed
+- ✅ Automatic HTTPS
+- ✅ Fast global CDN
+- ✅ Unique domain per PR
+- ✅ Built-in CI/CD
+- ✅ Free tier (100GB bandwidth/month)
+- ✅ Handles PHP via build step
+
+**Cons:**
+- ⚠️ External service dependency
+- ⚠️ Free tier limits (sufficient for personal use)
+- ⚠️ Different domain than production (localStorage won't carry over)
+
+**Implementation effort:** 1-2 hours
+- Connect GitHub repo to Netlify
+- Add `netlify.toml` config
+- Optional: Custom build script for PHP
+
+**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
+- Fully supports static sites
+- LocalStorage works per preview domain
+- PWA works out of the box
+
+---
+
+#### Option 3: Vercel Preview Deployments
+
+**How it works:**
+- Similar to Netlify
+- Automatic preview deployments per PR
+- Unique URL: `bodyrefactoring-git-{branch}-apermo.vercel.app`
+
+**Pros:**
+- ✅ Zero configuration
+- ✅ Excellent performance
+- ✅ Free tier generous
+- ✅ Good GitHub integration
+
+**Cons:**
+- ⚠️ External service
+- ⚠️ Different domain per preview
+
+**Implementation effort:** 1-2 hours
+**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
+
+---
+
+#### Option 4: Cloudflare Pages
+
+**How it works:**
+- Connect GitHub repo
+- Automatic builds on PR
+- Preview URLs: `{pr-id}.bodyrefactoring.pages.dev`
+
+**Pros:**
+- ✅ Fast global CDN
+- ✅ Free tier unlimited
+- ✅ Excellent performance
+
+**Cons:**
+- ⚠️ External service
+- ⚠️ Different domain
+
+**Implementation effort:** 1-2 hours
+**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
+
+---
+
+#### Option 5: Self-Hosted on Plesk (Subdomain per PR)
+
+**How it works:**
+1. GitHub Action on PR open/update
+2. Deploy to Plesk via SSH/FTP to subdomain: `pr-123.prv.chrdm.de`
+3. Plesk API to create/delete subdomains automatically
+4. Cleanup action on PR close
+
+**Pros:**
+- ✅ Full control
+- ✅ Same infrastructure as production
+- ✅ No external services
+- ✅ PHP works natively
+
+**Cons:**
+- ⚠️ Complex setup (Plesk API, subdomain automation)
+- ⚠️ SSL certificate management per subdomain
+- ⚠️ Resource usage on your server
+- ⚠️ Slower than CDN options
+
+**Implementation effort:** 3-4 days
+- Plesk API integration
+- Subdomain automation
+- SSL certificate automation (Let's Encrypt)
+- GitHub Action for deployment
+
+**Tech stack compatibility:** ⭐⭐⭐⭐ Good
+- Perfect PHP compatibility
+- Same environment as production
+- More complex automation
+
+---
+
+### Recommended Approach: **Netlify Deploy Previews**
+
+**Why:**
+1. **Fastest to implement** - 1-2 hours vs days
+2. **Zero maintenance** - Netlify handles everything
+3. **Free** - More than sufficient for personal use
+4. **Professional** - Same tool used by major projects
+5. **Automatic** - Works immediately on PR creation
+6. **Comments** - Posts preview URL to PR automatically
+
+**Implementation Steps:**
+1. Sign up for Netlify (free)
+2. Connect GitHub repository
+3. Add `netlify.toml` config:
+   ```toml
+   [build]
+     publish = "."
+     command = "echo 'Static site, no build needed'"
+   
+   [[redirects]]
+     from = "/*"
+     to = "/index.php"
+     status = 200
+   ```
+4. Done! Previews work automatically
+
+**Alternative if you want GitHub-only:** GitHub Pages (Option 1)
+- More control, no external service
+- Requires more setup (1-2 days)
+- All previews on same domain
+
+---
+
+### Future Enhancements (After Preview Environments)
+
+**Once preview environments work:**
+- Visual regression testing (compare screenshots)
+- Automated lighthouse scores per PR
+- Performance benchmarks
+- Accessibility audits
+- Security scanning
+
+---
+
+**Estimated Priority:** Medium  
+**Estimated Effort:** 1-2 hours (Netlify) or 1-2 days (GitHub Pages)  
+**Dependencies:** None  
+**Benefits:** Easier PR reviews, catch issues before merge, test on real environment
+
+---
+
+### Decision Guidelines for Future Backlog Items
+
+**When to schedule a refactoring:**
+- Function/class exceeds 200 lines
+- Mixed responsibilities detected
+- Adding features requires touching multiple unrelated parts
+- Code duplication appears
+- Testing becomes impossible without full system
+- Performance issues due to poor structure
+
+**Signs it's time to refactor:**
+- Bug fixes become difficult due to complexity
+- New features take longer than they should
+- Team members (or future self) struggle to understand code
+- Playwright tests are brittle due to tight coupling
+
+---
+
+**Last Updated**: January 8, 2026  
+**Current Stable Release**: v13.0.0  
+**Development Cycle**: v14
 

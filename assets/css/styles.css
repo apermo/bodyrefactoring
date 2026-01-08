@@ -1,9 +1,70 @@
 /* Body Refactoring App - Main Stylesheet */
 
+/*
+ * Color System using RGB variables for rgba() support
+ * Source: https://stackoverflow.com/a/41265350
+ * Posted by Julian F. Weinert, modified by community
+ * Retrieved 2026-01-08, License - CC BY-SA 4.0
+ */
+
+:root {
+	/* Base Colors - Primary Palette */
+	--color-primary: #38bdf8;           /* Cyan - main accent */
+	--color-primary-rgb: 56, 189, 248;  /* RGB for rgba() */
+	--color-success: #22c55e;           /* Green - completion */
+	--color-success-rgb: 34, 197, 94;   /* RGB for rgba() */
+	--color-danger: #ef4444;            /* Red - active/danger */
+	--color-danger-rgb: 239, 68, 68;    /* RGB for rgba() */
+	--color-warning: #f59e0b;           /* Amber - streak primary */
+	--color-warning-rgb: 245, 158, 11;  /* RGB for rgba() */
+	--color-warning-dark: #d97706;      /* Amber dark - streak gradient */
+
+	/* Background Colors */
+	--color-bg-primary: #0f172a;        /* Dark blue - main background */
+	--color-bg-primary-rgb: 15, 23, 42; /* RGB for rgba() */
+	--color-bg-secondary: #1e293b;      /* Slate - cards and modals */
+	--color-bg-secondary-rgb: 30, 41, 59; /* RGB for rgba() */
+
+	/* Text Colors */
+	--color-text-primary: #e2e8f0;      /* Light grey - main text */
+	--color-text-muted: #94a3b8;        /* Slate - muted text */
+	--color-text-muted-rgb: 148, 163, 184; /* RGB for rgba() */
+	--color-text-secondary: #64748b;    /* Slate darker - secondary text */
+
+	/* Border Colors */
+	--color-border-primary: #334155;    /* Slate - borders */
+
+	/* Rep Counter Colors - Current (for existing functionality) */
+	--color-rep-blue: #60a5fa;          /* Blue - current rep counter */
+	--color-rep-blue-rgb: 96, 165, 250; /* RGB for rgba() */
+	--color-rep-blue-dark: #2563eb;     /* Blue dark - dimmed state */
+	--color-rep-blue-dark-rgb: 37, 99, 235; /* RGB for rgba() */
+	--color-rep-green: #34d399;         /* Green - current rep counter */
+	--color-rep-green-rgb: 52, 211, 153; /* RGB for rgba() */
+	--color-rep-green-dark: #059669;    /* Green dark - dimmed state */
+	--color-rep-green-dark-rgb: 5, 150, 105; /* RGB for rgba() */
+	--color-rep-countdown: #fbbf24;     /* Yellow - countdown */
+	--color-rep-countdown-rgb: 251, 191, 36; /* RGB for rgba() */
+	--color-rep-go: #10b981;            /* Green - "go" signal */
+	--color-rep-go-rgb: 16, 185, 129;   /* RGB for rgba() */
+
+	/* Rep Counter Colors - v14.4 Two-Layer Animation (Semantic Aliases) */
+	--color-rep-tension-1: var(--color-danger);      /* Red - tension phase (odd reps) - aliases danger */
+	--color-rep-tension-1-rgb: var(--color-danger-rgb); /* RGB alias for rgba() */
+	--color-rep-release-1: #eab308;                  /* Yellow - release phase (odd reps) */
+	--color-rep-tension-2: #a855f7;                  /* Purple - tension phase (even reps) */
+	--color-rep-release-2: #06b6d4;                  /* Cyan - release phase (even reps) */
+	--color-rep-base: var(--color-text-secondary);   /* Grey - base circle - aliases text-secondary */
+
+	/* Font Families */
+	--font-primary: 'Roboto', sans-serif;
+	--font-mono: 'JetBrains Mono', monospace;
+}
+
 body {
-	font-family: 'Roboto', sans-serif;
-	background-color: #0f172a;
-	color: #e2e8f0;
+	font-family: var(--font-primary);
+	background-color: var(--color-bg-primary);
+	color: var(--color-text-primary);
 	padding-top: env(safe-area-inset-top);
 	padding-bottom: env(safe-area-inset-bottom);
 	overscroll-behavior-y: none;
@@ -25,14 +86,13 @@ body {
 }
 
 .app-container {
-	padding: 1rem;
-	padding-bottom: 8rem;
+	padding: 1rem 1rem 8rem;
 	max-width: 800px;
 	margin: 0 auto;
 }
 
 .font-mono {
-	font-family: 'JetBrains Mono', monospace;
+	font-family: var(--font-mono);
 }
 
 ::-webkit-scrollbar {
@@ -44,7 +104,7 @@ body {
 	transition: transform 0.2s ease, background-color 0.2s;
 	border-left: 4px solid transparent;
 	margin-bottom: 1rem;
-	background-color: rgba(30, 41, 59, 0.6);
+	background-color: rgba(var(--color-bg-secondary-rgb), 0.6);
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(8px);
 }
@@ -54,14 +114,14 @@ body {
 }
 
 .day-active {
-	background-color: rgba(30, 41, 59, 0.85);
-	border-left: 4px solid #38bdf8;
-	box-shadow: 0 4px 20px -5px rgba(56, 189, 248, 0.3);
+	background-color: rgba(var(--color-bg-secondary-rgb), 0.85);
+	border-left: 4px solid var(--color-primary);
+	box-shadow: 0 4px 20px -5px rgba(var(--color-primary-rgb), 0.3);
 }
 
 .day-complete {
-	border-left: 4px solid #22c55e !important;
-	background-color: rgba(34, 197, 94, 0.1);
+	border-left: 4px solid var(--color-success) !important;
+	background-color: rgba(var(--color-success-rgb), 0.1);
 }
 
 /* Locked State */
@@ -94,8 +154,8 @@ body {
 }
 
 .exercise-row.completed .check-circle {
-	background-color: #22c55e;
-	border-color: #22c55e;
+	background-color: var(--color-success);
+	border-color: var(--color-success);
 	transform: scale(1.1);
 }
 
@@ -108,8 +168,8 @@ body {
 	pointer-events: none;
 	opacity: 0.5;
 	border-color: transparent;
-	background: rgba(148, 163, 184, 0.1);
-	color: #94a3b8;
+	background: rgba(var(--color-text-muted-rgb), 0.1);
+	color: var(--color-text-muted);
 }
 
 /* Unit Toggle */
@@ -128,11 +188,11 @@ body {
 	bottom: 2rem;
 	right: 1.5rem;
 	z-index: 40;
-	background: #38bdf8;
-	color: #0f172a;
+	background: var(--color-primary);
+	color: var(--color-bg-primary);
 	border-radius: 999px;
 	padding: 1rem 1.5rem;
-	box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.5);
+	box-shadow: 0 10px 25px -5px rgba(var(--color-primary-rgb), 0.5);
 	font-weight: bold;
 	display: flex;
 	align-items: center;
@@ -145,17 +205,17 @@ body {
 }
 
 .fab-timer.running {
-	background: #ef4444;
+	background: var(--color-danger);
 	color: white;
-	box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.5);
+	box-shadow: 0 10px 25px -5px rgba(var(--color-danger-rgb), 0.5);
 	animation: pulse-red 2s infinite;
 }
 
 /* Timer Chips */
 .timer-chip {
-	background: rgba(56, 189, 248, 0.15);
-	color: #38bdf8;
-	border: 1px solid rgba(56, 189, 248, 0.3);
+	background: rgba(var(--color-primary-rgb), 0.15);
+	color: var(--color-primary);
+	border: 1px solid rgba(var(--color-primary-rgb), 0.3);
 	font-size: 0.7rem;
 	padding: 4px 8px;
 	border-radius: 6px;
@@ -163,24 +223,24 @@ body {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
-	font-family: 'JetBrains Mono', monospace;
+	font-family: var(--font-mono);
 	transition: all 0.2s;
 	margin-top: 4px;
 }
 
 .timer-chip:hover {
-	background: rgba(56, 189, 248, 0.25);
+	background: rgba(var(--color-primary-rgb), 0.25);
 }
 
 .timer-chip:active {
 	transform: scale(0.95);
-	background: #38bdf8;
-	color: #0f172a;
+	background: var(--color-primary);
+	color: var(--color-bg-primary);
 }
 
 /* Badges */
 .today-badge {
-	background: #ef4444;
+	background: var(--color-danger);
 	color: white;
 	padding: 2px 8px;
 	border-radius: 999px;
@@ -191,7 +251,7 @@ body {
 }
 
 .completed-badge {
-	background: #22c55e;
+	background: var(--color-success);
 	color: white;
 	padding: 2px 8px;
 	border-radius: 4px;
@@ -202,7 +262,7 @@ body {
 }
 
 .streak-badge {
-	background: linear-gradient(135deg, #f59e0b, #d97706);
+	background: linear-gradient(135deg, var(--color-warning), var(--color-warning-dark));
 	color: white;
 	padding: 4px 12px;
 	border-radius: 12px;
@@ -211,14 +271,14 @@ body {
 	display: flex;
 	align-items: center;
 	gap: 4px;
-	box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+	box-shadow: 0 2px 10px rgba(var(--color-warning-rgb), 0.3);
 }
 
 /* Weight Input */
 .weight-input {
 	background: transparent;
 	border: none;
-	color: #38bdf8;
+	color: var(--color-primary);
 	font-weight: 900;
 	text-align: center;
 	width: 100%;
@@ -241,14 +301,14 @@ body {
 
 .weight-input:focus {
 	outline: none;
-	border-bottom: 2px solid #38bdf8;
+	border-bottom: 2px solid var(--color-primary);
 }
 
 /* Alternative Divider */
 .alt-divider {
 	display: flex;
 	align-items: center;
-	color: #64748b;
+	color: var(--color-text-secondary);
 	font-size: 0.65rem;
 	font-weight: bold;
 	margin: 0.75rem 0;
@@ -259,7 +319,7 @@ body {
 .alt-divider::after {
 	content: '';
 	flex: 1;
-	border-bottom: 1px dashed #334155;
+	border-bottom: 1px dashed var(--color-border-primary);
 	margin: 0 0.5rem;
 }
 
@@ -267,7 +327,7 @@ body {
 .modal-overlay {
 	position: fixed;
 	inset: 0;
-	background: rgba(15, 23, 42, 0.9);
+	background: rgba(var(--color-bg-primary-rgb), 0.9);
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(8px);
 	z-index: 100;
@@ -285,8 +345,8 @@ body {
 }
 
 .modal-content {
-	background: #1e293b;
-	border: 1px solid #334155;
+	background: var(--color-bg-secondary);
+	border: 1px solid var(--color-border-primary);
 	padding: 2rem;
 	border-radius: 1.5rem;
 	text-align: center;
@@ -310,25 +370,25 @@ body {
 /* Animations */
 @keyframes pulse {
 	0% {
-		box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+		box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0.7);
 	}
 	70% {
-		box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+		box-shadow: 0 0 0 6px rgba(var(--color-danger-rgb), 0);
 	}
 	100% {
-		box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+		box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0);
 	}
 }
 
 @keyframes pulse-red {
 	0% {
-		box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+		box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0.4);
 	}
 	70% {
-		box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+		box-shadow: 0 0 0 10px rgba(var(--color-danger-rgb), 0);
 	}
 	100% {
-		box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+		box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0);
 	}
 }
 
@@ -336,7 +396,7 @@ body {
 #splash-screen {
 	position: fixed;
 	inset: 0;
-	background: #0f172a;
+	background: var(--color-bg-primary);
 	z-index: 60;
 	display: flex;
 	flex-direction: column;
@@ -395,35 +455,35 @@ body {
 }
 
 #rep-counter-modal .rep-number-blue {
-	color: #60a5fa;
-	text-shadow: 0 0 40px rgba(96, 165, 250, 0.8), 0 0 20px rgba(96, 165, 250, 0.6);
+	color: var(--color-rep-blue);
+	text-shadow: 0 0 40px rgba(var(--color-rep-blue-rgb), 0.8), 0 0 20px rgba(var(--color-rep-blue-rgb), 0.6);
 	transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
 #rep-counter-modal .rep-number-blue-dim {
-	color: #2563eb;
-	text-shadow: 0 0 20px rgba(37, 99, 235, 0.5), 0 0 10px rgba(37, 99, 235, 0.3);
+	color: var(--color-rep-blue-dark);
+	text-shadow: 0 0 20px rgba(var(--color-rep-blue-dark-rgb), 0.5), 0 0 10px rgba(var(--color-rep-blue-dark-rgb), 0.3);
 }
 
 #rep-counter-modal .rep-number-green {
-	color: #34d399;
-	text-shadow: 0 0 40px rgba(52, 211, 153, 0.8), 0 0 20px rgba(52, 211, 153, 0.6);
+	color: var(--color-rep-green);
+	text-shadow: 0 0 40px rgba(var(--color-rep-green-rgb), 0.8), 0 0 20px rgba(var(--color-rep-green-rgb), 0.6);
 	transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
 #rep-counter-modal .rep-number-green-dim {
-	color: #059669;
-	text-shadow: 0 0 20px rgba(5, 150, 105, 0.5), 0 0 10px rgba(5, 150, 105, 0.3);
+	color: var(--color-rep-green-dark);
+	text-shadow: 0 0 20px rgba(var(--color-rep-green-dark-rgb), 0.5), 0 0 10px rgba(var(--color-rep-green-dark-rgb), 0.3);
 }
 
 #rep-counter-modal .rep-number-countdown {
-	color: #fbbf24;
-	text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+	color: var(--color-rep-countdown);
+	text-shadow: 0 0 30px rgba(var(--color-rep-countdown-rgb), 0.5);
 }
 
 #rep-counter-modal .rep-number-go {
-	color: #10b981;
-	text-shadow: 0 0 40px rgba(16, 185, 129, 0.7);
+	color: var(--color-rep-go);
+	text-shadow: 0 0 40px rgba(var(--color-rep-go-rgb), 0.7);
 }
 
 /* Debug Mode Toggle - Hide in standalone (web app) mode */

@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.0.0] - 2026-01-08
+
+### Added
+
+- **"Today" Button in Week Navigation**: Quick jump back to current week
+  - Appears only when viewing past or future weeks (currentWeekOffset !== 0)
+  - Positioned on right side of week navigation bar
+  - Home icon (🏠) for easy recognition
+  - Smooth transition back to current week
+  - Week display remains centered with flex layout
+  - Mobile-optimized with proper touch target size (44x44px)
+- **Sick/Recovery Completion Modal**: Subdued celebration for rest days
+  - Separate modals for recovery (🩹) and sick days (💊)
+  - Different visual style from normal completion:
+    - Softer gradient backgrounds (blue/purple for recovery, red/purple for sick)
+    - Calmer messaging acknowledging rest ("Gut gemacht!" vs "Training Complete!")
+    - Reduced confetti (75 particles and reduced spread)
+    - Shows current streak with context
+    - Recovery: "Streak pausiert - erholt dich gut!"
+    - Sick with shield: "Schild verwendet - Streak geschützt!"
+    - Sick without shield: "Kein Schild - Streak unterbrochen!"
+  - Quick dismiss buttons with appropriate styling
+  - Automatically detects day type and shows appropriate modal
+  - Modified `checkDayCompletion()` to be async and detect recovery/sick days
+  - Filters disabled exercises when counting completion (recovery/sick mode compatibility)
+- **Schedule Editor: Rep Counter Support**: Added JSON input field for rep counter configuration
+  - Same simple approach as timer configuration
+  - JSON format: `{"sets": 3, "reps": 12, "restSeconds": 60, "delayMilliseconds": 3000}`
+  - Makes it easy to add/edit rep counter for exercises
+  - Validates JSON on save
+
+### Changed
+
+- **Confetti z-index**: All confetti effects now use `zIndex: 50` to appear behind modals (z-index 100)
+  - Prevents visual conflict when completing last exercise of the day
+  - Confetti continues falling in background behind completion modal
+  - Applies to miniConfetti (checkbox), superConfetti (day completion), and subduedConfetti (recovery/sick)
+- **CSS Color System Refactoring**: Extracted all colors to CSS custom properties
+  - Added `:root` variables for all colors (22 total: 20 unique + 2 semantic aliases)
+  - Implemented RGB variables for `rgba()` support using `--color-name-rgb` pattern
+  - Technique from StackOverflow (CC BY-SA 4.0): https://stackoverflow.com/a/41265350
+  - Semantic aliases using `var()`: `--color-rep-tension-1: var(--color-danger)`
+  - Merged duplicate: `--color-bg-modal` → `--color-bg-secondary` (cards + modals)
+  - All `rgba()` now use CSS variables with alpha channel
+  - Zero hardcoded colors remaining in CSS
+  - No visual changes - internal refactoring only
+  - Improved maintainability and theming support
+  - Ready for v14.4 two-layer circle animation colors
+
+### Fixed
+
+- **PR workflows no longer trigger on description edits**: Removed `edited` event from workflow triggers
+  - PR Validation and PR Requirements workflows now only run on code changes (`opened`, `synchronize`, `reopened`)
+  - Ticking checkboxes in PR template no longer triggers workflows
+  - Eliminates unnecessary workflow runs and skipped check confusion
+  - Workflows run once on PR creation and again only when code is pushed
+  - Smart polling logic remains for proper validation timing (polls every 10s, max 5min)
+
 ## [13.0.0] - 2026-01-05
 
 **Complete architectural refactoring with 6 phases and 13 modules.**  

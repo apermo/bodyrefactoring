@@ -154,27 +154,42 @@ Use these sections in order (omit empty sections):
 - **Security**: Vulnerability fixes
 
 ### Important: What NOT to List as "Fixed"
-- **Do NOT list bugs introduced during refactoring/development in the same version**
-  - Example: If refactoring breaks something and you fix it in same PR, don't list it
-  - Reason: These are implementation details, not user-facing bug fixes
-  - Instead: Note fixes within the feature description (e.g., "resolved race condition during implementation")
-- **Only list in "Fixed"**:
-  - Bugs that existed in previous released versions
+- **CRITICAL RULE: Do NOT list bugs introduced during development of the same version**
+  - If you introduce a bug while implementing a feature and fix it in the same version, do NOT list it in "Fixed"
+  - Reason: These are implementation details, not user-facing bug fixes from previous releases
+  - The user never experienced the bug, so it's not a "fix" from their perspective
+  - Instead: Note implementation challenges within the feature description if relevant
+  - Example phrases: "resolved during implementation", "fixed edge case during development"
+- **Only list in "Fixed" section**:
+  - Bugs that existed in previous **released** versions (merged to main)
   - User-facing issues that affected production
   - Regressions from earlier releases
+  - Issues reported by users or found in released code
+- **Decision rule**: Ask yourself: "Did the user experience this bug in a released version?"
+  - If YES → "Fixed" section
+  - If NO (introduced during current development) → Part of feature description or omit entirely
 - **Example of what NOT to do**:
   ```markdown
+  ### Added
+  - New feature X with great functionality
+
   ### Fixed
-  - State machine initialization bug (introduced during refactoring)
-  - Double speech announcement (broke during module integration)
+  - Modal not appearing after completing feature X (introduced during v14.0.0 development)
+  - Async function not awaiting properly (broke during implementation)
   ```
 - **Example of what TO do**:
   ```markdown
   ### Added
-  - Core Architecture - Phase 3: Module integration (COMPLETE)
-    - TimerCoordinator implementation
-    - Resolved race condition in voice loading during implementation
-    - Fixed state machine flow during integration
+  - **New Feature X**: Great functionality with modal
+    - Modal appears after completion
+    - Properly handles async operations
+    - Resolved edge cases during implementation
+  ```
+  OR simply:
+  ```markdown
+  ### Added
+  - **New Feature X**: Great functionality with modal
+    (Don't mention implementation bugs that were fixed before release)
   ```
 
 ### Update Process
@@ -368,8 +383,87 @@ bodyrefactoring/
   - CHANGELOG.md for all code changes (already covered in existing rules)
   - Architecture documentation for structural changes
   - docs/ folder markdown files for feature documentation
+  - docs/roadmap.md for planned features and versions
 - Use a clear format: `📝 Documentation Reminder: [what needs documenting]`
 - Remind even if documentation wasn't part of the original request
+
+### Roadmap.md Footer Format
+When updating `docs/roadmap.md`, always maintain the footer with current version information:
+```markdown
+---
+
+**Last Updated**: YYYY-MM-DD (use ISO 8601 date format)
+**Current Stable Release**: vX.Y.Z (latest merged/released version)
+**Development Cycle**: vN (major version currently in development)
+```
+
+**Example:**
+```markdown
+**Last Updated**: January 8, 2026
+**Current Stable Release**: v13.0.0
+**Development Cycle**: v14
+```
+
+**Guidelines:**
+- "Current Stable Release" = Latest version merged to main branch
+- "Development Cycle" = Major version number only (v14, not v14.0.0)
+- Update "Last Updated" whenever roadmap.md is modified
+- Update "Development Cycle" when starting work on new major version
+- Update "Current Stable Release" after merging to main
+
+### Roadmap.md Progress Tracking
+Mark features with status indicators to track development progress:
+
+**Status Indicators:**
+- ✅ - Complete (entire section/item finished)
+- 🚧 - In Progress (currently working on)
+- 🔄 - Partially Complete (some sub-items done, others pending)
+- (no emoji) - Planned (not started yet)
+
+**Rules:**
+1. **Add ✅ to completed section headlines** when entire section is done
+   - Example: `#### ✅ Navigation Improvements`
+2. **Add 🚧 to sections currently being worked on**
+   - Example: `#### 🚧 Sick/Recovery Completion Modal`
+3. **Add 🔄 to sections with mixed completion** (some items done, some not)
+   - Example: `#### 🔄 Rep Counter Enhancements`
+4. **Add ✅ to completed sub-items** within incomplete sections
+   - Example: `- ✅ Add "Today" button to week navigation component`
+5. **Add 🚧 to sub-items in active development**
+   - Example: `- 🚧 Create sick/recovery completion modal component`
+6. **Keep planned items without indicators** (clean, no emoji)
+   - Example: `- Create quick access panel for cooldown`
+7. **Never remove sections during development** - only after release merge
+8. **Move skipped features** to next version or backlog before release
+
+**Example:**
+```markdown
+#### ✅ Navigation Improvements
+- **"Today" Button in Week Navigation**
+  - Fully implemented and tested
+
+#### 🚧 Sick/Recovery Completion Modal
+- **Subdued Completion Celebration**
+  - Currently in development
+
+#### 🔄 Rep Counter Enhancements
+- ✅ Navigation improvements (done)
+- 🚧 Sick/recovery modal (in progress)
+- Rep cooldown improvements (planned)
+
+**Technical Implementation:**
+- ✅ Add "Today" button to week navigation component
+- ✅ Update week navigation layout
+- 🚧 Create sick/recovery completion modal component
+- Implement SVG circle animation (planned)
+```
+
+**Benefits:**
+- ✅ Visual progress tracking
+- ✅ Minimal line changes (prevents merge conflicts)
+- ✅ Clear distinction between complete/incomplete work
+- ✅ Preserves context (features stay visible until release)
+- ✅ Easy to cherry-pick commits
 
 ### Code Quality Principles
 - **SOLID Principles**: Follow all five principles in design and implementation
@@ -402,6 +496,15 @@ bodyrefactoring/
 - Only provide technical details if explicitly requested by the user
 - Focus on executing the task efficiently
 - **Always communicate in English**, even if user writes in German
+
+### CHANGELOG Rules Reminder
+- **NEVER add bugs to "Fixed" section if they were introduced in the current version**
+- Implementation bugs fixed during development are NOT user-facing fixes
+- Only list bugs from **previous released versions** in "Fixed" section
+- When implementing a feature, if you introduce and fix bugs during development, either:
+  1. Mention resolved challenges in feature description (optional)
+  2. Don't mention them at all (preferred)
+- **Rule of thumb**: If the user never experienced it in production, it's not a "fix"
 
 ### Git Workflow
 - **Do NOT perform git commands** (add, commit, push) unless:

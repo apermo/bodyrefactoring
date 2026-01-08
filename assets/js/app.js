@@ -298,6 +298,7 @@ async function renderSchedule() {
 
 	// Nav Logic
 	const btnPrev = document.getElementById('btn-prev');
+	const btnToday = document.getElementById('btn-today');
 	const weekDisplay = document.getElementById('week-display');
 
 	// Allow going back only if Monday is >= Global Start Date
@@ -307,12 +308,17 @@ async function renderSchedule() {
 
 	btnPrev.disabled = mondayDate <= startDateClean;
 
+	// Show "Today" button only when not on current week
 	if (currentWeekOffset === 0) {
 		weekDisplay.innerText = 'Aktuelle Woche';
-	} else if (currentWeekOffset > 0) {
-		weekDisplay.innerText = `+${currentWeekOffset} Wochen`;
+		btnToday.classList.add('hidden');
 	} else {
-		weekDisplay.innerText = `${currentWeekOffset} Wochen`;
+		btnToday.classList.remove('hidden');
+		if (currentWeekOffset > 0) {
+			weekDisplay.innerText = `+${currentWeekOffset} Wochen`;
+		} else {
+			weekDisplay.innerText = `${currentWeekOffset} Wochen`;
+		}
 	}
 
 	let activeElementId = null;
@@ -656,6 +662,19 @@ function changeWeek(direction) {
 }
 
 /**
+ * Jump back to the current week (today).
+ *
+ * Resets week offset to 0 and re-renders the schedule.
+ * Includes smooth scroll to today's card after render completes.
+ *
+ * @return {void}
+ */
+function goToToday() {
+	currentWeekOffset = 0;
+	renderSchedule();
+}
+
+/**
  * Toggle the accordion state of a day card.
  *
  * @param {string} dateId - ISO date string identifying the day.
@@ -679,12 +698,13 @@ function toggleAccordion(dateId) {
  * Handles checking/unchecking exercises, with confirmation for unchecking past days.
  * Updates localStorage, triggers confetti on completion, and recalculates streak.
  *
+ * @async
  * @param {HTMLElement} row - The exercise row element.
  * @param {string} storageKey - LocalStorage key for this exercise.
  * @param {string} dateId - ISO date string of the day.
- * @return {void}
+ * @return {Promise<void>}
  */
-function toggleCheck(row, storageKey, dateId) {
+async function toggleCheck(row, storageKey, dateId) {
 	const isCurrentlyCompleted = row.classList.contains('completed');
 
 	// Check if this is from yesterday or before
@@ -703,41 +723,95 @@ function toggleCheck(row, storageKey, dateId) {
 	}
 
 	row.classList.toggle('completed');
+
 	if (row.classList.contains('completed')) {
 		// Extract date and exercise ID from storage key
-		// Key format: "br_YYYY-MM-DD_exerciseId" or "recovery_YYYY-MM-DD_activityId" or "sick_YYYY-MM-DD_hydration"
-		const parts = storageKey.split('_');
-		const prefix = parts[0];
-		const date = parts[1];
-		const id = parts.slice(2).join('_');
+		// Key formats:
+		// - Normal: "body_refactoring_YYYY-MM-DD_exerciseId"
+		// - Recovery: "body_refactoring_recovery_YYYY-MM-DD_activityId"
+		// - Sick: "body_refactoring_sick_YYYY-MM-DD_hydration"
+
+		// Determine prefix type
+		let prefix, date, id;
+		if (storageKey.startsWith('body_refactoring_recovery_')) {
+			prefix = 'recovery';
+			// Remove "body_refactoring_recovery_" prefix
+			const remainder = storageKey.substring('body_refactoring_recovery_'.length);
+			const parts = remainder.split('_');
+			date = parts[0]; // YYYY-MM-DD
+			id = parts.slice(1).join('_'); // activity id
+		} else if (storageKey.startsWith('body_refactoring_sick_')) {
+			prefix = 'sick';
+			// Remove "body_refactoring_sick_" prefix
+			const remainder = storageKey.substring('body_refactoring_sick_'.length);
+			const parts = remainder.split('_');
+			date = parts[0];
+			id = parts.slice(1).join('_');
+		} else if (storageKey.startsWith('body_refactoring_')) {
+			prefix = 'br';
+			// Remove "body_refactoring_" prefix
+			const remainder = storageKey.substring('body_refactoring_'.length);
+			const parts = remainder.split('_');
+			date = parts[0];
+			id = parts.slice(1).join('_');
+		} else {
+			// Fallback for unknown format
+			const parts = storageKey.split('_');
+			prefix = parts[0];
+			date = parts[1];
+			id = parts.slice(2).join('_');
+		}
 
 		if (prefix === 'br') {
 			domainStorage.setExerciseComplete(date, id);
-		} else if (prefix === 'recovery' && parts.length > 3) {
-			// Recovery activity: recovery_YYYY-MM-DD_activityId
+		} else if (prefix === 'recovery') {
 			domainStorage.setRecoveryActivityComplete(date, id);
+		} else if (prefix === 'sick') {
+			storage.set(storageKey, 'true');
 		} else {
-			// Fallback to generic storage for other cases (sick day hydration, etc.)
+			// Fallback to generic storage
 			storage.set(storageKey, 'true');
 		}
 		miniConfetti(row.querySelector('.check-circle'));
 	} else {
-		// Extract date and ID to use domain methods
-		const parts = storageKey.split('_');
-		const prefix = parts[0];
-		const date = parts[1];
-		const id = parts.slice(2).join('_');
+		// Extract date and ID for unchecking
+		let prefix, date, id;
+		if (storageKey.startsWith('body_refactoring_recovery_')) {
+			prefix = 'recovery';
+			const remainder = storageKey.substring('body_refactoring_recovery_'.length);
+			const parts = remainder.split('_');
+			date = parts[0];
+			id = parts.slice(1).join('_');
+		} else if (storageKey.startsWith('body_refactoring_sick_')) {
+			prefix = 'sick';
+			const remainder = storageKey.substring('body_refactoring_sick_'.length);
+			const parts = remainder.split('_');
+			date = parts[0];
+			id = parts.slice(1).join('_');
+		} else if (storageKey.startsWith('body_refactoring_')) {
+			prefix = 'br';
+			const remainder = storageKey.substring('body_refactoring_'.length);
+			const parts = remainder.split('_');
+			date = parts[0];
+			id = parts.slice(1).join('_');
+		} else {
+			const parts = storageKey.split('_');
+			prefix = parts[0];
+			date = parts[1];
+			id = parts.slice(2).join('_');
+		}
 
 		if (prefix === 'br') {
 			domainStorage.setExerciseIncomplete(date, id);
-		} else if (prefix === 'recovery' && parts.length > 3) {
+		} else if (prefix === 'recovery') {
 			domainStorage.removeRecoveryActivity(date, id);
 		} else {
 			storage.remove(storageKey);
 		}
 	}
-	checkDayCompletion(dateId);
-	calculateStreak();
+
+	await checkDayCompletion(dateId);
+	await calculateStreak();
 }
 
 /**
@@ -814,24 +888,52 @@ function handleWeightBlur(exId, dateIso, input) {
 /**
  * Check if a day is fully completed and update UI accordingly.
  *
- * Counts completed exercises and shows completion popup if all are done.
+ * Detects normal, recovery, or sick day completion and displays
+ * the appropriate celebration modal. Counts completed exercises
+ * and shows completion popup if all are done.
  *
+ * @async
  * @param {string} dateId - ISO date string of the day.
- * @return {void}
+ * @return {Promise<void>}
  */
-function checkDayCompletion(dateId) {
+async function checkDayCompletion(dateId) {
 	const container = document.getElementById(`details-${dateId}`);
 	const card = document.getElementById(`card-${dateId}`);
 	const badge = document.getElementById(`badge-${dateId}`);
 
-	const total = container.querySelectorAll('.exercise-row').length;
-	const done = container.querySelectorAll('.exercise-row.completed').length;
+	// Only count exercise rows that are not disabled (opacity-30 class is used for disabled exercises)
+	const allRows = container.querySelectorAll('.exercise-row');
+	const activeRows = Array.from(allRows).filter(row => !row.classList.contains('opacity-30'));
+	const total = activeRows.length;
+	const done = activeRows.filter(row => row.classList.contains('completed')).length;
 
 	if (total > 0 && total === done) {
 		if (!card.classList.contains('day-complete')) {
 			card.classList.add('day-complete');
 			badge.style.display = 'inline-block';
-			showCompletionPopup();
+
+			// Determine which type of day was completed
+			const isRecovery = domainStorage.isRecoveryDay(dateId);
+			const isSick = domainStorage.isSickDay(dateId);
+
+			if (isRecovery || isSick) {
+				// Wait for streak to be calculated
+				await calculateStreak();
+
+				// Get current streak
+				const streakText = document.getElementById('streak-count').innerText;
+				const streak = parseInt(streakText) || 0;
+
+				if (isSick) {
+					const usedShield = domainStorage.wasSickDayShieldUsed(dateId);
+					showSickModal(streak, usedShield);
+				} else {
+					showRecoveryModal(streak);
+				}
+			} else {
+				// Normal day - show regular completion
+				showCompletionPopup();
+			}
 		}
 	} else {
 		card.classList.remove('day-complete');
@@ -976,12 +1078,94 @@ function showCompletionPopup() {
 }
 
 /**
+ * Show recovery completion modal.
+ *
+ * Displays subdued celebration for recovery day completion.
+ * Uses minimal confetti and calmer messaging.
+ *
+ * @param {number} streak - Current streak count.
+ * @return {void}
+ */
+function showRecoveryModal(streak) {
+	const modal = document.getElementById('recovery-modal');
+	const streakEl = document.getElementById('modal-recovery-streak');
+	streakEl.innerText = `${streak} Tage`;
+	modal.classList.add('open');
+	subduedConfetti();
+}
+
+/**
+ * Show sick day completion modal.
+ *
+ * Displays subdued celebration for sick day completion.
+ * Shows shield status and uses minimal confetti.
+ *
+ * @param {number} streak - Current streak count.
+ * @param {boolean} usedShield - Whether shield was used.
+ * @return {void}
+ */
+function showSickModal(streak, usedShield) {
+	const modal = document.getElementById('sick-modal');
+	const streakEl = document.getElementById('modal-sick-streak');
+	const shieldStatus = document.getElementById('sick-shield-status');
+
+	streakEl.innerText = `${streak} Tage`;
+
+	if (usedShield) {
+		shieldStatus.innerText = 'Schild verwendet - Streak geschützt!';
+	} else {
+		shieldStatus.innerText = 'Kein Schild - Streak unterbrochen!';
+	}
+
+	modal.classList.add('open');
+	subduedConfetti();
+}
+
+/**
+ * Subdued confetti effect for recovery/sick day completion.
+ *
+ * Reduced confetti with lesser particle count than normal celebration.
+ * Calmer celebration appropriate for rest days.
+ *
+ * @return {void}
+ */
+function subduedConfetti() {
+	if (typeof confetti !== 'undefined') {
+		confetti({
+			particleCount: 75,
+			spread: 40,
+			origin: { y: 0.6 },
+			colors: ['#3b82f6', '#8b5cf6', '#6366f1'],
+			zIndex: 50
+		});
+	}
+}
+
+/**
  * Close the completion modal.
  *
  * @return {void}
  */
 function closeModal() {
 	document.getElementById('completion-modal').classList.remove('open');
+}
+
+/**
+ * Close the recovery modal.
+ *
+ * @return {void}
+ */
+function closeRecoveryModal() {
+	document.getElementById('recovery-modal').classList.remove('open');
+}
+
+/**
+ * Close the sick modal.
+ *
+ * @return {void}
+ */
+function closeSickModal() {
+	document.getElementById('sick-modal').classList.remove('open');
 }
 
 /**
@@ -1856,7 +2040,8 @@ function miniConfetti(element) {
 		ticks: 50,
 		gravity: 1.2,
 		scalar: 0.6,
-		startVelocity: 20
+		startVelocity: 20,
+		zIndex: 50
 	});
 }
 
@@ -1875,14 +2060,16 @@ function superConfetti() {
 			angle: 60,
 			spread: 55,
 			origin: {x: 0},
-			colors: ['#38bdf8', '#f472b6', '#22c55e']
+			colors: ['#38bdf8', '#f472b6', '#22c55e'],
+			zIndex: 50
 		});
 		confetti({
 			particleCount: 3,
 			angle: 120,
 			spread: 55,
 			origin: {x: 1},
-			colors: ['#38bdf8', '#f472b6', '#22c55e']
+			colors: ['#38bdf8', '#f472b6', '#22c55e'],
+			zIndex: 50
 		});
 		if (Date.now() < end) {
 			requestAnimationFrame(frame);
@@ -2135,6 +2322,8 @@ window.closeIntroModal = function() {
 window.toggleCheck = toggleCheck;
 window.closeMenuOutside = closeMenuOutside;
 window.closeModal = closeModal;
+window.closeRecoveryModal = closeRecoveryModal;
+window.closeSickModal = closeSickModal;
 window.toggleMenu = toggleMenu;
 window.showSickModeModal = showSickModeModal;
 window.exportData = exportData;
@@ -2143,6 +2332,7 @@ window.forceUpdate = forceUpdate;
 window.toggleDebugMode = toggleDebugMode;
 window.updateDebugToggleButton = updateDebugToggleButton;
 window.changeWeek = changeWeek;
+window.goToToday = goToToday;
 window.toggleTimer = toggleTimer;
 window.activateRecoveryMode = activateRecoveryMode;
 window.useSickShield = useSickShield;
