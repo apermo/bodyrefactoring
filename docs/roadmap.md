@@ -1359,6 +1359,219 @@ All features optimized for iPhone/PWA:
 
 This section is now empty but reserved for future refactoring tasks that arise during development.
 
+---
+
+## 🚀 Backlog - Infrastructure & DevOps
+
+### PR Preview Environments
+
+**Goal:** Automatic test environment for each pull request to review changes before merging.
+
+**Requirements:**
+- Isolated environment per PR
+- Automatic deployment on PR creation/update
+- Accessible via unique URL
+- Auto-cleanup when PR is closed/merged
+- No database dependencies (static site with localStorage)
+
+---
+
+#### Option 1: GitHub Pages (PR Preview Branches) ⭐ **Recommended**
+
+**How it works:**
+1. GitHub Action triggered on PR open/update
+2. Builds static site (PHP → HTML conversion if needed)
+3. Deploys to `gh-pages` branch in subdirectory: `/pr-{number}/`
+4. Accessible via: `https://apermo.github.io/bodyrefactoring/pr-123/`
+5. Auto-cleanup action removes directory when PR closes
+
+**Pros:**
+- ✅ Free (GitHub Pages)
+- ✅ No external services needed
+- ✅ Works with your stack (static HTML/CSS/JS)
+- ✅ GitHub integration built-in
+- ✅ HTTPS by default
+- ✅ Fast deployment (~30-60s)
+
+**Cons:**
+- ⚠️ PHP needs pre-rendering or removal
+- ⚠️ Public repository required (or GitHub Pro for private)
+- ⚠️ All previews share same domain
+
+**Implementation effort:** 1-2 days
+- GitHub Action workflow for build & deploy
+- PHP to static HTML conversion (or remove PHP)
+- Cleanup workflow for closed PRs
+- Comment bot to post preview URL
+
+**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
+- HTML/CSS/JS work perfectly
+- LocalStorage works (same domain per PR path)
+- Service Workers for PWA might need adjustment
+
+---
+
+#### Option 2: Netlify Deploy Previews ⭐⭐ **Easiest Setup**
+
+**How it works:**
+1. Connect GitHub repository to Netlify
+2. Netlify automatically builds & deploys PR previews
+3. Each PR gets unique subdomain: `deploy-preview-123--bodyrefactoring.netlify.app`
+4. Auto-cleanup on PR close
+
+**Pros:**
+- ✅ Zero configuration needed
+- ✅ Automatic HTTPS
+- ✅ Fast global CDN
+- ✅ Unique domain per PR
+- ✅ Built-in CI/CD
+- ✅ Free tier (100GB bandwidth/month)
+- ✅ Handles PHP via build step
+
+**Cons:**
+- ⚠️ External service dependency
+- ⚠️ Free tier limits (sufficient for personal use)
+- ⚠️ Different domain than production (localStorage won't carry over)
+
+**Implementation effort:** 1-2 hours
+- Connect GitHub repo to Netlify
+- Add `netlify.toml` config
+- Optional: Custom build script for PHP
+
+**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
+- Fully supports static sites
+- LocalStorage works per preview domain
+- PWA works out of the box
+
+---
+
+#### Option 3: Vercel Preview Deployments
+
+**How it works:**
+- Similar to Netlify
+- Automatic preview deployments per PR
+- Unique URL: `bodyrefactoring-git-{branch}-apermo.vercel.app`
+
+**Pros:**
+- ✅ Zero configuration
+- ✅ Excellent performance
+- ✅ Free tier generous
+- ✅ Good GitHub integration
+
+**Cons:**
+- ⚠️ External service
+- ⚠️ Different domain per preview
+
+**Implementation effort:** 1-2 hours
+**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
+
+---
+
+#### Option 4: Cloudflare Pages
+
+**How it works:**
+- Connect GitHub repo
+- Automatic builds on PR
+- Preview URLs: `{pr-id}.bodyrefactoring.pages.dev`
+
+**Pros:**
+- ✅ Fast global CDN
+- ✅ Free tier unlimited
+- ✅ Excellent performance
+
+**Cons:**
+- ⚠️ External service
+- ⚠️ Different domain
+
+**Implementation effort:** 1-2 hours
+**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
+
+---
+
+#### Option 5: Self-Hosted on Plesk (Subdomain per PR)
+
+**How it works:**
+1. GitHub Action on PR open/update
+2. Deploy to Plesk via SSH/FTP to subdomain: `pr-123.prv.chrdm.de`
+3. Plesk API to create/delete subdomains automatically
+4. Cleanup action on PR close
+
+**Pros:**
+- ✅ Full control
+- ✅ Same infrastructure as production
+- ✅ No external services
+- ✅ PHP works natively
+
+**Cons:**
+- ⚠️ Complex setup (Plesk API, subdomain automation)
+- ⚠️ SSL certificate management per subdomain
+- ⚠️ Resource usage on your server
+- ⚠️ Slower than CDN options
+
+**Implementation effort:** 3-4 days
+- Plesk API integration
+- Subdomain automation
+- SSL certificate automation (Let's Encrypt)
+- GitHub Action for deployment
+
+**Tech stack compatibility:** ⭐⭐⭐⭐ Good
+- Perfect PHP compatibility
+- Same environment as production
+- More complex automation
+
+---
+
+### Recommended Approach: **Netlify Deploy Previews**
+
+**Why:**
+1. **Fastest to implement** - 1-2 hours vs days
+2. **Zero maintenance** - Netlify handles everything
+3. **Free** - More than sufficient for personal use
+4. **Professional** - Same tool used by major projects
+5. **Automatic** - Works immediately on PR creation
+6. **Comments** - Posts preview URL to PR automatically
+
+**Implementation Steps:**
+1. Sign up for Netlify (free)
+2. Connect GitHub repository
+3. Add `netlify.toml` config:
+   ```toml
+   [build]
+     publish = "."
+     command = "echo 'Static site, no build needed'"
+   
+   [[redirects]]
+     from = "/*"
+     to = "/index.php"
+     status = 200
+   ```
+4. Done! Previews work automatically
+
+**Alternative if you want GitHub-only:** GitHub Pages (Option 1)
+- More control, no external service
+- Requires more setup (1-2 days)
+- All previews on same domain
+
+---
+
+### Future Enhancements (After Preview Environments)
+
+**Once preview environments work:**
+- Visual regression testing (compare screenshots)
+- Automated lighthouse scores per PR
+- Performance benchmarks
+- Accessibility audits
+- Security scanning
+
+---
+
+**Estimated Priority:** Medium  
+**Estimated Effort:** 1-2 hours (Netlify) or 1-2 days (GitHub Pages)  
+**Dependencies:** None  
+**Benefits:** Easier PR reviews, catch issues before merge, test on real environment
+
+---
+
 ### Decision Guidelines for Future Backlog Items
 
 **When to schedule a refactoring:**
