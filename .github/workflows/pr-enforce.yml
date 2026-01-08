@@ -1,61 +1,86 @@
 name: Enforce PR Requirements
 
 on:
-  workflow_run:
-    workflows: ["PR Validation"]
-    types:
-      - completed
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
 
 permissions:
   contents: read
   statuses: write
   checks: write
-  pull-requests: read
 
 jobs:
   enforce-requirements:
     name: Enforce PR Requirements
     runs-on: ubuntu-latest
-    # Only run if PR Validation completed (success or failure)
-    if: github.event.workflow_run.event == 'pull_request'
     steps:
-      - name: Get PR number
-        id: pr
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const pulls = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: `${context.repo.owner}:${context.payload.workflow_run.head_branch}`,
-              state: 'open'
-            });
-
-            if (pulls.data.length === 0) {
-              console.log('No open PR found for this branch');
-              return null;
-            }
-
-            const pr = pulls.data[0];
-            console.log(`Found PR #${pr.number}`);
-            return pr.number;
-
       - name: Set initial status
-        if: steps.pr.outputs.result != 'null'
         uses: actions/github-script@v7
         with:
           script: |
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: context.payload.workflow_run.head_sha,
+              sha: context.payload.pull_request.head.sha,
               state: 'pending',
               context: 'PR Requirements',
-              description: 'Checking validation results...'
+              description: 'Waiting for validation checks...'
             });
 
+      - name: Wait for validation checks to complete
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const requiredChecks = ['Check Version Bump', 'Check CHANGELOG Entry', 'Validate Training Schedules'];
+            const maxWaitTime = 5 * 60 * 1000; // 5 minutes
+            const pollInterval = 10 * 1000; // 10 seconds
+            const startTime = Date.now();
+
+            console.log('Waiting for validation checks to complete...');
+            console.log('Required checks:', requiredChecks);
+
+            while (Date.now() - startTime < maxWaitTime) {
+              // Get all check runs for this commit
+              const { data: checkRuns } = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: context.payload.pull_request.head.sha
+              });
+
+              // Find our validation checks
+              const versionCheck = checkRuns.check_runs.find(cr => cr.name === 'Check Version Bump');
+              const changelogCheck = checkRuns.check_runs.find(cr => cr.name === 'Check CHANGELOG Entry');
+              const scheduleCheck = checkRuns.check_runs.find(cr => cr.name === 'Validate Training Schedules');
+
+              // Check if all required checks are completed (not just started)
+              const allChecksCompleted = [versionCheck, changelogCheck, scheduleCheck].every(check => {
+                return check && check.status === 'completed';
+              });
+
+              if (allChecksCompleted) {
+                console.log('All validation checks completed!');
+                break;
+              }
+
+              // Log current status
+              console.log(`Waiting... (${Math.round((Date.now() - startTime) / 1000)}s elapsed)`);
+              console.log('Status:', {
+                version: versionCheck ? `${versionCheck.status}/${versionCheck.conclusion}` : 'not found',
+                changelog: changelogCheck ? `${changelogCheck.status}/${changelogCheck.conclusion}` : 'not found',
+                schedule: scheduleCheck ? `${scheduleCheck.status}/${scheduleCheck.conclusion}` : 'not found'
+              });
+
+              // Wait before next poll
+              await new Promise(resolve => setTimeout(resolve, pollInterval));
+            }
+
+            if (Date.now() - startTime >= maxWaitTime) {
+              console.log('⚠️ Timeout waiting for validation checks');
+            }
+
       - name: Check validation results
-        if: steps.pr.outputs.result != 'null'
         id: check-results
         uses: actions/github-script@v7
         with:
@@ -64,7 +89,7 @@ jobs:
             const { data: checkRuns } = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: context.payload.workflow_run.head_sha
+              ref: context.payload.pull_request.head.sha
             });
 
             console.log('Check runs:', JSON.stringify(checkRuns.check_runs.map(cr => ({
@@ -85,56 +110,64 @@ jobs:
             if (versionCheck && versionCheck.conclusion === 'failure') {
               allPassed = false;
               failedChecks.push('Version bump');
-            } else if (!versionCheck || versionCheck.conclusion === 'skipped') {
-              console.log('Version check skipped or not found - treating as pass');
+            } else if (!versionCheck) {
+              console.log('⚠️ Version check not found - treating as pass');
+            } else if (versionCheck.conclusion === 'skipped') {
+              console.log('Version check skipped - treating as pass');
             }
 
             // CHANGELOG check: must exist and be successful (or skipped)
             if (changelogCheck && changelogCheck.conclusion === 'failure') {
               allPassed = false;
               failedChecks.push('CHANGELOG entry');
-            } else if (!changelogCheck || changelogCheck.conclusion === 'skipped') {
-              console.log('CHANGELOG check skipped or not found - treating as pass');
+            } else if (!changelogCheck) {
+              console.log('⚠️ CHANGELOG check not found - treating as pass');
+            } else if (changelogCheck.conclusion === 'skipped') {
+              console.log('CHANGELOG check skipped - treating as pass');
             }
 
             // Schedule check: must not fail (success or skipped is ok)
             if (scheduleCheck && scheduleCheck.conclusion === 'failure') {
               allPassed = false;
               failedChecks.push('Schedule validation');
-            } else if (!scheduleCheck || scheduleCheck.conclusion === 'skipped') {
-              console.log('Schedule check skipped or not found - treating as pass');
+            } else if (!scheduleCheck) {
+              console.log('⚠️ Schedule check not found - treating as pass');
+            } else if (scheduleCheck.conclusion === 'skipped') {
+              console.log('Schedule check skipped - treating as pass');
             }
 
-            return { allPassed, failedChecks: failedChecks.join(', ') || 'none' };
+            // Set outputs for use in subsequent steps
+            core.setOutput('all_passed', allPassed);
+            core.setOutput('failed_checks', failedChecks.join(', ') || 'none');
 
       - name: Update status (success)
-        if: steps.pr.outputs.result != 'null' && fromJSON(steps.check-results.outputs.result).allPassed
+        if: steps.check-results.outputs.all_passed == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: context.payload.workflow_run.head_sha,
+              sha: context.payload.pull_request.head.sha,
               state: 'success',
               context: 'PR Requirements',
               description: '✅ All requirements met'
             });
 
       - name: Update status (failure)
-        if: steps.pr.outputs.result != 'null' && !fromJSON(steps.check-results.outputs.result).allPassed
+        if: steps.check-results.outputs.all_passed != 'true'
         uses: actions/github-script@v7
         with:
           script: |
-            const result = ${{ steps.check-results.outputs.result }};
+            const failedChecks = '${{ steps.check-results.outputs.failed_checks }}';
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: context.payload.workflow_run.head_sha,
+              sha: context.payload.pull_request.head.sha,
               state: 'failure',
               context: 'PR Requirements',
-              description: `❌ Failed: ${result.failedChecks}`
+              description: `❌ Failed: ${failedChecks}`
             });
 
-            core.setFailed(`PR requirements not met: ${result.failedChecks}`);
+            core.setFailed(`PR requirements not met: ${failedChecks}`);
 

@@ -56,11 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **PR enforce workflow race condition**: Changed trigger from `pull_request` to `workflow_run` to wait for PR Validation to complete
-  - Eliminates race condition where enforce job runs before validation jobs finish
-  - No more false failures on PR creation
-  - PR description edits no longer trigger unnecessary workflow runs
-  - Proper sequential execution: PR Validation → PR Requirements Enforcement
+- **PR enforce workflow timing**: Implemented smart polling to wait for validation checks to complete
+  - Polls validation check status every 10 seconds (max 5 minutes)
+  - Shows "Waiting for validation checks..." status while polling
+  - Eliminates race condition where enforce runs before validation completes
+  - Avoids workflow_run trigger delays (2-5 minutes)
+  - Immediate feedback on PR creation with proper waiting logic
+  - Logs check status during polling for transparency
 
 ## [13.0.0] - 2026-01-05
 
