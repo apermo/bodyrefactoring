@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.1.0] - 2026-01-08
+
+### Added
+
+- **Git Commit Message Template** (`.gitmessage`): Visual guide for proper commit formatting
+  - Character count markers at 50 and 72 characters
+  - Commit type reference and examples
+  - Subject line guidelines and best practices
+  - Automatically loaded when running `git commit`
+- **Tools Documentation** (`tools/README.md`): Complete commit message guidelines
+  - Detailed examples of good and bad commits
+  - Character counting tips for AI-generated messages
+  - Troubleshooting guide for rejected commits
+  - Strategies for shortening long messages
+  - Git hooks usage and setup instructions
+- **Netlify PR Preview Deployments**: Automatic preview environments for pull requests
+  - Every PR gets unique preview URL: `deploy-preview-{number}--bodyrefactoring.netlify.app`
+  - Build script (`build.php`) converts PHP to static HTML
+  - Netlify configuration (`netlify.toml`)
+  - Automatic deployment on PR creation/update
+  - Auto-cleanup when PR closes
+  - ~30-second build time
+  - Zero maintenance required
+  - Free tier (100GB bandwidth/month)
+
+### Changed
+
+- **`.cursorrules` enhanced**: Added strict commit message formatting guidelines for AI
+  - Explicit 50/72 character rules with examples
+  - Character counting instructions for AI-generated commits
+  - Common mistakes and how to avoid them
+  - Strategies for handling messages that exceed limits
+- **README.md**: Added Development section with commit standards
+  - Quick reference for commit message format
+  - Examples of good vs bad commits
+  - Links to detailed documentation
+  - AI-generated commit message guidelines
+
 ## [14.0.0] - 2026-01-08
 
 ### Added

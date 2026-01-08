@@ -101,41 +101,77 @@
   - Use when change is specific to a module, feature, or component
   - Omit for global changes or when scope isn't clear
 
-- **Subject Line Rules (50/72 rule)**:
-  - **50 characters recommended** for subject line
-  - **72 characters maximum** (hard limit, enforced by hooks)
-  - Keep it concise and descriptive
+- **Subject Line Rules (50/72 rule) - STRICTLY ENFORCED**:
+  - **CRITICAL: Maximum 50 characters for subject line** (including type, scope, and subject)
+  - **Hard limit: 72 characters** (enforced by git hooks, will reject commit)
+  - Count the ENTIRE first line: `type(scope): subject` as one string
+  - If with scope exceeds 50 chars, omit scope to fit within limit
   - Use imperative mood: "add" not "added"
+  - No period at end of subject line
+  - Be concise but descriptive
+
+- **Character Counting for AI**:
+  - When generating commit messages, COUNT CHARACTERS including type and scope
+  - Example: `feat(schedule): add validation` = 32 chars ✅
+  - Example: `feat(schedule-editor): add comprehensive validation support` = 62 chars ❌ TOO LONG
+  - If message is too long with scope, either:
+    1. Shorten subject: `feat(schedule): add validation support` (40 chars) ✅
+    2. Remove scope: `feat: add schedule validation support` (40 chars) ✅
+    3. Abbreviate: `feat(editor): add validation` (31 chars) ✅
 
 - **Body**:
   - Separate from subject with blank line
   - Wrap at **72 characters per line** (hard limit)
   - Explain what and why, not how
   - Reference issues/PRs when relevant
+  - Multiple lines are fine, each line max 72 chars
 
 - **Breaking Changes**:
   - Use `BREAKING CHANGE:` in commit body for major version bumps
   - Or add `!` after type: `feat(api)!: remove deprecated endpoint`
   - Clearly explain what breaks and migration path
 
-- **Examples**:
+- **Examples (Note Character Counts)**:
   ```
-  feat(intro): add welcome modal for first-time users
+  feat(intro): add welcome modal for first users
+  [48 chars - Good!]
 
-  fix(timer): resolve voice-over stuck after app switch
+  fix(timer): resolve voice-over after app switch
+  [47 chars - Good!]
 
   docs: update roadmap with v14-v16 features
+  [43 chars - Good!]
 
-  refactor(storage)!: migrate to domain storage service
+  refactor(storage)!: migrate to domain service
+  [49 chars - Good!]
 
-  BREAKING CHANGE: All localStorage calls must use DomainStorageService.
-  See migration guide in docs/v13-refactoring/
+  BREAKING CHANGE: All localStorage calls must use
+  DomainStorageService. See docs/v13-refactoring/
+  ```
+
+- **What NOT to do**:
+  ```
+  feat(schedule-editor): add comprehensive validation and error handling support
+  [78 chars - TOO LONG! Will be rejected by git hook]
+
+  fix(rep-counter-modal): resolve animation timing issue during cooldown phase
+  [80 chars - TOO LONG!]
   ```
 
 - **Git Hooks**:
   - Run `.githooks/setup.sh` to enable local commit validation
   - Hooks enforce format and length limits before commit
-  - Bypass only when necessary: `git commit --no-verify`
+  - **Bypass only when necessary**: `git commit --no-verify` (not recommended)
+  - Hook checks BOTH subject line length AND body line lengths
+
+### AI-Generated Commit Messages
+- **When using "Generate Commit Message" features**:
+  - ALWAYS verify character count before accepting
+  - If message is > 50 chars, manually shorten it
+  - Prioritize removing scope over shortening subject if needed
+  - Use abbreviations when appropriate: `auth` instead of `authentication`
+  - Subject line is more important than body - focus on concise subject
+- **Template to follow** (see `.gitmessage` file for full template):
 
 ## Changelog Management
 
