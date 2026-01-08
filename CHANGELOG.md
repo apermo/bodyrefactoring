@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.0.0] - 2026-01-08
+
+### Added
+
+- **"Today" Button in Week Navigation**: Quick jump back to current week
+  - Appears only when viewing past or future weeks (currentWeekOffset !== 0)
+  - Positioned on right side of week navigation bar
+  - Home icon (🏠) for easy recognition
+  - Smooth transition back to current week
+  - Week display remains centered with flex layout
+  - Mobile-optimized with proper touch target size (44x44px)
+
 ## [13.0.0] - 2026-01-05
 
 **Complete architectural refactoring with 6 phases and 13 modules.**  

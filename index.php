@@ -146,10 +146,13 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 		class="bg-slate-800/80 backdrop-blur-sm p-3 rounded-2xl border border-slate-700/50 flex justify-between items-center sticky top-2 z-30 shadow-lg mb-6">
 		<button onclick="changeWeek(-1)" id="btn-prev" class="nav-btn w-10 h-10"><i data-lucide="chevron-left"
 																					class="w-6 h-6"></i></button>
-		<div class="text-center">
+		<div class="text-center flex-1">
 			<div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">WOCHE</div>
 			<div id="week-display" class="font-bold text-white text-base">Aktuell</div>
 		</div>
+		<button onclick="goToToday()" id="btn-today" class="nav-btn w-10 h-10 hidden" title="Zurück zu heute">
+			<i data-lucide="home" class="w-5 h-5"></i>
+		</button>
 		<button onclick="changeWeek(1)" id="btn-next" class="nav-btn w-10 h-10"><i data-lucide="chevron-right"
 																				   class="w-6 h-6"></i></button>
 	</div>

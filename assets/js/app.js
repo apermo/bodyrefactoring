@@ -298,6 +298,7 @@ async function renderSchedule() {
 
 	// Nav Logic
 	const btnPrev = document.getElementById('btn-prev');
+	const btnToday = document.getElementById('btn-today');
 	const weekDisplay = document.getElementById('week-display');
 
 	// Allow going back only if Monday is >= Global Start Date
@@ -307,12 +308,17 @@ async function renderSchedule() {
 
 	btnPrev.disabled = mondayDate <= startDateClean;
 
+	// Show "Today" button only when not on current week
 	if (currentWeekOffset === 0) {
 		weekDisplay.innerText = 'Aktuelle Woche';
-	} else if (currentWeekOffset > 0) {
-		weekDisplay.innerText = `+${currentWeekOffset} Wochen`;
+		btnToday.classList.add('hidden');
 	} else {
-		weekDisplay.innerText = `${currentWeekOffset} Wochen`;
+		btnToday.classList.remove('hidden');
+		if (currentWeekOffset > 0) {
+			weekDisplay.innerText = `+${currentWeekOffset} Wochen`;
+		} else {
+			weekDisplay.innerText = `${currentWeekOffset} Wochen`;
+		}
 	}
 
 	let activeElementId = null;
@@ -652,6 +658,19 @@ function changeWeek(direction) {
 		return;
 	}
 	currentWeekOffset += direction;
+	renderSchedule();
+}
+
+/**
+ * Jump back to the current week (today).
+ *
+ * Resets week offset to 0 and re-renders the schedule.
+ * Includes smooth scroll to today's card after render completes.
+ *
+ * @return {void}
+ */
+function goToToday() {
+	currentWeekOffset = 0;
 	renderSchedule();
 }
 
@@ -2143,6 +2162,7 @@ window.forceUpdate = forceUpdate;
 window.toggleDebugMode = toggleDebugMode;
 window.updateDebugToggleButton = updateDebugToggleButton;
 window.changeWeek = changeWeek;
+window.goToToday = goToToday;
 window.toggleTimer = toggleTimer;
 window.activateRecoveryMode = activateRecoveryMode;
 window.useSickShield = useSickShield;
