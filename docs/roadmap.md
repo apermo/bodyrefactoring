@@ -419,7 +419,132 @@ All features optimized for iPhone/PWA:
 
 ---
 
-**Last Updated**: January 7, 2026  
-**Current Version**: v13.0.0  
-**Next Version**: v14.0.0
+## 🗂️ Backlog - Code Quality & Refactoring
+
+Tasks without specific version assignment. Pick when they fit naturally into planned work or during refactoring sprints.
+
+### Refactor: renderSchedule() Function
+
+**Current State:**
+- ~307 lines long (too large for single function)
+- Handles multiple responsibilities:
+  - Navigation logic (week buttons, display)
+  - Day card creation and rendering
+  - Exercise rendering (normal, alternatives, recovery, sick)
+  - Weight/unit display logic
+  - Notes/logbook rendering
+  - Icon initialization and scroll logic
+- Mixed concerns: DOM manipulation, business logic, state management
+
+**Proposed Refactoring:**
+- **Create `ScheduleRenderer` class** with clear separation of concerns
+  - Constructor: Takes dependencies (domainStorage, state, etc.)
+  - Methods:
+    - `render()` - Main entry point
+    - `renderNavigation()` - Week navigation UI
+    - `renderDayCard()` - Single day card rendering
+    - `renderExercise()` - Single exercise row
+    - `renderRecoveryDay()` - Recovery mode rendering
+    - `renderSickDay()` - Sick mode rendering
+    - `renderNotes()` - Logbook section
+    - `updateIcons()` - Lucide icon refresh
+    - `scrollToToday()` - Scroll behavior
+  - Benefits:
+    - Testable individual methods
+    - Clearer responsibility boundaries
+    - Easier to extend with new exercise types
+    - Reusable rendering logic
+
+**Dependencies to Consider:**
+- v14.0.0 adds sick/recovery completion modal (might affect completion rendering)
+- v15.0.0 adds rep/set overrides (will affect exercise rendering logic)
+- Any changes to schedule.json schema
+
+**Recommendation:**
+- **Best timing**: After v15.0.0 (after rep/set management is complete)
+- Reason: v15 will already touch exercise rendering logic, combine both refactorings
+- Alternative: Do incrementally - extract small methods now, full class later
+
+**Estimated Effort:** 2-3 days
+- Extract methods (1 day)
+- Create class structure (1 day)
+- Testing and bug fixes (1 day)
+
+---
+
+### Refactor: calculateStreak() Function
+
+**Current State:**
+- ~130 lines long
+- Handles multiple responsibilities:
+  - Streak calculation logic (day-by-day iteration)
+  - Shield awarding logic
+  - Milestone tracking
+  - DOM updates (streak display, shield display)
+  - Recovery/sick day special handling
+- Async function with await in loop (performance consideration)
+
+**Proposed Refactoring:**
+- **Create `StreakCalculator` class** (or use existing `StreakCalculatorService`)
+  - Currently, `StreakCalculatorService` exists but only has `getDayCount()` helper
+  - Expand to handle full streak calculation
+  - Methods:
+    - `calculate()` - Main calculation, returns streak data object
+    - `isDayCountable()` - Check if day counts toward streak (normal/recovery/sick with shield)
+    - `checkShieldMilestone()` - Shield awarding logic
+    - `updateDisplay()` - Separate DOM updates from calculation
+  - Benefits:
+    - Pure calculation logic separated from display
+    - Testable without DOM
+    - Reusable in other contexts (XP system, statistics)
+    - Better performance (can cache results)
+
+**Alternative Approach:**
+- **Enhance existing `StreakCalculatorService`**
+  - Already exists in modules/streak-calculator-service.js
+  - Currently minimal functionality
+  - Expand to be the single source of truth for streak logic
+  - Move shield logic into separate `ShieldService` or keep together
+
+**Dependencies to Consider:**
+- v14.0.0 sick/recovery modal needs streak calculation
+- v16.0.0 XP system might need streak data
+- Shield system is tightly coupled (might want separate `ShieldManager`)
+
+**Recommendation:**
+- **Best timing**: During v14.0.0 (needs refactor for sick/recovery modal anyway)
+- Reason: Sick/recovery completion modal will need to call streak calculation
+- Clean separation will make modal integration cleaner
+
+**Estimated Effort:** 1-2 days
+- Expand StreakCalculatorService (0.5 day)
+- Refactor calculateStreak to use service (0.5 day)
+- Separate shield logic (optional, 0.5 day)
+- Testing (0.5 day)
+
+---
+
+### Decision Guidelines
+
+**When to pick these tasks:**
+1. **renderSchedule refactor** → Do during/after v15.0.0
+   - Will already be touching exercise rendering for overrides
+   - Combine both efforts for cleaner result
+   
+2. **calculateStreak refactor** → Do during v14.0.0
+   - Sick/recovery modal needs clean streak calculation
+   - Good opportunity to enhance existing service
+   - Won't block other work
+
+**Signs it's time to refactor:**
+- Adding new feature requires changing multiple parts of these functions
+- Bug fixes become difficult due to function complexity
+- Code duplication appears
+- Testing becomes impossible without DOM
+
+---
+
+**Last Updated**: January 8, 2026  
+**Current Stable Release**: v13.0.0  
+**Development Cycle**: v14
 
