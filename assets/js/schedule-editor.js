@@ -584,6 +584,11 @@ function renderRegularExerciseForm( exercise ) {
 			<textarea id="ex-timers" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 font-mono text-xs" rows="3">${exercise.timers ? JSON.stringify( exercise.timers, null, 2 ) : ''}</textarea>
 			<div class="text-xs text-slate-500 mt-1">Example: [{"l": "5 Min", "s": 300}]</div>
 		</div>
+		<div>
+			<label class="text-xs text-slate-400 block mb-2">Rep Counter (JSON object, optional)</label>
+			<textarea id="ex-repcounter" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 font-mono text-xs" rows="5">${exercise.repCounter ? JSON.stringify( exercise.repCounter, null, 2 ) : ''}</textarea>
+			<div class="text-xs text-slate-500 mt-1">Example: {"sets": 3, "reps": 12, "restSeconds": 60, "delayMilliseconds": 3000}</div>
+		</div>
 	`;
 }
 
@@ -677,6 +682,7 @@ function saveExercise() {
 			};
 		} else {
 			const timersText = document.getElementById( 'ex-timers' ).value;
+			const repCounterText = document.getElementById( 'ex-repcounter' ).value;
 			exercise = {
 				id: document.getElementById( 'ex-id' ).value,
 				type: type,
@@ -692,6 +698,10 @@ function saveExercise() {
 
 			if ( timersText ) {
 				exercise.timers = JSON.parse( timersText );
+			}
+
+			if ( repCounterText ) {
+				exercise.repCounter = JSON.parse( repCounterText );
 			}
 		}
 

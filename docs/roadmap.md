@@ -30,6 +30,16 @@ This document outlines planned features and improvements for the Body Refactorin
   - Acknowledges effort while respecting recovery state
   - Quick dismiss (no excessive celebration)
 
+#### ✅ Schedule Editor: Rep Counter Support
+- **Simple JSON Input Field**
+  - Added rep counter configuration to exercise editor
+  - Same approach as existing timer configuration
+  - JSON format: `{"sets": 3, "reps": 12, "restSeconds": 60, "delayMilliseconds": 3000}`
+  - All fields optional but recommended for complete rep counter functionality
+  - Validates JSON on save
+  - Makes it easy to add/edit rep counter without manual JSON file editing
+  - Note: Full editor refactoring planned for v17.0.0
+
 #### Rep Cooldown Timer Improvements
 - **Quick Access Panel During Cooldown**
   - Access day's logbook/notes without aborting rep counter
@@ -95,6 +105,11 @@ This document outlines planned features and improvements for the Body Refactorin
   - Detects recovery/sick days using domainStorage
   - Calculates streak before showing modal
   - Routes to appropriate modal based on day type
+- ✅ Schedule Editor: Rep Counter Field
+  - Added textarea input for rep counter JSON (id: ex-repcounter)
+  - Parses and validates JSON on exercise save
+  - Saves repCounter object to exercise data
+  - Simple implementation - full editor refactoring in v17.0.0
 - Modify `RepCounterStateMachine` to include cooldown states
 - Create `QuickAccessPanel` component for cooldown overlay
 - Update `getRepDelay()` to return object with phases: `{ upPhase: ms, downPhase: ms }`

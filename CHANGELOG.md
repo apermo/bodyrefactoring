@@ -30,6 +30,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatically detects day type and shows appropriate modal
   - Modified `checkDayCompletion()` to be async and detect recovery/sick days
   - Filters disabled exercises when counting completion (recovery/sick mode compatibility)
+- **Schedule Editor: Rep Counter Support**: Added JSON input field for rep counter configuration
+  - Same simple approach as timer configuration
+  - JSON format: `{"sets": 3, "reps": 12, "restSeconds": 60, "delayMilliseconds": 3000}`
+  - Makes it easy to add/edit rep counter for exercises
+  - Validates JSON on save
 
 ### Changed
 
