@@ -283,14 +283,260 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
+### v17.0.0 - Schedule Management Refactoring
+
+**Priority: High**  
+**Focus**: Privacy-first architecture and multi-user readiness
+
+**⚠️ BREAKING CHANGE**: Schedules move from repository to localStorage
+
+#### Core Changes
+- **Remove Schedule Files from Repository**
+  - Delete all `schedule-*.json` files from `/trainings/` directory
+  - Keep only `schema-schedule-v*.json` and `template-schedule.json`
+  - Schedules become user data, not application code
+  - Repository contains only app code and documentation
+
+- **localStorage Schedule Management**
+  - Upload schedules via in-app UI
+  - Store schedules in localStorage with versioning
+  - Multiple schedules support (archive old schedules)
+  - Schedule selection dropdown
+  - Active schedule indicator
+
+#### Upload & Validation System
+
+- **Schedule Upload UI**
+  - File upload button in settings/menu
+  - Drag & drop support for desktop
+  - Validates against schema before accepting
+  - Shows validation errors with helpful messages
+  - Preview schedule before confirming upload
+
+- **Client-Side Validation (JavaScript)**
+  - Validate JSON structure against schema
+  - Check version compatibility (v1, v2 support)
+  - Verify required fields (days, exercises, dates)
+  - Exercise ID uniqueness validation
+  - dayIndex validation (0-6, Sunday-Saturday)
+  - Date format validation (YYYY-MM-DD for filenames)
+  - Detailed error reporting with line numbers
+  
+- **Server-Side Validation (PHP) - Optional**
+  - Backup validation endpoint for security
+  - Same validation rules as client
+  - Returns structured error JSON
+  - Used when uploading via tools.php or API
+
+#### Enhanced Schedule Editor
+
+- **Improved Editor Integration**
+  - Direct integration with localStorage schedules
+  - No need to manually copy JSON anymore
+  - Edit active schedule in-app
+  - Save changes directly to localStorage
+  - Export edited schedule as JSON file (download)
+
+- **Schedule Management Features**
+  - List all stored schedules with metadata:
+    - Schedule name/date
+    - Version (v1/v2)
+    - Created date
+    - Last modified
+    - Active status
+  - Set active schedule
+  - Archive/delete old schedules
+  - Duplicate schedule (create variant)
+  - Import schedule from file
+  - Export schedule to file
+
+- **Enhanced Editor Features**
+  - Better autocomplete for exercise IDs (shows existing exercises across all schedules)
+  - Inline validation as you type
+  - Visual schema violation indicators
+  - Exercise library browser (see all exercises used in past schedules)
+  - Template selector (start from template or existing schedule)
+
+#### Privacy Benefits
+
+- **Personal Data Stays Local**
+  - Workout plans not visible in public repository
+  - No personal training details in commit history
+  - Other users can fork without seeing your schedule
+  - Easy to keep multiple private schedules
+
+- **Deployment Improvements**
+  - Faster deployments (no schedule JSON changes)
+  - Cleaner git history (code changes only)
+  - Easier to contribute code improvements
+  - Repository focuses on app functionality
+
+#### Multi-User Readiness
+
+- **Fork-Friendly**
+  - New users get clean app without personal data
+  - Upload their own schedules after setup
+  - No confusion about example vs real schedules
+  - README can include sample schedule for testing
+
+- **Demo Mode**
+  - App loads with sample/demo schedule if none found
+  - Prompt to upload own schedule
+  - Clear instructions for first-time users
+  - Sample schedule shows all features
+
+**Technical Implementation:**
+
+- **ScheduleStorageService Module**
+  - New module: `modules/schedule-storage-service.js`
+  - Methods:
+    - `uploadSchedule(jsonString)` - Validate and store schedule
+    - `getActiveSchedule()` - Retrieve current active schedule
+    - `listSchedules()` - Get all stored schedules metadata
+    - `setActiveSchedule(scheduleId)` - Switch active schedule
+    - `deleteSchedule(scheduleId)` - Remove schedule
+    - `exportSchedule(scheduleId)` - Generate JSON for download
+    - `validateSchedule(jsonObj)` - Client-side validation
+  - Storage keys: `schedule_active`, `schedule_list`, `schedule_data_{id}`
+
+- **Schedule Validator**
+  - JavaScript validator using schema file
+  - Load schema from `/trainings/schema-schedule-v*.json`
+  - Comprehensive validation with error details
+  - Support for v1 and v2 schemas
+  - Extensible for future schema versions
+
+- **Upload UI Component**
+  - Modal/page for schedule upload
+  - File picker with drag & drop
+  - JSON validation preview
+  - Error display with corrections
+  - Success confirmation
+
+- **Schedule Manager UI**
+  - List view of all schedules
+  - Active schedule highlighted
+  - Quick actions: Activate, Edit, Export, Delete
+  - Search/filter schedules by date/name
+  - Storage space indicator
+
+- **Modified Schedule Loading**
+  - Update `fetchScheduleForDate()` to read from localStorage
+  - Fallback to demo schedule if none found
+  - Error handling for corrupted schedule data
+  - Automatic validation on load
+
+- **Enhanced Schedule Editor**
+  - Integrate with ScheduleStorageService
+  - Load from localStorage, save back to localStorage
+  - Download button generates JSON file
+  - Upload button to import schedules
+  - Autocomplete backed by localStorage schedule library
+
+- **Repository Cleanup**
+  - Remove `schedule-2025-*.json` and `schedule-2026-*.json`
+  - Keep `template-schedule.json` as reference
+  - Keep `schema-schedule-v*.json` for validation
+  - Update README with new upload instructions
+  - Add sample schedule to documentation (not in trainings/)
+
+**Schema Validation Rules:**
+
+```javascript
+// Required fields
+{
+  "version": 1 or 2,
+  "days": [ /* array of day objects */ ]
+}
+
+// Optional fields (v2)
+{
+  "targetDate": "ISO 8601 datetime"
+}
+
+// Day object validation
+{
+  "id": "string (unique, lowercase, underscores)",
+  "dayIndex": 0-6, // 0=Sunday, 6=Saturday
+  "name": "string",
+  "theme": "string",
+  "icon": "string (lucide icon name)",
+  "colorClass": "string (tailwind class)",
+  "bgClass": "string (tailwind class)",
+  "details": [ /* exercise array */ ]
+}
+
+// Exercise validation
+- Valid types: "warmup", "main", "cool", "alternatives"
+- Required fields based on type
+- Optional fields: timers, weight, defaultUnit, repCounter
+- ID uniqueness within day
+```
+
+**Demo/Sample Schedule:**
+
+- Include lightweight demo schedule in documentation
+- Shows all exercise types
+- 1-week example (not 4+ weeks)
+- Clearly marked as example/demo
+- Not loaded from repository
+- Used only if localStorage empty on first launch
+
+**Breaking Changes:**
+
+- ⚠️ Existing repository schedules will not load automatically
+- ⚠️ Must export and re-upload schedules via new UI
+- ⚠️ GitHub deployments no longer update schedules
+- ⚠️ Schedule changes require manual upload (privacy feature!)
+
+**Migration Steps (for solo user):**
+
+1. Before v17 deployment:
+   - Export current schedule from repository (download JSON)
+2. Deploy v17 to production
+3. On first load:
+   - App shows "No schedule found" + demo schedule
+   - Upload button prominent
+4. Upload exported schedule
+5. Verify schedule loads correctly
+6. Delete old schedule files from repository
+7. Commit and push cleanup
+
+**Benefits:**
+
+- ✅ **Privacy**: Personal workout data stays local
+- ✅ **Clean Repository**: Only code and docs in version control
+- ✅ **Multi-User**: Others can fork and use immediately
+- ✅ **Flexibility**: Switch schedules, archive old ones, experiment freely
+- ✅ **Faster Deployments**: No schedule JSON changes to deploy
+- ✅ **Better UX**: In-app schedule management vs file editing
+
+**Estimated Effort:** 5-7 days
+- ScheduleStorageService module (1 day)
+- Schedule validator (1 day)
+- Upload UI (1 day)
+- Schedule manager UI (1 day)
+- Enhanced editor integration (1-2 days)
+- Testing and validation (1-2 days)
+
+---
+
 ## 🎯 Feature Prioritization & Rationale
 
-### High Priority (v14-v15)
-**Rep Counter Enhancements** and **Dynamic Rep/Set Management** are high priority because:
+### High Priority (v14-v15, v17)
+**Rep Counter Enhancements**, **Dynamic Rep/Set Management**, and **Schedule Management Refactoring** are high priority because:
+
+**v14-v15:**
 1. **Immediate UX improvements** - Affect every workout session
 2. **Reduce friction** - No need to abort rep counter or edit JSON files
 3. **Safety** - Sleep prevention ensures proper rest timing
 4. **User feedback** - Requested features based on actual usage pain points
+
+**v17:**
+1. **Privacy-first** - Personal workout data stays out of public repository
+2. **Architecture shift** - Enables true multi-user functionality
+3. **Deployment efficiency** - Faster, cleaner deployments without schedule changes
+4. **Foundation for future** - Required before considering any multi-user features
 
 ### Medium Priority (v16)
 **XP System** is medium priority because:
@@ -298,6 +544,16 @@ This document outlines planned features and improvements for the Body Refactorin
 2. **Complex implementation** - Requires schema changes and new systems
 3. **Schedule lifecycle** - Useful but not urgent (current schedule workflow functions)
 4. **AI integration** - Innovative but experimental feature
+5. **Depends on v15** - Overrides system provides foundation for auto-progression
+
+### Version Ordering Rationale
+
+**Why v17 after v16 (not before)?**
+- v16 (XP system) still works with repository-based schedules
+- v17 is a breaking architectural change
+- Allows v16 to be developed/tested with current architecture
+- Clean separation: v16 = features, v17 = architecture
+- v17 makes sense after "schedule complete" workflow exists (v16)
 
 ---
 
