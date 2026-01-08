@@ -368,8 +368,33 @@ bodyrefactoring/
   - CHANGELOG.md for all code changes (already covered in existing rules)
   - Architecture documentation for structural changes
   - docs/ folder markdown files for feature documentation
+  - docs/roadmap.md for planned features and versions
 - Use a clear format: `📝 Documentation Reminder: [what needs documenting]`
 - Remind even if documentation wasn't part of the original request
+
+### Roadmap.md Footer Format
+When updating `docs/roadmap.md`, always maintain the footer with current version information:
+```markdown
+---
+
+**Last Updated**: YYYY-MM-DD (use ISO 8601 date format)
+**Current Stable Release**: vX.Y.Z (latest merged/released version)
+**Development Cycle**: vN (major version currently in development)
+```
+
+**Example:**
+```markdown
+**Last Updated**: January 8, 2026
+**Current Stable Release**: v13.0.0
+**Development Cycle**: v14
+```
+
+**Guidelines:**
+- "Current Stable Release" = Latest version merged to main branch
+- "Development Cycle" = Major version number only (v14, not v14.0.0)
+- Update "Last Updated" whenever roadmap.md is modified
+- Update "Development Cycle" when starting work on new major version
+- Update "Current Stable Release" after merging to main
 
 ### Code Quality Principles
 - **SOLID Principles**: Follow all five principles in design and implementation
