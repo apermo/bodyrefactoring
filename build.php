@@ -56,6 +56,30 @@ echo "Copying trainings...\n";
 copyDirectory('trainings', 'dist/trainings');
 echo "✓ Copied trainings/\n";
 
+// Generate static schedules.json (replaces trainings/index.php)
+echo "Generating schedules.json...\n";
+$scheduleFiles = glob('trainings/schedule-*.json');
+$schedules = [];
+
+foreach ($scheduleFiles as $file) {
+    $filename = basename($file);
+    if (preg_match('/schedule-(\d{4}-\d{2}-\d{2})\.json/', $filename, $matches)) {
+        $schedules[] = [
+            'date' => $matches[1],
+            'file' => $filename
+        ];
+    }
+}
+
+// Sort by date
+usort($schedules, function($a, $b) {
+    return strcmp($a['date'], $b['date']);
+});
+
+// Write static JSON file
+file_put_contents('dist/trainings/schedules.json', json_encode($schedules, JSON_PRETTY_PRINT));
+echo "✓ Created trainings/schedules.json\n";
+
 // Copy schedule editor
 if (file_exists('schedule-editor.php')) {
     // For schedule editor, create a simple static version that loads from relative path

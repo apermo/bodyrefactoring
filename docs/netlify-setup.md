@@ -46,7 +46,14 @@ The `build.php` script:
 - Replaces `asset()` calls with timestamped URLs
 - Outputs clean HTML to `dist/index.html`
 - Copies `assets/` and `trainings/` directories
+- Generates `trainings/schedules.json` (replaces `trainings/index.php`)
 - Converts `schedule-editor.php` to `schedule-editor.html`
+
+**JavaScript Compatibility:**
+The app automatically detects the environment:
+1. Tries to fetch `trainings/index.php` (production with PHP)
+2. Falls back to `trainings/schedules.json` (Netlify static hosting)
+3. No code changes needed - works on both platforms
 
 **Build time:** ~30 seconds
 

@@ -110,9 +110,16 @@ async function initApp() {
 	}
 
 	try {
-		const response = await fetch('trainings/index.php');
+		// Try index.php first (production with PHP), fall back to schedules.json (Netlify static)
+		let response = await fetch('trainings/index.php');
+
+		// If index.php fails (404 on static hosting), try static JSON
 		if (!response.ok) {
-			throw new Error('API Error');
+			response = await fetch('trainings/schedules.json');
+		}
+
+		if (!response.ok) {
+			throw new Error('Failed to load schedules');
 		}
 
 		state.availableSchedules = await response.json();
