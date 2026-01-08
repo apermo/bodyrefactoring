@@ -9,7 +9,7 @@ This document outlines planned features and improvements for the Body Refactorin
 **Priority: High**  
 **Focus**: Improved rep counter usability and interaction during workouts
 
-#### Navigation Improvements
+#### ✅ Navigation Improvements
 - **"Today" Button in Week Navigation**
   - Appears in week navigation bar (right side of week display)
   - Only visible when viewing a week other than current week
@@ -68,16 +68,16 @@ This document outlines planned features and improvements for the Body Refactorin
   - Current issue: Abrupt switch from last rep to cooldown, color/content mismatch
 
 **Technical Implementation:**
-- Add "Today" button to week navigation component
+- ✅ Add "Today" button to week navigation component
   - Conditionally render based on `currentWeekOffset !== 0`
   - Position: Right side of week display (after week text)
   - Button style: Minimal, icon-based (🏠 or 📅 icon)
   - Click handler: Reset week offset to 0, reload current day view
-- Update week navigation layout:
+- ✅ Update week navigation layout:
   - Use flexbox with space-between for arrows, week text, and today button
   - Keep week text centered when today button not visible
   - Adjust layout for mobile (ensure touch targets are 44x44px minimum)
-- State management:
+- ✅ State management:
   - Track current week offset in app state
   - Compare against today's date to determine button visibility
   - Smooth transition animation when jumping to today

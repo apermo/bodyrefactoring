@@ -396,6 +396,60 @@ When updating `docs/roadmap.md`, always maintain the footer with current version
 - Update "Development Cycle" when starting work on new major version
 - Update "Current Stable Release" after merging to main
 
+### Roadmap.md Progress Tracking
+Mark features with status indicators to track development progress:
+
+**Status Indicators:**
+- ✅ - Complete (entire section/item finished)
+- 🚧 - In Progress (currently working on)
+- 🔄 - Partially Complete (some sub-items done, others pending)
+- (no emoji) - Planned (not started yet)
+
+**Rules:**
+1. **Add ✅ to completed section headlines** when entire section is done
+   - Example: `#### ✅ Navigation Improvements`
+2. **Add 🚧 to sections currently being worked on**
+   - Example: `#### 🚧 Sick/Recovery Completion Modal`
+3. **Add 🔄 to sections with mixed completion** (some items done, some not)
+   - Example: `#### 🔄 Rep Counter Enhancements`
+4. **Add ✅ to completed sub-items** within incomplete sections
+   - Example: `- ✅ Add "Today" button to week navigation component`
+5. **Add 🚧 to sub-items in active development**
+   - Example: `- 🚧 Create sick/recovery completion modal component`
+6. **Keep planned items without indicators** (clean, no emoji)
+   - Example: `- Create quick access panel for cooldown`
+7. **Never remove sections during development** - only after release merge
+8. **Move skipped features** to next version or backlog before release
+
+**Example:**
+```markdown
+#### ✅ Navigation Improvements
+- **"Today" Button in Week Navigation**
+  - Fully implemented and tested
+
+#### 🚧 Sick/Recovery Completion Modal
+- **Subdued Completion Celebration**
+  - Currently in development
+
+#### 🔄 Rep Counter Enhancements
+- ✅ Navigation improvements (done)
+- 🚧 Sick/recovery modal (in progress)
+- Rep cooldown improvements (planned)
+
+**Technical Implementation:**
+- ✅ Add "Today" button to week navigation component
+- ✅ Update week navigation layout
+- 🚧 Create sick/recovery completion modal component
+- Implement SVG circle animation (planned)
+```
+
+**Benefits:**
+- ✅ Visual progress tracking
+- ✅ Minimal line changes (prevents merge conflicts)
+- ✅ Clear distinction between complete/incomplete work
+- ✅ Preserves context (features stay visible until release)
+- ✅ Easy to cherry-pick commits
+
 ### Code Quality Principles
 - **SOLID Principles**: Follow all five principles in design and implementation
   - Single Responsibility Principle: Each class/function does one thing well
