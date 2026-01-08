@@ -45,9 +45,15 @@ The `build.php` script:
 - Replaces `<?php echo APP_VERSION; ?>` with actual version
 - Replaces `asset()` calls with timestamped URLs
 - Outputs clean HTML to `dist/index.html`
-- Copies `assets/` and `trainings/` directories
+- Copies `assets/` directory (all files)
+- Copies `trainings/` directory (excludes PHP files, schema, and templates)
 - Generates `trainings/schedules.json` (replaces `trainings/index.php`)
 - Converts `schedule-editor.php` to `schedule-editor.html`
+
+**Files excluded from trainings/:**
+- `*.php` (index.php, validate-schedule.php)
+- `schema-*.json` (validation schemas)
+- `template-*.json` (templates)
 
 **JavaScript Compatibility:**
 The app automatically detects the environment:

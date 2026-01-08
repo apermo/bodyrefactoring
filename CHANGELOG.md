@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Every PR gets unique preview URL: `deploy-preview-{number}--bodyrefactoring.netlify.app`
   - Build script (`build.php`) converts PHP to static HTML
   - Generates static `trainings/schedules.json` to replace PHP schedule listing
+  - Excludes unnecessary files: PHP scripts, schemas, and templates from trainings/
   - JavaScript fallback: tries `index.php` (production) then `schedules.json` (Netlify)
   - Netlify configuration (`netlify.toml`)
   - Automatic deployment on PR creation/update
