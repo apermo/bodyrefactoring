@@ -1,0 +1,21 @@
+[build]
+  publish = "dist"
+  command = "php build.php"
+
+[build.environment]
+  PHP_VERSION = "8.2"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production]
+  publish = "dist"
+
+[context.deploy-preview]
+  publish = "dist"
+
+[context.branch-deploy]
+  publish = "dist"
+
