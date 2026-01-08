@@ -30,7 +30,6 @@ jobs:
             });
 
       - name: Wait for validation checks to complete
-        if: github.event.action != 'edited'
         uses: actions/github-script@v7
         with:
           script: |

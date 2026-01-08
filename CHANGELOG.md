@@ -56,14 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **PR enforce workflow timing**: Implemented smart polling with conditional waiting logic
-  - Polls validation check status every 10 seconds on new PRs/code changes (max 5 minutes)
-  - Skips waiting on PR description edits (checks already exist from previous run)
-  - Shows "Waiting for validation checks..." status while polling
-  - Eliminates race condition where enforce runs before validation completes
-  - Works correctly when ticking checkboxes in PR template (uses existing validation results)
-  - Immediate feedback on PR creation with proper waiting logic
-  - Logs check status during polling for transparency
+- **PR workflows no longer trigger on description edits**: Removed `edited` event from workflow triggers
+  - PR Validation and PR Requirements workflows now only run on code changes (`opened`, `synchronize`, `reopened`)
+  - Ticking checkboxes in PR template no longer triggers workflows
+  - Eliminates unnecessary workflow runs and skipped check confusion
+  - Workflows run once on PR creation and again only when code is pushed
+  - Smart polling logic remains for proper validation timing (polls every 10s, max 5min)
 
 ## [13.0.0] - 2026-01-05
 
