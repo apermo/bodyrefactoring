@@ -63,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Avoids workflow_run trigger delays (2-5 minutes)
   - Immediate feedback on PR creation with proper waiting logic
   - Logs check status during polling for transparency
+  - Skips on PR description edits (matches pr-validation behavior) to prevent checking for non-existent validation results
 
 ## [13.0.0] - 2026-01-05
 
