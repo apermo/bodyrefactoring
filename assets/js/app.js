@@ -705,8 +705,6 @@ function toggleAccordion(dateId) {
  * @return {Promise<void>}
  */
 async function toggleCheck(row, storageKey, dateId) {
-	console.log('[toggleCheck] Called with dateId:', dateId, 'storageKey:', storageKey);
-
 	const isCurrentlyCompleted = row.classList.contains('completed');
 
 	// Check if this is from yesterday or before
@@ -725,8 +723,6 @@ async function toggleCheck(row, storageKey, dateId) {
 	}
 
 	row.classList.toggle('completed');
-
-	console.log('[toggleCheck] Row completed:', row.classList.contains('completed'));
 
 	if (row.classList.contains('completed')) {
 		// Extract date and exercise ID from storage key
@@ -765,8 +761,6 @@ async function toggleCheck(row, storageKey, dateId) {
 			date = parts[1];
 			id = parts.slice(2).join('_');
 		}
-
-		console.log('[toggleCheck] Marking complete - prefix:', prefix, 'date:', date, 'id:', id);
 
 		if (prefix === 'br') {
 			domainStorage.setExerciseComplete(date, id);
@@ -816,11 +810,8 @@ async function toggleCheck(row, storageKey, dateId) {
 		}
 	}
 
-	console.log('[toggleCheck] Calling checkDayCompletion...');
 	await checkDayCompletion(dateId);
-	console.log('[toggleCheck] Calling calculateStreak...');
 	await calculateStreak();
-	console.log('[toggleCheck] Done');
 }
 
 /**
@@ -906,8 +897,6 @@ function handleWeightBlur(exId, dateIso, input) {
  * @return {Promise<void>}
  */
 async function checkDayCompletion(dateId) {
-	console.log('[checkDayCompletion] Called with dateId:', dateId);
-
 	const container = document.getElementById(`details-${dateId}`);
 	const card = document.getElementById(`card-${dateId}`);
 	const badge = document.getElementById(`badge-${dateId}`);
@@ -918,13 +907,8 @@ async function checkDayCompletion(dateId) {
 	const total = activeRows.length;
 	const done = activeRows.filter(row => row.classList.contains('completed')).length;
 
-	console.log('[checkDayCompletion] Total exercises:', total, 'Done:', done);
-
 	if (total > 0 && total === done) {
-		console.log('[checkDayCompletion] All exercises complete!');
-
 		if (!card.classList.contains('day-complete')) {
-			console.log('[checkDayCompletion] Day not yet marked complete, processing...');
 			card.classList.add('day-complete');
 			badge.style.display = 'inline-block';
 
@@ -932,11 +916,7 @@ async function checkDayCompletion(dateId) {
 			const isRecovery = domainStorage.isRecoveryDay(dateId);
 			const isSick = domainStorage.isSickDay(dateId);
 
-			console.log('[checkDayCompletion] isRecovery:', isRecovery, 'isSick:', isSick);
-
 			if (isRecovery || isSick) {
-				console.log('[checkDayCompletion] Recovery/Sick day detected, calculating streak...');
-
 				// Wait for streak to be calculated
 				await calculateStreak();
 
@@ -944,26 +924,18 @@ async function checkDayCompletion(dateId) {
 				const streakText = document.getElementById('streak-count').innerText;
 				const streak = parseInt(streakText) || 0;
 
-				console.log('[checkDayCompletion] Current streak:', streak);
-
 				if (isSick) {
 					const usedShield = domainStorage.wasSickDayShieldUsed(dateId);
-					console.log('[checkDayCompletion] Showing sick modal, usedShield:', usedShield);
 					showSickModal(streak, usedShield);
 				} else {
-					console.log('[checkDayCompletion] Showing recovery modal');
 					showRecoveryModal(streak);
 				}
 			} else {
-				console.log('[checkDayCompletion] Normal day - showing regular completion');
 				// Normal day - show regular completion
 				showCompletionPopup();
 			}
-		} else {
-			console.log('[checkDayCompletion] Day already marked complete, skipping modal');
 		}
 	} else {
-		console.log('[checkDayCompletion] Not all exercises complete');
 		card.classList.remove('day-complete');
 		badge.style.display = 'none';
 	}
@@ -1115,14 +1087,10 @@ function showCompletionPopup() {
  * @return {void}
  */
 function showRecoveryModal(streak) {
-	console.log('[showRecoveryModal] Called with streak:', streak);
 	const modal = document.getElementById('recovery-modal');
-	console.log('[showRecoveryModal] Modal element:', modal);
 	const streakEl = document.getElementById('modal-recovery-streak');
-	console.log('[showRecoveryModal] Streak element:', streakEl);
 	streakEl.innerText = `${streak} Tage`;
 	modal.classList.add('open');
-	console.log('[showRecoveryModal] Modal classes after add:', modal.classList.toString());
 	subduedConfetti();
 }
 
@@ -1137,7 +1105,6 @@ function showRecoveryModal(streak) {
  * @return {void}
  */
 function showSickModal(streak, usedShield) {
-	console.log('[showSickModal] Called with streak:', streak, 'usedShield:', usedShield);
 	const modal = document.getElementById('sick-modal');
 	const streakEl = document.getElementById('modal-sick-streak');
 	const shieldStatus = document.getElementById('sick-shield-status');
@@ -1151,7 +1118,6 @@ function showSickModal(streak, usedShield) {
 	}
 
 	modal.classList.add('open');
-	console.log('[showSickModal] Modal classes after add:', modal.classList.toString());
 	subduedConfetti();
 }
 
@@ -1169,7 +1135,8 @@ function subduedConfetti() {
 			particleCount: 75,
 			spread: 40,
 			origin: { y: 0.6 },
-			colors: ['#3b82f6', '#8b5cf6', '#6366f1']
+			colors: ['#3b82f6', '#8b5cf6', '#6366f1'],
+			zIndex: 50
 		});
 	}
 }
@@ -2073,7 +2040,8 @@ function miniConfetti(element) {
 		ticks: 50,
 		gravity: 1.2,
 		scalar: 0.6,
-		startVelocity: 20
+		startVelocity: 20,
+		zIndex: 50
 	});
 }
 
@@ -2092,14 +2060,16 @@ function superConfetti() {
 			angle: 60,
 			spread: 55,
 			origin: {x: 0},
-			colors: ['#38bdf8', '#f472b6', '#22c55e']
+			colors: ['#38bdf8', '#f472b6', '#22c55e'],
+			zIndex: 50
 		});
 		confetti({
 			particleCount: 3,
 			angle: 120,
 			spread: 55,
 			origin: {x: 1},
-			colors: ['#38bdf8', '#f472b6', '#22c55e']
+			colors: ['#38bdf8', '#f472b6', '#22c55e'],
+			zIndex: 50
 		});
 		if (Date.now() < end) {
 			requestAnimationFrame(frame);

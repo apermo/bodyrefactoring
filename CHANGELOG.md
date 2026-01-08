@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Modified `checkDayCompletion()` to be async and detect recovery/sick days
   - Filters disabled exercises when counting completion (recovery/sick mode compatibility)
 
+### Changed
+
+- **Confetti z-index**: All confetti effects now use `zIndex: 50` to appear behind modals (z-index 100)
+  - Prevents visual conflict when completing last exercise of the day
+  - Confetti continues falling in background behind completion modal
+  - Applies to miniConfetti (checkbox), superConfetti (day completion), and subduedConfetti (recovery/sick)
+
 ## [13.0.0] - 2026-01-05
 
 **Complete architectural refactoring with 6 phases and 13 modules.**  
