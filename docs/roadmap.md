@@ -298,26 +298,33 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v17.0.0 - Schedule Management Refactoring
+### v17.0.0 - Schedule Management Refactoring (Phase 1)
 
 **Priority: High**  
-**Focus**: Privacy-first architecture and multi-user readiness
+**Focus**: Privacy-first architecture with smooth transition
 
-**⚠️ BREAKING CHANGE**: Schedules move from repository to localStorage
+**Note**: This is Phase 1 - localStorage implementation with fallback. Repository cleanup happens in v17.1.0 or v18.0.0.
 
 #### Core Changes
-- **Remove Schedule Files from Repository**
-  - Delete all `schedule-*.json` files from `/trainings/` directory
-  - Keep only `schema-schedule-v*.json` and `template-schedule.json`
-  - Schedules become user data, not application code
-  - Repository contains only app code and documentation
-
 - **localStorage Schedule Management**
   - Upload schedules via in-app UI
   - Store schedules in localStorage with versioning
   - Multiple schedules support (archive old schedules)
   - Schedule selection dropdown
   - Active schedule indicator
+
+- **Smooth Transition Fallback**
+  - If no schedules in localStorage → Load from webspace (`/trainings/*.json`)
+  - Automatically imports existing schedule on first load
+  - Saves imported schedule to localStorage
+  - Seamless transition for existing user (no manual export/import needed)
+  - Schedules remain in repository during v17.0.0 for compatibility
+
+- **Repository Status (v17.0.0)**
+  - **Keep** all `schedule-*.json` files in `/trainings/` directory
+  - Keep `schema-schedule-v*.json` and `template-schedule.json`
+  - Schedules serve as fallback during transition
+  - Note: Repository cleanup planned for v17.1.0 or v18.0.0
 
 #### Upload & Validation System
 
@@ -436,10 +443,12 @@ This document outlines planned features and improvements for the Body Refactorin
   - Storage space indicator
 
 - **Modified Schedule Loading**
-  - Update `fetchScheduleForDate()` to read from localStorage
-  - Fallback to demo schedule if none found
+  - Update `fetchScheduleForDate()` to check localStorage first
+  - Fallback to webspace (`/trainings/*.json`) if localStorage empty
+  - Automatically import webspace schedule to localStorage on first load
   - Error handling for corrupted schedule data
   - Automatic validation on load
+  - Seamless transition: Existing user sees no difference on first load
 
 - **Enhanced Schedule Editor**
   - Integrate with ScheduleStorageService
@@ -448,10 +457,14 @@ This document outlines planned features and improvements for the Body Refactorin
   - Upload button to import schedules
   - Autocomplete backed by localStorage schedule library
 
-- **Repository Cleanup**
-  - Remove `schedule-2025-*.json` and `schedule-2026-*.json`
+- **Repository Cleanup (v17.1.0 or v18.0.0)**
+  - Phase 2: Remove `schedule-2025-*.json` and `schedule-2026-*.json`
   - Keep `template-schedule.json` as reference
   - Keep `schema-schedule-v*.json` for validation
+  - Add updated onboarding screen:
+    - Prompt to upload schedule.json
+    - Option to use example.json
+    - Clear instructions for first-time users
   - Update README with new upload instructions
   - Add sample schedule to documentation (not in trainings/)
 
@@ -499,23 +512,32 @@ This document outlines planned features and improvements for the Body Refactorin
 
 **Breaking Changes:**
 
-- ⚠️ Existing repository schedules will not load automatically
-- ⚠️ Must export and re-upload schedules via new UI
-- ⚠️ GitHub deployments no longer update schedules
-- ⚠️ Schedule changes require manual upload (privacy feature!)
+- ⚠️ **v17.0.0**: No breaking changes! Smooth transition with fallback
+  - localStorage preferred, webspace schedules as fallback
+  - Existing user: No action needed, automatic import on first load
+  - New users: Can upload schedules or use webspace fallback
+- ⚠️ **v17.1.0/v18.0.0**: Repository schedules removed (breaking)
+  - Must have schedule in localStorage or upload one
+  - Onboarding screen guides new users
+  - Demo/example schedule available
 
 **Migration Steps (for solo user):**
 
-1. Before v17 deployment:
-   - Export current schedule from repository (download JSON)
-2. Deploy v17 to production
-3. On first load:
-   - App shows "No schedule found" + demo schedule
-   - Upload button prominent
-4. Upload exported schedule
-5. Verify schedule loads correctly
-6. Delete old schedule files from repository
-7. Commit and push cleanup
+**v17.0.0 - Automatic & Seamless:**
+1. Deploy v17.0.0 to production
+2. On first load:
+   - App checks localStorage (empty)
+   - Loads from webspace `/trainings/schedule-*.json`
+   - Automatically imports to localStorage
+   - Saves as active schedule
+3. Everything works as before - no manual intervention needed!
+4. Optionally: Use new upload UI to add more schedules
+
+**v17.1.0/v18.0.0 - Repository Cleanup:**
+1. Ensure schedule is in localStorage (already done in v17.0.0)
+2. Delete schedule JSON files from repository
+3. Update onboarding for new users
+4. Commit and push cleanup
 
 **Benefits:**
 
