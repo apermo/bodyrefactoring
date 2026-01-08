@@ -51,10 +51,10 @@ echo "Copying assets...\n";
 copyDirectory('assets', 'dist/assets');
 echo "✓ Copied assets/\n";
 
-// Copy trainings directory
+// Copy trainings directory (exclude PHP files and schema)
 echo "Copying trainings...\n";
-copyDirectory('trainings', 'dist/trainings');
-echo "✓ Copied trainings/\n";
+copyDirectory('trainings', 'dist/trainings', ['*.php', 'schema-*.json', 'template-*.json']);
+echo "✓ Copied trainings/ (excluding PHP and schema files)\n";
 
 // Generate static schedules.json (replaces trainings/index.php)
 echo "Generating schedules.json...\n";
@@ -94,15 +94,32 @@ echo "\n✅ Build complete! Site ready in dist/\n";
 
 /**
  * Recursively copy directory
+ *
+ * @param string $src Source directory
+ * @param string $dst Destination directory
+ * @param array $excludePatterns Optional array of patterns to exclude (supports wildcards)
  */
-function copyDirectory($src, $dst) {
+function copyDirectory($src, $dst, $excludePatterns = []) {
     $dir = opendir($src);
     @mkdir($dst, 0755, true);
 
     while (false !== ($file = readdir($dir))) {
         if (($file != '.') && ($file != '..')) {
+            // Check if file matches any exclusion pattern
+            $shouldExclude = false;
+            foreach ($excludePatterns as $pattern) {
+                if (fnmatch($pattern, $file)) {
+                    $shouldExclude = true;
+                    break;
+                }
+            }
+
+            if ($shouldExclude) {
+                continue;
+            }
+
             if (is_dir($src . '/' . $file)) {
-                copyDirectory($src . '/' . $file, $dst . '/' . $file);
+                copyDirectory($src . '/' . $file, $dst . '/' . $file, $excludePatterns);
             } else {
                 copy($src . '/' . $file, $dst . '/' . $file);
             }
