@@ -54,6 +54,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved maintainability and theming support
   - Ready for v14.4 two-layer circle animation colors
 
+### Fixed
+
+- **PR enforce workflow race condition**: Changed trigger from `pull_request` to `workflow_run` to wait for PR Validation to complete
+  - Eliminates race condition where enforce job runs before validation jobs finish
+  - No more false failures on PR creation
+  - PR description edits no longer trigger unnecessary workflow runs
+  - Proper sequential execution: PR Validation → PR Requirements Enforcement
+
 ## [13.0.0] - 2026-01-05
 
 **Complete architectural refactoring with 6 phases and 13 modules.**  

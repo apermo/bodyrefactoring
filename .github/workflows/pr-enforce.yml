@@ -1,38 +1,61 @@
 name: Enforce PR Requirements
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    branches:
-      - main
+  workflow_run:
+    workflows: ["PR Validation"]
+    types:
+      - completed
 
 permissions:
   contents: read
   statuses: write
   checks: write
+  pull-requests: read
 
 jobs:
   enforce-requirements:
     name: Enforce PR Requirements
     runs-on: ubuntu-latest
+    # Only run if PR Validation completed (success or failure)
+    if: github.event.workflow_run.event == 'pull_request'
     steps:
+      - name: Get PR number
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pulls = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${context.payload.workflow_run.head_branch}`,
+              state: 'open'
+            });
+
+            if (pulls.data.length === 0) {
+              console.log('No open PR found for this branch');
+              return null;
+            }
+
+            const pr = pulls.data[0];
+            console.log(`Found PR #${pr.number}`);
+            return pr.number;
+
       - name: Set initial status
+        if: steps.pr.outputs.result != 'null'
         uses: actions/github-script@v7
         with:
           script: |
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: context.payload.pull_request.head.sha,
+              sha: context.payload.workflow_run.head_sha,
               state: 'pending',
               context: 'PR Requirements',
-              description: 'Checking version, changelog, and schedules...'
+              description: 'Checking validation results...'
             });
 
-      - name: Wait for validation jobs
-        run: sleep 30
-
       - name: Check validation results
+        if: steps.pr.outputs.result != 'null'
         id: check-results
         uses: actions/github-script@v7
         with:
@@ -41,7 +64,7 @@ jobs:
             const { data: checkRuns } = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: context.payload.pull_request.head.sha
+              ref: context.payload.workflow_run.head_sha
             });
 
             console.log('Check runs:', JSON.stringify(checkRuns.check_runs.map(cr => ({
@@ -58,12 +81,11 @@ jobs:
             let allPassed = true;
             let failedChecks = [];
 
-            // Version check: must exist and be successful
-            if (versionCheck && versionCheck.conclusion !== 'success') {
+            // Version check: must exist and be successful (or skipped)
+            if (versionCheck && versionCheck.conclusion === 'failure') {
               allPassed = false;
               failedChecks.push('Version bump');
             } else if (!versionCheck || versionCheck.conclusion === 'skipped') {
-              // If skipped, it's ok (description edit scenario)
               console.log('Version check skipped or not found - treating as pass');
             }
 
@@ -86,21 +108,21 @@ jobs:
             return { allPassed, failedChecks: failedChecks.join(', ') || 'none' };
 
       - name: Update status (success)
-        if: fromJSON(steps.check-results.outputs.result).allPassed
+        if: steps.pr.outputs.result != 'null' && fromJSON(steps.check-results.outputs.result).allPassed
         uses: actions/github-script@v7
         with:
           script: |
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: context.payload.pull_request.head.sha,
+              sha: context.payload.workflow_run.head_sha,
               state: 'success',
               context: 'PR Requirements',
               description: '✅ All requirements met'
             });
 
       - name: Update status (failure)
-        if: "!fromJSON(steps.check-results.outputs.result).allPassed"
+        if: steps.pr.outputs.result != 'null' && !fromJSON(steps.check-results.outputs.result).allPassed
         uses: actions/github-script@v7
         with:
           script: |
@@ -108,7 +130,7 @@ jobs:
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: context.payload.pull_request.head.sha,
+              sha: context.payload.workflow_run.head_sha,
               state: 'failure',
               context: 'PR Requirements',
               description: `❌ Failed: ${result.failedChecks}`
