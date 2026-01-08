@@ -475,17 +475,34 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
 - **Timing Adjustment**
   - Count on color change at 50% progress (not at start)
   - First 50% = "Tension" phase
-  - Second 50% = "Relax" phase
+  - Second 50% = "Release" phase
   - More accurate sync with actual movement
 
-- **Visual Progress Indicator**
-  - Animated circle with moving dot (clockwise)
-  - Odd reps: Draw circle progressively
-  - Even reps: Erase circle progressively
-  - Color coding:
-    - "Up" phase: Blue/cyan
-    - "Down" phase: Green
-    - Creates visual rhythm matching exercise tempo
+- **Visual Progress Indicator: Two-Layer Animated Circle**
+  - **Base Layer**: Grey circle (always visible, always 100% complete)
+  - **Drawing Layers**: Two circles that alternate between odd/even reps
+  - **Moving Ball**: Indicator travels clockwise, leaving colored trace
+  
+  **Color Schemes:**
+  - **Odd Reps (Scheme 1)**: Red → Yellow
+    - Tension phase (0° → 180°): Red (#ef4444) - High intensity, effort
+    - Release phase (180° → 360°): Yellow (#eab308) - Energy release, completion
+  - **Even Reps (Scheme 2)**: Purple → Cyan
+    - Tension phase (0° → 180°): Purple (#a855f7) - Focus, intensity
+    - Release phase (180° → 360°): Cyan (#06b6d4) - Cool, calm, recovery
+  
+  **Animation Behavior:**
+  - Rep 1: Ball paints red (tension) then yellow (release) over grey base
+  - Rep 2: Ball paints purple (tension) then cyan (release) over previous colors
+  - Rep 3: Layer 1 resets behind Layer 2, ball paints red/yellow again
+  - Pattern continues: Alternating schemes provide clear rep counting
+  
+  **Benefits:**
+  - Always see complete circle (no disappearing/erasing)
+  - Clear phase awareness (color changes at 50% mark)
+  - Visual rhythm from alternating color schemes
+  - Professional, polished animation
+  - Ball position shows exact progress within rep
 
 - **Transition Bug Fixes**
   - Add small delay (500-1000ms) after last rep before switching to cooldown
@@ -525,13 +542,26 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
   - Default to equal split if not specified
   - Example: `"delayMilliseconds": {"up": 1500, "down": 1500}` or `3000` (auto-split)
 
-- **Implement SVG circle animation**
-  - Use stroke-dasharray/stroke-dashoffset for progressive drawing
-  - Clockwise motion (0deg → 360deg)
-  - Odd reps: Draw (dashoffset decreases)
-  - Even reps: Erase (dashoffset increases)
-  - Color transition: Blue (up) → Green (down)
-  - Smooth CSS transitions
+- **Implement two-layer SVG circle animation**
+  - **SVG Structure**: 3 circles + 1 ball indicator
+    - Base circle: Grey, always 100% visible (#64748b)
+    - Odd rep layer: Red/Yellow scheme, z-index alternates
+    - Even rep layer: Purple/Cyan scheme, z-index alternates
+    - Ball indicator: White dot following circle path
+  - **Animation Logic**:
+    - Phase 1 (0° → 180°): Tension color, first half of delay
+    - Phase 2 (180° → 360°): Release color, second half of delay
+    - Use stroke-dasharray/stroke-dashoffset for progressive drawing
+    - Animate ball position along circle path (synchronized)
+  - **Layer Management**:
+    - Odd reps: Draw on Layer A (z-index: 2, front)
+    - Even reps: Draw on Layer B (z-index: 2, front)
+    - After each rep: Reset inactive layer (behind), swap z-indexes
+    - Result: User always sees full circle, no visual resets
+  - **Color Transitions**:
+    - Hard color switch at 180° (50% progress)
+    - Tension → Release color change
+    - Alternating schemes provide clear odd/even rep indication
 
 - **Fix rep counter state transitions**
   - Add `REP_COMPLETE` intermediate state
@@ -560,15 +590,21 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
 **Benefits:**
 - ✅ **Better workout flow** - No need to abort rep counter for notes/weight
 - ✅ **Sleep prevention** - Screen stays active during rest
-- ✅ **Accurate timing** - Count matches actual movement
-- ✅ **Visual feedback** - Progress indicator shows rhythm
-- ✅ **Smooth transitions** - No jarring state changes
+- ✅ **Accurate timing** - Count matches actual movement (50% transition)
+- ✅ **Professional visual feedback** - Two-layer circle with phase colors
+- ✅ **Clear rep counting** - Alternating color schemes (red/yellow vs purple/cyan)
+- ✅ **Always complete circle** - No disappearing/erasing, grey base always visible
+- ✅ **Phase awareness** - Color change at 50% shows tension → release transition
+- ✅ **Smooth transitions** - No jarring state changes, layer management behind scenes
 - ✅ **Test coverage** - Playwright tests ensure stability
 
 **Estimated Effort:** 4-5 days
-- State machine enhancement (1 day)
+- State machine enhancement (0.5 day)
 - Quick access panel UI (1 day)
-- Animation system (1 day)
+- Two-layer circle animation system (1.5 days)
+  - SVG structure and layer management (0.5 day)
+  - Phase-based color animation (0.5 day)
+  - Ball indicator synchronization (0.5 day)
 - Timing and transitions (0.5 day)
 - Testing and refinement (1 day)
 - Documentation (0.5 day)
