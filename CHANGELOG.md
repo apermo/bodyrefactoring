@@ -42,6 +42,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Prevents visual conflict when completing last exercise of the day
   - Confetti continues falling in background behind completion modal
   - Applies to miniConfetti (checkbox), superConfetti (day completion), and subduedConfetti (recovery/sick)
+- **CSS Color System Refactoring**: Extracted all colors to CSS custom properties
+  - Added `:root` variables for all colors (22 total: 20 unique + 2 semantic aliases)
+  - Implemented RGB variables for `rgba()` support using `--color-name-rgb` pattern
+  - Technique from StackOverflow (CC BY-SA 4.0): https://stackoverflow.com/a/41265350
+  - Semantic aliases using `var()`: `--color-rep-tension-1: var(--color-danger)`
+  - Merged duplicate: `--color-bg-modal` → `--color-bg-secondary` (cards + modals)
+  - All `rgba()` now use CSS variables with alpha channel
+  - Zero hardcoded colors remaining in CSS
+  - No visual changes - internal refactoring only
+  - Improved maintainability and theming support
+  - Ready for v14.4 two-layer circle animation colors
 
 ## [13.0.0] - 2026-01-05
 
