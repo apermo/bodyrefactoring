@@ -40,6 +40,7 @@ This repository uses Netlify to automatically create preview environments for ev
 ### Build Script Details
 
 The `build.php` script:
+- Purges old `dist/` directory to ensure clean builds
 - Reads `index.php`
 - Removes PHP consent logic (not needed for previews)
 - Replaces `<?php echo APP_VERSION; ?>` with actual version

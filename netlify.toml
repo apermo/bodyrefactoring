@@ -6,14 +6,20 @@
   PHP_VERSION = "8.2"
 
 [[redirects]]
-  from = "/trainings/"
+  # This ensures it catches "/trainings" and "/trainings/" before the catch-all.
+  from = "/trainings"
   to = "/trainings/schedules.json"
   status = 200
   force = true
 
-# Catch-all for SPA routing (only if file doesn't exist)
 [[redirects]]
-  from = "/"
+  from = "/trainings/"
+  to = "/trainings/schedules.json"
+  status = 200
+  force = true
+# Catch-all for SPA routing
+[[redirects]]
+  from = "/*"
   to = "/index.html"
   status = 200
 

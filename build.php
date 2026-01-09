@@ -6,10 +6,15 @@
 
 echo "Building static site for Netlify...\n";
 
-// Create dist directory
-if (!file_exists('dist')) {
-    mkdir('dist', 0755, true);
+// Purge dist directory to remove old files
+if (file_exists('dist')) {
+    echo "Purging old dist/ directory...\n";
+    deleteDirectory('dist');
+    echo "✓ Purged dist/\n";
 }
+
+// Create dist directory
+mkdir('dist', 0755, true);
 
 // Get version from composer.json
 $composerJson = json_decode(file_get_contents('composer.json'), true);
@@ -127,5 +132,27 @@ function copyDirectory($src, $dst, $excludePatterns = []) {
     }
 
     closedir($dir);
+}
+
+/**
+ * Recursively delete directory
+ *
+ * @param string $dir Directory to delete
+ */
+function deleteDirectory($dir) {
+    if (!file_exists($dir)) {
+        return;
+    }
+
+    $files = array_diff(scandir($dir), ['.', '..']);
+    foreach ($files as $file) {
+        $path = $dir . '/' . $file;
+        if (is_dir($path)) {
+            deleteDirectory($path);
+        } else {
+            unlink($path);
+        }
+    }
+    rmdir($dir);
 }
 
