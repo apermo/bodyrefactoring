@@ -13,7 +13,7 @@
 
 # Catch-all for SPA routing (only if file doesn't exist)
 [[redirects]]
-  from = "/*"
+  from = "/"
   to = "/index.html"
   status = 200
 
