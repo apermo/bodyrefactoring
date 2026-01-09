@@ -56,10 +56,26 @@ The `build.php` script:
 - `template-*.json` (templates)
 
 **JavaScript Compatibility:**
-The app automatically detects the environment:
-1. Tries to fetch `trainings/index.php` (production with PHP)
-2. Falls back to `trainings/schedules.json` (Netlify static hosting)
-3. No code changes needed - works on both platforms
+The app automatically works on both platforms using directory paths:
+1. Fetches `trainings/` (directory path without file)
+2. **On Plesk (production)**: Apache `.htaccess` serves `index.php` as directory index
+3. **On Netlify (preview)**: `netlify.toml` redirects to `schedules.json`
+4. No code changes needed - works on both platforms transparently
+
+**Netlify Redirects:**
+```toml
+# Serve schedules.json when accessing /trainings/ directory
+[[redirects]]
+  from = "/trainings/"
+  to = "/trainings/schedules.json"
+  status = 200
+
+# Also handle direct index.php requests
+[[redirects]]
+  from = "/trainings/index.php"
+  to = "/trainings/schedules.json"
+  status = 200
+```
 
 **Build time:** ~30 seconds
 

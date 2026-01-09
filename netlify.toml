@@ -6,9 +6,20 @@
   PHP_VERSION = "8.2"
 
 [[redirects]]
+  from = "/trainings/"
+  to = "/trainings/schedules.json"
+  status = 200
+
+[[redirects]]
+  from = "/trainings/index.php"
+  to = "/trainings/schedules.json"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
 
 [context.production]
   publish = "dist"

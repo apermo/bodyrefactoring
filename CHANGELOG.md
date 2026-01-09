@@ -25,7 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Build script (`build.php`) converts PHP to static HTML
   - Generates static `trainings/schedules.json` to replace PHP schedule listing
   - Excludes unnecessary files: PHP scripts, schemas, and templates from trainings/
-  - JavaScript fallback: tries `index.php` (production) then `schedules.json` (Netlify)
+  - **Redirect-based compatibility**: App uses `trainings/` path on both platforms
+    - Plesk: Apache DirectoryIndex serves `index.php`
+    - Netlify: Redirect serves `schedules.json`
+    - Same JavaScript code works everywhere
   - Netlify configuration (`netlify.toml`)
   - Automatic deployment on PR creation/update
   - Auto-cleanup when PR closes

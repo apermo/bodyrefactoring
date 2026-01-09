@@ -110,13 +110,8 @@ async function initApp() {
 	}
 
 	try {
-		// Try index.php first (production with PHP), fall back to schedules.json (Netlify static)
-		let response = await fetch('trainings/index.php');
-
-		// If index.php fails (404 on static hosting), try static JSON
-		if (!response.ok) {
-			response = await fetch('trainings/schedules.json');
-		}
+		// Fetch schedules (redirects to index.php on Plesk or schedules.json on Netlify)
+		const response = await fetch('trainings/');
 
 		if (!response.ok) {
 			throw new Error('Failed to load schedules');
