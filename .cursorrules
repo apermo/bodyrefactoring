@@ -918,6 +918,232 @@ Mark features with status indicators to track development progress:
 - Verify moves show as renames: `git status --short` should show `R` prefix
 - Exception: Only use regular file operations for temporary/uncommitted files
 
+### Starting a New Version Workflow
+
+When user says **"let's start with v1.2.3"** (or similar version command), execute this workflow:
+
+#### Automatic Steps (Execute in Order)
+
+1. **Update main branch**
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+2. **Create new branch from main**
+   ```bash
+   git checkout -b v1.2.3
+   ```
+   - Branch name should match version number exactly
+   - Format: `vMAJOR.MINOR.PATCH` (e.g., v14.2.0, v15.0.0)
+
+3. **Update composer.json version**
+   ```bash
+   # Update "version" field in composer.json to new version
+   # Example: "version": "14.2.0" (without 'v' prefix in JSON)
+   ```
+
+4. **Stage and commit version bump**
+   ```bash
+   git add composer.json && git status
+   git commit -m "chore: bump version to 1.2.3"
+   ```
+
+5. **Prepare CHANGELOG.md**
+   - Add new unreleased section for this version
+   ```markdown
+   ## [1.2.3] - Unreleased
+
+   ### Added
+
+   ### Changed
+
+   ### Fixed
+
+   ### Removed
+   ```
+
+6. **Stage and commit CHANGELOG template**
+   ```bash
+   git add CHANGELOG.md && git status
+   git commit -m "docs(changelog): prepare v1.2.3 section"
+   ```
+
+7. **Ask about previous branch cleanup**
+   - "Should I delete the previous branch `[branch-name]`?"
+   - Wait for user response
+   - If yes: `git branch -D [previous-branch-name]`
+   - If no: Just acknowledge
+
+8. **Roadmap Summary & Planning**
+   - Read `docs/roadmap.md` to find this version
+   - If version is scheduled in roadmap:
+     - Summarize planned features/work for this version
+     - Ask: "Any changes to the roadmap for this version?"
+     - For each major feature/task, ask if there are topics to discuss before starting
+     - Wait for user response before proceeding
+   - If version is NOT in roadmap (e.g., bugfix version):
+     - Recognize this is an unplanned version
+     - Ask: "What needs to be fixed/added in this version?"
+     - Gather information about scope
+     - Suggest adding to roadmap if it's a significant change
+     - Wait for user response
+
+9. **Provide Status Summary**
+
+After all steps complete, provide comprehensive summary:
+
+```
+✅ Started version v1.2.3
+
+📋 Setup Complete:
+- Current branch: v1.2.3
+- composer.json: Updated to 1.2.3
+- CHANGELOG.md: Template added for v1.2.3
+- Previous branch: [action taken]
+
+🎯 Planned for v1.2.3:
+[Summary of roadmap items or gathered scope]
+
+📝 Remember:
+- All commits will update CHANGELOG [1.2.3] section
+- Update docs/roadmap.md to mark completed items with ✅
+- When ready to release: Create PR to main, then tag v1.2.3
+
+Ready to start work on [first feature/task]?
+```
+
+#### Important Notes
+
+- **Version format in files**:
+  - Branch name: `v1.2.3` (with 'v')
+  - composer.json: `"version": "1.2.3"` (without 'v')
+  - CHANGELOG.md: `## [1.2.3]` (without 'v')
+  - Git tag: `v1.2.3` (with 'v')
+
+- **CHANGELOG updates happen during version bump**:
+  - The CHANGELOG template is created when starting a new version
+  - Changes are added to CHANGELOG as features are completed
+  - Do NOT include "update CHANGELOG" in the list of things to do for a version
+  - The CHANGELOG is the RECORD of what's done, not a task itself
+  - User may discard CHANGELOG changes during development and rewrite them later
+
+- **This workflow assumes**:
+  - User is on a feature branch before starting new version
+  - Main branch is the stable branch
+  - Previous work has been merged or can be safely abandoned
+
+- **Don't automatically**:
+  - Delete previous branch (always ask first)
+  - Push to remote (user will decide when)
+  - Update roadmap.md during setup (happens during actual work)
+  - Start coding (wait for user confirmation after planning discussion)
+
+#### Error Handling
+
+If any step fails:
+1. Stop immediately
+2. Report what failed
+3. Show current state: `git status`, current branch
+4. Ask user how to proceed
+
+#### Special Cases & Version Type Handling
+
+**Patch version (x.y.Z) - Bugfix:**
+- Often NOT in roadmap (unplanned fixes)
+- Ask: "What bug needs fixing in this patch?"
+- Gather: Steps to reproduce, expected vs actual behavior
+- Quick bugfix scope
+- Minimal CHANGELOG updates (goes in "Fixed" section)
+- Usually skip roadmap updates
+- Example: v14.1.1 for fixing a specific bug
+
+**Minor version (x.Y.0) - New Features:**
+- SHOULD be in roadmap with planned features
+- Summarize planned features from roadmap
+- Ask about each major feature if discussion needed
+- Update roadmap.md to mark features as ✅ when completed
+- May need documentation updates
+- CHANGELOG focuses on "Added" and "Changed" sections
+- Example: v14.2.0 for calendar integration
+
+**Major version (X.0.0) - Breaking Changes:**
+- MUST be in roadmap with extensive planning
+- Summarize ALL planned work and breaking changes
+- Discuss migration strategy for breaking changes
+- Extensive CHANGELOG documentation required
+- Update roadmap.md with new development cycle
+- Update README.md with major changes
+- Consider migration guides in docs/
+- Example: v15.0.0 for XP system and major refactor
+
+#### Roadmap Interaction Examples
+
+**Scenario 1: Scheduled Minor Version**
+```
+User: "let's start with v14.2.0"
+
+AI: [Executes steps 1-7]
+
+AI: "According to roadmap.md, v14.2.0 includes:
+- Calendar Integration (.ics export)
+- Add workouts to iOS Calendar
+- Quick win (~1-2 days effort)
+
+Any changes to this plan? Any topics to discuss before starting?"
+
+User: "Looks good, let's start"
+
+AI: [Provides status summary and asks about first task]
+```
+
+**Scenario 2: Unplanned Patch Version**
+```
+User: "let's start with v14.1.1"
+
+AI: [Executes steps 1-7]
+
+AI: "v14.1.1 is not in the roadmap. This appears to be a bugfix version.
+What bug needs to be fixed in this patch?"
+
+User: "The streak counter is broken when using recovery mode"
+
+AI: "Got it. I'll help fix the streak counter bug.
+
+Can you describe:
+1. Steps to reproduce the bug
+2. Expected behavior
+3. Current (broken) behavior"
+
+[Gathers information, then provides status summary]
+```
+
+**Scenario 3: Major Version with Discussion Needed**
+```
+User: "let's start with v15.0.0"
+
+AI: [Executes steps 1-7]
+
+AI: "According to roadmap.md, v15.0.0 includes:
+- XP System with level progression
+- Survey system for schedule feedback
+- Weight adjustment UI
+- Potentially breaking: Schedule data structure changes
+
+This is a major version with breaking changes.
+Let's discuss:
+
+1. XP System: Should XP be retroactive or start fresh?
+2. Schedule structure: What breaking changes are planned?
+3. Migration: Do we need a migration guide for existing users?
+
+What are your thoughts?"
+
+[User discusses each point, AI takes notes]
+
+AI: [Provides comprehensive status summary with decisions made]
+```
+
 ## Future Considerations
 
 - Consider separating JavaScript into external file (currently inline)
