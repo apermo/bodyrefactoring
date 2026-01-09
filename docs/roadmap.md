@@ -99,6 +99,27 @@ END:VCALENDAR`.trim();
 **Priority: High**  
 **Focus**: Automated code quality enforcement and consistency
 
+#### `.cursorrules` Review & Organization
+- **Review and Reorganize `.cursorrules`**
+  - File has grown to 937 lines with multiple additions over time
+  - Review for redundancy and contradictions
+  - Better logical grouping of related rules
+  - Clearer section hierarchy and navigation
+  - Remove outdated or superseded rules
+  - Consolidate duplicate information
+  - Add table of contents for easy navigation
+  - Ensure all rules are still relevant and actionable
+  - Verify examples are up-to-date with current codebase
+  - Consider splitting into multiple focused files if needed (e.g., `.cursorrules-git`, `.cursorrules-code-quality`)
+
+**Why in this version:**
+- Complements linting setup (both focus on code quality standards)
+- Clean ruleset helps AI assistants follow standards more effectively
+- Better organization improves AI adherence to git workflow rules
+- Should be done before major coding work in v14.4+ to ensure consistency
+
+**Estimated Effort:** 2-3 hours
+
 #### PHP Linting
 - **WordPress Coding Standards (Opinionated)**
   - Install and configure PHP_CodeSniffer (PHPCS)
@@ -1623,7 +1644,7 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ---
 
-**Last Updated**: January 9, 2026  
+**Last Updated**: January 10, 2026  
 **Current Stable Release**: v13.0.0  
 **Development Cycle**: v14
 

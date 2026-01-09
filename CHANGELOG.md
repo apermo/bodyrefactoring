@@ -38,13 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **`.cursorrules` enhanced**: Added strict commit message formatting guidelines for AI
-  - Explicit 50/72 character rules with examples
-  - Character counting instructions for AI-generated commits
-  - Common mistakes and how to avoid them
-  - Strategies for handling messages that exceed limits
-- **`.cursorrules` enhanced**: Added code quality and commenting guidelines
-  - **Git workflow**: Strict separation of code changes and git operations - AI must always ask before committing
+- **`.cursorrules` enhanced**: Multiple improvements to AI development guidelines
+  - **Git workflow rules**: Strict separation of code changes and git operations - AI must always ask before committing
+    - Enhanced visibility: Top-of-file warning, visual ASCII box, and checklist format
+    - Checklist: "Did user ask? Did I ask and get yes? If no → STOP"
+    - Prominent reminder: "Breaking this rule frustrates the user!"
   - **Git command distinction**: Clear difference between "commit" (commit only) and "push" (commit + push)
     - "commit" = Only stage and commit, no pushing or push suggestions
     - "push" / "push it" / "commit and push" = Full workflow including commit then push
@@ -54,12 +52,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Allows user to verify what's about to be committed
     - User can catch issues before commit happens
     - Never run `git log` after commits (redundant, wastes time)
-  - **Comment guidelines**: PHPDoc/JSDoc required, inline comments only when adding value (explain regex, complex logic, workarounds)
-  - **No obvious comments**: Avoid tutorial-style or code-restating comments
+  - **Code reuse rule**: Before creating new functions or tools, scan existing code
+    - Check if similar function already exists
+    - Check if existing function can be extended
+    - Avoid code duplication
+    - Maintain DRY (Don't Repeat Yourself) principle
+  - **Commit message formatting**: Strict 50/72 character rules with examples
+    - Explicit character counting instructions for AI-generated commits
+    - Common mistakes and how to avoid them
+    - Strategies for handling messages that exceed limits
+  - **Comment guidelines**: PHPDoc/JSDoc required, inline comments only when adding value
+    - Explain regex, complex logic, workarounds
+    - No obvious or tutorial-style comments
   - **No clever coding**: Write clear, maintainable code over concise "tricks"
-  - Examples of good vs bad comments and code clarity
-  - **Private directory**: Added `/private/` for sensitive analysis documents that should not be committed to repository
-  - Rule: Personal thoughts, motivations, and sensitive planning docs go in `/private/`, technical docs in `/docs/`
+    - Examples of good vs bad comments and code clarity
+  - **Private directory**: Added `/private/` for sensitive analysis documents
+    - Personal thoughts, motivations, and sensitive planning docs go in `/private/`
+    - Technical docs go in `/docs/`
+- **🚨 BREAKING: Deployment trigger changed from main branch to tags** (`deploy.php`)
+  - Production deployment now triggers on **tag pushes** (releases) instead of main branch pushes
+  - Allows better control over production releases
+  - Main branch can have unreleased commits without triggering deployment
+  - Deploy workflow: Create tag (`git tag v14.1.0`) → Push tag (`git push origin v14.1.0`) → Automatic deployment
+  - **Action required**: Update GitHub webhook settings to listen for "Tags" or "Releases" events instead of "Pushes"
+  - Git commands updated: `git checkout --force {tag}` instead of `git pull origin main`
 
 ## [14.0.0] - 2026-01-08
 

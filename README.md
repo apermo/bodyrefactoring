@@ -254,6 +254,9 @@ The repository is already configured. When you create a PR:
 
 This repository supports automatic deployment via GitHub Webhooks to Plesk-powered web hosting.
 
+**Deployment Trigger:** Git tags (releases)  
+**How it works:** When you push a tag (e.g., `v14.1.0`), the webhook automatically deploys that specific version to production.
+
 ### **Server Setup**
 
 1. **Clone repository:**
@@ -324,14 +327,34 @@ Add the public key as a **Deploy Key**:
   - URL: `https://your-domain.com/deploy.php`
   - Content-Type: `application/json`
   - Secret: Your `DEPLOY_SECRET` from `.env`
-  - Events: "Just the push event"
+  - Events: Select "Let me select individual events" → Check **only** "Releases" or "Tags" (not "Pushes")
+  - Active: ✅ Enabled
+
+### **Usage**
+
+To deploy a new version to production:
+
+```bash
+# Create and push a tag (e.g., for v14.1.0)
+git tag v14.1.0
+git push origin v14.1.0
+
+# The webhook automatically deploys this tag to production
+```
 
 ### **Testing**
 
 ```bash
-git commit --allow-empty -m "Test deployment"
-git push origin main
+# Test deployment with a tag
+git tag test-deploy
+git push origin test-deploy
+
+# Monitor deployment
 tail -f deploy.log
+
+# Clean up test tag
+git tag -d test-deploy
+git push origin :refs/tags/test-deploy
 ```
 
 ### **1\. Requirements**
