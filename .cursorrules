@@ -683,7 +683,10 @@ Mark features with status indicators to track development progress:
     - Do NOT suggest pushing
     - Do NOT mention that pushing is the next step
     - User is aware pushing is needed and will do it when ready
-  - **"commit and push"** or **"push"** or **"push now"**: Perform `git add`, `git commit`, AND `git push`
+  - **"push"** or **"commit and push"** or **"push it"** or **"push now"**: Full workflow
+    - Perform `git add`, `git commit`, AND `git push`
+    - User will NEVER say just "push" without meaning commit first
+    - "push" alone = "commit and push"
   - **When asking if you should commit**: If user approves, also attempt to push (full workflow)
 
 - **Examples of correct behavior**:
@@ -691,6 +694,10 @@ Mark features with status indicators to track development progress:
   User: "commit"
   AI: [commits] ✅ Committed successfully!
   [STOP - do not mention pushing]
+
+  User: "push" or "push it" or "push now"
+  AI: [commits] ✅ Committed successfully!
+      [pushes] ✅ Pushed to origin/branch!
 
   User: "commit and push"
   AI: [commits] ✅ Committed successfully!
@@ -711,6 +718,38 @@ Mark features with status indicators to track development progress:
   2. Ask: "Ready to commit these changes?"
   3. If user confirms: Commit AND push
   4. Wait for user response
+
+- **Git command execution rules**:
+  - **ALWAYS chain `git status` after `git add`**: Use `git add <files> && git status`
+    - Shows user what files are staged before commit
+    - Allows user to catch issues before committing
+    - User can intervene if something unexpected was staged
+  - **Do NOT run `git log` after commits**: Waste of time, user already sees commit output
+    - If commit fails, user will see the error
+    - If commit succeeds, no need to verify with log
+    - Exception: Only use `git log` if explicitly debugging an issue
+
+- **Correct git workflow example**:
+  ```bash
+  # Stage files and show status (ALWAYS together)
+  git add file1.js file2.css && git status
+
+  # Commit (no log needed)
+  git commit -m "feat: add new feature"
+
+  # Push (no log needed)
+  git push origin branch-name
+  ```
+
+- **Incorrect git workflow example**:
+  ```bash
+  # ❌ WRONG: git add without showing status
+  git add file1.js file2.css
+
+  # ❌ WRONG: checking log after commit
+  git commit -m "feat: add new feature"
+  git log --oneline -1  # Unnecessary!
+  ```
 
 - **Read-only git commands** are allowed anytime for verification:
   - `git status`, `git diff`, `git log`, `git show`, etc.
