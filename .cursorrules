@@ -677,20 +677,48 @@ Mark features with status indicators to track development progress:
   2. ALWAYS ask user: "Ready to commit?" or "Shall I commit these changes?"
   3. Wait for user confirmation before performing any git operations
   4. If user rejects: They may want to test, fix bugs, or commit manually
+
+- **Understanding user commands**:
+  - **"commit"** or **"commit this"**: Only perform `git add` and `git commit`, then STOP
+    - Do NOT suggest pushing
+    - Do NOT mention that pushing is the next step
+    - User is aware pushing is needed and will do it when ready
+  - **"commit and push"** or **"push"** or **"push now"**: Perform `git add`, `git commit`, AND `git push`
+  - **When asking if you should commit**: If user approves, also attempt to push (full workflow)
+
+- **Examples of correct behavior**:
+  ```
+  User: "commit"
+  AI: [commits] ✅ Committed successfully!
+  [STOP - do not mention pushing]
+
+  User: "commit and push"
+  AI: [commits] ✅ Committed successfully!
+      [pushes] ✅ Pushed to origin/branch!
+
+  AI: "Ready to commit these changes?"
+  User: "yes"
+  AI: [commits] ✅ Committed successfully!
+      [pushes] ✅ Pushed to origin/branch!
+  ```
+
 - **Do NOT perform git commands** (add, commit, push) unless:
   1. User explicitly requests git operations ("commit this", "push now", etc.)
   2. Something needs to be checked/verified (e.g., `git status`, `git diff`)
+
 - **When work is complete**:
   1. Summarize what was changed
   2. Ask: "Ready to commit these changes?"
-  3. Wait for user response
+  3. If user confirms: Commit AND push
+  4. Wait for user response
+
 - **Read-only git commands** are allowed anytime for verification:
   - `git status`, `git diff`, `git log`, `git show`, etc.
+
 - **User controls all write operations**:
   - Staging, committing, pushing
   - Branch creation/switching
   - Merging, rebasing
-- **Exception**: Only commit if user explicitly says "commit" or "commit this" or similar direct instruction
 
 ### GitHub Actions Testing
 - **Local testing with `act`**: The repository owner has [act](https://github.com/nektos/act) installed for local GitHub Actions testing

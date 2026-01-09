@@ -45,12 +45,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Strategies for handling messages that exceed limits
 - **`.cursorrules` enhanced**: Added code quality and commenting guidelines
   - **Git workflow**: Strict separation of code changes and git operations - AI must always ask before committing
+  - **Git command distinction**: Clear difference between "commit" (commit only) and "commit and push" (commit + push)
+    - "commit" = Only stage and commit, no pushing or push suggestions
+    - "commit and push" / "push" = Full workflow including push
+    - When AI asks "Ready to commit?", approval means commit AND push
   - **Comment guidelines**: PHPDoc/JSDoc required, inline comments only when adding value (explain regex, complex logic, workarounds)
   - **No obvious comments**: Avoid tutorial-style or code-restating comments
   - **No clever coding**: Write clear, maintainable code over concise "tricks"
   - Examples of good vs bad comments and code clarity
-- **README.md**: Added Development section with commit standards
-  - Quick reference for commit message format
+  - **Private directory**: Added `/private/` for sensitive analysis documents that should not be committed to repository
+  - Rule: Personal thoughts, motivations, and sensitive planning docs go in `/private/`, technical docs in `/docs/`
   - Examples of good vs bad commits
   - Links to detailed documentation
   - AI-generated commit message guidelines
