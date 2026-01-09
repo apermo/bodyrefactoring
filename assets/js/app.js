@@ -110,9 +110,11 @@ async function initApp() {
 	}
 
 	try {
-		const response = await fetch('trainings/index.php');
+		// Fetch schedules (redirects to index.php on Plesk or schedules.json on Netlify)
+		const response = await fetch('trainings/');
+
 		if (!response.ok) {
-			throw new Error('API Error');
+			throw new Error('Failed to load schedules');
 		}
 
 		state.availableSchedules = await response.json();
@@ -747,10 +749,10 @@ async function toggleCheck(row, storageKey, dateId) {
 			const parts = remainder.split('_');
 			date = parts[0];
 			id = parts.slice(1).join('_');
-		} else if (storageKey.startsWith('body_refactoring_')) {
+		} else if (storageKey.startsWith('body_refactoring_v1_')) {
 			prefix = 'br';
-			// Remove "body_refactoring_" prefix
-			const remainder = storageKey.substring('body_refactoring_'.length);
+			// Remove "body_refactoring_v1_" prefix
+			const remainder = storageKey.substring('body_refactoring_v1_'.length);
 			const parts = remainder.split('_');
 			date = parts[0];
 			id = parts.slice(1).join('_');
@@ -788,9 +790,9 @@ async function toggleCheck(row, storageKey, dateId) {
 			const parts = remainder.split('_');
 			date = parts[0];
 			id = parts.slice(1).join('_');
-		} else if (storageKey.startsWith('body_refactoring_')) {
+		} else if (storageKey.startsWith('body_refactoring_v1_')) {
 			prefix = 'br';
-			const remainder = storageKey.substring('body_refactoring_'.length);
+			const remainder = storageKey.substring('body_refactoring_v1_'.length);
 			const parts = remainder.split('_');
 			date = parts[0];
 			id = parts.slice(1).join('_');

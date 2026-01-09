@@ -10,6 +10,7 @@ serve dynamic, evolvable training schedules without breaking historical data.
 
 - **[Changelog](CHANGELOG.md)** - Complete version history and release notes
 - **[Roadmap](docs/roadmap.md)** - Planned features and future development
+- **[Netlify Setup Guide](docs/netlify-setup.md)** - Complete PR preview deployment documentation
 - **[v13.0.0 Refactoring](docs/v13-refactoring/README.md)** - Complete architectural refactoring documentation (6 phases, 13 modules)
 - **[Schedule Editor Guide](docs/schedule-editor.md)** - Complete guide for using the visual schedule editor
 - **[Schedule Validation Guide](docs/schedule-validation.md)** - Complete guide for creating and validating training schedules
@@ -218,9 +219,43 @@ The app uses file modification timestamps for automatic cache invalidation:
 
 Unlike the initial version, v8.0+ requires a web server (Apache/Nginx/PHP) to list the schedule files.
 
+## **🌐 PR Preview Deployments (Netlify)**
+
+This repository automatically creates preview environments for every pull request using Netlify.
+
+### **What You Get**
+
+Every PR automatically gets:
+- ✅ Unique preview URL: `https://deploy-preview-{number}--bodyrefactoring.netlify.app`
+- ✅ Automatic deployment on every push to PR
+- ✅ Preview link posted in PR comments
+- ✅ Auto-cleanup when PR closes/merges
+- ✅ ~30-second build time
+- ✅ Free tier (100GB bandwidth/month)
+
+### **How It Works**
+
+1. **Build script** (`build.php`) converts PHP to static HTML
+2. **Netlify** detects `netlify.toml` configuration
+3. **Automatic deployment** on PR creation/update
+4. **Preview URL** appears in PR
+
+### **No Setup Required!**
+
+The repository is already configured. When you create a PR:
+1. Netlify automatically builds and deploys
+2. Preview URL appears in PR comments
+3. Test your changes before merging
+4. Production (Plesk) remains unaffected
+
+**Note:** PR previews are static (no PHP runtime). This is perfect for testing UI changes, schedules, and app logic. Production deployment remains on Plesk with full PHP support.
+
 ## **🔄 Automatic Deployment (Plesk)**
 
 This repository supports automatic deployment via GitHub Webhooks to Plesk-powered web hosting.
+
+**Deployment Trigger:** Git tags (releases)  
+**How it works:** When you push a tag (e.g., `v14.1.0`), the webhook automatically deploys that specific version to production.
 
 ### **Server Setup**
 
@@ -292,14 +327,34 @@ Add the public key as a **Deploy Key**:
   - URL: `https://your-domain.com/deploy.php`
   - Content-Type: `application/json`
   - Secret: Your `DEPLOY_SECRET` from `.env`
-  - Events: "Just the push event"
+  - Events: Select "Let me select individual events" → Check **only** "Releases" or "Tags" (not "Pushes")
+  - Active: ✅ Enabled
+
+### **Usage**
+
+To deploy a new version to production:
+
+```bash
+# Create and push a tag (e.g., for v14.1.0)
+git tag v14.1.0
+git push origin v14.1.0
+
+# The webhook automatically deploys this tag to production
+```
 
 ### **Testing**
 
 ```bash
-git commit --allow-empty -m "Test deployment"
-git push origin main
+# Test deployment with a tag
+git tag test-deploy
+git push origin test-deploy
+
+# Monitor deployment
 tail -f deploy.log
+
+# Clean up test tag
+git tag -d test-deploy
+git push origin :refs/tags/test-deploy
 ```
 
 ### **1\. Requirements**
@@ -599,6 +654,51 @@ brew install act  # macOS
 ```
 
 **Note**: act is completely optional. If not installed, workflows are automatically tested when you push to GitHub.
+
+## **👨‍💻 Development**
+
+### **Commit Message Standards**
+
+This project follows **Conventional Commits** with strict formatting rules.
+
+**Format:** `<type>(<scope>): <subject>`
+
+**Character limits (enforced by git hooks):**
+- Subject line: **50 characters recommended**, **72 maximum** (hard limit)
+- Body lines: **72 characters maximum** per line
+
+**Important for AI-Generated Commits:**
+When using "Generate Commit Message" features (Copilot, etc.), always verify the character count. If the generated message exceeds 50 characters, manually shorten it before committing.
+
+**Quick Reference:**
+```bash
+# Good examples (under 50 chars)
+feat(timer): add pause functionality
+fix(auth): resolve login timeout
+docs: update installation guide
+refactor(api): simplify error handling
+
+# Bad examples (too long)
+feat(schedule-editor): add comprehensive validation and error handling support
+fix(rep-counter-modal): resolve animation timing issue during cooldown
+```
+
+**Tools:**
+- `.gitmessage` - Git commit message template (shows character guides)
+- `tools/validate-commit-msg.sh` - Manual validation script
+- `tools/README.md` - Complete commit message guidelines and tips
+
+**Commit types:**
+- `feat` - New feature
+- `fix` - Bug fix
+- `docs` - Documentation changes
+- `style` - Code formatting (no logic change)
+- `refactor` - Code refactoring
+- `test` - Adding tests
+- `chore` - Maintenance tasks
+- `perf` - Performance improvements
+
+**Full documentation:** See [tools/README.md](tools/README.md) for detailed guidelines, examples, and troubleshooting.
 
 ## **⚠️ Disclaimer**
 

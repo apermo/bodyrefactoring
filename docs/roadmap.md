@@ -4,83 +4,121 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ## 📋 Feature Roadmap
 
-### v14.0.0 - Rep Counter Enhancements
+### v14.1.0 ✅ - Development Tooling & Quality (COMPLETED)
 
-**Priority: High**  
-**Focus**: Improved rep counter usability and interaction during workouts
+**Completed:** January 9, 2026  
+**Focus**: Commit standards, PR previews, and code quality guidelines
 
-#### ✅ Navigation Improvements
-- **"Today" Button in Week Navigation**
-  - Appears in week navigation bar (right side of week display)
-  - Only visible when viewing a week other than current week
-  - Quick jump back to today's date
-  - Keeps week display centered as long as space available
-  - Mobile-optimized placement (doesn't interfere with week arrows)
-
-#### ✅ Sick/Recovery Completion Modal
-- **Subdued Completion Celebration**
-  - Modal appears when completing sick/recovery day
-  - Less celebrational tone than normal streak modal
-  - Shows updated streak status (maintained/paused)
-  - Different visual style:
-    - Softer colors (blues/purples instead of bright colors)
-    - Calmer messaging ("Taking care of yourself" vs "Great job!")
-    - Reduced confetti (75 particles vs 100, 75% of normal)
-    - Recovery icon (🩹 or 💊) instead of trophy/medal
-  - Acknowledges effort while respecting recovery state
-  - Quick dismiss (no excessive celebration)
-
-#### ✅ Schedule Editor: Rep Counter Support
-- **Simple JSON Input Field**
-  - Added rep counter configuration to exercise editor
-  - Same approach as existing timer configuration
-  - JSON format: `{"sets": 3, "reps": 12, "restSeconds": 60, "delayMilliseconds": 3000}`
-  - All fields optional but recommended for complete rep counter functionality
-  - Validates JSON on save
-  - Makes it easy to add/edit rep counter without manual JSON file editing
-  - Note: Full editor refactoring planned for v17.0.0
-
-
-**Technical Implementation:**
-- ✅ Add "Today" button to week navigation component
-  - Conditionally render based on `currentWeekOffset !== 0`
-  - Position: Right side of week display (after week text)
-  - Button style: Minimal, icon-based (🏠 or 📅 icon)
-  - Click handler: Reset week offset to 0, reload current day view
-- ✅ Update week navigation layout:
-  - Use flexbox with space-between for arrows, week text, and today button
-  - Keep week text centered when today button not visible
-  - Adjust layout for mobile (ensure touch targets are 44x44px minimum)
-- ✅ State management:
-  - Track current week offset in app state
-  - Compare against today's date to determine button visibility
-  - Smooth transition animation when jumping to today
-- ✅ Create sick/recovery completion modal component
-  - Separate modal styles for sick vs recovery mode
-  - Reduced confetti configuration (particleCount: 50, spread: 40, 50% of normal)
-  - Custom messaging based on mode:
-    - Sick: "Ruhe dich gut aus 💊" / "Rest and recover"
-    - Recovery: "Gut gemacht, sanft erholt 🩹" / "Well done, gentle recovery"
-  - Display current streak status with context
-  - Icon selection: 🩹 for recovery, 💊 for sick
-  - Softer color palette (blues, purples, muted tones)
-  - Quick fade-out after 2-3 seconds (vs 5+ for normal modal)
-- ✅ Modified checkDayCompletion() to async function
-  - Detects recovery/sick days using domainStorage
-  - Calculates streak before showing modal
-  - Routes to appropriate modal based on day type
-- ✅ Schedule Editor: Rep Counter Field
-  - Added textarea input for rep counter JSON (id: ex-repcounter)
-  - Parses and validates JSON on exercise save
-  - Saves repCounter object to exercise data
-  - Simple implementation - full editor refactoring in v17.0.0
+- ✅ Git commit message template (`.gitmessage`)
+- ✅ Enhanced `.cursorrules` with strict commit standards and code quality rules
+- ✅ Netlify PR preview deployments (automatic preview environments)
+- ✅ Tools documentation (`tools/README.md`)
+- ✅ Private directory (`/private/`) for sensitive documents
+- ✅ Build purge functionality for clean Netlify builds
 
 ---
 
-### v14.1.0 - Linting & Code Quality
+### v14.2.0 ⏳ - Calendar Integration (Quick Win)
+
+**Priority: High**  
+**Focus**: Add workouts to iOS Calendar for native notifications
+
+**Why Prioritized:**
+- Quick to implement (~1-2 days)
+- High user value (replaces failed push notification approach)
+- No backend or permissions needed
+- Works offline with existing iOS infrastructure
+
+#### Implementation
+
+**Generate .ics Files:**
+```javascript
+function addToCalendar(workout, date, time) {
+    const ics = `
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Body Refactoring//Workout//EN
+BEGIN:VEVENT
+UID:${generateUID()}
+DTSTART:${formatDateTime(date, time)}
+DURATION:PT45M
+SUMMARY:${workout.name}
+DESCRIPTION:Body Refactoring Workout\\n${workout.details}
+LOCATION:Home Gym
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Workout in 15 minutes
+END:VALARM
+END:VEVENT
+END:VCALENDAR`.trim();
+    
+    downloadFile(`workout-${date}.ics`, ics);
+}
+```
+
+**User Flow:**
+1. View day's workout schedule
+2. Tap "Add to Calendar" button
+3. .ics file downloads
+4. iOS opens Calendar app
+5. User confirms event
+6. Get notification at scheduled time
+
+**Features:**
+- Works with iOS Calendar, Google Calendar, Outlook, etc.
+- Reminder notification 15 minutes before (configurable)
+- No server needed, no permissions required
+- Offline capable
+- Batch export: "Add this week" option
+
+**UX Considerations:**
+- Button placement: Next to day heading
+- Bulk add: "Add Week" button in header
+- Allow custom reminder time (15/30/60 min before)
+
+**Technical Requirements:**
+- Generate valid iCalendar (.ics) format
+- Include VALARM for reminders
+- Proper date/time formatting (RFC 5545)
+- Unique UID generation per event
+
+**Benefits:**
+- ✅ Higher reliability than push notifications
+- ✅ Uses system user already trusts
+- ✅ No backend needed
+- ✅ Privacy-friendly (all local)
+- ✅ Works across all platforms
+
+**Estimated Effort:** 1-2 days
+
+---
+
+### v14.3.0 ⏳ - Linting & Code Quality
 
 **Priority: High**  
 **Focus**: Automated code quality enforcement and consistency
+
+#### `.cursorrules` Review & Organization
+- **Review and Reorganize `.cursorrules`**
+  - File has grown to 937 lines with multiple additions over time
+  - Review for redundancy and contradictions
+  - Better logical grouping of related rules
+  - Clearer section hierarchy and navigation
+  - Remove outdated or superseded rules
+  - Consolidate duplicate information
+  - Add table of contents for easy navigation
+  - Ensure all rules are still relevant and actionable
+  - Verify examples are up-to-date with current codebase
+  - Consider splitting into multiple focused files if needed (e.g., `.cursorrules-git`, `.cursorrules-code-quality`)
+
+**Why in this version:**
+- Complements linting setup (both focus on code quality standards)
+- Clean ruleset helps AI assistants follow standards more effectively
+- Better organization improves AI adherence to git workflow rules
+- Should be done before major coding work in v14.4+ to ensure consistency
+
+**Estimated Effort:** 2-3 hours
 
 #### PHP Linting
 - **WordPress Coding Standards (Opinionated)**
@@ -214,7 +252,7 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.2.0 - Automated Testing with Playwright
+### v14.4.0 ⏳ - Automated Testing with Playwright
 
 **Priority: High**  
 **Focus**: End-to-end testing for critical user flows
@@ -405,7 +443,7 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
 
 ---
 
-### v14.3.0 - renderSchedule() Refactor
+### v14.5.0 ⏳ - renderSchedule() Refactor
 
 **Priority: High**  
 **Focus**: Code quality and maintainability - refactor before complex features
@@ -451,7 +489,7 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
 
 ---
 
-### v14.4.0 - Advanced Rep Counter Features
+### v14.6.0 ⏳ - Advanced Rep Counter Features
 
 **Priority: High**  
 **Focus**: Complex rep counter enhancements on clean foundation
@@ -611,7 +649,7 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
 
 ---
 
-### v14.5.0 - calculateStreak() Refactor
+### v14.7.0 ⏳ - calculateStreak() Refactor
 
 **Priority: Medium**  
 **Focus**: Clean up streak calculation logic and improve testability
@@ -1363,16 +1401,32 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ## 🚀 Backlog - Infrastructure & DevOps
 
-### PR Preview Environments
+### ✅ PR Preview Environments (IMPLEMENTED in v14.1.0)
 
 **Goal:** Automatic test environment for each pull request to review changes before merging.
 
-**Requirements:**
-- Isolated environment per PR
-- Automatic deployment on PR creation/update
-- Accessible via unique URL
-- Auto-cleanup when PR is closed/merged
-- No database dependencies (static site with localStorage)
+**Implementation:** Netlify Deploy Previews
+
+**What was implemented:**
+- ✅ Netlify configuration (`netlify.toml`)
+- ✅ Build script (`build.php`) for PHP → HTML conversion
+- ✅ Automatic deployment on PR creation/update
+- ✅ Unique preview URLs per PR
+- ✅ Zero-config setup (works automatically after connecting repo)
+- ✅ Auto-cleanup on PR close
+- ✅ ~30-second build time
+- ✅ Free tier (100GB bandwidth/month - more than sufficient)
+
+**Preview URL format:**
+`https://deploy-preview-{pr-number}--bodyrefactoring.netlify.app`
+
+**Setup completed:** January 9, 2026
+
+---
+
+## 📅 Backlog - User Features
+
+(No items currently in backlog - all planned features are scheduled in roadmap)
 
 ---
 
@@ -1590,7 +1644,7 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ---
 
-**Last Updated**: January 8, 2026  
+**Last Updated**: January 10, 2026  
 **Current Stable Release**: v13.0.0  
 **Development Cycle**: v14
 

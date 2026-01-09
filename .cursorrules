@@ -1,5 +1,19 @@
 # Body Refactoring - AI Development Guidelines
 
+## ⚠️ MOST IMPORTANT RULE - READ FIRST ⚠️
+
+**NEVER run git commands (add, commit, push) without explicit user permission.**
+
+After making code changes:
+1. Explain what changed
+2. Ask: "Ready to commit and push?"
+3. WAIT for user to say "yes", "commit", or "push"
+4. Only then run git commands
+
+**If you catch yourself about to run `git add` without asking first - STOP!**
+
+---
+
 ## Project Overview
 
 **Body Refactoring** is a progressive web app (PWA) for personal fitness tracking and habit building. It features:
@@ -82,6 +96,172 @@
 - Use arrow functions for callbacks where appropriate
 - Prefer template literals for string concatenation
 
+## Code Quality & Comments
+
+### Comment Guidelines
+
+**Rule of thumb: Code should be self-documenting. Comments explain WHY, not WHAT.**
+
+**Always use PHPDoc/JSDoc for functions:**
+- Required for all functions (public and private)
+- Describe purpose, parameters, return values, and exceptions
+- Keep documentation concise but complete
+
+**Inline comments - only when they add value:**
+- ✅ **Good reasons to comment**:
+  - Explain complex regular expressions
+  - Clarify non-obvious business logic
+  - Document performance optimizations
+  - Explain workarounds for browser bugs
+  - Note security considerations
+  - Explain "magic numbers" or constants
+- ❌ **Bad comments (avoid these)**:
+  - Obvious statements: `// Loop through array`
+  - Restating code: `// Set variable to true`
+  - Tutorial-style explanations of basic language features
+  - Commented-out code (delete it, it's in git history)
+  - Placeholder comments like `// TODO` without context
+
+**Examples:**
+
+Good comment (explains WHY):
+```javascript
+// Use regex to match ISO date format (YYYY-MM-DD) in filename
+if (preg_match('/schedule-(\d{4}-\d{2}-\d{2})\.json/', $file, $matches)) {
+```
+
+Bad comment (explains WHAT - already obvious):
+```javascript
+// Check if file matches pattern
+if (preg_match('/schedule-(\d{4}-\d{2}-\d{2})\.json/', $file, $matches)) {
+```
+
+Good comment (explains non-obvious logic):
+```javascript
+// Subtract 1 from week offset because week picker uses 0-based indexing
+// but display shows 1-based week numbers
+const actualOffset = weekOffset - 1;
+```
+
+Bad comment (tutorial style):
+```javascript
+// This loop iterates through each day
+for (const day of days) {
+```
+
+### Code Reuse Guidelines
+
+**CRITICAL: Always check for existing code before creating new functions or tools**
+
+**Before implementing new functionality:**
+1. ✅ **Search the codebase** for similar functions or utilities
+2. ✅ **Check if existing function can be extended** to handle the new use case
+3. ✅ **Avoid duplication** - DRY (Don't Repeat Yourself) principle
+4. ✅ **Reuse patterns** - If a pattern exists, follow it
+
+**How to search:**
+```bash
+# Search for similar function names
+grep -r "function fetchSchedule" assets/js/
+
+# Search for similar patterns
+grep -r "localStorage.getItem" assets/js/
+
+# Search in specific modules
+grep -r "export.*function" assets/js/modules/
+```
+
+**Questions to ask before creating new code:**
+- Does a similar function already exist in any module?
+- Can an existing utility function be extended with an optional parameter?
+- Is there a service or class that should own this functionality?
+- Am I about to duplicate logic that exists elsewhere?
+
+**Examples:**
+
+❌ **Bad - Creating duplicate function:**
+```javascript
+// New function that duplicates existing getLocalISODate
+function formatDateAsISO(date) {
+    return date.toISOString().split('T')[0];
+}
+```
+
+✅ **Good - Reusing existing function:**
+```javascript
+// Use existing getLocalISODate() from utils.js
+const dateString = getLocalISODate(myDate);
+```
+
+❌ **Bad - Duplicating storage logic:**
+```javascript
+// Directly accessing localStorage
+localStorage.setItem('body_refactoring_custom_' + id, value);
+```
+
+✅ **Good - Using existing storage service:**
+```javascript
+// Use StorageService or DomainStorageService
+domainStorage.setCustomValue(id, value);
+// Or extend DomainStorageService if this is a new domain concept
+```
+
+**When extending is appropriate:**
+- Function needs slight variation (add optional parameter)
+- New use case fits within existing function's purpose
+- Maintains backward compatibility
+
+**When creating new is appropriate:**
+- Completely different responsibility
+- Would make existing function too complex
+- Belongs in different service/module
+
+### Code Clarity Guidelines
+
+**Avoid "clever" coding:**
+- ❌ Nested ternaries: `x ? y ? z : a : b`
+- ❌ One-liners that do too much: `arr.filter(...).map(...).reduce(...).sort(...)`
+- ❌ Regex when simple string methods work: Use `includes()` instead of `/pattern/.test()`
+- ❌ Bitwise operators for non-bitwise operations: `~~x` instead of `Math.floor(x)`
+- ❌ Implicit type coercion: `!!value` when `Boolean(value)` is clearer
+
+**Write clear, maintainable code:**
+- ✅ Use descriptive variable names: `isUserActive` not `flag`
+- ✅ Break complex expressions into named variables
+- ✅ Prefer readable over concise when there's a trade-off
+- ✅ Use standard language features over tricks
+- ✅ One responsibility per function
+- ✅ Early returns over nested conditions
+
+**Example - Clever vs Clear:**
+
+Clever (hard to read):
+```javascript
+return users.filter(u=>u.age>18&&u.active&&!u.banned).map(u=>({...u,status:'verified'})).sort((a,b)=>a.name.localeCompare(b.name));
+```
+
+Clear (easy to understand):
+```javascript
+const adults = users.filter(user => user.age > 18);
+const activeUsers = adults.filter(user => user.active && !user.banned);
+const verifiedUsers = activeUsers.map(user => ({
+    ...user,
+    status: 'verified'
+}));
+return verifiedUsers.sort((a, b) => a.name.localeCompare(b.name));
+```
+
+Or even better with a descriptive function name:
+```javascript
+function getVerifiedActiveAdults(users) {
+    return users
+        .filter(isAdultUser)
+        .filter(isActiveAndNotBanned)
+        .map(addVerifiedStatus)
+        .sort(sortByName);
+}
+```
+
 ## Git Commit Standards
 
 - Use **Conventional Commits** format:
@@ -101,41 +281,77 @@
   - Use when change is specific to a module, feature, or component
   - Omit for global changes or when scope isn't clear
 
-- **Subject Line Rules (50/72 rule)**:
-  - **50 characters recommended** for subject line
-  - **72 characters maximum** (hard limit, enforced by hooks)
-  - Keep it concise and descriptive
+- **Subject Line Rules (50/72 rule) - STRICTLY ENFORCED**:
+  - **CRITICAL: Maximum 50 characters for subject line** (including type, scope, and subject)
+  - **Hard limit: 72 characters** (enforced by git hooks, will reject commit)
+  - Count the ENTIRE first line: `type(scope): subject` as one string
+  - If with scope exceeds 50 chars, omit scope to fit within limit
   - Use imperative mood: "add" not "added"
+  - No period at end of subject line
+  - Be concise but descriptive
+
+- **Character Counting for AI**:
+  - When generating commit messages, COUNT CHARACTERS including type and scope
+  - Example: `feat(schedule): add validation` = 32 chars ✅
+  - Example: `feat(schedule-editor): add comprehensive validation support` = 62 chars ❌ TOO LONG
+  - If message is too long with scope, either:
+    1. Shorten subject: `feat(schedule): add validation support` (40 chars) ✅
+    2. Remove scope: `feat: add schedule validation support` (40 chars) ✅
+    3. Abbreviate: `feat(editor): add validation` (31 chars) ✅
 
 - **Body**:
   - Separate from subject with blank line
   - Wrap at **72 characters per line** (hard limit)
   - Explain what and why, not how
   - Reference issues/PRs when relevant
+  - Multiple lines are fine, each line max 72 chars
 
 - **Breaking Changes**:
   - Use `BREAKING CHANGE:` in commit body for major version bumps
   - Or add `!` after type: `feat(api)!: remove deprecated endpoint`
   - Clearly explain what breaks and migration path
 
-- **Examples**:
+- **Examples (Note Character Counts)**:
   ```
-  feat(intro): add welcome modal for first-time users
+  feat(intro): add welcome modal for first users
+  [48 chars - Good!]
 
-  fix(timer): resolve voice-over stuck after app switch
+  fix(timer): resolve voice-over after app switch
+  [47 chars - Good!]
 
   docs: update roadmap with v14-v16 features
+  [43 chars - Good!]
 
-  refactor(storage)!: migrate to domain storage service
+  refactor(storage)!: migrate to domain service
+  [49 chars - Good!]
 
-  BREAKING CHANGE: All localStorage calls must use DomainStorageService.
-  See migration guide in docs/v13-refactoring/
+  BREAKING CHANGE: All localStorage calls must use
+  DomainStorageService. See docs/v13-refactoring/
+  ```
+
+- **What NOT to do**:
+  ```
+  feat(schedule-editor): add comprehensive validation and error handling support
+  [78 chars - TOO LONG! Will be rejected by git hook]
+
+  fix(rep-counter-modal): resolve animation timing issue during cooldown phase
+  [80 chars - TOO LONG!]
   ```
 
 - **Git Hooks**:
   - Run `.githooks/setup.sh` to enable local commit validation
   - Hooks enforce format and length limits before commit
-  - Bypass only when necessary: `git commit --no-verify`
+  - **Bypass only when necessary**: `git commit --no-verify` (not recommended)
+  - Hook checks BOTH subject line length AND body line lengths
+
+### AI-Generated Commit Messages
+- **When using "Generate Commit Message" features**:
+  - ALWAYS verify character count before accepting
+  - If message is > 50 chars, manually shorten it
+  - Prioritize removing scope over shortening subject if needed
+  - Use abbreviations when appropriate: `auth` instead of `authentication`
+  - Subject line is more important than body - focus on concise subject
+- **Template to follow** (see `.gitmessage` file for full template):
 
 ## Changelog Management
 
@@ -244,16 +460,43 @@ bodyrefactoring/
 ├── deploy.php                # GitHub webhook handler
 ├── .env                      # Environment config (not in repo)
 ├── .htaccess                 # Apache config
+├── private/                  # Private sensitive documents (not in repo)
 ├── assets/
 │   ├── cachebuster.php      # Cache busting helper
 │   ├── css/
 │   │   └── styles.css       # All styles
 │   └── js/
 │       └── app.js           # All JavaScript (when separated)
+├── docs/                     # Public documentation
+│   ├── roadmap.md           # Feature planning (public)
+│   ├── schedule-editor.md   # Tool documentation
+│   └── *.md                 # Technical documentation
 └── trainings/
     ├── index.php            # Schedule API endpoint
     └── *.json               # Training schedules
 ```
+
+### Private Directory (`/private/`)
+
+**Purpose:** Store sensitive planning documents, personal thoughts, and analysis that should NOT be committed to the repository.
+
+**What goes in `/private/`:**
+- ✅ Personal motivation and context
+- ✅ Sensitive analysis documents (life planning, etc.)
+- ✅ Private notes about features or decisions
+- ✅ Brainstorming documents with personal information
+- ✅ Any document containing personal thoughts or details
+
+**What stays in `/docs/`:**
+- ✅ Technical documentation (public)
+- ✅ Feature roadmaps (public)
+- ✅ Architecture decisions (public)
+- ✅ Setup guides (public)
+- ✅ API documentation (public)
+
+**Rule:** When creating analysis documents or planning docs, ask: "Does this contain personal information or motivations?" If yes → `/private/`, if no → `/docs/`
+
+**Git:** `/private/` is added to `.gitignore` and never committed to the repository.
 
 ### Separation of Concerns
 - **PHP**: Backend logic, cache busting, schedule management
@@ -507,12 +750,121 @@ Mark features with status indicators to track development progress:
 - **Rule of thumb**: If the user never experienced it in production, it's not a "fix"
 
 ### Git Workflow
+
+```
+╔════════════════════════════════════════════════════════════════╗
+║                    ⚠️  CRITICAL GIT RULE ⚠️                    ║
+║                                                                ║
+║  NEVER RUN GIT COMMANDS WITHOUT EXPLICIT USER PERMISSION      ║
+║                                                                ║
+║  After making code changes:                                   ║
+║  1. ✅ Explain what changed                                    ║
+║  2. ✅ Ask: "Ready to commit and push?"                        ║
+║  3. ✅ WAIT for response                                       ║
+║  4. ❌ DO NOT run git add/commit/push automatically           ║
+║                                                                ║
+║  ONLY run git commands when user explicitly says:             ║
+║  - "commit" (commit only, no push)                            ║
+║  - "push" / "commit and push" (commit + push)                 ║
+║  - "yes" (after you asked)                                    ║
+║                                                                ║
+║  Breaking this rule frustrates the user!                      ║
+╚════════════════════════════════════════════════════════════════╝
+```
+
+**BEFORE running ANY git command, check:**
+- [ ] Did the user explicitly ask me to commit/push?
+- [ ] Did I ask "Ready to commit?" and receive a "yes"?
+- [ ] If neither is true → DO NOT RUN GIT COMMANDS
+
+**CRITICAL RULE: Never mix code changes with git operations in the same step**
+
+- **Separate code changes from git operations**:
+  1. Complete all code changes first
+  2. ALWAYS ask user: "Ready to commit?" or "Shall I commit these changes?"
+  3. Wait for user confirmation before performing any git operations
+  4. If user rejects: They may want to test, fix bugs, or commit manually
+
+- **Understanding user commands**:
+  - **"commit"** or **"commit this"**: Only perform `git add` and `git commit`, then STOP
+    - Do NOT suggest pushing
+    - Do NOT mention that pushing is the next step
+    - User is aware pushing is needed and will do it when ready
+  - **"push"** or **"commit and push"** or **"push it"** or **"push now"**: Full workflow
+    - Perform `git add`, `git commit`, AND `git push`
+    - User will NEVER say just "push" without meaning commit first
+    - "push" alone = "commit and push"
+  - **When asking if you should commit**: If user approves, also attempt to push (full workflow)
+
+- **Examples of correct behavior**:
+  ```
+  User: "commit"
+  AI: [commits] ✅ Committed successfully!
+  [STOP - do not mention pushing]
+
+  User: "push" or "push it" or "push now"
+  AI: [commits] ✅ Committed successfully!
+      [pushes] ✅ Pushed to origin/branch!
+
+  User: "commit and push"
+  AI: [commits] ✅ Committed successfully!
+      [pushes] ✅ Pushed to origin/branch!
+
+  AI: "Ready to commit these changes?"
+  User: "yes"
+  AI: [commits] ✅ Committed successfully!
+      [pushes] ✅ Pushed to origin/branch!
+  ```
+
 - **Do NOT perform git commands** (add, commit, push) unless:
-  1. User explicitly requests git operations
+  1. User explicitly requests git operations ("commit this", "push now", etc.)
   2. Something needs to be checked/verified (e.g., `git status`, `git diff`)
-- When work is complete, notify user: "✅ Done - ready to check and commit"
-- User handles all git operations (staging, committing, pushing)
-- Only use `git status`, `git diff`, or similar read-only commands for verification when needed
+
+- **When work is complete**:
+  1. Summarize what was changed
+  2. Ask: "Ready to commit these changes?"
+  3. If user confirms: Commit AND push
+  4. Wait for user response
+
+- **Git command execution rules**:
+  - **ALWAYS chain `git status` after `git add`**: Use `git add <files> && git status`
+    - Shows user what files are staged before commit
+    - Allows user to catch issues before committing
+    - User can intervene if something unexpected was staged
+  - **Do NOT run `git log` after commits**: Waste of time, user already sees commit output
+    - If commit fails, user will see the error
+    - If commit succeeds, no need to verify with log
+    - Exception: Only use `git log` if explicitly debugging an issue
+
+- **Correct git workflow example**:
+  ```bash
+  # Stage files and show status (ALWAYS together)
+  git add file1.js file2.css && git status
+
+  # Commit (no log needed)
+  git commit -m "feat: add new feature"
+
+  # Push (no log needed)
+  git push origin branch-name
+  ```
+
+- **Incorrect git workflow example**:
+  ```bash
+  # ❌ WRONG: git add without showing status
+  git add file1.js file2.css
+
+  # ❌ WRONG: checking log after commit
+  git commit -m "feat: add new feature"
+  git log --oneline -1  # Unnecessary!
+  ```
+
+- **Read-only git commands** are allowed anytime for verification:
+  - `git status`, `git diff`, `git log`, `git show`, etc.
+
+- **User controls all write operations**:
+  - Staging, committing, pushing
+  - Branch creation/switching
+  - Merging, rebasing
 
 ### GitHub Actions Testing
 - **Local testing with `act`**: The repository owner has [act](https://github.com/nektos/act) installed for local GitHub Actions testing

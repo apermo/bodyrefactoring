@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.1.0] - 2026-01-08
+
+### Added
+
+- **Git Commit Message Template** (`.gitmessage`): Visual guide for proper commit formatting
+  - Character count markers at 50 and 72 characters
+  - Commit type reference and examples
+  - Subject line guidelines and best practices
+  - Automatically loaded when running `git commit`
+- **Tools Documentation** (`tools/README.md`): Complete commit message guidelines
+  - Detailed examples of good and bad commits
+  - Character counting tips for AI-generated messages
+  - Troubleshooting guide for rejected commits
+  - Strategies for shortening long messages
+  - Git hooks usage and setup instructions
+- **Netlify PR Preview Deployments**: Automatic preview environments for pull requests
+  - Every PR gets unique preview URL: `deploy-preview-{number}--bodyrefactoring.netlify.app`
+  - Build script (`build.php`) converts PHP to static HTML
+  - Generates static `trainings/schedules.json` to replace PHP schedule listing
+  - Excludes unnecessary files: PHP scripts, schemas, and templates from trainings/
+  - **Redirect-based compatibility**: App uses `trainings/` path on both platforms
+    - Plesk: Apache DirectoryIndex serves `index.php`
+    - Netlify: Redirect serves `schedules.json`
+    - Same JavaScript code works everywhere
+  - Netlify configuration (`netlify.toml`)
+  - Automatic deployment on PR creation/update
+  - Auto-cleanup when PR closes
+  - ~30-second build time
+  - Zero maintenance required
+  - Free tier (100GB bandwidth/month)
+
+### Changed
+
+- **`.cursorrules` enhanced**: Multiple improvements to AI development guidelines
+  - **Git workflow rules**: Strict separation of code changes and git operations - AI must always ask before committing
+    - Enhanced visibility: Top-of-file warning, visual ASCII box, and checklist format
+    - Checklist: "Did user ask? Did I ask and get yes? If no → STOP"
+    - Prominent reminder: "Breaking this rule frustrates the user!"
+  - **Git command distinction**: Clear difference between "commit" (commit only) and "push" (commit + push)
+    - "commit" = Only stage and commit, no pushing or push suggestions
+    - "push" / "push it" / "commit and push" = Full workflow including commit then push
+    - User will NEVER say "push" without meaning to commit first
+    - When AI asks "Ready to commit?", approval means commit AND push
+  - **Git execution rules**: ALWAYS chain `git status` after `git add` to show staged files
+    - Allows user to verify what's about to be committed
+    - User can catch issues before commit happens
+    - Never run `git log` after commits (redundant, wastes time)
+  - **Code reuse rule**: Before creating new functions or tools, scan existing code
+    - Check if similar function already exists
+    - Check if existing function can be extended
+    - Avoid code duplication
+    - Maintain DRY (Don't Repeat Yourself) principle
+  - **Commit message formatting**: Strict 50/72 character rules with examples
+    - Explicit character counting instructions for AI-generated commits
+    - Common mistakes and how to avoid them
+    - Strategies for handling messages that exceed limits
+  - **Comment guidelines**: PHPDoc/JSDoc required, inline comments only when adding value
+    - Explain regex, complex logic, workarounds
+    - No obvious or tutorial-style comments
+  - **No clever coding**: Write clear, maintainable code over concise "tricks"
+    - Examples of good vs bad comments and code clarity
+  - **Private directory**: Added `/private/` for sensitive analysis documents
+    - Personal thoughts, motivations, and sensitive planning docs go in `/private/`
+    - Technical docs go in `/docs/`
+- **🚨 BREAKING: Deployment trigger changed from main branch to tags** (`deploy.php`)
+  - Production deployment now triggers on **tag pushes** (releases) instead of main branch pushes
+  - Allows better control over production releases
+  - Main branch can have unreleased commits without triggering deployment
+  - Deploy workflow: Create tag (`git tag v14.1.0`) → Push tag (`git push origin v14.1.0`) → Automatic deployment
+  - **Action required**: Update GitHub webhook settings to listen for "Tags" or "Releases" events instead of "Pushes"
+  - Git commands updated: `git checkout --force {tag}` instead of `git pull origin main`
+
 ## [14.0.0] - 2026-01-08
 
 ### Added

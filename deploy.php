@@ -1,7 +1,7 @@
 <?php
 /**
  * GitHub Webhook Deploy Handler
- * Automatically deploys changes from main branch
+ * Automatically deploys tagged releases
  */
 
 // Load environment variables
@@ -77,55 +77,56 @@ if ( ! $data ) {
 	die( 'Bad Request: Invalid JSON' );
 }
 
-// Only respond to main branch pushes
-if ( ( $data['ref'] ?? '' ) !== 'refs/heads/main' ) {
-	logMessage( 'INFO: Ignored push to branch: ' . ( $data['ref'] ?? 'unknown' ) );
+// Only respond to tag pushes (releases)
+$ref = $data['ref'] ?? '';
+if ( strpos( $ref, 'refs/tags/' ) !== 0 ) {
+	logMessage( 'INFO: Ignored push to ref: ' . $ref );
 	http_response_code( 200 );
-	echo json_encode( [ 'status' => 'ignored', 'message' => 'Not main branch' ] );
+	echo json_encode( [ 'status' => 'ignored', 'message' => 'Not a tag push' ] );
 	exit;
 }
 
-// Log deployment start
-$pusher  = $data['pusher']['name'] ?? 'unknown';
-$commits = count( $data['commits'] ?? [] );
-logMessage( "INFO: Deployment started by {$pusher} ({$commits} commits)" );
+// Extract tag name
+$tag = str_replace( 'refs/tags/', '', $ref );
 
-// Execute git commands to force update
+// Log deployment start
+$pusher = $data['pusher']['name'] ?? 'unknown';
+logMessage( "INFO: Deployment started by {$pusher} for tag: {$tag}" );
+
+// Execute git commands to deploy tag
 chdir( REPO_PATH );
 
-// First, fetch latest changes
-exec( 'git fetch origin main 2>&1', $fetchOutput, $fetchCode );
-logMessage( 'INFO: Git fetch - ' . implode( ' ', $fetchOutput ) );
+// Fetch all tags
+exec( 'git fetch --tags 2>&1', $fetchOutput, $fetchCode );
+logMessage( 'INFO: Git fetch tags - ' . implode( ' ', $fetchOutput ) );
 
-// Reset to match remote (discard local changes)
-exec( 'git reset --hard origin/main 2>&1', $resetOutput, $resetCode );
-logMessage( 'INFO: Git reset - ' . implode( ' ', $resetOutput ) );
-
-// Pull to update (should be fast-forward now)
-exec( 'git pull origin main 2>&1', $pullOutput, $pullCode );
+// Checkout the specific tag (discard local changes)
+exec( "git checkout --force {$tag} 2>&1", $checkoutOutput, $checkoutCode );
+logMessage( 'INFO: Git checkout tag - ' . implode( ' ', $checkoutOutput ) );
 
 // Combine all output
-$output     = array_merge( $fetchOutput, $resetOutput, $pullOutput );
-$returnCode = max( $fetchCode, $resetCode, $pullCode );
+$output     = array_merge( $fetchOutput, $checkoutOutput );
+$returnCode = max( $fetchCode, $checkoutCode );
 
 if ( $returnCode === 0 ) {
-	logMessage( 'SUCCESS: Deployment completed successfully (local changes discarded)' );
+	logMessage( "SUCCESS: Deployment completed successfully for tag: {$tag}" );
 	logMessage( 'OUTPUT: ' . implode( "\n", $output ) );
 
 	http_response_code( 200 );
 	echo json_encode( [
 		'status'  => 'success',
-		'message' => 'Deployment successful (local changes overwritten)',
-		'commits' => $commits
+		'message' => 'Deployment successful',
+		'tag'     => $tag
 	] );
 } else {
-	logMessage( 'ERROR: Deployment failed with code ' . $returnCode );
+	logMessage( "ERROR: Deployment failed for tag: {$tag} with code {$returnCode}" );
 	logMessage( 'OUTPUT: ' . implode( "\n", $output ) );
 
 	http_response_code( 500 );
 	echo json_encode( [
 		'status'  => 'error',
 		'message' => 'Deployment failed',
+		'tag'     => $tag,
 		'output'  => $output
 	] );
 }

@@ -1,0 +1,34 @@
+# <type>(<scope>): <subject> (max 50 chars)
+# |<----  Using a Maximum Of 50 Characters  ---->|
+
+
+# Explain why this change is being made (max 72 chars per line)
+# |<----   Try To Limit Each Line to a Maximum Of 72 Characters   ---->|
+
+# Provide links or keys to any relevant tickets, articles or other resources
+# Example: Github issue #23
+
+# --- COMMIT END ---
+# Type can be:
+#   feat     (new feature)
+#   fix      (bug fix)
+#   refactor (refactoring code)
+#   style    (formatting, missing semicolons, etc; no code change)
+#   docs     (changes to documentation)
+#   test     (adding or refactoring tests; no production code change)
+#   chore    (updating grunt tasks etc; no production code change)
+#   perf     (performance improvement)
+#
+# Scope is optional and can be anything specifying the place of the commit change.
+# Examples: css, js, api, database, etc.
+#
+# Subject should use imperative tone and should not end with a period.
+# Examples: "add feature" not "adds feature" or "added feature"
+#
+# Remember:
+# - Separate subject from body with a blank line
+# - Subject line: max 50 characters
+# - Body: wrap at 72 characters
+# - Use the body to explain what and why vs. how
+# - Use the imperative mood in the subject line
+
