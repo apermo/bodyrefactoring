@@ -65,17 +65,25 @@ The app automatically works on both platforms using directory paths:
 **Netlify Redirects:**
 ```toml
 # Serve schedules.json when accessing /trainings/ directory
+# force=true ensures these take precedence over catch-all
+
 [[redirects]]
   from = "/trainings/"
   to = "/trainings/schedules.json"
   status = 200
+  force = true
 
-# Also handle direct index.php requests
+# Catch-all for SPA routing
 [[redirects]]
-  from = "/trainings/index.php"
-  to = "/trainings/schedules.json"
+  from = "/*"
+  to = "/index.html"
   status = 200
 ```
+
+**Why `force = true`?**
+- Netlify redirects are processed top-to-bottom
+- Without `force = true`, the catch-all `/*` would match `/trainings/`
+- `force = true` ensures specific redirects take precedence
 
 **Build time:** ~30 seconds
 

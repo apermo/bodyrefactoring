@@ -9,17 +9,13 @@
   from = "/trainings/"
   to = "/trainings/schedules.json"
   status = 200
+  force = true
 
-[[redirects]]
-  from = "/trainings/index.php"
-  to = "/trainings/schedules.json"
-  status = 200
-
+# Catch-all for SPA routing (only if file doesn't exist)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
 
 [context.production]
   publish = "dist"
