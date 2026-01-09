@@ -1384,6 +1384,95 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 **Setup completed:** January 8, 2026
 
+---
+
+## 📅 Backlog - User Features
+
+### Calendar Integration (Add to Calendar)
+
+**Goal:** Allow users to add workouts to their iOS calendar for native notifications.
+
+**Priority:** Medium  
+**Estimated Version:** v15.0 or v16.0
+
+**Why This Matters:**
+- Replaces failed push notification approach (v11.0.0 rollback)
+- Uses existing iOS notification infrastructure (no permissions needed)
+- Works offline
+- User already trusts and checks calendar
+- Same impact as push notifications without complexity
+
+**Implementation Approach:**
+
+**Generate .ics files:**
+```javascript
+function addToCalendar(workout, date, time) {
+    const ics = `
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Body Refactoring//Workout//EN
+BEGIN:VEVENT
+UID:${generateUID()}
+DTSTART:${formatDateTime(date, time)}
+DURATION:PT45M
+SUMMARY:${workout.name}
+DESCRIPTION:Body Refactoring Workout\\n${workout.details}
+LOCATION:Home Gym
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Workout in 15 minutes
+END:VALARM
+END:VEVENT
+END:VCALENDAR`.trim();
+    
+    downloadFile(`workout-${date}.ics`, ics);
+}
+```
+
+**User Flow:**
+1. View day's workout schedule
+2. Tap "Add to Calendar" button
+3. .ics file downloads
+4. iOS opens Calendar app
+5. User confirms event
+6. Get notification at scheduled time (via iOS Calendar)
+
+**Features:**
+- ✅ Works with default iOS Calendar app
+- ✅ Works with Google Calendar, Outlook, etc.
+- ✅ Reminder notification 15 minutes before
+- ✅ No server needed
+- ✅ No permissions to request
+- ✅ Offline capable
+- ✅ Standard iOS behavior
+
+**Technical Requirements:**
+- Generate valid iCalendar (.ics) format
+- Include VALARM for reminders
+- Allow custom reminder time (15/30/60 min before)
+- Batch export (add whole week at once)
+
+**UX Considerations:**
+- Button placement: Next to day heading or per exercise?
+- Bulk add: "Add this week" button
+- Conflict detection: Warn if time slot already busy
+- Recurring events: Option for scheduled workout times
+
+**Alternative/Enhancement:**
+- Generate shareable calendar link (webcal://)
+- Subscribe to workout calendar (auto-updates)
+- Integration with popular calendar apps
+
+**Benefits over Push Notifications:**
+- ✅ Higher reliability (calendar apps always work)
+- ✅ Better UX (users already check calendar)
+- ✅ No backend needed
+- ✅ Privacy-friendly (all local)
+- ✅ Works across all platforms
+
+**Setup completed:** January 8, 2026
+
 **Requirements:**
 - Isolated environment per PR
 - Automatic deployment on PR creation/update

@@ -379,16 +379,43 @@ bodyrefactoring/
 ├── deploy.php                # GitHub webhook handler
 ├── .env                      # Environment config (not in repo)
 ├── .htaccess                 # Apache config
+├── private/                  # Private sensitive documents (not in repo)
 ├── assets/
 │   ├── cachebuster.php      # Cache busting helper
 │   ├── css/
 │   │   └── styles.css       # All styles
 │   └── js/
 │       └── app.js           # All JavaScript (when separated)
+├── docs/                     # Public documentation
+│   ├── roadmap.md           # Feature planning (public)
+│   ├── schedule-editor.md   # Tool documentation
+│   └── *.md                 # Technical documentation
 └── trainings/
     ├── index.php            # Schedule API endpoint
     └── *.json               # Training schedules
 ```
+
+### Private Directory (`/private/`)
+
+**Purpose:** Store sensitive planning documents, personal thoughts, and analysis that should NOT be committed to the repository.
+
+**What goes in `/private/`:**
+- ✅ Personal motivation and context
+- ✅ Sensitive analysis documents (life planning, etc.)
+- ✅ Private notes about features or decisions
+- ✅ Brainstorming documents with personal information
+- ✅ Any document containing personal thoughts or details
+
+**What stays in `/docs/`:**
+- ✅ Technical documentation (public)
+- ✅ Feature roadmaps (public)
+- ✅ Architecture decisions (public)
+- ✅ Setup guides (public)
+- ✅ API documentation (public)
+
+**Rule:** When creating analysis documents or planning docs, ask: "Does this contain personal information or motivations?" If yes → `/private/`, if no → `/docs/`
+
+**Git:** `/private/` is added to `.gitignore` and never committed to the repository.
 
 ### Separation of Concerns
 - **PHP**: Backend logic, cache busting, schedule management
