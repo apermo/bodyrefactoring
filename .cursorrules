@@ -12,6 +12,23 @@ After making code changes:
 
 **If you catch yourself about to run `git add` without asking first - STOP!**
 
+**NEVER start implementing during active discussion without clear go signal.**
+
+When user is asking questions or discussing approach:
+1. Answer all questions thoroughly
+2. Wait for UNQUESTIONABLE go signal:
+   - ✅ "go", "ok", "start", "let's do it", "proceed", "implement it"
+   - ❌ NOT: general acknowledgment, "sounds good", "that makes sense"
+3. If uncertain whether user wants to proceed: **ASK EXPLICITLY**
+   - "Should I start implementing now?"
+   - "Ready to begin?"
+4. User typing = discussion mode, DO NOT edit files simultaneously
+
+**Why this matters:**
+- User may be typing follow-up questions
+- Editing files while user types causes them to type into editor instead of chat
+- Discussion phase needs to complete before implementation phase
+
 ---
 
 ## Project Overview
