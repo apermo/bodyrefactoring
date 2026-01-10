@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Calendar Integration**: Export workouts to iOS/Google Calendar via .ics files
+  - `calendar-service.js`: Generate iCalendar (.ics) format with RFC 5545 compliance
+  - `calendar-modal.js`: Modal UI for configuring calendar events
+  - **Auto-duration calculation**: Minimum 30 min, rounded to 15 min intervals
+    - Considers rep counter timing (sets × reps × delay + rest periods)
+    - Estimates 2 min per set for regular exercises
+  - **Recurring events (RRULE)**: Weekly recurrence for consistent schedule
+    - UNTIL date uses schedule targetDate + 4 weeks buffer
+    - Fallback: 1 year from current date
+    - Updates existing events when re-imported (same UID)
+  - **Smart time defaults**: Weekdays 18:00, Weekends 15:00
+  - **Remember preferences**: Saves chosen time per weekday in LocalStorage
+  - **Update detection**: Shows "Update" instead of "Add" if already exported
+  - **Native time picker**: Uses `<input type="time">` for mobile-friendly UX
+  - **15-minute reminder**: Hardcoded VALARM for pre-workout notification
+  - **Button per day**: Located below exercises, above logbook
+  - **Unique UIDs**: Stable IDs based on date + exercise hash for reliable updates
+
 ### Changed
 
 ### Fixed

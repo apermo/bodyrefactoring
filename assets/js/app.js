@@ -22,6 +22,7 @@ import { DomainStorageService } from './modules/domain-storage-service.js';
 import { StateManager } from './modules/state-manager.js';
 import { SpeechService } from './modules/speech-service.js';
 import { TimerCoordinator } from './modules/timer-coordinator.js';
+import { showCalendarModal, isEventAdded } from './modules/calendar-modal.js';
 import { getLocalISODate, getToday, scrollToElement } from './modules/utils.js';
 import { checkAndShowIntroModal, closeIntroModal } from './intro-modal.js';
 
@@ -569,6 +570,29 @@ async function renderSchedule() {
 		});
 		} // End of normal day rendering
 
+		// Calendar button (only for normal days, not recovery/sick)
+		let calendarButtonHtml = '';
+		if ( !isRecoveryDay && !isSickDayActive && day.details.length > 0 ) {
+			const alreadyAdded = isEventAdded( day.storageDate );
+			const buttonText = alreadyAdded ? 'Im Kalender aktualisieren' : 'Zum Kalender hinzufügen';
+			const buttonIcon = alreadyAdded ? 'refresh-cw' : 'calendar-plus';
+
+			calendarButtonHtml = `
+				<div class="mt-4 pt-4 border-t border-slate-800">
+					<button
+						onclick="openCalendarModal('${day.storageDate}', '${day.name.replace( /'/g, '\\' + '\'' )}', this)"
+						class="w-full bg-blue-500/10 hover:bg-blue-500/20 border-2 border-blue-500/30 hover:border-blue-500/50 text-blue-400 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 group"
+					>
+						<i data-lucide="${buttonIcon}" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+						<span>${buttonText}</span>
+					</button>
+					<div class="text-xs text-slate-500 text-center mt-2">
+						📅 Wird zum iOS/Google Kalender hinzugefügt
+					</div>
+				</div>
+			`;
+		}
+
 		const noteKey = `${NOTE_PREFIX}${day.storageDate}`;
 		const savedNote = domainStorage.getNote(day.storageDate);
 		const prevMemo = getPreviousMemo(day.storageDate);
@@ -578,6 +602,7 @@ async function renderSchedule() {
 			<div id="details-${day.storageDate}" class="${day.isRealToday ? '' : 'hidden'} border-t border-slate-700/50 bg-slate-900/30">
 				<div class="p-5">
 					${exercisesHtml}
+					${calendarButtonHtml}
 					<div class="mt-4 pt-4 border-t border-slate-800">
 						<label class="text-[10px] text-slate-500 uppercase font-bold mb-2 block tracking-wider">Logbuch</label>
 						<textarea oninput="saveNote('${noteKey}', this.value)" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-blue-500 transition-colors h-24 resize-none mb-2" placeholder="Notizen...">${savedNote}</textarea>
@@ -2309,6 +2334,77 @@ function backToNormal( dateIso ) {
 	alert( '✅ Zurück zum normalen Training!' + ( usedShield ? '\n🛡️ Schild wurde zurückerstattet.' : '' ) );
 }
 
+/**
+ * Open calendar modal for a specific day.
+ *
+ * @param {string} dateIso - Date in YYYY-MM-DD format.
+ * @param {string} dayName - Day name (e.g., "Beine & Po").
+ * @param {HTMLElement} buttonElement - Button that was clicked (for updating text).
+ * @return {void}
+ */
+async function openCalendarModal( dateIso, dayName, buttonElement ) {
+	console.log( '[CalendarModal] Opening for date:', dateIso, dayName );
+
+	// Get current schedule to pass targetDate
+	const computedSchedule = await getComputedSchedule();
+	const dayData = computedSchedule.find( d => d.storageDate === dateIso );
+
+	if ( !dayData || !dayData.details || dayData.details.length === 0 ) {
+		console.warn( '[CalendarModal] No exercises found for this day' );
+		return;
+	}
+
+	// Get exercises for this day
+	const exercises = dayData.details.map( ex => {
+		// Transform to calendar service format
+		if ( ex.type === 'alternatives' ) {
+			// For alternatives, use first alternative's info
+			const firstAlt = ex.alternatives[ 0 ];
+			return {
+				id: ex.id,
+				name: firstAlt.title,
+				sets: ex.sets || 3,
+				reps: ex.reps || 12,
+				repCounter: ex.repCounter
+			};
+		}
+		return {
+			id: ex.id,
+			name: ex.title,
+			sets: ex.sets || 3,
+			reps: ex.reps || 12,
+			repCounter: ex.repCounter
+		};
+	} );
+
+	// Show modal
+	showCalendarModal( {
+		date: dateIso,
+		dayName: dayName,
+		exercises: exercises,
+		schedule: state.currentSchedule, // Pass schedule for targetDate
+		onSuccess: () => {
+			// Update button text after successful export
+			const icon = buttonElement.querySelector( 'i' );
+			const span = buttonElement.querySelector( 'span' );
+
+			if ( icon ) {
+				icon.setAttribute( 'data-lucide', 'refresh-cw' );
+			}
+			if ( span ) {
+				span.textContent = 'Im Kalender aktualisieren';
+			}
+
+			// Re-render icons
+			if ( window.lucide ) {
+				window.lucide.createIcons();
+			}
+
+			console.log( '[CalendarModal] Event exported successfully' );
+		}
+	} );
+}
+
 // --- EXPOSE FUNCTIONS TO GLOBAL SCOPE FOR INLINE EVENT HANDLERS ---
 // Since app.js is now a module, functions are not automatically global.
 // We need to explicitly expose functions that are called from inline HTML event handlers.
@@ -2350,6 +2446,7 @@ window.toggleUnit = toggleUnit;
 window.handleWeightBlur = handleWeightBlur;
 window.saveNote = saveNote;
 window.saveWeight = saveWeight;
+window.openCalendarModal = openCalendarModal;
 
 // START APP
 window.onload = initApp;
