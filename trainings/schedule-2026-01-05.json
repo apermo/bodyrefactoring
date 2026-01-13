@@ -5,7 +5,7 @@
 			"id": "mon",
 			"dayIndex": 1,
 			"name": "MONTAG",
-			"theme": "Ganzkörper Kraft (Fokus Rücken & Bizeps)",
+			"theme": "Ganzkörper Kraft & Support",
 			"icon": "dumbbell",
 			"colorClass": "text-blue-400",
 			"bgClass": "bg-blue-500/10",
@@ -14,7 +14,7 @@
 					"id": "warmup_row",
 					"type": "warmup",
 					"title": "Rudern",
-					"desc": "Aufwärmen",
+					"desc": "Aufwärmen<br><a href='shortcuts://run-shortcut?name=Timer&input=5' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 5 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=7' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 7 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=10' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 10 Min</a>",
 					"timers": [
 						{
 							"l": "5 Min",
@@ -29,6 +29,20 @@
 							"s": 600
 						}
 					]
+				},
+				{
+					"id": "ex_adduktion",
+					"type": "main",
+					"title": "Bein-Adduktion",
+					"desc": "Kabelzug/Schlaufe: Bein nach innen ziehen. Hilft beim Rudern!",
+					"weight": "1",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 2,
+						"reps": 15,
+						"restSeconds": 60,
+						"delayMilliseconds": 3000
+					}
 				},
 				{
 					"id": "ex_beinstrecken",
@@ -62,14 +76,14 @@
 					"id": "ex_rudern",
 					"type": "main",
 					"title": "Rudern sitzend",
-					"desc": "3 x 12 Wdh (Neu: Rückendichte)",
+					"desc": "3 x 12 Wdh",
 					"weight": "3",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 2500
+						"delayMilliseconds": 2300
 					}
 				},
 				{
@@ -104,21 +118,21 @@
 					"id": "ex_bizeps",
 					"type": "main",
 					"title": "Bizeps Curls",
-					"desc": "3 x 12 Wdh (Neu: Arme)",
+					"desc": "3 x 12 Wdh",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 2750
+						"delayMilliseconds": 2500
 					}
 				},
 				{
 					"id": "cool_stretch",
 					"type": "cool",
 					"title": "Cooldown",
-					"desc": "Stretching",
+					"desc": "Stretching<br><a href='shortcuts://run-shortcut?name=Timer&input=3' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 3 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=5' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 5 Min</a>",
 					"timers": [
 						{
 							"l": "3 Min",
@@ -157,7 +171,7 @@
 					"id": "ex_walking",
 					"type": "main",
 					"title": "Walkingpad",
-					"desc": "Schritte sammeln (Ziel erhöht)",
+					"desc": "Schritte sammeln<br><a href='shortcuts://run-shortcut?name=Timer&input=50' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 50 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=70' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 70 Min</a>",
 					"timers": [
 						{
 							"l": "50 Min",
@@ -196,13 +210,27 @@
 					"id": "warmup_blaze",
 					"type": "warmup",
 					"title": "Blazepods",
-					"desc": "Reaction Drill",
+					"desc": "Reaction Drill<br><a href='shortcuts://run-shortcut?name=Timer&input=5' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 5 Min</a>",
 					"timers": [
 						{
 							"l": "5 Min",
 							"s": 300
 						}
 					]
+				},
+				{
+					"id": "ex_adduktion",
+					"type": "main",
+					"title": "Bein-Adduktion",
+					"desc": "Kabelzug/Schlaufe: Bein nach innen ziehen. Hilft beim Rudern!",
+					"weight": "1",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 2,
+						"reps": 15,
+						"restSeconds": 60,
+						"delayMilliseconds": 3000
+					}
 				},
 				{
 					"id": "ex_beinstrecken",
@@ -278,7 +306,7 @@
 					"id": "ex_butter_rev",
 					"type": "main",
 					"title": "Butterfly Reverse",
-					"desc": "2 x 12 Wdh (Neu: Hintere Schulter)",
+					"desc": "2 x 12 Wdh",
 					"weight": "2",
 					"defaultUnit": "KG",
 					"repCounter": {
@@ -306,7 +334,7 @@
 					"id": "cool_foam",
 					"type": "cool",
 					"title": "Cooldown",
-					"desc": "Foam Rolling",
+					"desc": "Foam Rolling<br><a href='shortcuts://run-shortcut?name=Timer&input=5' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 5 Min</a>",
 					"timers": [
 						{
 							"l": "5 Min",
@@ -343,7 +371,7 @@
 					"alternatives": [
 						{
 							"title": "Beat Saber (VR)",
-							"desc": "Expert Level - Dauer erhöht",
+							"desc": "Expert Level - Dauer erhöht<br><a href='shortcuts://run-shortcut?name=Timer&input=40' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 40 Min</a>",
 							"timers": [
 								{
 									"l": "40 Min",
@@ -353,7 +381,7 @@
 						},
 						{
 							"title": "Yoga",
-							"desc": "Rücken Fokus - Dauer erhöht",
+							"desc": "Rücken Fokus - Dauer erhöht<br><a href='shortcuts://run-shortcut?name=Timer&input=25' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 25 Min</a>",
 							"timers": [
 								{
 									"l": "25 Min",
@@ -367,7 +395,7 @@
 					"id": "cool_child",
 					"type": "cool",
 					"title": "Child's Pose",
-					"desc": "Entspannung",
+					"desc": "Entspannung<br><a href='shortcuts://run-shortcut?name=Timer&input=3' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 3 Min</a>",
 					"timers": [
 						{
 							"l": "3 Min",
@@ -390,7 +418,7 @@
 					"id": "warmup_shadow",
 					"type": "warmup",
 					"title": "Schattenboxen",
-					"desc": "Locker bewegen",
+					"desc": "Locker bewegen<br><a href='shortcuts://run-shortcut?name=Timer&input=3' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 3 Min</a>",
 					"timers": [
 						{
 							"l": "3 Min",
@@ -402,7 +430,7 @@
 					"id": "ex_boxen",
 					"type": "main",
 					"title": "Boxsack & Pods",
-					"desc": "5 Runden",
+					"desc": "5 Runden<br><a href='shortcuts://run-shortcut?name=Timer&input=20' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 20 Min</a>",
 					"timers": [
 						{
 							"l": "20 Min",
@@ -411,10 +439,10 @@
 					]
 				},
 				{
-					"id": "ex_plank",
+					"id": "ex_incline_plank",
 					"type": "main",
-					"title": "Plank (Unterarmstütz)",
-					"desc": "Neu: Core Stabilität",
+					"title": "Incline Plank (Bank)",
+					"desc": "Hände auf Hantelbank, Körper gerade. Leichter als Boden!",
 					"timers": [
 						{
 							"l": "30s",
@@ -431,10 +459,22 @@
 					]
 				},
 				{
+					"id": "ex_bank_crunches",
+					"type": "main",
+					"title": "Crunches (Bank-Ablage)",
+					"desc": "Rücken auf Matte, Waden 90° auf Bank ablegen. Kopf anheben.",
+					"repCounter": {
+						"sets": 3,
+						"reps": 15,
+						"restSeconds": 60,
+						"delayMilliseconds": 2000
+					}
+				},
+				{
 					"id": "cool_upper",
 					"type": "cool",
 					"title": "Oberkörper Stretch",
-					"desc": "Dehnen",
+					"desc": "Dehnen<br><a href='shortcuts://run-shortcut?name=Timer&input=5' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 5 Min</a>",
 					"timers": [
 						{
 							"l": "5 Min",
@@ -471,7 +511,7 @@
 					"alternatives": [
 						{
 							"title": "Nature Walk",
-							"desc": "Draußen (Ausdauer)",
+							"desc": "Draußen (Ausdauer)<br><a href='shortcuts://run-shortcut?name=Timer&input=70' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 70 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=90' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 90 Min</a>",
 							"timers": [
 								{
 									"l": "70 Min",
@@ -485,7 +525,7 @@
 						},
 						{
 							"title": "Indoor Cardio",
-							"desc": "Laufband / Rad",
+							"desc": "Laufband / Rad<br><a href='shortcuts://run-shortcut?name=Timer&input=50' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 50 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=60' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 60 Min</a>",
 							"timers": [
 								{
 									"l": "50 Min",
@@ -526,7 +566,7 @@
 					"id": "warmup_mob_sun",
 					"type": "warmup",
 					"title": "Mobilisation",
-					"desc": "Schulterkreisen",
+					"desc": "Schulterkreisen<br><a href='shortcuts://run-shortcut?name=Timer&input=3' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 3 Min</a>",
 					"timers": [
 						{
 							"l": "3 Min",
@@ -540,7 +580,7 @@
 					"alternatives": [
 						{
 							"title": "Spaziergang",
-							"desc": "Draußen (Frische Luft)",
+							"desc": "Draußen (Frische Luft)<br><a href='shortcuts://run-shortcut?name=Timer&input=30' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 30 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=45' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 45 Min</a>",
 							"timers": [
 								{
 									"l": "30 Min",
@@ -554,7 +594,7 @@
 						},
 						{
 							"title": "Walkingpad",
-							"desc": "Indoor (Light)",
+							"desc": "Indoor (Light)<br><a href='shortcuts://run-shortcut?name=Timer&input=30' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 30 Min</a>",
 							"timers": [
 								{
 									"l": "30 Min",
@@ -568,7 +608,7 @@
 					"id": "cool_mental",
 					"type": "cool",
 					"title": "Mental Reset",
-					"desc": "Wochenplanung",
+					"desc": "Wochenplanung<br><a href='shortcuts://run-shortcut?name=Timer&input=10' class='mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'>⏱️ 10 Min</a>",
 					"timers": [
 						{
 							"l": "10 Min",
