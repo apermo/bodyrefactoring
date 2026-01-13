@@ -164,7 +164,7 @@ body {
 	text-decoration: line-through;
 }
 
-.exercise-row.completed .timer-chip {
+.exercise-row.completed .timer-chip, .exercise-row.completed .system-timer-chip {
 	pointer-events: none;
 	opacity: 0.5;
 	border-color: transparent;
@@ -212,7 +212,7 @@ body {
 }
 
 /* Timer Chips */
-.timer-chip {
+.timer-chip, .system-timer-chip {
 	background: rgba(var(--color-primary-rgb), 0.15);
 	color: var(--color-primary);
 	border: 1px solid rgba(var(--color-primary-rgb), 0.3);
@@ -228,14 +228,18 @@ body {
 	margin-top: 4px;
 }
 
-.timer-chip:hover {
+.timer-chip:hover, .system-timer-chip:hover {
 	background: rgba(var(--color-primary-rgb), 0.25);
 }
 
-.timer-chip:active {
+.timer-chip:active, .system-timer-chip:active {
 	transform: scale(0.95);
 	background: var(--color-primary);
 	color: var(--color-bg-primary);
+}
+
+.system-timers + div {
+	display: none;
 }
 
 /* Badges */
