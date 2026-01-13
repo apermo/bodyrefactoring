@@ -5,7 +5,7 @@
 			"id": "mon",
 			"dayIndex": 1,
 			"name": "MONTAG",
-			"theme": "Ganzkörper Kraft & Support",
+			"theme": "Ganzkörper Kraft (Fokus Rücken & Bizeps)",
 			"icon": "dumbbell",
 			"colorClass": "text-blue-400",
 			"bgClass": "bg-blue-500/10",
@@ -14,7 +14,7 @@
 					"id": "warmup_row",
 					"type": "warmup",
 					"title": "Rudern",
-					"desc": "Aufwärmen</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=5' class='system-timer-chip'>⏱️ 5 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=7' class='system-timer-chip'>⏱️ 7 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=10' class='system-timer-chip'>⏱️ 10 Min</a>",
+					"desc": "Aufwärmen",
 					"timers": [
 						{
 							"l": "5 Min",
@@ -29,20 +29,6 @@
 							"s": 600
 						}
 					]
-				},
-				{
-					"id": "ex_adduktion",
-					"type": "main",
-					"title": "Bein-Adduktion",
-					"desc": "Kabelzug/Schlaufe: Bein nach innen ziehen. Hilft beim Rudern!",
-					"weight": "1",
-					"defaultUnit": "STUFE",
-					"repCounter": {
-						"sets": 2,
-						"reps": 15,
-						"restSeconds": 60,
-						"delayMilliseconds": 3000
-					}
 				},
 				{
 					"id": "ex_beinstrecken",
@@ -76,14 +62,14 @@
 					"id": "ex_rudern",
 					"type": "main",
 					"title": "Rudern sitzend",
-					"desc": "3 x 12 Wdh",
+					"desc": "3 x 12 Wdh (Neu: Rückendichte)",
 					"weight": "3",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 2300
+						"delayMilliseconds": 2500
 					}
 				},
 				{
@@ -118,21 +104,21 @@
 					"id": "ex_bizeps",
 					"type": "main",
 					"title": "Bizeps Curls",
-					"desc": "3 x 12 Wdh",
+					"desc": "3 x 12 Wdh (Neu: Arme)",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 2500
+						"delayMilliseconds": 2750
 					}
 				},
 				{
 					"id": "cool_stretch",
 					"type": "cool",
 					"title": "Cooldown",
-					"desc": "Stretching</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=3' class='system-timer-chip'>⏱️ 3 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=5' class='system-timer-chip'>⏱️ 5 Min</a>",
+					"desc": "Stretching",
 					"timers": [
 						{
 							"l": "3 Min",
@@ -171,7 +157,7 @@
 					"id": "ex_walking",
 					"type": "main",
 					"title": "Walkingpad",
-					"desc": "Schritte sammeln</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=50' class='system-timer-chip'>⏱️ 50 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=70' class='system-timer-chip'>⏱️ 70 Min</a>",
+					"desc": "Schritte sammeln (Ziel erhöht)",
 					"timers": [
 						{
 							"l": "50 Min",
@@ -210,27 +196,13 @@
 					"id": "warmup_blaze",
 					"type": "warmup",
 					"title": "Blazepods",
-					"desc": "Reaction Drill</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=5' class='system-timer-chip'>⏱️ 5 Min</a>",
+					"desc": "Reaction Drill",
 					"timers": [
 						{
 							"l": "5 Min",
 							"s": 300
 						}
 					]
-				},
-				{
-					"id": "ex_adduktion",
-					"type": "main",
-					"title": "Bein-Adduktion",
-					"desc": "Kabelzug/Schlaufe: Bein nach innen ziehen. Hilft beim Rudern!",
-					"weight": "1",
-					"defaultUnit": "STUFE",
-					"repCounter": {
-						"sets": 2,
-						"reps": 15,
-						"restSeconds": 60,
-						"delayMilliseconds": 3000
-					}
 				},
 				{
 					"id": "ex_beinstrecken",
@@ -306,7 +278,7 @@
 					"id": "ex_butter_rev",
 					"type": "main",
 					"title": "Butterfly Reverse",
-					"desc": "2 x 12 Wdh",
+					"desc": "2 x 12 Wdh (Neu: Hintere Schulter)",
 					"weight": "2",
 					"defaultUnit": "KG",
 					"repCounter": {
@@ -334,7 +306,7 @@
 					"id": "cool_foam",
 					"type": "cool",
 					"title": "Cooldown",
-					"desc": "Foam Rolling</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=5' class='system-timer-chip'>⏱️ 5 Min</a>",
+					"desc": "Foam Rolling",
 					"timers": [
 						{
 							"l": "5 Min",
@@ -371,7 +343,7 @@
 					"alternatives": [
 						{
 							"title": "Beat Saber (VR)",
-							"desc": "Expert Level - Dauer erhöht</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=40' class='system-timer-chip'>⏱️ 40 Min</a>",
+							"desc": "Expert Level - Dauer erhöht",
 							"timers": [
 								{
 									"l": "40 Min",
@@ -381,7 +353,7 @@
 						},
 						{
 							"title": "Yoga",
-							"desc": "Rücken Fokus - Dauer erhöht</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=25' class='system-timer-chip'>⏱️ 25 Min</a>",
+							"desc": "Rücken Fokus - Dauer erhöht",
 							"timers": [
 								{
 									"l": "25 Min",
@@ -395,7 +367,7 @@
 					"id": "cool_child",
 					"type": "cool",
 					"title": "Child's Pose",
-					"desc": "Entspannung</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=3' class='system-timer-chip'>⏱️ 3 Min</a>",
+					"desc": "Entspannung",
 					"timers": [
 						{
 							"l": "3 Min",
@@ -418,7 +390,7 @@
 					"id": "warmup_shadow",
 					"type": "warmup",
 					"title": "Schattenboxen",
-					"desc": "Locker bewegen</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=3' class='system-timer-chip'>⏱️ 3 Min</a>",
+					"desc": "Locker bewegen",
 					"timers": [
 						{
 							"l": "3 Min",
@@ -430,7 +402,7 @@
 					"id": "ex_boxen",
 					"type": "main",
 					"title": "Boxsack & Pods",
-					"desc": "5 Runden</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=20' class='system-timer-chip'>⏱️ 20 Min</a>",
+					"desc": "5 Runden",
 					"timers": [
 						{
 							"l": "20 Min",
@@ -439,10 +411,10 @@
 					]
 				},
 				{
-					"id": "ex_incline_plank",
+					"id": "ex_plank",
 					"type": "main",
-					"title": "Incline Plank (Bank)",
-					"desc": "Hände auf Hantelbank, Körper gerade. Leichter als Boden!",
+					"title": "Plank (Unterarmstütz)",
+					"desc": "Neu: Core Stabilität",
 					"timers": [
 						{
 							"l": "30s",
@@ -459,22 +431,10 @@
 					]
 				},
 				{
-					"id": "ex_bank_crunches",
-					"type": "main",
-					"title": "Crunches (Bank-Ablage)",
-					"desc": "Rücken auf Matte, Waden 90° auf Bank ablegen. Kopf anheben.",
-					"repCounter": {
-						"sets": 3,
-						"reps": 15,
-						"restSeconds": 60,
-						"delayMilliseconds": 2000
-					}
-				},
-				{
 					"id": "cool_upper",
 					"type": "cool",
 					"title": "Oberkörper Stretch",
-					"desc": "Dehnen</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=5' class='system-timer-chip'>⏱️ 5 Min</a>",
+					"desc": "Dehnen",
 					"timers": [
 						{
 							"l": "5 Min",
@@ -511,7 +471,7 @@
 					"alternatives": [
 						{
 							"title": "Nature Walk",
-							"desc": "Draußen (Ausdauer)</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=70' class='system-timer-chip'>⏱️ 70 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=90' class='system-timer-chip'>⏱️ 90 Min</a>",
+							"desc": "Draußen (Ausdauer)",
 							"timers": [
 								{
 									"l": "70 Min",
@@ -525,7 +485,7 @@
 						},
 						{
 							"title": "Indoor Cardio",
-							"desc": "Laufband / Rad</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=50' class='system-timer-chip'>⏱️ 50 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=60' class='system-timer-chip'>⏱️ 60 Min</a>",
+							"desc": "Laufband / Rad",
 							"timers": [
 								{
 									"l": "50 Min",
@@ -566,7 +526,7 @@
 					"id": "warmup_mob_sun",
 					"type": "warmup",
 					"title": "Mobilisation",
-					"desc": "Schulterkreisen</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=3' class='system-timer-chip'>⏱️ 3 Min</a>",
+					"desc": "Schulterkreisen",
 					"timers": [
 						{
 							"l": "3 Min",
@@ -580,7 +540,7 @@
 					"alternatives": [
 						{
 							"title": "Spaziergang",
-							"desc": "Draußen (Frische Luft)</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=30' class='system-timer-chip'>⏱️ 30 Min</a> <a href='shortcuts://run-shortcut?name=Timer&input=45' class='system-timer-chip'>⏱️ 45 Min</a>",
+							"desc": "Draußen (Frische Luft)",
 							"timers": [
 								{
 									"l": "30 Min",
@@ -594,7 +554,7 @@
 						},
 						{
 							"title": "Walkingpad",
-							"desc": "Indoor (Light)</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=30' class='system-timer-chip'>⏱️ 30 Min</a>",
+							"desc": "Indoor (Light)",
 							"timers": [
 								{
 									"l": "30 Min",
@@ -608,7 +568,7 @@
 					"id": "cool_mental",
 					"type": "cool",
 					"title": "Mental Reset",
-					"desc": "Wochenplanung</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=10' class='system-timer-chip'>⏱️ 10 Min</a>",
+					"desc": "Wochenplanung",
 					"timers": [
 						{
 							"l": "10 Min",
