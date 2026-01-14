@@ -97,9 +97,11 @@ Before creating new functions:
 
 **Types**: feat, fix, docs, style, refactor, test, chore, perf
 
-**Character limits (enforced by git hooks):**
-- Subject: 50 chars recommended, 72 max hard limit
+**Character limits (enforced by git hooks and GitHub Actions):**
+- Subject: 50 chars max (hard limit)
 - Body: 72 chars per line max
+
+**Do not add Co-Authored-By lines to commits.**
 
 ### CHANGELOG.md
 - Update `[Unreleased]` section for every change
