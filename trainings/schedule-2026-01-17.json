@@ -5,7 +5,7 @@
 			"id": "mon",
 			"dayIndex": 1,
 			"name": "MONTAG",
-			"theme": "Ganzkörper Kraft & Support",
+			"theme": "Ganzkörper Kraft & Balance",
 			"icon": "dumbbell",
 			"colorClass": "text-blue-400",
 			"bgClass": "bg-blue-500/10",
@@ -34,40 +34,40 @@
 					"id": "ex_adduktion",
 					"type": "main",
 					"title": "Bein-Adduktion",
-					"desc": "Kabelzug/Schlaufe: Bein nach innen ziehen. Hilft beim Rudern!",
+					"desc": "4 Sätze (2x Links, 2x Rechts - Wechsel als Pause).",
 					"weight": "1",
 					"defaultUnit": "STUFE",
 					"repCounter": {
-						"sets": 2,
+						"sets": 4,
 						"reps": 15,
-						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"restSeconds": 30,
+						"delayMilliseconds": 2500
 					}
 				},
 				{
 					"id": "ex_beinstrecken",
 					"type": "main",
 					"title": "Beinstrecken",
-					"desc": "3 x 15 Wdh",
+					"desc": "3 x 15 Wdh (Tempo angepasst: 2.5s)",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
 						"reps": 15,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2500
 					}
 				},
 				{
 					"id": "ex_latziehen",
 					"type": "main",
 					"title": "Latziehen",
-					"desc": "3 x 12 Wdh",
+					"desc": "3 x 15 Wdh (Volumen erhöht)",
 					"weight": "3",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2750
 					}
@@ -76,12 +76,12 @@
 					"id": "ex_rudern",
 					"type": "main",
 					"title": "Rudern sitzend",
-					"desc": "3 x 12 Wdh",
+					"desc": "3 x 15 Wdh (Volumen erhöht)",
 					"weight": "3",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2300
 					}
@@ -104,11 +104,39 @@
 					"id": "ex_butterfly",
 					"type": "main",
 					"title": "Butterfly",
-					"desc": "2 x 12 Wdh",
+					"desc": "3 x 12 Wdh",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
-						"sets": 2,
+						"sets": 3,
+						"reps": 12,
+						"restSeconds": 60,
+						"delayMilliseconds": 2500
+					}
+				},
+				{
+					"id": "ex_butter_rev",
+					"type": "main",
+					"title": "Butterfly Reverse",
+					"desc": "3 x 12 Wdh (Hintere Schulter - Neu am Mo)",
+					"weight": "2",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
+						"reps": 12,
+						"restSeconds": 60,
+						"delayMilliseconds": 2500
+					}
+				},
+				{
+					"id": "ex_trizeps_seil",
+					"type": "main",
+					"title": "Trizeps Drücken (Seil)",
+					"desc": "Neu: Arme isoliert. Ellbogen fixieren!",
+					"weight": "2",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
 						"delayMilliseconds": 2500
@@ -125,6 +153,20 @@
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
+						"delayMilliseconds": 2500
+					}
+				},
+				{
+					"id": "ex_beinbeugen_kabel",
+					"type": "main",
+					"title": "Beinbeugen stehend (Kabel)",
+					"desc": "NEU: 4 Sätze (2x Links, 2x Rechts). Ferse zum Po ziehen.",
+					"weight": "1",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 4,
+						"reps": 12,
+						"restSeconds": 30,
 						"delayMilliseconds": 2500
 					}
 				},
@@ -201,7 +243,7 @@
 			"id": "wed",
 			"dayIndex": 3,
 			"name": "MITTWOCH",
-			"theme": "Ganzkörper Kraft (Volume)",
+			"theme": "Kraft & Core Focus",
 			"icon": "dumbbell",
 			"colorClass": "text-blue-400",
 			"bgClass": "bg-blue-500/10",
@@ -222,14 +264,14 @@
 					"id": "ex_adduktion",
 					"type": "main",
 					"title": "Bein-Adduktion",
-					"desc": "Kabelzug/Schlaufe: Bein nach innen ziehen. Hilft beim Rudern!",
+					"desc": "4 Sätze (2x L, 2x R - Wechsel als Pause).",
 					"weight": "1",
 					"defaultUnit": "STUFE",
 					"repCounter": {
-						"sets": 2,
+						"sets": 4,
 						"reps": 15,
-						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"restSeconds": 30,
+						"delayMilliseconds": 2500
 					}
 				},
 				{
@@ -243,19 +285,19 @@
 						"sets": 3,
 						"reps": 15,
 						"restSeconds": 60,
-						"delayMilliseconds": 3000
+						"delayMilliseconds": 2500
 					}
 				},
 				{
 					"id": "ex_latziehen",
 					"type": "main",
 					"title": "Latziehen",
-					"desc": "3 x 12 Wdh",
+					"desc": "3 x 15 Wdh (Volumen erhöht)",
 					"weight": "3",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2750
 					}
@@ -264,14 +306,14 @@
 					"id": "ex_rudern",
 					"type": "main",
 					"title": "Rudern sitzend",
-					"desc": "3 x 12 Wdh (Neu)",
+					"desc": "3 x 15 Wdh (Volumen erhöht)",
 					"weight": "3",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
-						"delayMilliseconds": 2500
+						"delayMilliseconds": 2300
 					}
 				},
 				{
@@ -292,42 +334,56 @@
 					"id": "ex_butterfly",
 					"type": "main",
 					"title": "Butterfly",
-					"desc": "2 x 12 Wdh",
-					"weight": "2",
-					"defaultUnit": "STUFE",
-					"repCounter": {
-						"sets": 2,
-						"reps": 12,
-						"restSeconds": 60,
-						"delayMilliseconds": 2500
-					}
-				},
-				{
-					"id": "ex_butter_rev",
-					"type": "main",
-					"title": "Butterfly Reverse",
-					"desc": "2 x 12 Wdh",
-					"weight": "2",
-					"defaultUnit": "KG",
-					"repCounter": {
-						"sets": 2,
-						"reps": 12,
-						"restSeconds": 60,
-						"delayMilliseconds": 2500
-					}
-				},
-				{
-					"id": "ex_bizeps",
-					"type": "main",
-					"title": "Bizeps Curls",
-					"desc": "3 x 12 Wdh (Neu)",
+					"desc": "3 x 12 Wdh",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
 						"reps": 12,
 						"restSeconds": 60,
-						"delayMilliseconds": 2750
+						"delayMilliseconds": 2500
+					}
+				},
+				{
+					"id": "ex_trizeps_seil",
+					"type": "main",
+					"title": "Trizeps Drücken (Seil)",
+					"desc": "Mit Seil am Kabelzug.",
+					"weight": "2",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
+						"reps": 12,
+						"restSeconds": 60,
+						"delayMilliseconds": 2500
+					}
+				},
+				{
+					"id": "ex_crunches_bank_90",
+					"type": "main",
+					"title": "Crunches (90° Ablage)",
+					"desc": "Rücken auf Matte, Waden 90° auf Bank. Bauch isolieren.",
+					"weight": "0",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 3,
+						"reps": 15,
+						"restSeconds": 60,
+						"delayMilliseconds": 2000
+					}
+				},
+				{
+					"id": "ex_pull_through",
+					"type": "main",
+					"title": "Cable Pull-Throughs",
+					"desc": "NEU: Mit Seil durch die Beine. Hüfte vorstrecken! Gluteus-Fokus.",
+					"weight": "2",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
+						"reps": 12,
+						"restSeconds": 60,
+						"delayMilliseconds": 3000
 					}
 				},
 				{
@@ -371,7 +427,7 @@
 					"alternatives": [
 						{
 							"title": "Beat Saber (VR)",
-							"desc": "Expert Level - Dauer erhöht</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=40' class='system-timer-chip'>⏱️ 40 Min</a>",
+							"desc": "Expert Level</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=40' class='system-timer-chip'>⏱️ 40 Min</a>",
 							"timers": [
 								{
 									"l": "40 Min",
@@ -381,7 +437,7 @@
 						},
 						{
 							"title": "Yoga",
-							"desc": "Rücken Fokus - Dauer erhöht</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=25' class='system-timer-chip'>⏱️ 25 Min</a>",
+							"desc": "Rücken Fokus</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=25' class='system-timer-chip'>⏱️ 25 Min</a>",
 							"timers": [
 								{
 									"l": "25 Min",
@@ -442,7 +498,9 @@
 					"id": "ex_incline_plank",
 					"type": "main",
 					"title": "Incline Plank (Bank)",
-					"desc": "Hände auf Hantelbank, Körper gerade. Leichter als Boden!",
+					"desc": "Hände auf Bank, Körper gerade. Winkel dokumentieren!",
+					"weight": "3",
+					"defaultUnit": "STUFE",
 					"timers": [
 						{
 							"l": "30s",
@@ -459,15 +517,39 @@
 					]
 				},
 				{
-					"id": "ex_bank_crunches",
+					"id": "ex_crunches_bank_90_fri",
 					"type": "main",
-					"title": "Crunches (Bank-Ablage)",
-					"desc": "Rücken auf Matte, Waden 90° auf Bank ablegen. Kopf anheben.",
+					"title": "Crunches (90° Ablage)",
+					"desc": "Wie Mi: Rücken auf Matte, Beine auf Bank.",
+					"weight": "0",
+					"defaultUnit": "KG",
 					"repCounter": {
 						"sets": 3,
 						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2000
+					}
+				},
+				{
+					"id": "ex_decline_max",
+					"type": "main",
+					"title": "Decline Crunches (MAX)",
+					"desc": "Bank negativ. Beine fixieren. Ein Satz so viele wie möglich! Hausaufgabe: Mitzählen!",
+					"weight": "0",
+					"defaultUnit": "REPS"
+				},
+				{
+					"id": "ex_deadbug",
+					"type": "main",
+					"title": "Dead Bug (Toter Käfer)",
+					"desc": "NEU: Rücken flach am Boden. Arm/Bein langsam senken. Anti-Hohlkreuz!",
+					"weight": "0",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 3,
+						"reps": 12,
+						"restSeconds": 60,
+						"delayMilliseconds": 4000
 					}
 				},
 				{
