@@ -387,14 +387,38 @@
 					}
 				},
 				{
-					"id": "cool_foam",
+					"id": "cool_foam_bws",
 					"type": "cool",
-					"title": "Cooldown",
-					"desc": "Foam Rolling</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=5' class='system-timer-chip'>⏱️ 5 Min</a>",
+					"title": "Foam: Oberer Rücken",
+					"desc": "Rolle quer. Hände hinter Kopf.</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=2' class='system-timer-chip'>⏱️ 2 Min</a> <a href='https://www.youtube.com/watch?v=hWHv-V5uNo4' target='_blank' class='system-timer-chip' style='background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;'>📺 Tutorial</a>",
 					"timers": [
 						{
-							"l": "5 Min",
-							"s": 300
+							"l": "2 Min",
+							"s": 120
+						}
+					]
+				},
+				{
+					"id": "cool_foam_quads",
+					"type": "cool",
+					"title": "Foam: Oberschenkel",
+					"desc": "Bauchlage (Plank) auf Rolle. Vorderseite langsam abfahren.</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=2' class='system-timer-chip'>⏱️ 2 Min</a> <a href='https://www.youtube.com/watch?v=J_-r4odY47M&pp=0gcJCU8KAYcqIYzv' target='_blank' class='system-timer-chip' style='background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;'>📺 Tutorial</a>",
+					"timers": [
+						{
+							"l": "2 Min",
+							"s": 120
+						}
+					]
+				},
+				{
+					"id": "cool_foam_glutes",
+					"type": "cool",
+					"title": "Foam: Gesäß",
+					"desc": "Auf Rolle sitzen, 4er-Form (Bein überschlagen).</div><div class='flex gap-2 mt-2 flex-wrap system-timers'><a href='shortcuts://run-shortcut?name=Timer&input=1' class='system-timer-chip'>⏱️ 1 Min</a> <a href='https://www.youtube.com/watch?v=GSu4qZaJDgo' target='_blank' class='system-timer-chip' style='background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;'>📺 Tutorial</a>",
+					"timers": [
+						{
+							"l": "1 Min",
+							"s": 60
 						}
 					]
 				}
