@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Travel Schedule Documentation**: Guide for creating vacation/trip schedules
+  - Pre-trip preparation checklist
+  - Exercise sources: hotel gym, Apple Fitness+, outdoor activities, bodyweight
+  - Example JSON structure with alternatives
+  - Best practices for maintaining habits while traveling
 - **Calendar Integration**: Export workouts to iOS/Google Calendar via .ics files
   - `calendar-service.js`: Generate iCalendar (.ics) format with RFC 5545 compliance
   - `calendar-modal.js`: Modal UI for configuring calendar events

@@ -586,6 +586,91 @@ For IDE integration (VS Code, PhpStorm):
 
 ---
 
+## Travel & Vacation Schedules
+
+When planning a trip, prepare a customized schedule in advance that utilizes local possibilities. This ensures you maintain your fitness routine even away from your regular gym.
+
+### Pre-Trip Preparation
+1. Research available facilities at your destination (hotel gym, nearby gyms)
+2. Check what equipment is available
+3. Plan for no-equipment alternatives
+4. Create the schedule before departure so it's ready to use
+
+### Exercise Sources for Travel
+
+#### Hotel Gym
+- Typically limited equipment: treadmill, bike, dumbbells, cable machine
+- Focus on compound movements that work with available equipment
+- Use alternatives for exercises requiring unavailable machines
+
+#### Apple Fitness+ Videos
+- Perfect for hotel rooms or small spaces
+- Categories: Strength, HIIT, Yoga, Core, Pilates, Dance
+- No equipment needed for many workouts
+- Timer-based: use the app timer to track workout duration
+
+#### Outdoor Activities
+- Walking/jogging in new surroundings
+- Exploring the area on foot (sightseeing as cardio)
+- Beach or park bodyweight workouts
+- Hiking if available
+
+#### Bodyweight Exercises
+- Push-ups, squats, lunges, planks
+- Resistance band exercises (easy to pack)
+- Chair dips, step-ups
+- Yoga and stretching routines
+
+### Travel Schedule Example Structure
+
+```json
+{
+  "id": "alt_hotel_workout",
+  "type": "alternatives",
+  "alternatives": [
+    {
+      "title": "Hotel Gym Workout",
+      "desc": "If gym available",
+      "timers": [
+        { "l": "30 Min", "s": 1800 },
+        { "l": "45 Min", "s": 2700 }
+      ]
+    },
+    {
+      "title": "Apple Fitness+ Strength",
+      "desc": "In-room workout",
+      "timers": [
+        { "l": "20 Min", "s": 1200 },
+        { "l": "30 Min", "s": 1800 }
+      ]
+    },
+    {
+      "title": "Walking/Jogging",
+      "desc": "Explore the area",
+      "timers": [
+        { "l": "30 Min", "s": 1800 },
+        { "l": "45 Min", "s": 2700 }
+      ]
+    }
+  ]
+}
+```
+
+### Best Practices for Travel Schedules
+- Use alternatives extensively to adapt to what's available
+- Lower intensity expectations (vacation is also recovery)
+- Include more flexible timing options
+- Focus on maintaining habits rather than progression
+- Schedule shorter workouts (20-30 min vs. 60 min)
+- Include rest days for travel days and excursions
+- Consider jet lag and adjust schedule timing
+
+### Naming Convention for Travel Schedules
+- Use descriptive filenames: `schedule-2026-02-01.json` with a travel-focused theme
+- Consider adding location context in day themes: `"Theme": "Hotel Gym Day"` or `"Theme": "Beach Workout"`
+
+---
+
 ## Language Considerations
 
 The app supports any language, but maintain consistency:

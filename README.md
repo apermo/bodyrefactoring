@@ -85,6 +85,7 @@ A web-based visual editor for creating and managing training schedule JSON files
 * **Smart History:** The app automatically loads the correct schedule for any given date. You can change your plan next
   week without breaking the logs of the past.
 * **Time Travel:** Seamlessly navigate through past and future training weeks.
+* **Travel & Vacation Schedules:** Create customized schedules before trips that utilize local possibilities (hotel gym, Apple Fitness+ videos, outdoor walking/jogging, bodyweight exercises). See [AI Schedule Creation Guide](docs/ai-schedule-creation.md#travel--vacation-schedules) for details.
 
 ### **🎮 Gamification & UX**
 
