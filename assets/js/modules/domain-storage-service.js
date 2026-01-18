@@ -320,6 +320,42 @@ export class DomainStorageService {
 		this.storage.set(STORAGE_KEYS.SHIELDS_AWARDED, JSON.stringify(Array.from(milestones)));
 	}
 
+	// --- Mode ---
+
+	/**
+	 * Get current app mode.
+	 *
+	 * Mode is used to filter exercises via hideOn field.
+	 *
+	 * @return {string} Current mode or empty string.
+	 */
+	getMode() {
+		return this.storage.get( STORAGE_KEYS.MODE ) || '';
+	}
+
+	/**
+	 * Set app mode.
+	 *
+	 * @param {string} mode - Mode name (e.g., 'papa', 'demo').
+	 * @return {void}
+	 */
+	setMode( mode ) {
+		if ( mode ) {
+			this.storage.set( STORAGE_KEYS.MODE, mode.toLowerCase().trim() );
+		} else {
+			this.storage.remove( STORAGE_KEYS.MODE );
+		}
+	}
+
+	/**
+	 * Clear app mode.
+	 *
+	 * @return {void}
+	 */
+	clearMode() {
+		this.storage.remove( STORAGE_KEYS.MODE );
+	}
+
 	// --- UI State ---
 
 	/**

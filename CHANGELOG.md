@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.2.0] - Unreleased
+
+### Added
+
+- **Schedule Schema v2**: New schema with extended exercise features
+  - `optional` field: Mark exercises as skippable without affecting completion
+  - `customLabel` field: Custom category labels for `type: custom` exercises
+  - `hideOn` field: Array of modes where exercise is hidden (e.g., `["papa", "demo"]`)
+  - `bilateral` field in repCounter: Alternates left/right per set
+- **Recovery/Sick JSON files**: Moved hardcoded activities to schedule files
+  - `schedule-recovery.json`: Light recovery activities
+  - `schedule-sick.json`: Minimal hydration task for sick days
+- **Mode selector**: Filter exercises by mode (UI only)
+  - Click "Modus" in menu to expand input field
+  - Exercises with matching `hideOn` value are hidden from view
+  - Hidden tasks still required for completion/streak (unless optional)
+  - Mode indicator (👤) shown in header when active
+  - Enter reset password to clear mode
+  - Persists until manually reset
+- **Optional exercise styling**: Dashed border indicator for optional tasks
+- **Custom exercise type**: Use `customLabel` for custom category display
+- **Bilateral rep counter**: Shows "Links" / "Rechts" indicator per set
+- **AI Schedule Creation Documentation**: Updated for schema v2 features
+  - Custom exercise type with `customLabel`
+  - Rep counter with `bilateral` support
+  - Optional tasks and hide modes (`hideOn`)
+  - Updated checklist and examples
+- **Exercise phase badges**: CSS styles for warmup/main/cool/custom badges
+- **Travel Schedule Documentation**: Guide for creating vacation/trip schedules
+  - Pre-trip preparation checklist
+  - Exercise sources: hotel gym, Apple Fitness+, outdoor activities, bodyweight
+  - Example JSON structure with alternatives
+  - Best practices for maintaining habits while traveling
+- **Calendar Integration**: Export workouts to iOS/Google Calendar via .ics files
+  - `calendar-service.js`: Generate iCalendar (.ics) format with RFC 5545 compliance
+  - `calendar-modal.js`: Modal UI for configuring calendar events
+  - **Auto-duration calculation**: Minimum 30 min, rounded to 15 min intervals
+    - Considers rep counter timing (sets × reps × delay + rest periods)
+    - Estimates 2 min per set for regular exercises
+  - **Recurring events (RRULE)**: Weekly recurrence for consistent schedule
+    - UNTIL date uses schedule targetDate + 4 weeks buffer
+    - Fallback: 1 year from current date
+    - Updates existing events when re-imported (same UID)
+  - **Smart time defaults**: Weekdays 18:00, Weekends 15:00
+  - **Remember preferences**: Saves chosen time per weekday in LocalStorage
+  - **Update detection**: Shows "Update" instead of "Add" if already exported
+  - **Time picker**: Select dropdown with 15-minute intervals (05:00–23:45)
+  - **15-minute reminder**: Hardcoded VALARM for pre-workout notification
+  - **Button per day**: Located below exercises, above logbook
+  - **Unique UIDs**: Stable IDs based on date + exercise hash for reliable updates
+
+### Changed
+
+- **Schedule 2026-01-20**: Updated to schema v2, added bilateral rep counter to leg exercises
+- **Schedule validation**: Now supports both schema v1 and v2
+  - Validator accepts version 1 or 2
+  - Special schedule names accepted: schedule-recovery.json, schedule-sick.json
+- **Schedule service**: Supports v2 schedules with new exercise fields
+- **Completion calculation**: Excludes optional exercises and hidden exercises
+- **Timer chips**: Now use iOS Shortcuts system timer instead of internal timer
+  - Links to `shortcuts://run-shortcut?name=Timer&input=X`
+  - Cleaned up embedded HTML from schedule desc fields
+- **Rep Timer**: Now counts down normally until 5 seconds
+  - At 5s: pauses, FAB shows "Bereit?" with pulsing amber, speech announces "Bereit?", vibrate
+  - User taps FAB → speech "Los!" → final 5-4-3-2-1 countdown → confetti
+  - Same behavior applies to rep counter rest periods (tap number display to resume)
+  - Canceling during wait fully resets the timer
+
+### Fixed
+
+### Removed
+
+- **Internal timer for exercises**: Deprecated in favor of system timer shortcuts
+
 ## [14.1.3] - 2026-01-17
 
 ### Added

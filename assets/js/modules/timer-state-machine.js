@@ -43,8 +43,17 @@ export class TimerStateMachine extends StateMachine {
 			TIMER_STATES.IDLE
 		] );
 
-		// From RUNNING - can only return to idle (completed or cancelled)
-		this.allow( TIMER_STATES.RUNNING, TIMER_STATES.IDLE );
+		// From RUNNING - can return to idle or pause for ready check
+		this.allow( TIMER_STATES.RUNNING, [
+			TIMER_STATES.IDLE,
+			TIMER_STATES.WAITING_READY
+		] );
+
+		// From WAITING_READY - can resume running or cancel to idle
+		this.allow( TIMER_STATES.WAITING_READY, [
+			TIMER_STATES.RUNNING,
+			TIMER_STATES.IDLE
+		] );
 
 		// REST_PERIOD not used for simple timer
 	}
@@ -121,7 +130,34 @@ export class TimerStateMachine extends StateMachine {
 	 * @return {boolean} True if active.
 	 */
 	isActive() {
-		return this.isCountingDown() || this.isRunning();
+		return this.isCountingDown() || this.isRunning() || this.isWaitingReady();
+	}
+
+	/**
+	 * Pause timer for ready check at 5 seconds.
+	 *
+	 * @return {boolean} True if transition successful.
+	 */
+	pauseForReady() {
+		return this.transition( TIMER_STATES.WAITING_READY, { action: 'pause_for_ready' } );
+	}
+
+	/**
+	 * Resume from ready check.
+	 *
+	 * @return {boolean} True if transition successful.
+	 */
+	resumeFromReady() {
+		return this.transition( TIMER_STATES.RUNNING, { action: 'resume_from_ready' } );
+	}
+
+	/**
+	 * Check if timer is waiting for ready confirmation.
+	 *
+	 * @return {boolean} True if waiting for ready.
+	 */
+	isWaitingReady() {
+		return this.getState() === TIMER_STATES.WAITING_READY;
 	}
 }
 

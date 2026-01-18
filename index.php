@@ -30,6 +30,10 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 	<script src="https://unpkg.com/lucide@latest"></script>
 
 	<link rel="stylesheet" href="<?php echo asset( 'assets/css/styles.css' ); ?>">
+	<script>
+		// Mode reset password (from PHP config)
+		window.MODE_RESET_PASSWORD = '<?php echo MODE_RESET_PASSWORD; ?>';
+	</script>
  	<script type="module" src="<?php echo asset( 'assets/js/app.js' ); ?>"></script>
 </head>
 <body onclick="closeMenuOutside(event)">
@@ -114,6 +118,7 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 			<p class="text-slate-500 font-mono text-[10px] mt-1">
 				v<?php echo APP_VERSION; ?>
 				<span id="debug-indicator" class="hidden ml-2 text-yellow-400 font-bold">🐛 DEBUG</span>
+				<span id="mode-indicator" class="hidden ml-2">👤 Mode active</span>
 			</p>
 		</div>
 
@@ -171,10 +176,29 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 				<span class="truncate">Website</span>
 			</a>
 			<a href="https://github.com/apermo/bodyrefactoring" target="_blank"
-			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-3 w-full">
+			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
 				<i data-lucide="github" class="w-4 h-4 flex-shrink-0"></i>
 				<span class="truncate">GitHub Repo</span>
 			</a>
+			<div class="px-4 py-3">
+				<button onclick="toggleModeInput()" class="flex items-center gap-3 text-sm text-slate-300 hover:text-white w-full">
+					<i data-lucide="user" class="w-4 h-4 text-cyan-400 flex-shrink-0"></i>
+					<span class="truncate">Modus</span>
+					<i data-lucide="chevron-down" id="mode-chevron" class="w-4 h-4 ml-auto transition-transform"></i>
+				</button>
+				<div id="mode-input-container" class="hidden mt-2">
+					<div class="flex gap-2">
+						<input type="text"
+							   id="mode-input"
+							   placeholder="Modus eingeben..."
+							   onkeydown="if(event.key==='Enter') submitAppMode()"
+							   class="flex-1 min-w-0 px-3 py-2 bg-slate-900/80 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+						<button onclick="submitAppMode()" class="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-bold">
+							<i data-lucide="send" class="w-4 h-4"></i>
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 

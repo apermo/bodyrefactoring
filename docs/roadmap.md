@@ -18,10 +18,10 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.2.0 ⏳ - Calendar Integration (Quick Win)
+### v14.2.0 ⏳ - Calendar Integration & Schedule Schema v2
 
-**Priority: High**  
-**Focus**: Add workouts to iOS Calendar for native notifications
+**Priority: High**
+**Focus**: Add workouts to iOS Calendar for native notifications + Extended schedule features
 
 **Why Prioritized:**
 - Quick to implement (~1-2 days)
@@ -30,32 +30,6 @@ This document outlines planned features and improvements for the Body Refactorin
 - Works offline with existing iOS infrastructure
 
 #### Implementation
-
-**Generate .ics Files:**
-```javascript
-function addToCalendar(workout, date, time) {
-    const ics = `
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Body Refactoring//Workout//EN
-BEGIN:VEVENT
-UID:${generateUID()}
-DTSTART:${formatDateTime(date, time)}
-DURATION:PT45M
-SUMMARY:${workout.name}
-DESCRIPTION:Body Refactoring Workout\\n${workout.details}
-LOCATION:Home Gym
-BEGIN:VALARM
-TRIGGER:-PT15M
-ACTION:DISPLAY
-DESCRIPTION:Workout in 15 minutes
-END:VALARM
-END:VEVENT
-END:VCALENDAR`.trim();
-    
-    downloadFile(`workout-${date}.ics`, ics);
-}
-```
 
 **User Flow:**
 1. View day's workout schedule
@@ -90,7 +64,35 @@ END:VCALENDAR`.trim();
 - ✅ Privacy-friendly (all local)
 - ✅ Works across all platforms
 
-**Estimated Effort:** 1-2 days
+#### Schedule Schema v2 & Extended Features
+
+**Schedule Schema v2:**
+- `optional` field: Mark exercises as skippable without affecting completion %
+- `customLabel` field: Custom category labels for `type: custom` exercises
+- `hideOn` field: Array of modes where exercise is hidden (e.g., `["papa", "demo"]`)
+- `bilateral` field in repCounter: Alternates left/right per set
+
+**Recovery/Sick JSON:**
+- Moved hardcoded recovery activities to `schedule-recovery.json`
+- Moved hardcoded sick activities to `schedule-sick.json`
+- Configurable via JSON instead of code
+
+**Mode Selector:**
+- Text input in menu to set current mode (e.g., "papa", "demo")
+- Exercises with matching `hideOn` value are hidden
+- Stored in localStorage, persists across sessions
+
+**Implementation Complete:**
+- ✅ Schema v2 JSON schema file (`schema-schedule-v2.json`)
+- ✅ Validator supports both v1 and v2
+- ✅ Template schedule updated to v2 with examples
+- ✅ Recovery/sick JSON files created
+- ✅ Mode storage in DomainStorageService
+- ✅ Mode selector UI in menu
+- ✅ hideOn filtering in renderSchedule()
+- ✅ Optional exercise styling (dashed border, badge)
+- ✅ Custom type rendering with customLabel
+- ✅ Bilateral rep counter with side indicator
 
 ---
 
@@ -117,8 +119,6 @@ END:VCALENDAR`.trim();
 - Clean ruleset helps AI assistants follow standards more effectively
 - Better organization improves AI adherence to git workflow rules
 - Should be done before major coding work in v14.4+ to ensure consistency
-
-**Estimated Effort:** 2-3 hours
 
 #### PHP Linting
 - **WordPress Coding Standards (Opinionated)**
@@ -244,12 +244,6 @@ END:VCALENDAR`.trim();
 - ✅ **Automated** - No manual checks needed
 - ✅ **Fast feedback** - IDE integration catches issues while coding
 
-**Estimated Effort:** 2-3 days
-- Setup linters and configurations (1 day)
-- CI/CD integration and testing (0.5 day)
-- Fix existing violations (0.5-1 day)
-- Documentation (0.5 day)
-
 ---
 
 ### v14.4.0 ⏳ - Automated Testing with Playwright
@@ -316,49 +310,6 @@ END:VCALENDAR`.trim();
   - `npm run test:debug` - Debug mode
   - `npm run test:report` - Generate HTML report
 
-#### Test Examples
-
-**Basic Flow Test:**
-```javascript
-test('complete exercise and see day completion', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForSelector('#schedule-container');
-  
-  // Open today's card
-  const today = await page.locator('.day-active');
-  await today.click();
-  
-  // Complete first exercise
-  const firstExercise = await page.locator('.exercise-row').first();
-  await firstExercise.locator('.check-circle').click();
-  
-  // Verify confetti (canvas element)
-  await expect(page.locator('canvas')).toBeVisible();
-});
-```
-
-**Rep Counter Test:**
-```javascript
-test('rep counter completes set and shows cooldown', async ({ page }) => {
-  await page.goto('/');
-  
-  // Start rep counter
-  await page.click('.timer-chip:has-text("3 x 12")');
-  
-  // Wait for countdown (5,4,3,2,1,Los)
-  await page.waitForSelector('text=Los', { timeout: 10000 });
-  
-  // Rep counter should be visible
-  await expect(page.locator('#rep-modal')).toBeVisible();
-  
-  // Wait for first set to complete
-  await page.waitForSelector('text=60s Pause', { timeout: 40000 });
-  
-  // Cooldown timer should be visible
-  await expect(page.locator('text=60s Pause')).toBeVisible();
-});
-```
-
 **Technical Implementation:**
 
 - **Installation**
@@ -400,25 +351,7 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
   - Upload screenshots/videos on failure
   - Generate test report
 
-- **Helper Utilities**
-  ```javascript
-  // tests/fixtures/test-helpers.js
-  export async function clearLocalStorage(page) {
-    await page.evaluate(() => localStorage.clear());
-  }
-  
-  export async function setMockSchedule(page, schedule) {
-    await page.evaluate((data) => {
-      localStorage.setItem('schedule_active', 'mock-schedule');
-      localStorage.setItem('schedule_data_mock-schedule', JSON.stringify(data));
-    }, schedule);
-  }
-  
-  export async function completeExercise(page, exerciseSelector) {
-    await page.locator(exerciseSelector).locator('.check-circle').click();
-    await page.waitForTimeout(500); // Wait for confetti
-  }
-  ```
+- **Helper Utilities**: localStorage manipulation, mock schedule setup, common actions
 
 **Coverage Goals:**
 - ✅ 80%+ of critical user flows
@@ -433,13 +366,6 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
 - ✅ **Faster debugging** - Trace viewer shows exact failure point
 - ✅ **Multi-browser** - Ensures cross-browser compatibility
 - ✅ **Automated** - No manual testing needed
-
-**Estimated Effort:** 3-4 days
-- Playwright setup and configuration (0.5 day)
-- Write core flow tests (1.5 days)
-- Page Object Model setup (0.5 day)
-- CI/CD integration (0.5 day)
-- Documentation (0.5 day)
 
 ---
 
@@ -484,8 +410,6 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
 2. Wrap in ScheduleRenderer class
 3. Update app.js to use new class
 4. Verify with Playwright tests
-
-**Estimated Effort:** 2-3 days
 
 ---
 
@@ -636,125 +560,46 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
 - ✅ **Smooth transitions** - No jarring state changes, layer management behind scenes
 - ✅ **Test coverage** - Playwright tests ensure stability
 
-**Estimated Effort:** 4-5 days
-- State machine enhancement (0.5 day)
-- Quick access panel UI (1 day)
-- Two-layer circle animation system (1.5 days)
-  - SVG structure and layer management (0.5 day)
-  - Phase-based color animation (0.5 day)
-  - Ball indicator synchronization (0.5 day)
-- Timing and transitions (0.5 day)
-- Testing and refinement (1 day)
-- Documentation (0.5 day)
-
 ---
 
-### v14.7.0 ⏳ - calculateStreak() Refactor
+### v14.7.0 ⏳ - Streak Feature Rework
 
-**Priority: Medium**  
-**Focus**: Clean up streak calculation logic and improve testability
-
-**Why Now?**
-- Current implementation works but mixes concerns (calculation + DOM)
-- Playwright tests (v14.2.0) provide safety net
-- v16.0.0 XP system will need streak data
-- Good time to refactor between feature development cycles
-- StreakCalculatorService already exists but is underutilized
+**Priority: Medium**
+**Focus**: Decouple streak calculation from individual task ticks
 
 #### Current Problem
-- **calculateStreak()**: ~130 lines, handles too many responsibilities
-- Mixed concerns: Calculation logic + DOM updates
-- Streak calculation + Shield awarding + Display updates
-- Difficult to test without full DOM
-- Async with await in loop (performance consideration)
 
-#### Solution: Expand StreakCalculatorService
+- Streak is calculated by checking if all exercises are ticked complete
+- Adding new exercises to an existing schedule retroactively "uncompletes" past days → breaks streak
+- Recovery/sick day behavior is unclear (should maintain streak but not prolong it)
+- Tightly coupled to schedule structure changes
 
-**Current State:**
-- `StreakCalculatorService` exists in `modules/streak-calculator-service.js`
-- Currently only has `getDayCount()` helper
-- Underutilized - should be single source of truth for streak logic
+#### Proposed Solution
 
-**Enhance to Include:**
-- `calculate()` - Main calculation, returns streak data object (no DOM)
-- `isDayCountable()` - Check if day counts (normal/recovery/sick with shield)
-- `checkShieldMilestone()` - Shield awarding logic
-- Separate display updates to app.js or new `StreakDisplayService`
+**Decouple streak from task ticks:**
+- Store "day completed" as a separate persistent flag in localStorage
+- When all exercises for a day are done → mark day as complete
+- This flag persists regardless of future schedule changes (new exercises added, etc.)
 
-**Benefits:**
-- ✅ Pure calculation separated from display
-- ✅ Testable without DOM
+**Recovery/sick day handling:**
+- Recovery days: maintain streak continuity but don't increment counter
+- Sick days with shield: maintain streak continuity but don't increment counter
+- Result: streak value stays same (doesn't break, doesn't grow)
+
+#### Technical Approach
+
+- Expand `StreakCalculatorService` to be single source of truth
+- Add `markDayComplete(dateIso)` method to store completion flag
+- Modify `calculateStreak()` to check completion flags instead of deriving from exercise ticks
+- Add migration logic for existing data (derive initial flags from current tick state)
+
+#### Benefits
+
+- ✅ Schedule changes don't break historical streaks
+- ✅ Clear separation: task completion vs day completion
+- ✅ Predictable recovery/sick day behavior
 - ✅ Reusable in XP system (v16.0.0)
-- ✅ Better performance (can cache results)
-- ✅ Single source of truth for streak logic
-
-**Refactoring Strategy:**
-
-**Phase 1: Extract Pure Calculation** (0.5 day)
-- Move calculation logic to StreakCalculatorService.calculate()
-- Return data object: `{ streak, weekCounter, shields }`
-- Keep shield awarding logic separate
-
-**Phase 2: Separate Display** (0.5 day)
-- Extract DOM updates from calculateStreak()
-- Create `updateStreakDisplay(streakData)` function
-- Keep in app.js or create StreakDisplayService
-
-**Phase 3: Shield Management** (Optional, 0.5 day)
-- Consider separate `ShieldService` for shield logic
-- Or keep in StreakCalculatorService
-- Depends on complexity
-
-**Technical Implementation:**
-
-- **Enhance StreakCalculatorService:**
-  ```javascript
-  class StreakCalculatorService {
-    constructor(domainStorage, state) {
-      this.domainStorage = domainStorage;
-      this.state = state;
-    }
-
-    async calculate() {
-      // Pure calculation logic
-      // Returns: { streak, weekCounter, shieldsAwarded }
-    }
-
-    isDayCountable(dateIso, dayData) {
-      // Check normal/recovery/sick with shield
-    }
-
-    checkShieldMilestone(weekCounter, awardedMilestones) {
-      // Shield awarding logic
-    }
-  }
-  ```
-
-- **Update app.js:**
-  ```javascript
-  async function calculateStreak() {
-    const streakData = await streakCalculator.calculate();
-    updateStreakDisplay(streakData);
-  }
-
-  function updateStreakDisplay(streakData) {
-    // All DOM updates here
-    // streak-container, streak-count, modal-streak
-    // shield display updates
-  }
-  ```
-
-**Benefits for v16.0.0 (XP System):**
-- XP system can call `streakCalculator.calculate()` for data
-- No DOM coupling
-- Reusable streak logic
-- Clean integration
-
-**Estimated Effort:** 1-2 days
-- Expand StreakCalculatorService (0.5 day)
-- Refactor calculateStreak to use service (0.5 day)
-- Separate display logic (0.5 day)
-- Testing with Playwright (0.5 day)
+- ✅ Testable without full schedule context
 
 ---
 
@@ -1176,14 +1021,6 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
 - ✅ **Faster Deployments**: No schedule JSON changes to deploy
 - ✅ **Better UX**: In-app schedule management vs file editing
 
-**Estimated Effort:** 5-7 days
-- ScheduleStorageService module (1 day)
-- Schedule validator (1 day)
-- Upload UI (1 day)
-- Schedule manager UI (1 day)
-- Enhanced editor integration (1-2 days)
-- Testing and validation (1-2 days)
-
 ---
 
 ## 🎯 Feature Prioritization & Rationale
@@ -1237,73 +1074,15 @@ test('rep counter completes set and shows cooldown', async ({ page }) => {
 
 ### Version Ordering Rationale
 
-**Why v14.1 and v14.2 before v15?**
+**Why linting and testing before features?**
 - Code quality and testing should come before major features
 - Linting ensures consistent code standards before refactoring
 - Tests prevent regressions during v15-v17 development
-- Establishes quality baseline for future work
-- Relatively quick to implement (5-7 days total)
 
-**Why v17 after v16 (not before)?**
-- v16 (XP system) still works with repository-based schedules
+**Why v17 after v16?**
+- v16 (XP system) works with current architecture
 - v17 is a breaking architectural change
-- Allows v16 to be developed/tested with current architecture
 - Clean separation: v16 = features, v17 = architecture
-- v17 makes sense after "schedule complete" workflow exists (v16)
-
-**Development Sequence:**
-1. v14.0: Core features (rep counter basics, modals, navigation) ✅ COMPLETE
-2. v14.1: Code quality foundation (linting) - 2-3 days
-3. v14.2: Safety net (automated testing) - 3-4 days  
-4. v14.3: Clean code (renderSchedule refactor) - 2-3 days
-5. v14.4: Complex features (advanced rep counter) - 4-5 days
-6. v14.5: Final cleanup (calculateStreak refactor) - 1-2 days
-7. v15.0: Dynamic features (rep/set management) - 3-4 days
-8. v16.0: Gamification (XP system) - 6-8 days
-9. v17.0: Architecture shift (localStorage schedules) - 5-7 days
-
-**v14.x Total Effort:** ~12-17 days (quality-first approach)
-**Rationale:** Build solid foundation before major features
-
----
-
-## 💡 Suggested Adjustments
-
-### Rep Counter Cooldown Access
-**Original**: Access log and weight during cooldown  
-**Adjustment**: Add minimal overlay with quick actions:
-- Keep cooldown timer visible (top)
-- Swipe up to reveal quick access panel (bottom 2/3 of screen)
-- Three tabs: "Notes" | "Weight" | "Timer"
-- Changes auto-save, no "Save" button needed
-
-**Reasoning**: Full screen transitions would be jarring during workout flow. Overlay maintains context.
-
-### Rep Animation Timing
-**Original**: Count at 50% color change  
-**Adjustment**: Implement as described, but add option to adjust timing in debug mode
-- Default: Count at 50%
-- Debug: Adjustable from 0-100% (testing different movement patterns)
-
-**Reasoning**: Different exercises have different tempo. Flexibility helps tune for optimal sync.
-
-### XP System
-**Original**: Silent XP removal on untick  
-**Adjustment**: Add subtle undo notification (3 seconds, bottom of screen)
-- "Exercise unchecked (-XP)" with "Undo" button
-- Disappears after 3s or on undo
-- Doesn't block workflow but provides feedback
-
-**Reasoning**: Completely silent removal might feel like a bug. Subtle notification confirms action.
-
-### Level Up Frequency
-**Original**: Level up when schedule old  
-**Adjustment**: Add flexibility:
-- Option 1: Level up at targetDate (recommended)
-- Option 2: Manual level up anytime (for early schedule changes)
-- Option 3: Extend current schedule (push targetDate)
-
-**Reasoning**: Life happens. Users might want to extend a working schedule or switch early.
 
 ---
 
@@ -1430,202 +1209,6 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ---
 
-#### Option 1: GitHub Pages (PR Preview Branches) ⭐ **Recommended**
-
-**How it works:**
-1. GitHub Action triggered on PR open/update
-2. Builds static site (PHP → HTML conversion if needed)
-3. Deploys to `gh-pages` branch in subdirectory: `/pr-{number}/`
-4. Accessible via: `https://apermo.github.io/bodyrefactoring/pr-123/`
-5. Auto-cleanup action removes directory when PR closes
-
-**Pros:**
-- ✅ Free (GitHub Pages)
-- ✅ No external services needed
-- ✅ Works with your stack (static HTML/CSS/JS)
-- ✅ GitHub integration built-in
-- ✅ HTTPS by default
-- ✅ Fast deployment (~30-60s)
-
-**Cons:**
-- ⚠️ PHP needs pre-rendering or removal
-- ⚠️ Public repository required (or GitHub Pro for private)
-- ⚠️ All previews share same domain
-
-**Implementation effort:** 1-2 days
-- GitHub Action workflow for build & deploy
-- PHP to static HTML conversion (or remove PHP)
-- Cleanup workflow for closed PRs
-- Comment bot to post preview URL
-
-**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
-- HTML/CSS/JS work perfectly
-- LocalStorage works (same domain per PR path)
-- Service Workers for PWA might need adjustment
-
----
-
-#### Option 2: Netlify Deploy Previews ⭐⭐ **Easiest Setup**
-
-**How it works:**
-1. Connect GitHub repository to Netlify
-2. Netlify automatically builds & deploys PR previews
-3. Each PR gets unique subdomain: `deploy-preview-123--bodyrefactoring.netlify.app`
-4. Auto-cleanup on PR close
-
-**Pros:**
-- ✅ Zero configuration needed
-- ✅ Automatic HTTPS
-- ✅ Fast global CDN
-- ✅ Unique domain per PR
-- ✅ Built-in CI/CD
-- ✅ Free tier (100GB bandwidth/month)
-- ✅ Handles PHP via build step
-
-**Cons:**
-- ⚠️ External service dependency
-- ⚠️ Free tier limits (sufficient for personal use)
-- ⚠️ Different domain than production (localStorage won't carry over)
-
-**Implementation effort:** 1-2 hours
-- Connect GitHub repo to Netlify
-- Add `netlify.toml` config
-- Optional: Custom build script for PHP
-
-**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
-- Fully supports static sites
-- LocalStorage works per preview domain
-- PWA works out of the box
-
----
-
-#### Option 3: Vercel Preview Deployments
-
-**How it works:**
-- Similar to Netlify
-- Automatic preview deployments per PR
-- Unique URL: `bodyrefactoring-git-{branch}-apermo.vercel.app`
-
-**Pros:**
-- ✅ Zero configuration
-- ✅ Excellent performance
-- ✅ Free tier generous
-- ✅ Good GitHub integration
-
-**Cons:**
-- ⚠️ External service
-- ⚠️ Different domain per preview
-
-**Implementation effort:** 1-2 hours
-**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
-
----
-
-#### Option 4: Cloudflare Pages
-
-**How it works:**
-- Connect GitHub repo
-- Automatic builds on PR
-- Preview URLs: `{pr-id}.bodyrefactoring.pages.dev`
-
-**Pros:**
-- ✅ Fast global CDN
-- ✅ Free tier unlimited
-- ✅ Excellent performance
-
-**Cons:**
-- ⚠️ External service
-- ⚠️ Different domain
-
-**Implementation effort:** 1-2 hours
-**Tech stack compatibility:** ⭐⭐⭐⭐⭐ Excellent
-
----
-
-#### Option 5: Self-Hosted on Plesk (Subdomain per PR)
-
-**How it works:**
-1. GitHub Action on PR open/update
-2. Deploy to Plesk via SSH/FTP to subdomain: `pr-123.prv.chrdm.de`
-3. Plesk API to create/delete subdomains automatically
-4. Cleanup action on PR close
-
-**Pros:**
-- ✅ Full control
-- ✅ Same infrastructure as production
-- ✅ No external services
-- ✅ PHP works natively
-
-**Cons:**
-- ⚠️ Complex setup (Plesk API, subdomain automation)
-- ⚠️ SSL certificate management per subdomain
-- ⚠️ Resource usage on your server
-- ⚠️ Slower than CDN options
-
-**Implementation effort:** 3-4 days
-- Plesk API integration
-- Subdomain automation
-- SSL certificate automation (Let's Encrypt)
-- GitHub Action for deployment
-
-**Tech stack compatibility:** ⭐⭐⭐⭐ Good
-- Perfect PHP compatibility
-- Same environment as production
-- More complex automation
-
----
-
-### Recommended Approach: **Netlify Deploy Previews**
-
-**Why:**
-1. **Fastest to implement** - 1-2 hours vs days
-2. **Zero maintenance** - Netlify handles everything
-3. **Free** - More than sufficient for personal use
-4. **Professional** - Same tool used by major projects
-5. **Automatic** - Works immediately on PR creation
-6. **Comments** - Posts preview URL to PR automatically
-
-**Implementation Steps:**
-1. Sign up for Netlify (free)
-2. Connect GitHub repository
-3. Add `netlify.toml` config:
-   ```toml
-   [build]
-     publish = "."
-     command = "echo 'Static site, no build needed'"
-   
-   [[redirects]]
-     from = "/*"
-     to = "/index.php"
-     status = 200
-   ```
-4. Done! Previews work automatically
-
-**Alternative if you want GitHub-only:** GitHub Pages (Option 1)
-- More control, no external service
-- Requires more setup (1-2 days)
-- All previews on same domain
-
----
-
-### Future Enhancements (After Preview Environments)
-
-**Once preview environments work:**
-- Visual regression testing (compare screenshots)
-- Automated lighthouse scores per PR
-- Performance benchmarks
-- Accessibility audits
-- Security scanning
-
----
-
-**Estimated Priority:** Medium  
-**Estimated Effort:** 1-2 hours (Netlify) or 1-2 days (GitHub Pages)  
-**Dependencies:** None  
-**Benefits:** Easier PR reviews, catch issues before merge, test on real environment
-
----
-
 ### Decision Guidelines for Future Backlog Items
 
 **When to schedule a refactoring:**
@@ -1644,7 +1227,7 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ---
 
-**Last Updated**: January 10, 2026  
-**Current Stable Release**: v13.0.0  
+**Last Updated**: January 18, 2026
+**Current Stable Release**: v14.1.3
 **Development Cycle**: v14
 

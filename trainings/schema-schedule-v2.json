@@ -1,0 +1,266 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Body Refactoring Training Schedule v2",
+	"description": "Schema for validating training schedule JSON files (version 2)",
+	"type": "object",
+	"required": ["version", "days"],
+	"properties": {
+		"version": {
+			"type": "integer",
+			"description": "Schema version number",
+			"const": 2
+		},
+		"days": {
+			"type": "array",
+			"description": "Array of training days",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"required": ["id", "dayIndex", "name", "theme", "details"],
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Unique identifier for the day (e.g., 'mon', 'tue')",
+						"pattern": "^[a-z_]+$"
+					},
+					"dayIndex": {
+						"type": "integer",
+						"description": "Day of the week (0 or 7 = Sunday, 1 = Monday, ..., 6 = Saturday)",
+						"minimum": 0,
+						"maximum": 7
+					},
+					"name": {
+						"type": "string",
+						"description": "Display name of the day",
+						"minLength": 1
+					},
+					"theme": {
+						"type": "string",
+						"description": "Theme or focus of the training day",
+						"minLength": 1
+					},
+					"icon": {
+						"type": "string",
+						"description": "Lucide icon name"
+					},
+					"colorClass": {
+						"type": "string",
+						"description": "Tailwind color class for text"
+					},
+					"bgClass": {
+						"type": "string",
+						"description": "Tailwind background color class"
+					},
+					"details": {
+						"type": "array",
+						"description": "List of exercises for this day",
+						"minItems": 1,
+						"items": {
+							"oneOf": [
+								{
+									"$ref": "#/definitions/regularExercise"
+								},
+								{
+									"$ref": "#/definitions/alternativeExercise"
+								}
+							]
+						}
+					}
+				},
+				"additionalProperties": false
+			}
+		}
+	},
+	"additionalProperties": false,
+	"definitions": {
+		"regularExercise": {
+			"type": "object",
+			"required": ["id", "type", "title", "desc"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique identifier for the exercise",
+					"pattern": "^[a-z_]+$"
+				},
+				"type": {
+					"type": "string",
+					"description": "Exercise type",
+					"enum": ["warmup", "main", "cool", "custom"]
+				},
+				"title": {
+					"type": "string",
+					"description": "Exercise title",
+					"minLength": 1
+				},
+				"desc": {
+					"type": "string",
+					"description": "Exercise description",
+					"minLength": 1
+				},
+				"weight": {
+					"type": "string",
+					"description": "Default weight value"
+				},
+				"defaultUnit": {
+					"type": "string",
+					"description": "Unit for weight (KG, LBS, STUFE, etc.)"
+				},
+				"optional": {
+					"type": "boolean",
+					"description": "If true, exercise can be skipped without affecting completion percentage",
+					"default": false
+				},
+				"customLabel": {
+					"type": "string",
+					"description": "Category label for type='custom' (replaces 'Warm Up'/'Mission'/'Cooldown')",
+					"minLength": 1
+				},
+				"hideOn": {
+					"type": "array",
+					"description": "Modes where this exercise is hidden (e.g., ['papa', 'demo']). Empty array = always visible.",
+					"items": {
+						"type": "string",
+						"minLength": 1
+					},
+					"default": []
+				},
+				"timers": {
+					"type": "array",
+					"description": "Timer options for this exercise",
+					"items": {
+						"$ref": "#/definitions/timer"
+					}
+				},
+				"repCounter": {
+					"type": "object",
+					"description": "Rep counter configuration for automatic vocal counting",
+					"required": ["sets", "reps", "restSeconds", "delayMilliseconds"],
+					"properties": {
+						"sets": {
+							"type": "integer",
+							"description": "Number of sets",
+							"minimum": 1
+						},
+						"reps": {
+							"type": "integer",
+							"description": "Repetitions per set",
+							"minimum": 1
+						},
+						"restSeconds": {
+							"type": "integer",
+							"description": "Rest duration between sets in seconds",
+							"minimum": 1
+						},
+						"delayMilliseconds": {
+							"type": "number",
+							"description": "Milliseconds per rep for automatic counting (e.g., 3000 = 3 seconds)",
+							"minimum": 1000
+						},
+						"bilateral": {
+							"type": "boolean",
+							"description": "When true, sets alternate left/right (Set 1 = Left, Set 2 = Right, etc.)",
+							"default": false
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			"allOf": [
+				{
+					"if": {
+						"properties": { "type": { "const": "custom" } }
+					},
+					"then": {
+						"required": ["customLabel"]
+					}
+				}
+			],
+			"additionalProperties": false
+		},
+		"alternativeExercise": {
+			"type": "object",
+			"required": ["id", "type", "alternatives"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique identifier for the alternative group",
+					"pattern": "^[a-z_]+$"
+				},
+				"type": {
+					"type": "string",
+					"description": "Must be 'alternatives'",
+					"enum": ["alternatives"]
+				},
+				"optional": {
+					"type": "boolean",
+					"description": "If true, exercise can be skipped without affecting completion percentage",
+					"default": false
+				},
+				"hideOn": {
+					"type": "array",
+					"description": "Modes where this exercise is hidden",
+					"items": {
+						"type": "string",
+						"minLength": 1
+					},
+					"default": []
+				},
+				"alternatives": {
+					"type": "array",
+					"description": "List of alternative exercises",
+					"minItems": 2,
+					"items": {
+						"type": "object",
+						"required": ["title", "desc"],
+						"properties": {
+							"title": {
+								"type": "string",
+								"description": "Alternative exercise title",
+								"minLength": 1
+							},
+							"desc": {
+								"type": "string",
+								"description": "Alternative exercise description",
+								"minLength": 1
+							},
+							"weight": {
+								"type": "string",
+								"description": "Default weight value"
+							},
+							"defaultUnit": {
+								"type": "string",
+								"description": "Unit for weight"
+							},
+							"timers": {
+								"type": "array",
+								"description": "Timer options",
+								"items": {
+									"$ref": "#/definitions/timer"
+								}
+							}
+						},
+						"additionalProperties": false
+					}
+				}
+			},
+			"additionalProperties": false
+		},
+		"timer": {
+			"type": "object",
+			"required": ["l", "s"],
+			"properties": {
+				"l": {
+					"type": "string",
+					"description": "Timer label (e.g., '5 Min')",
+					"minLength": 1
+				},
+				"s": {
+					"type": "integer",
+					"description": "Timer duration in seconds",
+					"minimum": 1
+				}
+			},
+			"additionalProperties": false
+		}
+	}
+}

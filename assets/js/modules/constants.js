@@ -20,6 +20,7 @@ export const STORAGE_KEYS = {
 	UNIT_PREFIX: 'body_refactoring_unit_',
 	SICK_PREFIX: 'body_refactoring_sick_',
 	RECOVERY_PREFIX: 'body_refactoring_recovery_',
+	MODE: 'body_refactoring_mode',
 	SHIELDS: 'body_refactoring_shields',
 	SHIELDS_AWARDED: 'body_refactoring_shields_awarded',
 	INTRO_SEEN: 'body_refactoring_intro_seen',
@@ -136,7 +137,8 @@ export const TIMER_STATES = {
 	IDLE: 'idle',
 	COUNTDOWN: 'countdown',
 	RUNNING: 'running',
-	REST_PERIOD: 'rest_period'
+	REST_PERIOD: 'rest_period',
+	WAITING_READY: 'waiting_ready'
 };
 
 /**
@@ -180,16 +182,5 @@ export const QUOTES = [
 	'Schweiß ist nur Fett, das weint.',
 	'Disziplin ist Freiheit.',
 	'Ein Schritt näher am Ziel.'
-];
-
-/**
- * Recovery mode activities (light activities for sick days).
- *
- * @type {Object[]}
- */
-export const RECOVERY_ACTIVITIES = [
-	{ id: 'breathing', title: '5 Min Atemübungen', desc: 'Tiefes Ein- und Ausatmen' },
-	{ id: 'stretching', title: 'Leichtes Stretching', desc: '5 Minuten sanfte Dehnübungen' },
-	{ id: 'hydration', title: 'Flüssigkeitszufuhr', desc: '2 Liter Wasser/Tee trinken' }
 ];
 

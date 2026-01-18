@@ -19,7 +19,7 @@ This guide provides all necessary information for AI assistants to create valid 
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "days": [
     {
       "id": "mon",
@@ -38,13 +38,15 @@ This guide provides all necessary information for AI assistants to create valid 
 }
 ```
 
+**Note:** Use `version: 2` for new schedules to enable all features (optional tasks, hideOn, custom type, repCounter with bilateral).
+
 ---
 
 ## Root Level Fields
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | integer | **YES** | Schema version (always `1` for current version) |
+| `version` | integer | **YES** | Schema version (`1` or `2` - use `2` for new features) |
 | `days` | array | **YES** | Array of 7 day objects (Monday through Sunday) |
 
 ---
@@ -101,6 +103,9 @@ Used for: Standard exercises with optional weight tracking and timers.
 - `weight` (string) - Default weight value (e.g., `"40"`)
 - `defaultUnit` (string) - Unit for weight (e.g., `"KG"`, `"LBS"`, `"STUFE"`)
 - `timers` (array) - Array of timer objects
+- `optional` (boolean, v2) - If true, task can be skipped without affecting day completion
+- `hideOn` (array, v2) - Array of mode names where this exercise is hidden (e.g., `["papa", "demo"]`)
+- `repCounter` (object, v2) - Rep counter configuration (see below)
 
 **Example:**
 ```json
@@ -171,6 +176,116 @@ Used for: Timed exercises (cardio, planks, etc.).
     { "l": "5 Min", "s": 300 },
     { "l": "10 Min", "s": 600 }
   ]
+}
+```
+
+### 4. Custom Exercise Type (Schema v2)
+
+Used for: Exercises that don't fit warmup/main/cool categories, with a custom label.
+
+**Required Fields:**
+- `id` (string) - Unique identifier
+- `type` (string) - Must be `"custom"`
+- `customLabel` (string) - Custom category label (e.g., `"Morning"`, `"Cardio"`, `"Evening"`)
+- `title` (string) - Exercise name
+- `desc` (string) - Description
+
+**Example:**
+```json
+{
+  "id": "morning_breathing",
+  "type": "custom",
+  "customLabel": "Morning",
+  "title": "Atemübungen",
+  "desc": "5 Minuten tiefes Ein- und Ausatmen"
+}
+```
+
+### 5. Rep Counter (Schema v2)
+
+Used for: Exercises with sets, reps, and rest periods. Provides an interactive counter UI.
+
+**Rep Counter Fields:**
+- `sets` (integer) - Number of sets
+- `reps` (integer) - Number of reps per set
+- `restSeconds` (integer) - Rest time between sets in seconds
+- `delayMilliseconds` (integer) - Delay before starting in milliseconds
+- `bilateral` (boolean, optional) - If true, alternates left/right sides per set
+
+**Example:**
+```json
+{
+  "id": "ex_lunges",
+  "type": "main",
+  "title": "Ausfallschritte",
+  "desc": "4 x 15 pro Seite",
+  "repCounter": {
+    "sets": 4,
+    "reps": 15,
+    "restSeconds": 30,
+    "delayMilliseconds": 2500,
+    "bilateral": true
+  }
+}
+```
+
+When `bilateral: true`, the UI shows "Links" (Left) or "Rechts" (Right) indicator, alternating each set.
+
+---
+
+## Schema v2 Features
+
+Schema v2 (set `"version": 2`) enables additional exercise-level features:
+
+### Optional Tasks
+
+Mark exercises as optional so they can be skipped without affecting day completion percentage.
+
+```json
+{
+  "id": "opt_stretching",
+  "type": "cool",
+  "title": "Extra Stretching",
+  "desc": "Optional cooldown",
+  "optional": true
+}
+```
+
+- Optional exercises display with a dashed border and "Optional" badge
+- Day completion only requires non-optional exercises
+- Streak calculation ignores optional tasks
+
+### Hide Modes
+
+Hide specific exercises based on the active app mode. Useful for creating schedules with tasks only visible to certain users or contexts.
+
+```json
+{
+  "id": "ex_advanced_drill",
+  "type": "main",
+  "title": "Advanced Boxing Drill",
+  "desc": "For experienced users",
+  "hideOn": ["papa", "beginner"]
+}
+```
+
+- When app mode is set to "papa", exercises with `"hideOn": ["papa"]` are hidden
+- Hidden exercises are **still required** for day completion (unless also marked `optional`)
+- Empty `hideOn` array or omitted field = always visible
+- Use case: Personalize schedules for different family members or skill levels
+
+### Combining v2 Features
+
+Features can be combined:
+
+```json
+{
+  "id": "opt_papa_exercise",
+  "type": "main",
+  "title": "Bonus Exercise",
+  "desc": "Optional for papa mode",
+  "optional": true,
+  "hideOn": ["demo"]
 }
 ```
 
@@ -454,7 +569,7 @@ Full icon reference: https://lucide.dev/icons/
 - ❌ Duplicate dayIndex values
 - ❌ Empty details arrays
 - ❌ dayIndex outside 0-7 range
-- ❌ Invalid exercise types (only warmup, main, cool, alternatives allowed)
+- ❌ Invalid exercise types (only warmup, main, cool, custom, alternatives allowed)
 - ❌ Trailing commas in JSON
 - ❌ Comments in JSON (not valid JSON)
 
@@ -519,8 +634,9 @@ cp trainings/template-schedule.json trainings/schedule-2026-01-15.json
 
 ### JSON Schema
 For IDE integration (VS Code, PhpStorm):
-- **File:** `trainings/schema-schedule-v1.json`
-- **Usage:** Configure your IDE to use this schema for validation
+- **File:** `trainings/schema-schedule-v1.json` (basic features)
+- **File:** `trainings/schema-schedule-v2.json` (includes optional, hideOn, custom type, repCounter)
+- **Usage:** Configure your IDE to use the appropriate schema for validation
 
 ---
 
@@ -583,6 +699,91 @@ For IDE integration (VS Code, PhpStorm):
 - Use active recovery days strategically
 - Don't stack high-intensity days back-to-back
 - Recovery days can include: walking, yoga, stretching, mobility work
+
+---
+
+## Travel & Vacation Schedules
+
+When planning a trip, prepare a customized schedule in advance that utilizes local possibilities. This ensures you maintain your fitness routine even away from your regular gym.
+
+### Pre-Trip Preparation
+1. Research available facilities at your destination (hotel gym, nearby gyms)
+2. Check what equipment is available
+3. Plan for no-equipment alternatives
+4. Create the schedule before departure so it's ready to use
+
+### Exercise Sources for Travel
+
+#### Hotel Gym
+- Typically limited equipment: treadmill, bike, dumbbells, cable machine
+- Focus on compound movements that work with available equipment
+- Use alternatives for exercises requiring unavailable machines
+
+#### Apple Fitness+ Videos
+- Perfect for hotel rooms or small spaces
+- Categories: Strength, HIIT, Yoga, Core, Pilates, Dance
+- No equipment needed for many workouts
+- Timer-based: use the app timer to track workout duration
+
+#### Outdoor Activities
+- Walking/jogging in new surroundings
+- Exploring the area on foot (sightseeing as cardio)
+- Beach or park bodyweight workouts
+- Hiking if available
+
+#### Bodyweight Exercises
+- Push-ups, squats, lunges, planks
+- Resistance band exercises (easy to pack)
+- Chair dips, step-ups
+- Yoga and stretching routines
+
+### Travel Schedule Example Structure
+
+```json
+{
+  "id": "alt_hotel_workout",
+  "type": "alternatives",
+  "alternatives": [
+    {
+      "title": "Hotel Gym Workout",
+      "desc": "If gym available",
+      "timers": [
+        { "l": "30 Min", "s": 1800 },
+        { "l": "45 Min", "s": 2700 }
+      ]
+    },
+    {
+      "title": "Apple Fitness+ Strength",
+      "desc": "In-room workout",
+      "timers": [
+        { "l": "20 Min", "s": 1200 },
+        { "l": "30 Min", "s": 1800 }
+      ]
+    },
+    {
+      "title": "Walking/Jogging",
+      "desc": "Explore the area",
+      "timers": [
+        { "l": "30 Min", "s": 1800 },
+        { "l": "45 Min", "s": 2700 }
+      ]
+    }
+  ]
+}
+```
+
+### Best Practices for Travel Schedules
+- Use alternatives extensively to adapt to what's available
+- Lower intensity expectations (vacation is also recovery)
+- Include more flexible timing options
+- Focus on maintaining habits rather than progression
+- Schedule shorter workouts (20-30 min vs. 60 min)
+- Include rest days for travel days and excursions
+- Consider jet lag and adjust schedule timing
+
+### Naming Convention for Travel Schedules
+- Use descriptive filenames: `schedule-2026-02-01.json` with a travel-focused theme
+- Consider adding location context in day themes: `"Theme": "Hotel Gym Day"` or `"Theme": "Beach Workout"`
 
 ---
 
@@ -667,7 +868,8 @@ After creating and validating the schedule:
 
 - **Validation Documentation:** `docs/schedule-validation.md`
 - **Main README:** `README.md`
-- **JSON Schema:** `trainings/schema-schedule-v1.json`
+- **JSON Schema v1:** `trainings/schema-schedule-v1.json`
+- **JSON Schema v2:** `trainings/schema-schedule-v2.json`
 - **Template:** `trainings/template-schedule.json`
 - **Repository:** https://github.com/apermo/bodyrefactoring
 
@@ -677,8 +879,9 @@ After creating and validating the schedule:
 
 When creating a new schedule, ensure:
 
+**Basic Requirements:**
 - [ ] Filename: `schedule-YYYY-MM-DD.json`
-- [ ] Root object with `version: 1` and `days: []`
+- [ ] Root object with `version: 1` or `version: 2` and `days: []`
 - [ ] 7 day objects (Monday through Sunday)
 - [ ] All IDs lowercase with underscores only
 - [ ] Unique IDs and dayIndex values
@@ -688,9 +891,18 @@ When creating a new schedule, ensure:
 - [ ] No trailing commas in JSON
 - [ ] Valid JSON syntax
 - [ ] Validated with `php validate-schedule.php`
+
+**Content Quality:**
 - [ ] Balanced workout distribution
 - [ ] Realistic weights and timers
 - [ ] Clear descriptions and themes
+
+**Schema v2 Features (if using `version: 2`):**
+- [ ] Custom type exercises have `customLabel` field
+- [ ] `optional` is boolean (true/false)
+- [ ] `hideOn` is an array of strings
+- [ ] `repCounter` has required fields: sets, reps, restSeconds, delayMilliseconds
+- [ ] `bilateral` in repCounter is boolean
 
 **Now you're ready to create professional training schedules! 🏋️‍♂️**
 

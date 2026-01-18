@@ -74,10 +74,13 @@ A web-based visual editor for creating and managing training schedule JSON files
     "sets": 3,
     "reps": 12,
     "restSeconds": 60,
-    "delayMilliseconds": 3000
+    "delayMilliseconds": 3000,
+    "bilateral": false
   }
 }
 ```
+
+**Bilateral exercises** (e.g., single-leg exercises): Set `"bilateral": true` to show "Links" / "Rechts" indicator per set.
 
 ### **🧠 Dynamic Scheduling Engine**
 
@@ -85,6 +88,7 @@ A web-based visual editor for creating and managing training schedule JSON files
 * **Smart History:** The app automatically loads the correct schedule for any given date. You can change your plan next
   week without breaking the logs of the past.
 * **Time Travel:** Seamlessly navigate through past and future training weeks.
+* **Travel & Vacation Schedules:** Create customized schedules before trips that utilize local possibilities (hotel gym, Apple Fitness+ videos, outdoor walking/jogging, bodyweight exercises). See [AI Schedule Creation Guide](docs/ai-schedule-creation.md#travel--vacation-schedules) for details.
 
 ### **🎮 Gamification & UX**
 
@@ -172,7 +176,8 @@ bodyrefactoring/
 ├── trainings/
 │   ├── index.php             # API endpoint for available schedules
 │   ├── validate-schedule.php # Schedule validator (CLI only)
-│   ├── schema-schedule-v1.json   # JSON Schema for IDE integration
+│   ├── schema-schedule-v1.json   # JSON Schema v1 (basic features)
+│   ├── schema-schedule-v2.json   # JSON Schema v2 (extended features)
 │   ├── template-schedule.json    # Template for new schedules
 │   └── schedule-*.json       # Training schedule files
 └── docs/
@@ -488,7 +493,7 @@ php validate-schedule.php  # Validates all schedules
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "days": [
     {
       "id": "mon",
@@ -557,7 +562,7 @@ php validate-schedule.php  # Validates all schedules
 A schedule is a JSON object with a version number and an array of days. Each day contains exercises that can be of three types: warmup, main (weighted), cool, or alternatives (multiple options).
 
 **Key Requirements:**
-- Root level: `version` (integer, currently 1) and `days` (array)
+- Root level: `version` (integer, 1 or 2) and `days` (array)
 - Filename: `schedule-YYYY-MM-DD.json`
 - Unique IDs for days and exercises (lowercase, underscores only)
 - dayIndex: 0 or 7 = Sunday, 1 = Monday, ..., 6 = Saturday
@@ -572,7 +577,9 @@ A schedule is a JSON object with a version number and an array of days. Each day
 
 ### **JSON Schema**
 
-A complete JSON Schema is available at `trainings/schema-schedule-v1.json` for IDE integration (VS Code, PhpStorm, etc.).
+JSON Schemas are available for IDE integration (VS Code, PhpStorm, etc.):
+- `trainings/schema-schedule-v1.json` - Basic features
+- `trainings/schema-schedule-v2.json` - Extended features (optional, hideOn, custom type, bilateral)
 
 ## **👨‍💻 Developer Setup**
 

@@ -1,5 +1,5 @@
 {
-	"version": 1,
+	"version": 2,
 	"days": [
 		{
 			"id": "mon",
@@ -41,7 +41,8 @@
 						"sets": 4,
 						"reps": 15,
 						"restSeconds": 30,
-						"delayMilliseconds": 2500
+						"delayMilliseconds": 2500,
+						"bilateral": true
 					}
 				},
 				{
@@ -167,7 +168,8 @@
 						"sets": 4,
 						"reps": 12,
 						"restSeconds": 30,
-						"delayMilliseconds": 2500
+						"delayMilliseconds": 2500,
+						"bilateral": true
 					}
 				},
 				{
@@ -271,7 +273,8 @@
 						"sets": 4,
 						"reps": 15,
 						"restSeconds": 30,
-						"delayMilliseconds": 2500
+						"delayMilliseconds": 2500,
+						"bilateral": true
 					}
 				},
 				{
