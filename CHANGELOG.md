@@ -22,16 +22,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Smart time defaults**: Weekdays 18:00, Weekends 15:00
   - **Remember preferences**: Saves chosen time per weekday in LocalStorage
   - **Update detection**: Shows "Update" instead of "Add" if already exported
-  - **Native time picker**: Uses `<input type="time">` for mobile-friendly UX
+  - **Time picker**: Select dropdown with 15-minute intervals (05:00–23:45)
   - **15-minute reminder**: Hardcoded VALARM for pre-workout notification
   - **Button per day**: Located below exercises, above logbook
   - **Unique UIDs**: Stable IDs based on date + exercise hash for reliable updates
 
 ### Changed
 
+- **Timer chips**: Now use iOS Shortcuts system timer instead of internal timer
+  - Links to `shortcuts://run-shortcut?name=Timer&input=X`
+  - Cleaned up embedded HTML from schedule desc fields
+
 ### Fixed
 
 ### Removed
+
+- **Internal timer for exercises**: Deprecated in favor of system timer shortcuts
 
 ## [14.1.3] - 2026-01-17
 

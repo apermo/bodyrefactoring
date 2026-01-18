@@ -238,10 +238,6 @@ body {
 	color: var(--color-bg-primary);
 }
 
-.system-timers + div {
-	display: none;
-}
-
 /* Badges */
 .today-badge {
 	background: var(--color-danger);

@@ -515,7 +515,10 @@ async function renderSchedule() {
 				let timersHtml = '';
 				if (ex.timers) {
 					timersHtml = `<div class="flex gap-2 mt-2 flex-wrap">` +
-						ex.timers.map(t => `<div class="timer-chip" onclick="startSpecificTimer(${t.s}, '${t.l} ${ex.title}')"><i data-lucide="clock" class="w-3 h-3"></i> ${t.l}</div>`).join('') +
+						ex.timers.map(t => {
+							const minutes = Math.round(t.s / 60);
+							return `<a href="shortcuts://run-shortcut?name=Timer&input=${minutes}" class="system-timer-chip"><i data-lucide="clock" class="w-3 h-3"></i> ${t.l}</a>`;
+						}).join('') +
 						`</div>`;
 				}
 
