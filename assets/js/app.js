@@ -247,7 +247,7 @@ async function fetchScheduleForDate(dateStr) {
 
 	// Handle new structure: { version: 1, days: [...] }
 	// Extract the days array and validate version
-	if (json.version !== 1) {
+	if (json.version !== 1 && json.version !== 2) {
 		console.error(`Unsupported schedule version: ${json.version}`);
 		return null;
 	}
