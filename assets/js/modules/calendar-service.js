@@ -32,6 +32,9 @@ export function calculateWorkoutDuration( exercises ) {
 
 			// Total time for this exercise in minutes
 			totalMinutes += ( repTime * sets + restTime ) / 60;
+		} else if ( ex.timers && ex.timers.length > 0 ) {
+			// Timer-based exercises - use first timer value
+			totalMinutes += ex.timers[ 0 ].s / 60;
 		} else {
 			// Regular exercises without rep counter - estimate 2 min per set
 			const sets = ex.sets || 3;
