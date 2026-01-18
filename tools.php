@@ -29,6 +29,43 @@ function getAppVersion() {
 	return $version;
 }
 
+/**
+ * Load environment variables from a .env file.
+ *
+ * @param string $path Path to the .env file.
+ */
+function loadEnv( $path ) {
+	if ( ! file_exists( $path ) ) {
+		http_response_code( 500 );
+		die( 'ERROR: .env file not found' );
+	}
+
+	$lines = file( $path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
+	foreach ( $lines as $line ) {
+		$line = trim( $line );
+
+		// Skip comments
+		if ( strpos( $line, '#' ) === 0 ) {
+			continue;
+		}
+
+		// Parse KEY=VALUE
+		if ( strpos( $line, '=' ) !== false ) {
+			list( $name, $value ) = explode( '=', $line, 2 );
+			$name  = trim( $name );
+			$value = trim( $value );
+
+			if ( ! array_key_exists( $name, $_ENV ) ) {
+				putenv( "$name=$value" );
+				$_ENV[ $name ] = $value;
+			}
+		}
+	}
+}
+
+loadEnv( __DIR__ . '/.env' );
+
 // Define version constant
 define( 'APP_VERSION', getAppVersion() );
+define( 'MODE_RESET_PASSWORD', getenv( 'RESET_PASSWORD_MODE' ) );
 

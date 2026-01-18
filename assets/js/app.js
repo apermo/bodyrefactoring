@@ -10,8 +10,7 @@ import {
 	STORAGE_KEYS,
 	CONFIG,
 	APP_STATES,
-	QUOTES,
-	RECOVERY_ACTIVITIES
+	QUOTES
 } from './modules/constants.js';
 
 import { AppStateMachine } from './modules/app-state-machine.js';
@@ -53,7 +52,10 @@ const MAX_SHIELDS = CONFIG.MAX_SHIELDS;
 
 // Use imported constants
 const quotes = QUOTES;
-const recoveryActivities = RECOVERY_ACTIVITIES;
+
+// Loaded special schedules (recovery and sick activities loaded from JSON)
+let loadedRecoveryActivities = [];
+let loadedSickActivities = [];
 
 // --- GLOBAL STATE ---
 let currentWeekOffset = 0;
@@ -121,11 +123,15 @@ async function initApp() {
 
 		state.availableSchedules = await response.json();
 
+	// Load special schedules (recovery, sick) before rendering
+	await loadSpecialSchedules();
+
 	if (state.availableSchedules.length > 0) {
 		state.startDate = new Date(state.availableSchedules[0].date + 'T00:00:00');
 		await renderSchedule(); // Initial render
 		updateShieldDisplay(); // Initialize shields display
 		updateDebugToggleButton(); // Update debug toggle button text
+		initModeInput(); // Initialize mode input with current value
 
 		// Transition app state from INITIALIZING to SCHEDULE_VIEW
 		appStateMachine.transition(APP_STATES.SCHEDULE_VIEW, { action: 'app_ready' });
@@ -146,6 +152,60 @@ async function initApp() {
 	console.error(e);
 	alert('Fehler beim Laden der Trainingspläne. Webserver erforderlich!');
 }
+}
+
+/**
+ * Load special schedules (recovery and sick) from JSON files.
+ *
+ * Fetches schedule-recovery.json and schedule-sick.json and stores
+ * the activities in global variables for use during rendering.
+ *
+ * @async
+ * @return {Promise<void>}
+ */
+async function loadSpecialSchedules() {
+	try {
+		// Load recovery schedule
+		const recoveryRes = await fetch( 'trainings/schedule-recovery.json' );
+		if ( recoveryRes.ok ) {
+			const recoveryJson = await recoveryRes.json();
+			if ( recoveryJson.days && recoveryJson.days[ 0 ] && recoveryJson.days[ 0 ].details ) {
+				loadedRecoveryActivities = recoveryJson.days[ 0 ].details;
+			}
+		}
+
+		// Load sick schedule
+		const sickRes = await fetch( 'trainings/schedule-sick.json' );
+		if ( sickRes.ok ) {
+			const sickJson = await sickRes.json();
+			if ( sickJson.days && sickJson.days[ 0 ] && sickJson.days[ 0 ].details ) {
+				loadedSickActivities = sickJson.days[ 0 ].details;
+			}
+		}
+	} catch ( error ) {
+		console.error( 'Error loading special schedules:', error );
+	}
+}
+
+/**
+ * Check if exercise should be hidden by current mode.
+ *
+ * @param {Object} exercise - Exercise object.
+ * @return {boolean} True if exercise should be hidden.
+ */
+function isExerciseHiddenByMode( exercise ) {
+	const currentMode = domainStorage.getMode();
+	if ( ! currentMode ) {
+		return false;
+	}
+
+	// If no hideOn field or empty array, never hidden
+	if ( ! exercise.hideOn || ! Array.isArray( exercise.hideOn ) || exercise.hideOn.length === 0 ) {
+		return false;
+	}
+
+	// Hidden if current mode is in hideOn array
+	return exercise.hideOn.includes( currentMode );
 }
 
 
@@ -385,9 +445,11 @@ async function renderSchedule() {
 		if ( isRecoveryDay || isSickDayActive ) {
 			// Show original exercises as disabled/greyed out
 			day.details.forEach( ex => {
+				const hiddenByMode = isExerciseHiddenByMode( ex );
+				const hiddenClass = hiddenByMode ? 'hidden' : '';
 				const simpleTitle = ex.type === 'alternatives' ? ex.alternatives.map( a => a.title ).join( ' / ' ) : ex.title;
 				exercisesHtml += `
-					<div class="flex items-start gap-4 exercise-row py-4 border-b border-slate-800/50 last:border-0 opacity-30">
+					<div class="flex items-start gap-4 exercise-row py-4 border-b border-slate-800/50 last:border-0 opacity-30 ${hiddenClass}">
 						<div class="w-8 h-8 rounded-full border-2 border-slate-500 flex items-center justify-center flex-shrink-0 mt-1">
 							<i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
 						</div>
@@ -412,7 +474,7 @@ async function renderSchedule() {
 						</div>
 				`;
 
-				recoveryActivities.forEach( activity => {
+				loadedRecoveryActivities.forEach( activity => {
 					const uniqueKey = `${RECOVERY_PREFIX}${day.storageDate}_${activity.id}`;
 					let isChecked = domainStorage.isRecoveryActivityComplete(day.storageDate, activity.id);
 
@@ -469,6 +531,7 @@ async function renderSchedule() {
 		} else {
 		// Normal day - render regular exercises
 		day.details.forEach(ex => {
+			const hiddenByMode = isExerciseHiddenByMode( ex );
 			const uniqueKey = `${STORAGE_PREFIX}${day.storageDate}_${ex.id}`;
 			let isChecked = domainStorage.isExerciseComplete(day.storageDate, ex.id);
 
@@ -496,7 +559,7 @@ async function renderSchedule() {
 				});
 
 				exercisesHtml += `
-					<div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}">
+					<div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''} ${hiddenByMode ? 'hidden' : ''}">
 						<div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1 ${day.isLocked ? '' : 'cursor-pointer'}"
 							 onclick="${day.isLocked ? '' : `toggleCheck(this.parentElement, '${uniqueKey}', '${day.storageDate}')`}">
 							<i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
@@ -510,8 +573,21 @@ async function renderSchedule() {
 					</div>
 				`;
 			} else {
-				let badgeClass = ex.type === 'warmup' ? 'badge-warmup' : ex.type === 'main' ? 'badge-main' : 'badge-cool';
-				let badgeText = ex.type === 'warmup' ? 'Warm Up' : ex.type === 'main' ? 'Mission' : 'Cooldown';
+				// Determine badge class and text based on type
+			let badgeClass, badgeText;
+			if ( ex.type === 'custom' && ex.customLabel ) {
+				badgeClass = 'badge-custom';
+				badgeText = ex.customLabel;
+			} else if ( ex.type === 'warmup' ) {
+				badgeClass = 'badge-warmup';
+				badgeText = 'Warm Up';
+			} else if ( ex.type === 'main' ) {
+				badgeClass = 'badge-main';
+				badgeText = 'Mission';
+			} else {
+				badgeClass = 'badge-cool';
+				badgeText = 'Cooldown';
+			}
 
 				let timersHtml = '';
 				if (ex.timers) {
@@ -527,9 +603,11 @@ async function renderSchedule() {
 				let repCounterHtml = '';
 				if (ex.repCounter) {
 					const rc = ex.repCounter;
+					const bilateral = rc.bilateral || false;
+					const bilateralLabel = bilateral ? ' L/R' : '';
 					repCounterHtml = `<div class="flex gap-2 mt-2 flex-wrap">
-						<div class="timer-chip bg-purple-500/20 border-purple-500/40" onclick="startRepCounter('${ex.id}', ${rc.sets}, ${rc.reps}, ${rc.restSeconds}, ${rc.delayMilliseconds}, '${ex.title}', '${day.storageDate}', '${uniqueKey}')">
-							<i data-lucide="repeat" class="w-3 h-3"></i> ${rc.sets} x ${rc.reps}
+						<div class="timer-chip bg-purple-500/20 border-purple-500/40" onclick="startRepCounter('${ex.id}', ${rc.sets}, ${rc.reps}, ${rc.restSeconds}, ${rc.delayMilliseconds}, '${ex.title}', '${day.storageDate}', '${uniqueKey}', ${bilateral})">
+							<i data-lucide="repeat" class="w-3 h-3"></i> ${rc.sets} x ${rc.reps}${bilateralLabel}
 						</div>
 					</div>`;
 				}
@@ -554,14 +632,18 @@ async function renderSchedule() {
 						</div>`;
 				}
 
-				exercisesHtml += `
-					<div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''}">
+				// Optional indicator
+			const optionalClass = ex.optional ? 'exercise-optional' : '';
+			const optionalBadge = ex.optional ? '<span class="badge-optional ml-2">Optional</span>' : '';
+
+			exercisesHtml += `
+					<div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''} ${optionalClass} ${hiddenByMode ? 'hidden' : ''}">
 						<div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1 ${day.isLocked ? '' : 'cursor-pointer'}"
 							 onclick="${day.isLocked ? '' : `toggleCheck(this.parentElement, '${uniqueKey}', '${day.storageDate}')`}">
 							<i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
 						</div>
 						<div class="flex-grow exercise-text">
-							<div class="${badgeClass} mb-1">${badgeText}</div>
+							<div class="flex items-center"><span class="${badgeClass}">${badgeText}</span>${optionalBadge}</div>
 							<div class="font-bold text-white text-lg leading-tight">${ex.title}</div>
 							<div class="text-xs text-slate-400 mt-0.5">${ex.desc}</div>
 							${timersHtml}
@@ -1065,6 +1147,8 @@ async function calculateStreak() {
  * Check if all exercises in a day are completed.
  *
  * Handles normal days, recovery days, and sick days differently.
+ * Optional exercises are excluded from completion calculation.
+ * Hidden exercises (via mode) are still required - mode only affects UI.
  *
  * @param {string} dateIso - ISO date string.
  * @param {Array} details - Array of exercise objects for the day.
@@ -1073,7 +1157,7 @@ async function calculateStreak() {
 function isDayComplete(dateIso, details) {
 	// Check if it's a recovery day
 	if ( domainStorage.isRecoveryDay(dateIso) ) {
-		return recoveryActivities.every( activity => {
+		return loadedRecoveryActivities.every( activity => {
 			return domainStorage.isRecoveryActivityComplete(dateIso, activity.id);
 		} );
 	}
@@ -1087,7 +1171,16 @@ function isDayComplete(dateIso, details) {
 	if (!details || details.length === 0) {
 		return false;
 	}
-	return details.every(ex => {
+
+	// Only exclude optional exercises - hidden tasks are still required!
+	const requiredExercises = details.filter( ex => ! ex.optional );
+
+	// If no required exercises remain, consider day complete
+	if ( requiredExercises.length === 0 ) {
+		return true;
+	}
+
+	return requiredExercises.every(ex => {
 		return domainStorage.isExerciseComplete(dateIso, ex.id);
 	});
 }
@@ -1411,9 +1504,10 @@ function getRepDelay(configuredDelay) {
  * @param {string} title - Exercise title.
  * @param {string} date - Exercise date (for storage).
  * @param {string} storageKey - LocalStorage key for completion tracking.
+ * @param {boolean} bilateral - Whether exercise alternates left/right per set.
  * @return {void}
  */
-function startRepCounter(exerciseId, sets, reps, restSeconds, delayMilliseconds, title, date, storageKey) {
+function startRepCounter(exerciseId, sets, reps, restSeconds, delayMilliseconds, title, date, storageKey, bilateral = false) {
 	event.stopPropagation();
 
 	// Check if we can start rep counter (state machine validation)
@@ -1448,6 +1542,7 @@ function startRepCounter(exerciseId, sets, reps, restSeconds, delayMilliseconds,
 		repsPerSet: reps,
 		restSeconds: restSeconds,
 		delayMilliseconds: actualDelay,
+		bilateral: bilateral,
 		currentSet: 1,
 		currentRep: 0
 	};
@@ -1496,8 +1591,15 @@ function hideRepCounterModal() {
  * @return {void}
  */
 function updateRepCounterModal() {
+	// Determine bilateral side indicator
+	let sideIndicator = '';
+	if ( repCounterState.bilateral ) {
+		const isLeft = repCounterState.currentSet % 2 === 1;
+		sideIndicator = isLeft ? ' (Links)' : ' (Rechts)';
+	}
+
 	document.getElementById('rep-set-info').textContent =
-		`Satz ${repCounterState.currentSet} von ${repCounterState.totalSets}`;
+		`Satz ${repCounterState.currentSet} von ${repCounterState.totalSets}${sideIndicator}`;
 
 	const currentNumberEl = document.getElementById('rep-current-number');
 	currentNumberEl.textContent = repCounterState.currentRep;
@@ -2491,7 +2593,7 @@ function backToNormal( dateIso ) {
 	}
 
 	// Remove all recovery activities
-	recoveryActivities.forEach( activity => {
+	loadedRecoveryActivities.forEach( activity => {
 		domainStorage.removeRecoveryActivity(dateIso, activity.id);
 	} );
 	domainStorage.removeRecoveryDay(dateIso);
@@ -2504,6 +2606,97 @@ function backToNormal( dateIso ) {
 	calculateStreak();
 
 	alert( '✅ Zurück zum normalen Training!' + ( usedShield ? '\n🛡️ Schild wurde zurückerstattet.' : '' ) );
+}
+
+/**
+ * Set the app mode for filtering exercises.
+ *
+ * Changes the mode and re-renders the schedule.
+ * Empty string clears the mode.
+ *
+ * @param {string} mode - Mode name (e.g., 'papa', 'demo').
+ * @return {void}
+ */
+function setAppMode( mode ) {
+	domainStorage.setMode( mode );
+	updateModeIndicator();
+	renderSchedule();
+}
+
+/**
+ * Toggle mode input visibility.
+ *
+ * @return {void}
+ */
+function toggleModeInput() {
+	const container = document.getElementById( 'mode-input-container' );
+	const chevron = document.getElementById( 'mode-chevron' );
+	if ( container && chevron ) {
+		container.classList.toggle( 'hidden' );
+		chevron.classList.toggle( 'rotate-180' );
+		lucide.createIcons();
+	}
+}
+
+/**
+ * Submit app mode from input.
+ *
+ * Checks for reset password to clear mode.
+ *
+ * @return {void}
+ */
+function submitAppMode() {
+	const modeInput = document.getElementById( 'mode-input' );
+	if ( ! modeInput ) return;
+
+	const value = modeInput.value.trim().toLowerCase();
+
+	// Check if reset password entered
+	if ( value === window.MODE_RESET_PASSWORD ) {
+		domainStorage.clearMode();
+		modeInput.value = '';
+		updateModeIndicator();
+		renderSchedule();
+		toggleMenu();
+		return;
+	}
+
+	// Set the mode
+	if ( value ) {
+		setAppMode( value );
+		modeInput.value = '';
+		toggleMenu();
+	}
+}
+
+/**
+ * Update mode indicator visibility.
+ *
+ * Shows emoji indicator when mode is active.
+ *
+ * @return {void}
+ */
+function updateModeIndicator() {
+	const indicator = document.getElementById( 'mode-indicator' );
+	if ( indicator ) {
+		const currentMode = domainStorage.getMode();
+		if ( currentMode ) {
+			indicator.classList.remove( 'hidden' );
+		} else {
+			indicator.classList.add( 'hidden' );
+		}
+	}
+}
+
+/**
+ * Initialize the mode input and indicator.
+ *
+ * Called during app initialization.
+ *
+ * @return {void}
+ */
+function initModeInput() {
+	updateModeIndicator();
 }
 
 /**
@@ -2607,6 +2800,9 @@ window.toggleTimer = toggleTimer;
 window.activateRecoveryMode = activateRecoveryMode;
 window.useSickShield = useSickShield;
 window.closeSickModeModal = closeSickModeModal;
+window.setAppMode = setAppMode;
+window.toggleModeInput = toggleModeInput;
+window.submitAppMode = submitAppMode;
 window.abortRepCounter = abortRepCounter;
 window.startSpecificTimer = startSpecificTimer;
 window.startRepCounter = startRepCounter;

@@ -20,6 +20,7 @@ export class ScheduleService {
 	constructor() {
 		this.availableSchedules = [];
 		this.scheduleCache = {};
+		this.specialScheduleCache = {};
 		this.startDate = null;
 		this.currentWeekOffset = 0;
 	}
@@ -110,8 +111,8 @@ export class ScheduleService {
 		const res = await fetch(`trainings/${bestMatch.file}`);
 		const json = await res.json();
 
-		// Handle versioned structure
-		if (json.version !== 1) {
+		// Handle versioned structure (support v1 and v2)
+		if ( json.version !== 1 && json.version !== 2 ) {
 			console.error(`Unsupported schedule version: ${json.version}`);
 			return null;
 		}
@@ -119,6 +120,51 @@ export class ScheduleService {
 		// Cache the days array
 		this.scheduleCache[bestMatch.file] = json.days;
 		return json.days;
+	}
+
+	/**
+	 * Fetch a special schedule (recovery, sick).
+	 *
+	 * Special schedules are static templates not tied to dates.
+	 *
+	 * @async
+	 * @param {string} type - Schedule type ('recovery' or 'sick').
+	 * @return {Promise<Object|null>} Day configuration or null.
+	 */
+	async fetchSpecialSchedule( type ) {
+		const validTypes = [ 'recovery', 'sick' ];
+		if ( ! validTypes.includes( type ) ) {
+			console.error( `Invalid special schedule type: ${type}` );
+			return null;
+		}
+
+		// Check cache
+		if ( this.specialScheduleCache[ type ] ) {
+			return this.specialScheduleCache[ type ];
+		}
+
+		// Fetch
+		try {
+			const res = await fetch( `trainings/schedule-${type}.json` );
+			if ( ! res.ok ) {
+				console.error( `Failed to fetch schedule-${type}.json` );
+				return null;
+			}
+			const json = await res.json();
+
+			// Validate version
+			if ( json.version !== 1 && json.version !== 2 ) {
+				console.error( `Unsupported schedule version: ${json.version}` );
+				return null;
+			}
+
+			// Cache the first day (special schedules have only one day)
+			this.specialScheduleCache[ type ] = json.days[ 0 ];
+			return json.days[ 0 ];
+		} catch ( error ) {
+			console.error( `Error fetching schedule-${type}.json:`, error );
+			return null;
+		}
 	}
 
 	/**

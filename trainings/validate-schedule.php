@@ -34,8 +34,9 @@ function validate_schedule_file( $file_path ) {
 
 	// Check filename pattern.
 	$filename = basename( $file_path );
-	if ( ! preg_match( '/^schedule-\d{4}-\d{2}-\d{2}\.json$/', $filename ) ) {
-		$result['errors'][] = 'Filename must match pattern: schedule-YYYY-MM-DD.json';
+	$special_schedules = array( 'schedule-recovery.json', 'schedule-sick.json', 'template-schedule.json' );
+	if ( ! preg_match( '/^schedule-\d{4}-\d{2}-\d{2}\.json$/', $filename ) && ! in_array( $filename, $special_schedules, true ) ) {
+		$result['errors'][] = 'Filename must match pattern: schedule-YYYY-MM-DD.json (or be a special schedule)';
 	}
 
 	// Read and parse JSON.
@@ -81,8 +82,8 @@ function validate_schedule_structure( $data ) {
 		// Validate version.
 		if ( ! is_int( $data['version'] ) ) {
 			$errors[] = "'version' must be an integer";
-		} elseif ( 1 !== $data['version'] ) {
-			$errors[] = "'version' must be 1 (current schema version)";
+		} elseif ( $data['version'] < 1 || $data['version'] > 2 ) {
+			$errors[] = "'version' must be 1 or 2";
 		}
 	}
 
@@ -167,7 +168,8 @@ function validate_schedule_structure( $data ) {
 			} elseif ( empty( $day['details'] ) ) {
 				$errors[] = "$day_prefix: 'details' must contain at least one exercise";
 			} else {
-				$exercise_errors = validate_exercises( $day['details'], $day_prefix );
+				$version         = isset( $data['version'] ) ? $data['version'] : 1;
+				$exercise_errors = validate_exercises( $day['details'], $day_prefix, $version );
 				foreach ( $exercise_errors as $error ) {
 					$errors[] = $error;
 				}
@@ -183,9 +185,10 @@ function validate_schedule_structure( $data ) {
  *
  * @param array  $exercises Array of exercises.
  * @param string $day_prefix Prefix for error messages.
+ * @param int    $version Schema version (1 or 2).
  * @return array Array of error messages.
  */
-function validate_exercises( $exercises, $day_prefix ) {
+function validate_exercises( $exercises, $day_prefix, $version = 1 ) {
 	$errors   = array();
 	$used_ids = array();
 
@@ -221,21 +224,32 @@ function validate_exercises( $exercises, $day_prefix ) {
 		// Validate type.
 		if ( isset( $exercise['type'] ) ) {
 			$valid_types = array( 'warmup', 'main', 'cool', 'alternatives' );
+			if ( 2 === $version ) {
+				$valid_types[] = 'custom';
+			}
 			if ( ! in_array( $exercise['type'], $valid_types, true ) ) {
 				$errors[] = "$ex_prefix: 'type' must be one of: " . implode( ', ', $valid_types );
 			} else {
 				// Type-specific validation.
 				if ( 'alternatives' === $exercise['type'] ) {
-					$alt_errors = validate_alternatives( $exercise, $ex_prefix );
+					$alt_errors = validate_alternatives( $exercise, $ex_prefix, $version );
 					foreach ( $alt_errors as $error ) {
 						$errors[] = $error;
 					}
 				} else {
-					$regular_errors = validate_regular_exercise( $exercise, $ex_prefix );
+					$regular_errors = validate_regular_exercise( $exercise, $ex_prefix, $version );
 					foreach ( $regular_errors as $error ) {
 						$errors[] = $error;
 					}
 				}
+			}
+		}
+
+		// Validate v2 fields.
+		if ( 2 === $version ) {
+			$v2_errors = validate_v2_fields( $exercise, $ex_prefix );
+			foreach ( $v2_errors as $error ) {
+				$errors[] = $error;
 			}
 		}
 
@@ -256,9 +270,10 @@ function validate_exercises( $exercises, $day_prefix ) {
  *
  * @param array  $exercise Exercise data.
  * @param string $ex_prefix Prefix for error messages.
+ * @param int    $version Schema version (1 or 2).
  * @return array Array of error messages.
  */
-function validate_regular_exercise( $exercise, $ex_prefix ) {
+function validate_regular_exercise( $exercise, $ex_prefix, $version = 1 ) {
 	$errors = array();
 
 	// Required fields for regular exercises.
@@ -290,6 +305,23 @@ function validate_regular_exercise( $exercise, $ex_prefix ) {
 		$errors[] = "$ex_prefix: 'defaultUnit' must be a string";
 	}
 
+	// V2: customLabel is required for type=custom.
+	if ( 2 === $version && isset( $exercise['type'] ) && 'custom' === $exercise['type'] ) {
+		if ( ! isset( $exercise['customLabel'] ) ) {
+			$errors[] = "$ex_prefix: 'customLabel' is required for type 'custom'";
+		} elseif ( ! is_string( $exercise['customLabel'] ) || empty( $exercise['customLabel'] ) ) {
+			$errors[] = "$ex_prefix: 'customLabel' must be a non-empty string";
+		}
+	}
+
+	// Validate repCounter if present.
+	if ( isset( $exercise['repCounter'] ) ) {
+		$rep_errors = validate_rep_counter( $exercise['repCounter'], $ex_prefix, $version );
+		foreach ( $rep_errors as $error ) {
+			$errors[] = $error;
+		}
+	}
+
 	return $errors;
 }
 
@@ -298,9 +330,10 @@ function validate_regular_exercise( $exercise, $ex_prefix ) {
  *
  * @param array  $exercise Exercise data.
  * @param string $ex_prefix Prefix for error messages.
+ * @param int    $version Schema version (1 or 2).
  * @return array Array of error messages.
  */
-function validate_alternatives( $exercise, $ex_prefix ) {
+function validate_alternatives( $exercise, $ex_prefix, $version = 1 ) {
 	$errors = array();
 
 	if ( ! isset( $exercise['alternatives'] ) ) {
@@ -384,6 +417,107 @@ function validate_timers( $timers, $prefix ) {
 			$errors[] = "$timer_prefix: Missing required field 's' (seconds)";
 		} elseif ( ! is_int( $timer['s'] ) || $timer['s'] < 1 ) {
 			$errors[] = "$timer_prefix: 's' must be a positive integer";
+		}
+	}
+
+	return $errors;
+}
+
+/**
+ * Validate v2-specific exercise fields.
+ *
+ * @param array  $exercise Exercise data.
+ * @param string $ex_prefix Prefix for error messages.
+ * @return array Array of error messages.
+ */
+function validate_v2_fields( $exercise, $ex_prefix ) {
+	$errors = array();
+
+	// Validate optional field.
+	if ( isset( $exercise['optional'] ) && ! is_bool( $exercise['optional'] ) ) {
+		$errors[] = "$ex_prefix: 'optional' must be a boolean";
+	}
+
+	// Validate hideOn field.
+	if ( isset( $exercise['hideOn'] ) ) {
+		if ( ! is_array( $exercise['hideOn'] ) ) {
+			$errors[] = "$ex_prefix: 'hideOn' must be an array";
+		} else {
+			foreach ( $exercise['hideOn'] as $mode_index => $mode ) {
+				if ( ! is_string( $mode ) || empty( $mode ) ) {
+					$errors[] = "$ex_prefix: 'hideOn[$mode_index]' must be a non-empty string";
+				}
+			}
+		}
+	}
+
+	// Validate customLabel field (required for type=custom is handled in validate_regular_exercise).
+	if ( isset( $exercise['customLabel'] ) ) {
+		if ( ! is_string( $exercise['customLabel'] ) || empty( $exercise['customLabel'] ) ) {
+			$errors[] = "$ex_prefix: 'customLabel' must be a non-empty string";
+		}
+	}
+
+	return $errors;
+}
+
+/**
+ * Validate repCounter configuration.
+ *
+ * @param mixed  $rep_counter Rep counter data.
+ * @param string $ex_prefix Prefix for error messages.
+ * @param int    $version Schema version (1 or 2).
+ * @return array Array of error messages.
+ */
+function validate_rep_counter( $rep_counter, $ex_prefix, $version = 1 ) {
+	$errors     = array();
+	$rep_prefix = "$ex_prefix, repCounter";
+
+	if ( ! is_array( $rep_counter ) ) {
+		$errors[] = "$rep_prefix: Must be an object";
+		return $errors;
+	}
+
+	// Required fields.
+	$required_fields = array( 'sets', 'reps', 'restSeconds', 'delayMilliseconds' );
+	foreach ( $required_fields as $field ) {
+		if ( ! isset( $rep_counter[ $field ] ) ) {
+			$errors[] = "$rep_prefix: Missing required field '$field'";
+		}
+	}
+
+	// Validate sets.
+	if ( isset( $rep_counter['sets'] ) ) {
+		if ( ! is_int( $rep_counter['sets'] ) || $rep_counter['sets'] < 1 ) {
+			$errors[] = "$rep_prefix: 'sets' must be a positive integer";
+		}
+	}
+
+	// Validate reps.
+	if ( isset( $rep_counter['reps'] ) ) {
+		if ( ! is_int( $rep_counter['reps'] ) || $rep_counter['reps'] < 1 ) {
+			$errors[] = "$rep_prefix: 'reps' must be a positive integer";
+		}
+	}
+
+	// Validate restSeconds.
+	if ( isset( $rep_counter['restSeconds'] ) ) {
+		if ( ! is_int( $rep_counter['restSeconds'] ) || $rep_counter['restSeconds'] < 1 ) {
+			$errors[] = "$rep_prefix: 'restSeconds' must be a positive integer";
+		}
+	}
+
+	// Validate delayMilliseconds.
+	if ( isset( $rep_counter['delayMilliseconds'] ) ) {
+		if ( ! is_numeric( $rep_counter['delayMilliseconds'] ) || $rep_counter['delayMilliseconds'] < 1000 ) {
+			$errors[] = "$rep_prefix: 'delayMilliseconds' must be a number >= 1000";
+		}
+	}
+
+	// V2: Validate bilateral field.
+	if ( 2 === $version && isset( $rep_counter['bilateral'] ) ) {
+		if ( ! is_bool( $rep_counter['bilateral'] ) ) {
+			$errors[] = "$rep_prefix: 'bilateral' must be a boolean";
 		}
 	}
 

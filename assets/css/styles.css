@@ -266,6 +266,60 @@ body {
 	animation: pulse 2s infinite;
 }
 
+/* Exercise Phase Badges */
+.badge-warmup,
+.badge-main,
+.badge-cool,
+.badge-custom {
+	display: inline-block;
+	font-size: 0.6rem;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+
+.badge-warmup {
+	background: rgba(251, 191, 36, 0.2);
+	color: #fbbf24;
+}
+
+.badge-main {
+	background: rgba(56, 189, 248, 0.2);
+	color: #38bdf8;
+}
+
+.badge-cool {
+	background: rgba(52, 211, 153, 0.2);
+	color: #34d399;
+}
+
+.badge-custom {
+	background: rgba(168, 85, 247, 0.2);
+	color: #a855f7;
+}
+
+.badge-optional {
+	display: inline-block;
+	font-size: 0.55rem;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	padding: 2px 6px;
+	border-radius: 4px;
+	background: rgba(100, 116, 139, 0.3);
+	color: #94a3b8;
+	border: 1px dashed rgba(100, 116, 139, 0.5);
+}
+
+/* Optional Exercise Styling */
+.exercise-optional {
+	border-left: 2px dashed rgba(100, 116, 139, 0.5);
+	padding-left: 1rem;
+	margin-left: -1rem;
+}
+
 .completed-badge {
 	background: var(--color-success);
 	color: white;

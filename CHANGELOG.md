@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Schedule Schema v2**: New schema with extended exercise features
+  - `optional` field: Mark exercises as skippable without affecting completion
+  - `customLabel` field: Custom category labels for `type: custom` exercises
+  - `hideOn` field: Array of modes where exercise is hidden (e.g., `["papa", "demo"]`)
+  - `bilateral` field in repCounter: Alternates left/right per set
+- **Recovery/Sick JSON files**: Moved hardcoded activities to schedule files
+  - `schedule-recovery.json`: Light recovery activities
+  - `schedule-sick.json`: Minimal hydration task for sick days
+- **Mode selector**: Filter exercises by mode (UI only)
+  - Click "Modus" in menu to expand input field
+  - Exercises with matching `hideOn` value are hidden from view
+  - Hidden tasks still required for completion/streak (unless optional)
+  - Mode indicator (👤) shown in header when active
+  - Enter reset password to clear mode
+  - Persists until manually reset
+- **Optional exercise styling**: Dashed border indicator for optional tasks
+- **Custom exercise type**: Use `customLabel` for custom category display
+- **Bilateral rep counter**: Shows "Links" / "Rechts" indicator per set
+- **Exercise phase badges**: CSS styles for warmup/main/cool/custom badges
 - **Travel Schedule Documentation**: Guide for creating vacation/trip schedules
   - Pre-trip preparation checklist
   - Exercise sources: hotel gym, Apple Fitness+, outdoor activities, bodyweight
@@ -34,6 +53,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Schedule validation**: Now supports both schema v1 and v2
+  - Validator accepts version 1 or 2
+  - Special schedule names accepted: schedule-recovery.json, schedule-sick.json
+- **Schedule service**: Supports v2 schedules with new exercise fields
+- **Completion calculation**: Excludes optional exercises and hidden exercises
 - **Timer chips**: Now use iOS Shortcuts system timer instead of internal timer
   - Links to `shortcuts://run-shortcut?name=Timer&input=X`
   - Cleaned up embedded HTML from schedule desc fields

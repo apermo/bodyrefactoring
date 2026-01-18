@@ -1,5 +1,5 @@
 {
-	"version": 1,
+	"version": 2,
 	"days": [
 		{
 			"id": "mon",
@@ -43,6 +43,21 @@
 					"defaultUnit": "KG"
 				},
 				{
+					"id": "ex_bicep_curls",
+					"type": "main",
+					"title": "Bicep Curls (Bilateral)",
+					"desc": "4 x 15 Reps, alternating arms",
+					"weight": "10",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 4,
+						"reps": 15,
+						"restSeconds": 30,
+						"delayMilliseconds": 2500,
+						"bilateral": true
+					}
+				},
+				{
 					"id": "alt_cardio",
 					"type": "alternatives",
 					"alternatives": [
@@ -77,6 +92,19 @@
 					]
 				},
 				{
+					"id": "ex_abs_optional",
+					"type": "main",
+					"title": "Ab Workout",
+					"desc": "Optional core work",
+					"optional": true,
+					"timers": [
+						{
+							"l": "10 Min",
+							"s": 600
+						}
+					]
+				},
+				{
 					"id": "cool_stretch",
 					"type": "cool",
 					"title": "Cooldown",
@@ -100,6 +128,19 @@
 			"bgClass": "bg-emerald-500/10",
 			"details": [
 				{
+					"id": "custom_morning",
+					"type": "custom",
+					"customLabel": "Morning",
+					"title": "Morning Routine",
+					"desc": "Light stretching after waking up",
+					"timers": [
+						{
+							"l": "10 Min",
+							"s": 600
+						}
+					]
+				},
+				{
 					"id": "ex_walking",
 					"type": "main",
 					"title": "Walking",
@@ -112,6 +153,27 @@
 						{
 							"l": "45 Min",
 							"s": 2700
+						}
+					]
+				},
+				{
+					"id": "ex_papa_only",
+					"type": "main",
+					"title": "Papa Special Exercise",
+					"desc": "Only visible in normal mode",
+					"hideOn": ["papa", "demo"]
+				},
+				{
+					"id": "custom_evening",
+					"type": "custom",
+					"customLabel": "Evening",
+					"title": "Evening Meditation",
+					"desc": "Wind down before bed",
+					"optional": true,
+					"timers": [
+						{
+							"l": "5 Min",
+							"s": 300
 						}
 					]
 				}

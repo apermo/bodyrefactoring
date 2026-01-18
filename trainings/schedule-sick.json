@@ -1,0 +1,22 @@
+{
+	"version": 2,
+	"days": [
+		{
+			"id": "sick",
+			"dayIndex": 0,
+			"name": "Krank",
+			"theme": "Genesung",
+			"icon": "thermometer",
+			"colorClass": "text-red-400",
+			"bgClass": "bg-red-500/10",
+			"details": [
+				{
+					"id": "hydration",
+					"type": "main",
+					"title": "Flüssigkeitszufuhr",
+					"desc": "2 Liter Wasser/Tee trinken"
+				}
+			]
+		}
+	]
+}

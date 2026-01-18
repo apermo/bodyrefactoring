@@ -18,10 +18,10 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.2.0 ⏳ - Calendar Integration (Quick Win)
+### v14.2.0 ⏳ - Calendar Integration & Schedule Schema v2
 
-**Priority: High**  
-**Focus**: Add workouts to iOS Calendar for native notifications
+**Priority: High**
+**Focus**: Add workouts to iOS Calendar for native notifications + Extended schedule features
 
 **Why Prioritized:**
 - Quick to implement (~1-2 days)
@@ -63,6 +63,36 @@ This document outlines planned features and improvements for the Body Refactorin
 - ✅ No backend needed
 - ✅ Privacy-friendly (all local)
 - ✅ Works across all platforms
+
+#### Schedule Schema v2 & Extended Features
+
+**Schedule Schema v2:**
+- `optional` field: Mark exercises as skippable without affecting completion %
+- `customLabel` field: Custom category labels for `type: custom` exercises
+- `hideOn` field: Array of modes where exercise is hidden (e.g., `["papa", "demo"]`)
+- `bilateral` field in repCounter: Alternates left/right per set
+
+**Recovery/Sick JSON:**
+- Moved hardcoded recovery activities to `schedule-recovery.json`
+- Moved hardcoded sick activities to `schedule-sick.json`
+- Configurable via JSON instead of code
+
+**Mode Selector:**
+- Text input in menu to set current mode (e.g., "papa", "demo")
+- Exercises with matching `hideOn` value are hidden
+- Stored in localStorage, persists across sessions
+
+**Implementation Complete:**
+- ✅ Schema v2 JSON schema file (`schema-schedule-v2.json`)
+- ✅ Validator supports both v1 and v2
+- ✅ Template schedule updated to v2 with examples
+- ✅ Recovery/sick JSON files created
+- ✅ Mode storage in DomainStorageService
+- ✅ Mode selector UI in menu
+- ✅ hideOn filtering in renderSchedule()
+- ✅ Optional exercise styling (dashed border, badge)
+- ✅ Custom type rendering with customLabel
+- ✅ Bilateral rep counter with side indicator
 
 ---
 
@@ -1197,7 +1227,7 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ---
 
-**Last Updated**: January 14, 2026
-**Current Stable Release**: v14.1.2
+**Last Updated**: January 18, 2026
+**Current Stable Release**: v14.1.3
 **Development Cycle**: v14
 
