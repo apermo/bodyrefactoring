@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Optional exercise styling**: Dashed border indicator for optional tasks
 - **Custom exercise type**: Use `customLabel` for custom category display
 - **Bilateral rep counter**: Shows "Links" / "Rechts" indicator per set
+- **AI Schedule Creation Documentation**: Updated for schema v2 features
+  - Custom exercise type with `customLabel`
+  - Rep counter with `bilateral` support
+  - Optional tasks and hide modes (`hideOn`)
+  - Updated checklist and examples
 - **Exercise phase badges**: CSS styles for warmup/main/cool/custom badges
 - **Travel Schedule Documentation**: Guide for creating vacation/trip schedules
   - Pre-trip preparation checklist
@@ -53,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Schedule 2026-01-20**: Updated to schema v2, added bilateral rep counter to leg exercises
 - **Schedule validation**: Now supports both schema v1 and v2
   - Validator accepts version 1 or 2
   - Special schedule names accepted: schedule-recovery.json, schedule-sick.json
