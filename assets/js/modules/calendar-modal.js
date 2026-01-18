@@ -99,6 +99,28 @@ export function markEventAdded( date ) {
 }
 
 /**
+ * Generate time options HTML for select element.
+ *
+ * Generates options from 05:00 to 23:45 in 15-minute intervals.
+ *
+ * @param {string} selectedTime - Currently selected time in HH:MM format.
+ * @return {string} HTML options string.
+ */
+function generateTimeOptions( selectedTime ) {
+	const options = [];
+
+	for ( let hour = 5; hour < 24; hour++ ) {
+		for ( let minute = 0; minute < 60; minute += 15 ) {
+			const timeValue = `${String( hour ).padStart( 2, '0' )}:${String( minute ).padStart( 2, '0' )}`;
+			const selected = timeValue === selectedTime ? 'selected' : '';
+			options.push( `<option value="${timeValue}" ${selected}>${timeValue}</option>` );
+		}
+	}
+
+	return options.join( '' );
+}
+
+/**
  * Show calendar modal.
  *
  * @param {Object} config - Configuration object.
@@ -151,12 +173,12 @@ export function showCalendarModal( config ) {
 				<!-- Time Picker -->
 				<div class="mb-4">
 					<label class="block text-xs text-slate-500 uppercase tracking-widest mb-2">Uhrzeit</label>
-					<input
-						type="time"
+					<select
 						id="calendar-time-input"
-						value="${defaultTime}"
-						class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white text-lg font-bold focus:outline-none focus:border-blue-500 transition"
+						class="bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white text-lg font-bold focus:outline-none focus:border-blue-500 transition"
 					>
+						${generateTimeOptions( defaultTime )}
+					</select>
 				</div>
 
 				<!-- Duration Picker -->
