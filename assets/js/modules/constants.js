@@ -136,7 +136,8 @@ export const TIMER_STATES = {
 	IDLE: 'idle',
 	COUNTDOWN: 'countdown',
 	RUNNING: 'running',
-	REST_PERIOD: 'rest_period'
+	REST_PERIOD: 'rest_period',
+	WAITING_READY: 'waiting_ready'
 };
 
 /**

@@ -32,6 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Timer chips**: Now use iOS Shortcuts system timer instead of internal timer
   - Links to `shortcuts://run-shortcut?name=Timer&input=X`
   - Cleaned up embedded HTML from schedule desc fields
+- **Rep Timer**: Now counts down normally until 5 seconds
+  - At 5s: pauses, FAB shows "Bereit?" with pulsing amber, speech announces "Bereit?", vibrate
+  - User taps FAB → speech "Los!" → final 5-4-3-2-1 countdown → confetti
+  - Same behavior applies to rep counter rest periods (tap number display to resume)
+  - Canceling during wait fully resets the timer
 
 ### Fixed
 

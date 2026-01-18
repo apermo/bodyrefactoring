@@ -70,6 +70,7 @@ let timerInterval = null;
 let isRunning = false;
 let timeLeft = 0;
 let currentTimerLabel = '';
+let isWaitingForReady = false;
 
 
 // --- INIT & DATA FETCHING ---
@@ -1763,6 +1764,61 @@ function startRestPeriod() {
 	};
 	currentNumberEl.addEventListener('click', quickRestHandler);
 
+	// Handler for resuming from ready state
+	let isRestWaiting = false;
+	const resumeFromRestReady = () => {
+		if (!isRestWaiting) {
+			return;
+		}
+		isRestWaiting = false;
+
+		// Remove waiting class
+		currentNumberEl.classList.remove('waiting-ready');
+
+		// Speak and continue countdown
+		speak('Los!');
+
+		// Resume the countdown for remaining seconds
+		timerCoordinator.setInterval(() => {
+			currentNumberEl.textContent = `${timeLeft}s`;
+
+			// Restart breathing animation for each second
+			currentNumberEl.classList.remove('rep-breathe');
+			void currentNumberEl.offsetWidth; // Force reflow
+			currentNumberEl.classList.add('rep-breathe');
+
+			if (timeLeft <= 3 && timeLeft > 0) {
+				speak(timeLeft.toString());
+			}
+
+			if (timeLeft <= 0) {
+				timerCoordinator.clearInterval('rest_period');
+				isRunning = false;
+
+				// Remove click handler and reset styles
+				currentNumberEl.removeEventListener('click', quickRestHandler);
+				currentNumberEl.removeEventListener('click', resumeFromRestReady);
+				currentNumberEl.style.cursor = '';
+				currentNumberEl.classList.remove('rep-breathe', 'rep-number-countdown');
+				currentNumberEl.style.removeProperty('--rep-delay');
+
+				// Vibrate
+				if (navigator.vibrate) {
+					navigator.vibrate([200, 100, 200]);
+				}
+
+				speak('Los!');
+
+				// Start next set using timerCoordinator
+				timerCoordinator.setTimeout(() => {
+					startRepCounting();
+				}, 500, 'next_set');
+			}
+
+			timeLeft--;
+		}, 1000, 'rest_period');
+	};
+
 	// Use timerCoordinator.setInterval instead of setInterval
 	timerCoordinator.setInterval(() => {
 		currentNumberEl.textContent = `${timeLeft}s`;
@@ -1778,6 +1834,28 @@ function startRestPeriod() {
 		if (timeLeft === 10) {
 			speak('10 Sekunden');
 		}
+
+		// Pause at 5 seconds for ready check
+		if (timeLeft === 5) {
+			timerCoordinator.clearInterval('rest_period');
+			isRestWaiting = true;
+
+			// Update display
+			currentNumberEl.textContent = 'Bereit?';
+			currentNumberEl.classList.add('waiting-ready');
+
+			// Announce and vibrate
+			speak('Bereit?');
+			if (navigator.vibrate) {
+				navigator.vibrate([100, 50, 100]);
+			}
+
+			// Replace quick rest handler with resume handler
+			currentNumberEl.removeEventListener('click', quickRestHandler);
+			currentNumberEl.addEventListener('click', resumeFromRestReady);
+			return;
+		}
+
 		if (timeLeft === 3) {
 			speak('3');
 		}
@@ -1879,6 +1957,11 @@ function finishRepCounter() {
  * @return {void}
  */
 function toggleTimer() {
+	if (isWaitingForReady) {
+		resumeTimerFromReady();
+		return;
+	}
+
 	if (isRunning) {
 		resetTimer();
 		speak('Timer abgebrochen.');
@@ -1952,6 +2035,91 @@ function startTimerLogic(spokenTextStart) {
 		if (timeLeft === 10) {
 			speak('Zehn Sekunden.');
 		}
+
+		// Pause at 5 seconds for ready check
+		if (timeLeft === 5) {
+			pauseTimerForReady();
+			return;
+		}
+
+		if (timeLeft <= 3 && timeLeft > 0) {
+			speak(timeLeft.toString());
+		}
+
+		if (timeLeft <= 0) {
+			resetTimer();
+			speak("Zeit abgelaufen! Weiter geht's!");
+			navigator.vibrate([200, 100, 200]);
+			superConfetti();
+		}
+	}, 1000, 'main_timer');
+}
+
+/**
+ * Pause timer at 5 seconds for ready confirmation.
+ *
+ * Stops the countdown, updates FAB to show "Bereit?", and waits for user tap.
+ *
+ * @return {void}
+ */
+function pauseTimerForReady() {
+	// Stop the interval but keep timer state
+	timerCoordinator.clearInterval('main_timer');
+	isWaitingForReady = true;
+
+	// Update state machine
+	timerStateMachine.pauseForReady();
+
+	// Update FAB appearance
+	const fab = document.getElementById('fab-timer');
+	fab.classList.add('waiting-ready');
+	fab.classList.remove('running');
+	fab.innerHTML = '<i data-lucide="play" class="w-6 h-6"></i><span id="timer-text">Bereit?</span>';
+	lucide.createIcons();
+
+	// Announce and vibrate
+	speak('Bereit?');
+	if (navigator.vibrate) {
+		navigator.vibrate([100, 50, 100]);
+	}
+}
+
+/**
+ * Resume timer from ready confirmation.
+ *
+ * Restarts the final 5-second countdown after user taps.
+ *
+ * @return {void}
+ */
+function resumeTimerFromReady() {
+	isWaitingForReady = false;
+
+	// Update state machine
+	timerStateMachine.resumeFromReady();
+
+	// Update FAB appearance
+	const fab = document.getElementById('fab-timer');
+	fab.classList.remove('waiting-ready');
+	fab.classList.add('running');
+
+	// Show time remaining
+	const mins = Math.floor(timeLeft / 60);
+	const secs = timeLeft % 60;
+	const displayTime = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+	fab.innerHTML = `<i data-lucide="timer" class="w-6 h-6"></i><span id="timer-text">${displayTime}</span>`;
+	lucide.createIcons();
+
+	// Announce and restart countdown
+	speak('Los!');
+
+	// Resume the countdown
+	timerCoordinator.setInterval(() => {
+		timeLeft--;
+		const mins = Math.floor(timeLeft / 60);
+		const secs = timeLeft % 60;
+		const displayTime = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+		document.getElementById('timer-text').innerText = displayTime;
+
 		if (timeLeft <= 3 && timeLeft > 0) {
 			speak(timeLeft.toString());
 		}
@@ -1984,7 +2152,8 @@ function resetTimer() {
 	}
 
 	isRunning = false;
-	document.getElementById('fab-timer').classList.remove('running');
+	isWaitingForReady = false;
+	document.getElementById('fab-timer').classList.remove('running', 'waiting-ready');
 	document.getElementById('fab-timer').innerHTML = '<i data-lucide="timer" class="w-6 h-6"></i><span id="timer-text">60s Pause</span>';
 	lucide.createIcons();
 

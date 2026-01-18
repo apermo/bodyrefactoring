@@ -211,6 +211,22 @@ body {
 	animation: pulse-red 2s infinite;
 }
 
+.fab-timer.waiting-ready {
+	background: var(--color-warning);
+	color: var(--color-bg-primary);
+	box-shadow: 0 10px 25px -5px rgba(var(--color-warning-rgb), 0.5);
+	animation: pulse-ready 0.8s infinite;
+}
+
+@keyframes pulse-ready {
+	0%, 100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.05);
+	}
+}
+
 /* Timer Chips */
 .timer-chip, .system-timer-chip {
 	background: rgba(var(--color-primary-rgb), 0.15);
@@ -484,6 +500,12 @@ body {
 #rep-counter-modal .rep-number-go {
 	color: var(--color-rep-go);
 	text-shadow: 0 0 40px rgba(var(--color-rep-go-rgb), 0.7);
+}
+
+#rep-counter-modal .waiting-ready {
+	color: var(--color-warning);
+	text-shadow: 0 0 30px rgba(var(--color-warning-rgb), 0.5);
+	animation: pulse-ready 0.8s infinite;
 }
 
 /* Debug Mode Toggle - Hide in standalone (web app) mode */
