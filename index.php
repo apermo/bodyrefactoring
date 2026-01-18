@@ -191,6 +191,7 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 						<input type="text"
 							   id="mode-input"
 							   placeholder="Modus eingeben..."
+							   onkeydown="if(event.key==='Enter') submitAppMode()"
 							   class="flex-1 min-w-0 px-3 py-2 bg-slate-900/80 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:border-cyan-500">
 						<button onclick="submitAppMode()" class="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-bold">
 							<i data-lucide="send" class="w-4 h-4"></i>
