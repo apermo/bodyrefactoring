@@ -68,4 +68,5 @@ loadEnv( __DIR__ . '/.env' );
 // Define version constant
 define( 'APP_VERSION', getAppVersion() );
 define( 'MODE_RESET_PASSWORD', getenv( 'RESET_PASSWORD_MODE' ) );
+define( 'DEBUG_LOG_ENABLED', getenv( 'DEBUG_MODE' ) === 'true' );
 

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [14.2.3] - 2026-01-19
 
+### Added
+
+- **Debug log panel**: Collapsible debug log in footer for PWA troubleshooting
+  - Enable via `DEBUG_MODE=true` in `.env`
+  - Logs key events: DOM load, module init, schedule fetching, errors
+  - Catches and displays unhandled JavaScript errors
+  - Visible in footer when enabled, hidden by default
+
 ### Fixed
 
 - **PWA module loading failure**: Menu was inaccessible when ES6 modules failed to load
