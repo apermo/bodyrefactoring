@@ -1,0 +1,8 @@
+# Disable caching for ES6 modules (imports don't have cache busting)
+<IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, must-revalidate"
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive Off
+</IfModule>

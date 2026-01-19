@@ -29,6 +29,13 @@ DirectoryIndex index.php index.html
     ExpiresByType application/json "access plus 1 hour"
 </IfModule>
 
+# Disable caching for ES6 modules (no cache busting on imports)
+<IfModule mod_headers.c>
+    <FilesMatch "assets/js/modules/.*\.js$">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
 # Security headers
 <IfModule mod_headers.c>
     # Prevent MIME type sniffing
