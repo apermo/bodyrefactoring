@@ -2,6 +2,9 @@
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/assets/cachebuster.php';
 
+// Prevent aggressive caching of the main HTML (especially for iOS PWA)
+header( 'Cache-Control: no-cache, must-revalidate' );
+
 // Check for consent cookie
 if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' ) {
 	require_once __DIR__ . '/consent.php';
@@ -27,12 +30,37 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 	<link
 		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Roboto:wght@300;400;700;900&display=swap"
 		rel="stylesheet">
-	<script src="https://unpkg.com/lucide@latest"></script>
+	<script src="https://unpkg.com/lucide@latest" onload="lucide.createIcons()"></script>
 
 	<link rel="stylesheet" href="<?php echo asset( 'assets/css/styles.css' ); ?>">
 	<script>
 		// Mode reset password (from PHP config)
 		window.MODE_RESET_PASSWORD = '<?php echo MODE_RESET_PASSWORD; ?>';
+
+		// Inline fallback for forceUpdate - always available even if modules fail
+		window.forceUpdate = window.forceUpdate || function() {
+			if (confirm('Update laden?')) {
+				const url = new URL(window.location.href);
+				url.searchParams.set('update', Date.now());
+				window.location.href = url.toString();
+			}
+		};
+
+		// Inline fallback for toggleMenu - always available even if modules fail
+		window.toggleMenu = window.toggleMenu || function(e) {
+			e && e.stopPropagation();
+			const menu = document.getElementById('menu-dropdown');
+			if (menu) menu.classList.toggle('hidden');
+		};
+
+		// Inline fallback for closeMenuOutside
+		window.closeMenuOutside = window.closeMenuOutside || function(e) {
+			const menu = document.getElementById('menu-dropdown');
+			const btn = document.getElementById('menu-btn');
+			if (menu && btn && !menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+				menu.classList.add('hidden');
+			}
+		};
 	</script>
  	<script type="module" src="<?php echo asset( 'assets/js/app.js' ); ?>"></script>
 </head>
