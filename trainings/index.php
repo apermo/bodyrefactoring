@@ -1,6 +1,7 @@
 <?php
 header( 'Content-Type: application/json' );
 header( 'Access-Control-Allow-Origin: *' );
+header( 'Cache-Control: no-cache, must-revalidate' );
 
 $files     = glob( "schedule-*.json" );
 $schedules = [];
@@ -8,8 +9,9 @@ $schedules = [];
 foreach ( $files as $file ) {
 	if ( preg_match( '/schedule-(\d{4}-\d{2}-\d{2})\.json/', $file, $matches ) ) {
 		$schedules[] = [
-			'date' => $matches[1],
-			'file' => $file
+			'date'  => $matches[1],
+			'file'  => $file,
+			'mtime' => filemtime( $file )
 		];
 	}
 }
