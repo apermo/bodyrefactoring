@@ -114,20 +114,25 @@ async function initApp() {
 	}
 
 	try {
+		if (window.debugLog) window.debugLog('Modules loaded, starting init', 'success');
+
 		// Fetch schedules (redirects to index.php on Plesk or schedules.json on Netlify)
+		if (window.debugLog) window.debugLog('Fetching trainings/...', 'info');
 		const response = await fetch('trainings/');
 
 		if (!response.ok) {
-			throw new Error('Failed to load schedules');
+			throw new Error(`Failed to load schedules: ${response.status} ${response.statusText}`);
 		}
 
 		state.availableSchedules = await response.json();
+		if (window.debugLog) window.debugLog(`Loaded ${state.availableSchedules.length} schedules`, 'success');
 
 	// Load special schedules (recovery, sick) before rendering
 	await loadSpecialSchedules();
 
 	if (state.availableSchedules.length > 0) {
 		state.startDate = new Date(state.availableSchedules[0].date + 'T00:00:00');
+		if (window.debugLog) window.debugLog('Rendering schedule...', 'info');
 		await renderSchedule(); // Initial render
 		updateShieldDisplay(); // Initialize shields display
 		updateDebugToggleButton(); // Update debug toggle button text
@@ -136,6 +141,7 @@ async function initApp() {
 		// Transition app state from INITIALIZING to SCHEDULE_VIEW
 		appStateMachine.transition(APP_STATES.SCHEDULE_VIEW, { action: 'app_ready' });
 
+		if (window.debugLog) window.debugLog('App ready, hiding splash', 'success');
 		setTimeout(() => {
 			document.getElementById('splash-screen').style.opacity = '0';
 		}, 800);
@@ -146,10 +152,12 @@ async function initApp() {
 		// Show introduction modal on first visit
 		checkAndShowIntroModal( domainStorage );
 	} else {
+		if (window.debugLog) window.debugLog('No schedules found', 'warn');
 		alert('Keine Trainingspläne gefunden.');
 	}
 } catch (e) {
 	console.error(e);
+	if (window.debugLog) window.debugLog(`INIT ERROR: ${e.message}`, 'error');
 	alert('Fehler beim Laden der Trainingspläne. Aktualisiere die App oder prüfe den Webserver.');
 
 	// Initialize icons so menu is visible

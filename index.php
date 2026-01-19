@@ -2,6 +2,9 @@
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/assets/cachebuster.php';
 
+// Prevent aggressive caching of the main HTML (especially for iOS PWA)
+header( 'Cache-Control: no-cache, must-revalidate' );
+
 // Check for consent cookie
 if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' ) {
 	require_once __DIR__ . '/consent.php';
@@ -27,12 +30,75 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 	<link
 		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Roboto:wght@300;400;700;900&display=swap"
 		rel="stylesheet">
-	<script src="https://unpkg.com/lucide@latest"></script>
+	<script src="https://unpkg.com/lucide@latest" onload="lucide.createIcons(); if(window.debugLog) debugLog('Lucide icons loaded', 'success');"></script>
 
 	<link rel="stylesheet" href="<?php echo asset( 'assets/css/styles.css' ); ?>">
 	<script>
 		// Mode reset password (from PHP config)
 		window.MODE_RESET_PASSWORD = '<?php echo MODE_RESET_PASSWORD; ?>';
+
+		// Debug log enabled (from PHP config)
+		window.DEBUG_LOG_ENABLED = <?php echo DEBUG_LOG_ENABLED ? 'true' : 'false'; ?>;
+
+		// Debug logging functions - always available
+		window.debugLog = function(message, type = 'info') {
+			if (!window.DEBUG_LOG_ENABLED) return;
+			const container = document.getElementById('debug-log-content');
+			if (!container) return;
+			const time = new Date().toLocaleTimeString('de-DE');
+			const colors = { info: '#60a5fa', warn: '#fbbf24', error: '#f87171', success: '#4ade80' };
+			const entry = document.createElement('div');
+			entry.style.cssText = `font-size: 11px; padding: 2px 0; border-bottom: 1px solid #334155; color: ${colors[type] || colors.info}`;
+			entry.textContent = `[${time}] ${message}`;
+			container.appendChild(entry);
+			container.scrollTop = container.scrollHeight;
+			console.log(`[DEBUG ${type.toUpperCase()}] ${message}`);
+		};
+
+		window.toggleDebugLog = function() {
+			const content = document.getElementById('debug-log-content');
+			const chevron = document.getElementById('debug-log-chevron');
+			if (content && chevron) {
+				content.classList.toggle('hidden');
+				chevron.style.transform = content.classList.contains('hidden') ? '' : 'rotate(180deg)';
+			}
+		};
+
+		// Inline fallback for forceUpdate - always available even if modules fail
+		window.forceUpdate = window.forceUpdate || function() {
+			if (confirm('Update laden?')) {
+				const url = new URL(window.location.href);
+				url.searchParams.set('update', Date.now());
+				window.location.href = url.toString();
+			}
+		};
+
+		// Inline fallback for toggleMenu - always available even if modules fail
+		window.toggleMenu = window.toggleMenu || function(e) {
+			e && e.stopPropagation();
+			const menu = document.getElementById('menu-dropdown');
+			if (menu) menu.classList.toggle('hidden');
+		};
+
+		// Inline fallback for closeMenuOutside
+		window.closeMenuOutside = window.closeMenuOutside || function(e) {
+			const menu = document.getElementById('menu-dropdown');
+			const btn = document.getElementById('menu-btn');
+			if (menu && btn && !menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+				menu.classList.add('hidden');
+			}
+		};
+
+		// Log page load start
+		window.addEventListener('DOMContentLoaded', function() {
+			debugLog('DOM loaded, v<?php echo APP_VERSION; ?>', 'info');
+		});
+
+		// Catch and log unhandled errors
+		window.onerror = function(msg, url, line, col, error) {
+			debugLog(`ERROR: ${msg} (${url}:${line})`, 'error');
+			return false;
+		};
 	</script>
  	<script type="module" src="<?php echo asset( 'assets/js/app.js' ); ?>"></script>
 </head>
@@ -242,6 +308,17 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 				<i data-lucide="github" class="w-3 h-3 inline"></i> GitHub Repo
 			</a>
 		</div>
+		<?php if ( DEBUG_LOG_ENABLED ) : ?>
+		<div class="mt-6 text-left">
+			<button onclick="toggleDebugLog()" class="w-full flex items-center justify-between bg-slate-800 border border-slate-700 rounded-t-lg px-4 py-2 text-xs font-mono text-yellow-400">
+				<span>🐛 Debug Log</span>
+				<i data-lucide="chevron-down" id="debug-log-chevron" class="w-4 h-4 transition-transform"></i>
+			</button>
+			<div id="debug-log-content" class="hidden bg-slate-900 border border-t-0 border-slate-700 rounded-b-lg p-3 max-h-48 overflow-y-auto font-mono">
+				<div style="font-size: 11px; padding: 2px 0; color: #60a5fa;">[Init] Debug log enabled</div>
+			</div>
+		</div>
+		<?php endif; ?>
 	</footer>
 
 	</div>
