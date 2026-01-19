@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [14.2.0] - Unreleased
+## [14.2.1] - 2026-01-19
+
+### Fixed
+
+- **PWA cache issue**: Schedule loading failed on iOS homescreen app due to aggressive caching
+  - Added `Cache-Control: no-cache` header to trainings/index.php
+  - Added `mtime` timestamp to schedule file list for cache busting
+  - Schedule fetches now include `?v=<mtime>` query parameter
+  - On load failure, splash screen now hides to allow access to "App aktualisieren" menu
+
+## [14.2.0] - 2026-01-19
 
 ### Added
 
@@ -72,8 +82,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - User taps FAB → speech "Los!" → final 5-4-3-2-1 countdown → confetti
   - Same behavior applies to rep counter rest periods (tap number display to resume)
   - Canceling during wait fully resets the timer
-
-### Fixed
 
 ### Removed
 

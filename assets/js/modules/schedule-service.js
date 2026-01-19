@@ -107,8 +107,9 @@ export class ScheduleService {
 			return this.scheduleCache[bestMatch.file];
 		}
 
-		// Fetch
-		const res = await fetch(`trainings/${bestMatch.file}`);
+		// Fetch with cache busting via mtime
+		const cacheBuster = bestMatch.mtime ? `?v=${bestMatch.mtime}` : '';
+		const res = await fetch(`trainings/${bestMatch.file}${cacheBuster}`);
 		const json = await res.json();
 
 		// Handle versioned structure (support v1 and v2)

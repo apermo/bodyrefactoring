@@ -150,7 +150,16 @@ async function initApp() {
 	}
 } catch (e) {
 	console.error(e);
-	alert('Fehler beim Laden der Trainingspläne. Webserver erforderlich!');
+	alert('Fehler beim Laden der Trainingspläne. Aktualisiere die App oder prüfe den Webserver.');
+
+	// Hide splash screen and show main app so user can access menu (e.g., for reload)
+	const splash = document.getElementById('splash-screen');
+	if (splash) {
+		splash.style.opacity = '0';
+		setTimeout(() => {
+			splash.style.display = 'none';
+		}, 500);
+	}
 }
 }
 
