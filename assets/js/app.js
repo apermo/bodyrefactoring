@@ -152,6 +152,9 @@ async function initApp() {
 	console.error(e);
 	alert('Fehler beim Laden der Trainingspläne. Aktualisiere die App oder prüfe den Webserver.');
 
+	// Initialize icons so menu is visible
+	lucide.createIcons();
+
 	// Hide splash screen and show main app so user can access menu (e.g., for reload)
 	const splash = document.getElementById('splash-screen');
 	if (splash) {
