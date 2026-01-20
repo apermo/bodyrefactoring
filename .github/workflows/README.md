@@ -79,6 +79,26 @@ Automatically validates pull requests to ensure quality and consistency.
    - Shows status of all validation checks
    - Provides overall pass/fail status
 
+### Release (`release.yml`)
+
+Automatically creates draft GitHub Releases when PRs are merged to main.
+
+**Triggered on:** Push to `main` branch (i.e., PR merge)
+
+**What it does:**
+1. Reads version from `composer.json`
+2. Checks if tag already exists (skips if so)
+3. Extracts release notes from `CHANGELOG.md` for this version
+4. Creates a **draft** GitHub Release pointing to the merge commit
+
+**Why draft releases?**
+- Review release notes before publishing
+- Manual control over deployment timing
+- Publishing the draft creates the git tag
+- Tag push triggers `deploy.php` webhook → production deployment
+
+**Note:** This workflow prepares releases but doesn't deploy. Deployment happens when you publish the draft, which creates the tag.
+
 ### PR Enforcement (`pr-enforce.yml`)
 
 Prevents merging of PRs that don't meet requirements.
@@ -215,4 +235,78 @@ To add new automated checks:
 3. Add checkbox to PR template
 4. Update checkbox automation in `update-pr-checkboxes` job
 5. Document in this README
+
+## Release Process
+
+The complete flow from code change to production deployment:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  1. CREATE PR                                                   │
+│     - Bump version in composer.json                             │
+│     - Add entry to CHANGELOG.md                                 │
+│     - Push changes                                              │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  2. AUTOMATED VALIDATION (pr-validation.yml)                    │
+│     ✓ Version bump check                                        │
+│     ✓ CHANGELOG entry check                                     │
+│     ✓ Schedule validation                                       │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  3. MERGE PR                                                    │
+│     - Review and approve                                        │
+│     - Merge to main                                             │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  4. DRAFT RELEASE CREATED (release.yml)                         │
+│     - Extracts version from composer.json                       │
+│     - Extracts notes from CHANGELOG.md                          │
+│     - Creates draft release (no tag yet)                        │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  5. PUBLISH RELEASE (manual)                                    │
+│     - Go to GitHub Releases                                     │
+│     - Review draft release                                      │
+│     - Click "Publish release"                                   │
+│     - This creates the git tag (e.g., v14.2.5)                  │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  6. PRODUCTION DEPLOYMENT (deploy.php webhook)                  │
+│     - Tag push triggers webhook                                 │
+│     - Server pulls new tag                                      │
+│     - Production updated                                        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Quick Reference
+
+| Step | Action | Automated? |
+|------|--------|------------|
+| 1 | Create PR with version bump | Manual |
+| 2 | Validation checks | ✅ Automated |
+| 3 | Merge PR | Manual |
+| 4 | Draft release creation | ✅ Automated |
+| 5 | Publish release | Manual |
+| 6 | Production deployment | ✅ Automated |
+
+### Manual Tag Creation (Fallback)
+
+If you need to create a release without the automated workflow:
+
+```bash
+# Create annotated tag
+git tag -a v14.2.5 -m "Release v14.2.5"
+
+# Push tag to trigger deployment
+git push origin v14.2.5
+
+# Optionally create GitHub Release manually
+gh release create v14.2.5 --title "v14.2.5" --notes "Release notes here"
+```
 
