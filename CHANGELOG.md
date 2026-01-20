@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Release workflow**: Comment on merged PR with link to draft release
+- **CLAUDE.md**: Added atomic commit rules (one topic per commit, cherry-pickable)
 
 ## [14.2.5] - 2026-01-20
 
