@@ -1,0 +1,49 @@
+name: Release Published
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  update-pr:
+    name: Update PR Comment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find and update PR comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Get release info
+          TAG="${{ github.event.release.tag_name }}"
+          COMMIT="${{ github.event.release.target_commitish }}"
+          RELEASE_URL="${{ github.event.release.html_url }}"
+
+          # Find the PR that was merged with this commit
+          PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --state merged --search "$COMMIT" --json number --jq '.[0].number')
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No merged PR found for commit $COMMIT"
+            exit 0
+          fi
+
+          echo "Found PR #$PR_NUMBER"
+
+          # Find the draft release comment
+          COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+            --jq '.[] | select(.body | contains("Draft release created")) | .id' | head -1)
+
+          if [ -n "$COMMENT_ID" ]; then
+            echo "Updating comment $COMMENT_ID with strikethrough"
+            OLD_BODY=$(gh api "repos/${{ github.repository }}/issues/comments/$COMMENT_ID" --jq '.body')
+            NEW_BODY="~~${OLD_BODY}~~"
+            gh api "repos/${{ github.repository }}/issues/comments/$COMMENT_ID" \
+              -X PATCH -f body="$NEW_BODY"
+          fi
+
+          # Post new comment with final release link
+          gh pr comment "$PR_NUMBER" --repo ${{ github.repository }} \
+            --body "✅ Released: $RELEASE_URL"
