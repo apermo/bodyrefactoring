@@ -1897,9 +1897,6 @@ function startRestPeriod() {
 		// Remove waiting class
 		currentNumberEl.classList.remove('waiting-ready');
 
-		// Speak and continue countdown
-		speak('Los!');
-
 		// Resume the countdown for remaining seconds
 		timerCoordinator.setInterval(() => {
 			currentNumberEl.textContent = `${timeLeft}s`;
@@ -1909,7 +1906,8 @@ function startRestPeriod() {
 			void currentNumberEl.offsetWidth; // Force reflow
 			currentNumberEl.classList.add('rep-breathe');
 
-			if (timeLeft <= 3 && timeLeft > 0) {
+			// Announce countdown 5, 4, 3, 2, 1
+			if (timeLeft <= 5 && timeLeft > 0) {
 				speak(timeLeft.toString());
 			}
 
@@ -1950,8 +1948,8 @@ function startRestPeriod() {
 		void currentNumberEl.offsetWidth; // Force reflow
 		currentNumberEl.classList.add('rep-breathe');
 
-		if (timeLeft === 30) {
-			speak('30 Sekunden');
+		if (timeLeft === 20) {
+			speak('20 Sekunden');
 		}
 		if (timeLeft === 10) {
 			speak('10 Sekunden');
