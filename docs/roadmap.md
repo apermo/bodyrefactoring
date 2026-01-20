@@ -4,98 +4,6 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ## 📋 Feature Roadmap
 
-### v14.1.0 ✅ - Development Tooling & Quality (COMPLETED)
-
-**Completed:** January 9, 2026  
-**Focus**: Commit standards, PR previews, and code quality guidelines
-
-- ✅ Git commit message template (`.gitmessage`)
-- ✅ Enhanced `.cursorrules` with strict commit standards and code quality rules
-- ✅ Netlify PR preview deployments (automatic preview environments)
-- ✅ Tools documentation (`tools/README.md`)
-- ✅ Private directory (`/private/`) for sensitive documents
-- ✅ Build purge functionality for clean Netlify builds
-
----
-
-### v14.2.0 ⏳ - Calendar Integration & Schedule Schema v2
-
-**Priority: High**
-**Focus**: Add workouts to iOS Calendar for native notifications + Extended schedule features
-
-**Why Prioritized:**
-- Quick to implement (~1-2 days)
-- High user value (replaces failed push notification approach)
-- No backend or permissions needed
-- Works offline with existing iOS infrastructure
-
-#### Implementation
-
-**User Flow:**
-1. View day's workout schedule
-2. Tap "Add to Calendar" button
-3. .ics file downloads
-4. iOS opens Calendar app
-5. User confirms event
-6. Get notification at scheduled time
-
-**Features:**
-- Works with iOS Calendar, Google Calendar, Outlook, etc.
-- Reminder notification 15 minutes before (configurable)
-- No server needed, no permissions required
-- Offline capable
-- Batch export: "Add this week" option
-
-**UX Considerations:**
-- Button placement: Next to day heading
-- Bulk add: "Add Week" button in header
-- Allow custom reminder time (15/30/60 min before)
-
-**Technical Requirements:**
-- Generate valid iCalendar (.ics) format
-- Include VALARM for reminders
-- Proper date/time formatting (RFC 5545)
-- Unique UID generation per event
-
-**Benefits:**
-- ✅ Higher reliability than push notifications
-- ✅ Uses system user already trusts
-- ✅ No backend needed
-- ✅ Privacy-friendly (all local)
-- ✅ Works across all platforms
-
-#### Schedule Schema v2 & Extended Features
-
-**Schedule Schema v2:**
-- `optional` field: Mark exercises as skippable without affecting completion %
-- `customLabel` field: Custom category labels for `type: custom` exercises
-- `hideOn` field: Array of modes where exercise is hidden (e.g., `["papa", "demo"]`)
-- `bilateral` field in repCounter: Alternates left/right per set
-
-**Recovery/Sick JSON:**
-- Moved hardcoded recovery activities to `schedule-recovery.json`
-- Moved hardcoded sick activities to `schedule-sick.json`
-- Configurable via JSON instead of code
-
-**Mode Selector:**
-- Text input in menu to set current mode (e.g., "papa", "demo")
-- Exercises with matching `hideOn` value are hidden
-- Stored in localStorage, persists across sessions
-
-**Implementation Complete:**
-- ✅ Schema v2 JSON schema file (`schema-schedule-v2.json`)
-- ✅ Validator supports both v1 and v2
-- ✅ Template schedule updated to v2 with examples
-- ✅ Recovery/sick JSON files created
-- ✅ Mode storage in DomainStorageService
-- ✅ Mode selector UI in menu
-- ✅ hideOn filtering in renderSchedule()
-- ✅ Optional exercise styling (dashed border, badge)
-- ✅ Custom type rendering with customLabel
-- ✅ Bilateral rep counter with side indicator
-
----
-
 ### v14.3.0 ⏳ - Linting & Code Quality
 
 **Priority: High**  
@@ -1205,7 +1113,109 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ## 📅 Backlog - User Features
 
-(No items currently in backlog - all planned features are scheduled in roadmap)
+### Server-Side Storage & Sync
+
+**Goal:** Enable data synchronization across devices without user accounts (initially)
+
+**Overview:**
+- Simple storage ID system (paste ID to connect)
+- If storage ID exists on server → load that data
+- If new ID → create new storage on server
+- Polling for changes (default: 15s, configurable via `.env`)
+- No authentication required initially (storage ID = access)
+- Later: Store schedules in same system, add real auth/login
+
+**Current Storage (localStorage):**
+- Exercise completion: `body_refactoring_v1_{date}_{exerciseId}`
+- Notes: `body_refactoring_note_{date}`
+- Weights: `body_refactoring_weight_{exerciseId}_{date}`
+- Units: `body_refactoring_unit_{exerciseId}`
+- Sick/Recovery: `body_refactoring_sick_{date}_*`, `body_refactoring_recovery_{date}`
+- Shields: `body_refactoring_shields`, `body_refactoring_shields_awarded`
+- Mode: `body_refactoring_mode`
+
+**Backend (PHP REST API):**
+```
+/api/
+├── index.php          # Router
+├── storage.php        # Storage endpoints
+└── .htaccess          # Route to index.php
+
+Endpoints:
+GET    /api/storage/{id}           # Get all data for storage ID
+PUT    /api/storage/{id}           # Update/create storage
+GET    /api/storage/{id}/version   # Get last modified timestamp
+DELETE /api/storage/{id}           # Delete storage (optional)
+```
+
+**Data Storage (flat-file initially):**
+```
+/data/storage/
+├── abc123.json
+├── xyz789.json
+└── ...
+```
+Or SQLite for more robustness.
+
+**Frontend (JavaScript):**
+- New module: `assets/js/modules/sync-service.js`
+- `SyncService` class with methods:
+  - `connect(storageId)` - Set ID, fetch initial data
+  - `push()` - Upload local → server
+  - `pull()` - Download server → local
+  - `checkForUpdates()` - Poll for version changes
+  - `startPolling()` / `stopPolling()`
+
+**UI Changes (Burger Menu):**
+```html
+<div class="border-t border-slate-700">
+  <div class="px-4 py-2 text-xs text-slate-500">Cloud Sync</div>
+  <input type="text" placeholder="Storage ID..." />
+  <button>Verbinden</button>
+  <div id="sync-status"><!-- Status indicator --></div>
+</div>
+```
+
+**Configuration (.env):**
+```
+SYNC_ENABLED=true
+SYNC_POLL_INTERVAL=15000
+SYNC_API_URL=/api/storage
+```
+
+**Conflict Resolution (simple):**
+- Server wins on pull (overwrites local)
+- Or: merge by timestamp per key (more complex, phase 2)
+
+**Security Considerations (MVP):**
+- Storage IDs should be UUIDs (hard to guess)
+- Rate limiting on API
+- HTTPS required
+- No sensitive data stored (just exercise completion)
+- Later: proper auth tokens
+
+**Implementation Phases:**
+
+| Phase | Scope | Effort |
+|-------|-------|--------|
+| 1 | Backend API + flat-file storage | 1-2 days |
+| 2 | SyncService module + basic UI | 1-2 days |
+| 3 | Polling + conflict handling | 1 day |
+| 4 | Schedule sync (store schedules server-side) | 1 day |
+| 5 | Auth/login system | 2-3 days |
+
+**Benefits:**
+- ✅ Cross-device sync without user accounts (phase 1)
+- ✅ Simple "paste ID" workflow
+- ✅ Privacy: Only person with ID can access
+- ✅ Foundation for future multi-user features
+- ✅ Schedules can sync too (phase 4)
+
+**Dependencies:**
+- Should come after v17.0.0 (Schedule Management Refactoring)
+- Builds on existing `StorageService.exportAll()` / `importAll()`
+
+---
 
 ---
 
@@ -1227,7 +1237,7 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ---
 
-**Last Updated**: January 18, 2026
-**Current Stable Release**: v14.1.3
+**Last Updated**: January 19, 2026
+**Current Stable Release**: v14.2.4
 **Development Cycle**: v14
 
