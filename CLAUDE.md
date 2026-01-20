@@ -88,7 +88,7 @@ Before creating new functions:
 
 ## Git Conventions
 
-### Commit Format
+### Commit Format (Conventional Commits)
 ```
 <type>(<scope>): <subject>
 
@@ -101,7 +101,11 @@ Before creating new functions:
 - Subject: 50 chars max (hard limit)
 - Body: 72 chars per line max
 
-**Do not add Co-Authored-By lines to commits.**
+### Commit Rules
+- **One topic per commit**: Each commit must address a single concern
+- **Atomic commits**: Commits should be cherry-pickable and revertable
+- **No mixed changes**: Don't combine features, fixes, or refactors in one commit
+- **Do not add Co-Authored-By lines to commits**
 
 ### CHANGELOG.md
 - Update `[Unreleased]` section for every change
