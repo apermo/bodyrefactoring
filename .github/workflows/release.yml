@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   release:
@@ -47,6 +48,7 @@ jobs:
 
       - name: Create draft release
         if: steps.check-tag.outputs.exists == 'false'
+        id: create-release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -58,3 +60,15 @@ jobs:
             --notes-file release_notes.md \
             --draft \
             --target ${{ github.sha }}
+          echo "url=https://github.com/${{ github.repository }}/releases/tag/$TAG" >> $GITHUB_OUTPUT
+
+      - name: Comment on merged PR
+        if: steps.check-tag.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Find the PR that was merged with this commit
+          PR_NUMBER=$(gh pr list --state merged --search "${{ github.sha }}" --json number --jq '.[0].number')
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr comment "$PR_NUMBER" --body "🚀 Draft release created: ${{ steps.create-release.outputs.url }}"
+          fi
