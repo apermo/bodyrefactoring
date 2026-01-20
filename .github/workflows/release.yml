@@ -55,12 +55,13 @@ jobs:
           TAG="${{ steps.version.outputs.tag }}"
           # Create draft release pointing to this commit
           # Publishing the draft will create the tag and trigger deploy
-          gh release create "$TAG" \
+          # Capture actual URL from gh output (includes untagged-xxx for drafts)
+          RELEASE_URL=$(gh release create "$TAG" \
             --title "$TAG" \
             --notes-file release_notes.md \
             --draft \
-            --target ${{ github.sha }}
-          echo "url=https://github.com/${{ github.repository }}/releases/tag/$TAG" >> $GITHUB_OUTPUT
+            --target ${{ github.sha }})
+          echo "url=$RELEASE_URL" >> $GITHUB_OUTPUT
 
       - name: Comment on merged PR
         if: steps.check-tag.outputs.exists == 'false'
