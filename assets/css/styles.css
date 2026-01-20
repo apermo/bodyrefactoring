@@ -558,6 +558,7 @@ body {
 
 #rep-counter-modal .waiting-ready {
 	color: var(--color-warning);
+	font-size: clamp(4rem, 12vw, 5.5rem);
 	text-shadow: 0 0 30px rgba(var(--color-warning-rgb), 0.5);
 	animation: pulse-ready 0.8s infinite;
 }

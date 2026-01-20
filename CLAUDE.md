@@ -108,6 +108,26 @@ Before creating new functions:
 - Sections: Added, Changed, Deprecated, Removed, Fixed, Security
 - **Never list bugs in "Fixed" if introduced and fixed in the same version**
 
+## Release Process
+
+Releases are semi-automated via GitHub Actions:
+
+1. **Create PR** with version bump in `composer.json` and CHANGELOG entry
+2. **PR validation** runs automatically (version bump + CHANGELOG check)
+3. **Merge PR** to main
+4. **Draft release created** automatically by `.github/workflows/release.yml`
+   - Reads version from `composer.json`
+   - Extracts release notes from `CHANGELOG.md`
+   - Creates draft GitHub Release (no tag yet)
+5. **Review and publish** the draft release in GitHub
+6. **Publishing creates the tag** → triggers `deploy.php` webhook → production deployment
+
+**Manual tag creation** (if needed):
+```bash
+git tag -a v14.2.5 -m "Release v14.2.5"
+git push origin v14.2.5
+```
+
 ## Key Patterns
 
 ### LocalStorage Keys

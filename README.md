@@ -257,10 +257,18 @@ The repository is already configured. When you create a PR:
 
 ## **🔄 Automatic Deployment (Plesk)**
 
-This repository supports automatic deployment via GitHub Webhooks to Plesk-powered web hosting.
+This repository uses a semi-automated release pipeline with GitHub Actions and webhooks.
 
-**Deployment Trigger:** Git tags (releases)  
-**How it works:** When you push a tag (e.g., `v14.1.0`), the webhook automatically deploys that specific version to production.
+**Release Flow:**
+1. Create PR with version bump in `composer.json` + CHANGELOG entry
+2. Merge PR → GitHub Action creates a **draft release** automatically
+3. Review and **publish** the draft release in GitHub
+4. Publishing creates the git tag → webhook deploys to production
+
+📖 **[Complete Release Process Documentation](.github/workflows/README.md#release-process)** - Detailed workflow with flowchart
+
+**Deployment Trigger:** Git tags (created when publishing a release)
+**How it works:** When you publish a GitHub Release, it creates the tag (e.g., `v14.1.0`), which triggers the webhook to deploy that version to production.
 
 ### **Server Setup**
 
@@ -337,11 +345,17 @@ Add the public key as a **Deploy Key**:
 
 ### **Usage**
 
-To deploy a new version to production:
+**Recommended (Semi-Automated):**
+1. Create PR with version bump and CHANGELOG entry
+2. Merge PR to main
+3. Go to **GitHub Releases** → find the draft release
+4. Click **"Edit"** → review notes → click **"Publish release"**
+5. Production automatically deploys
 
+**Manual Fallback:**
 ```bash
-# Create and push a tag (e.g., for v14.1.0)
-git tag v14.1.0
+# Create and push a tag directly (e.g., for v14.1.0)
+git tag -a v14.1.0 -m "Release v14.1.0"
 git push origin v14.1.0
 
 # The webhook automatically deploys this tag to production
