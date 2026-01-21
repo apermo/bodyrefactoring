@@ -1,0 +1,42 @@
+{
+	"name": "bodyrefactoring",
+	"version": "14.3.0",
+	"private": true,
+	"description": "Body Refactoring - Personal Training Tracker with Dynamic Scheduling",
+	"scripts": {
+		"lint": "npm run lint:php && npm run lint:js && npm run lint:css",
+		"lint:fix": "npm run lint:php:fix && npm run lint:js:fix && npm run lint:css:fix",
+		"lint:check": "npm run lint:php:check && npm run lint:js:check && npm run lint:css:check",
+		"lint:php": "vendor/bin/phpcs",
+		"lint:php:fix": "vendor/bin/phpcbf",
+		"lint:php:check": "vendor/bin/phpcs --report=summary",
+		"lint:js": "eslint assets/js/",
+		"lint:js:fix": "eslint assets/js/ --fix",
+		"lint:js:check": "eslint assets/js/ --max-warnings=0",
+		"lint:css": "stylelint \"assets/css/**/*.css\"",
+		"lint:css:fix": "stylelint \"assets/css/**/*.css\" --fix",
+		"lint:css:check": "stylelint \"assets/css/**/*.css\" --max-warnings=0",
+		"prepare": "bash .githooks/setup.sh"
+	},
+	"devDependencies": {
+		"eslint": "^8.57.0",
+		"@wordpress/eslint-plugin": "^21.0.0",
+		"stylelint": "^16.12.0",
+		"stylelint-config-standard": "^36.0.1",
+		"lint-staged": "^15.2.0"
+	},
+	"lint-staged": {
+		"*.php": [
+			"vendor/bin/phpcs --report=summary"
+		],
+		"assets/js/**/*.js": [
+			"eslint --max-warnings=0"
+		],
+		"assets/css/**/*.css": [
+			"stylelint --max-warnings=0"
+		]
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	}
+}
