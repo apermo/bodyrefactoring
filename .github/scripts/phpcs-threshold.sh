@@ -11,8 +11,9 @@ if [ ! -f "$BASELINE_FILE" ]; then
 	exit 1
 fi
 
-# Run PHPCS and extract totals (allow non-zero exit, -q for quiet mode)
-RESULT=$(vendor/bin/phpcs --report=json -q 2>/dev/null || true)
+# Run PHPCS and extract totals (allow non-zero exit)
+# Use -q (quiet), --no-colors, and -p to override phpcs.xml progress settings
+RESULT=$(vendor/bin/phpcs --report=json -q --no-colors 2>/dev/null || true)
 CURRENT_ERRORS=$(echo "$RESULT" | jq '.totals.errors // 0')
 CURRENT_WARNINGS=$(echo "$RESULT" | jq '.totals.warnings // 0')
 
