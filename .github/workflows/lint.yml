@@ -1,0 +1,91 @@
+name: Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    name: PHP (PHPCS)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run PHPCS
+        run: vendor/bin/phpcs --report=checkstyle --report-file=phpcs-report.xml || true
+
+      - name: Show PHPCS results
+        run: vendor/bin/phpcs || true
+
+      - name: Annotate PHPCS results
+        if: always()
+        uses: staabm/annotate-pull-request-from-checkstyle-action@v1
+        with:
+          files: phpcs-report.xml
+        continue-on-error: true
+
+  javascript:
+    runs-on: ubuntu-latest
+    name: JavaScript (ESLint)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install NPM dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run lint:js:check
+
+  css:
+    runs-on: ubuntu-latest
+    name: CSS (Stylelint)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install NPM dependencies
+        run: npm install
+
+      - name: Run Stylelint
+        run: npm run lint:css:check
