@@ -1951,6 +1951,15 @@ function completeSet() {
  * @return {void}
  */
 function startRestPeriod() {
+	// Update set info to show next set (since cooldown belongs to next set)
+	let sideIndicator = '';
+	if ( repCounterState.bilateral ) {
+		const isLeft = repCounterState.currentSet % 2 === 1;
+		sideIndicator = isLeft ? ' (Links)' : ' (Rechts)';
+	}
+	document.getElementById( 'rep-set-info' ).textContent =
+		`Satz ${repCounterState.currentSet} von ${repCounterState.totalSets}${sideIndicator}`;
+
 	// Update modal for rest
 	document.getElementById( 'rep-status-text' ).textContent = 'Pause (Tippen für 5s)';
 	document.getElementById( 'rep-total' ).textContent = '';
