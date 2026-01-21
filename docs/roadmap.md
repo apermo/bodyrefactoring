@@ -985,6 +985,30 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ## 📅 Backlog - User Features
 
+### Tutorial Links for Exercises
+
+**Goal:** Proper support for tutorial video links (YouTube) in exercises
+
+**Current workaround:**
+- Tutorial links embedded as HTML `<a>` tags in `desc` field
+- Works but mixes content with presentation
+
+**Proposed implementation:**
+- Add `tutorialUrl` field to schema (optional string)
+- Render as styled chip/button next to timers (📺 icon)
+- Opens in new tab/window
+- Cleaner separation of data and presentation
+
+**Benefits:**
+- Schema validation for URLs
+- Consistent styling across all tutorials
+- Easier to maintain and update links
+- Could later support inline preview or multiple tutorials
+
+**Priority:** Low (workaround exists)
+
+---
+
 ### Server-Side Storage & Sync
 
 **Goal:** Enable data synchronization across devices without user accounts (initially)
