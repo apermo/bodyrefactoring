@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<ruleset name="Body Refactoring Coding Standards">
+	<description>Custom ruleset based on WordPress Coding Standards for Body Refactoring</description>
+
+	<!-- What to scan -->
+	<file>.</file>
+
+	<!-- Exclude directories -->
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+	<exclude-pattern>/.ddev/*</exclude-pattern>
+	<exclude-pattern>/dist/*</exclude-pattern>
+	<exclude-pattern>/.netlify/*</exclude-pattern>
+
+	<!-- Show progress and colors -->
+	<arg value="ps"/>
+	<arg name="colors"/>
+
+	<!-- Strip file paths for readability -->
+	<arg name="basepath" value="."/>
+
+	<!-- Check for cross-version support -->
+	<config name="testVersion" value="8.3-"/>
+
+	<!-- Use WordPress Extra as base (includes WordPress-Core) -->
+	<rule ref="WordPress-Extra">
+		<!-- Allow short array syntax -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<!-- Allow short ternary -->
+		<exclude name="WordPress.PHP.DisallowShortTernary"/>
+		<!-- Allow file names without prefix (not a plugin) -->
+		<exclude name="WordPress.Files.FileName"/>
+		<!-- Allow non-prefixed hooks (not a plugin) -->
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals"/>
+	</rule>
+
+	<!-- Use WordPress Documentation standards for comments -->
+	<rule ref="WordPress-Docs"/>
+
+	<!-- Enforce tab indentation -->
+	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
+
+	<!-- Require docblocks for all functions -->
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
+	</rule>
+
+	<!-- Line length -->
+	<rule ref="Generic.Files.LineLength">
+		<properties>
+			<property name="lineLimit" value="120"/>
+			<property name="absoluteLineLimit" value="0"/>
+		</properties>
+	</rule>
+
+	<!-- Security: Validate, sanitize, escape -->
+	<rule ref="WordPress.Security.EscapeOutput"/>
+	<rule ref="WordPress.Security.NonceVerification"/>
+	<rule ref="WordPress.Security.ValidatedSanitizedInput"/>
+</ruleset>
