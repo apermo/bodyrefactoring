@@ -34,25 +34,25 @@ export class TimerStateMachine extends StateMachine {
 		// From IDLE - can start countdown or go directly to running
 		this.allow( TIMER_STATES.IDLE, [
 			TIMER_STATES.COUNTDOWN,
-			TIMER_STATES.RUNNING
+			TIMER_STATES.RUNNING,
 		] );
 
 		// From COUNTDOWN - can go to running or back to idle (cancelled)
 		this.allow( TIMER_STATES.COUNTDOWN, [
 			TIMER_STATES.RUNNING,
-			TIMER_STATES.IDLE
+			TIMER_STATES.IDLE,
 		] );
 
 		// From RUNNING - can return to idle or pause for ready check
 		this.allow( TIMER_STATES.RUNNING, [
 			TIMER_STATES.IDLE,
-			TIMER_STATES.WAITING_READY
+			TIMER_STATES.WAITING_READY,
 		] );
 
 		// From WAITING_READY - can resume running or cancel to idle
 		this.allow( TIMER_STATES.WAITING_READY, [
 			TIMER_STATES.RUNNING,
-			TIMER_STATES.IDLE
+			TIMER_STATES.IDLE,
 		] );
 
 		// REST_PERIOD not used for simple timer
@@ -187,26 +187,26 @@ export class RepCounterStateMachine extends StateMachine {
 		// From COUNTDOWN - can go to SHOWING_GO or back to INACTIVE (cancelled)
 		this.allow( REP_COUNTER_STATES.COUNTDOWN, [
 			REP_COUNTER_STATES.SHOWING_GO,
-			REP_COUNTER_STATES.INACTIVE
+			REP_COUNTER_STATES.INACTIVE,
 		] );
 
 		// From SHOWING_GO - can go to COUNTING_REPS or back to INACTIVE (cancelled)
 		this.allow( REP_COUNTER_STATES.SHOWING_GO, [
 			REP_COUNTER_STATES.COUNTING_REPS,
-			REP_COUNTER_STATES.INACTIVE
+			REP_COUNTER_STATES.INACTIVE,
 		] );
 
 		// From COUNTING_REPS - can go to RESTING, COMPLETED, or INACTIVE (cancelled)
 		this.allow( REP_COUNTER_STATES.COUNTING_REPS, [
 			REP_COUNTER_STATES.RESTING,
 			REP_COUNTER_STATES.COMPLETED,
-			REP_COUNTER_STATES.INACTIVE
+			REP_COUNTER_STATES.INACTIVE,
 		] );
 
 		// From RESTING - can go back to COUNTING_REPS or INACTIVE (cancelled)
 		this.allow( REP_COUNTER_STATES.RESTING, [
 			REP_COUNTER_STATES.COUNTING_REPS,
-			REP_COUNTER_STATES.INACTIVE
+			REP_COUNTER_STATES.INACTIVE,
 		] );
 
 		// From COMPLETED - can only return to INACTIVE

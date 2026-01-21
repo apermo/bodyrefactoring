@@ -55,7 +55,7 @@ function createNewSchedule() {
 	// Create empty schedule structure
 	currentSchedule = {
 		version: 1,
-		days: []
+		days: [],
 	};
 
 	// Create 7 empty days
@@ -64,14 +64,14 @@ function createNewSchedule() {
 
 	for ( let i = 0; i < 7; i++ ) {
 		currentSchedule.days.push( {
-			id: dayIds[i],
+			id: dayIds[ i ],
 			dayIndex: i,
-			name: dayNames[i],
+			name: dayNames[ i ],
 			theme: 'Training Day',
 			icon: 'dumbbell',
 			colorClass: 'text-blue-400',
 			bgClass: 'bg-blue-500/10',
-			details: []
+			details: [],
 		} );
 	}
 
@@ -121,7 +121,7 @@ async function loadSchedule() {
  * @return {void}
  */
 function importSchedule( input ) {
-	const file = input.files[0];
+	const file = input.files[ 0 ];
 	if ( ! file ) {
 		return;
 	}
@@ -238,7 +238,7 @@ function saveDayData() {
 		return;
 	}
 
-	const day = currentSchedule.days[currentDayIndex];
+	const day = currentSchedule.days[ currentDayIndex ];
 	if ( ! day ) {
 		return;
 	}
@@ -261,7 +261,7 @@ function renderDay() {
 		return;
 	}
 
-	const day = currentSchedule.days[currentDayIndex];
+	const day = currentSchedule.days[ currentDayIndex ];
 	if ( ! day ) {
 		return;
 	}
@@ -284,7 +284,7 @@ function renderDay() {
  * @return {void}
  */
 function renderExercises() {
-	const day = currentSchedule.days[currentDayIndex];
+	const day = currentSchedule.days[ currentDayIndex ];
 	const container = document.getElementById( 'exercises-list' );
 
 	if ( ! day.details || day.details.length === 0 ) {
@@ -304,7 +304,7 @@ function renderExercises() {
 			warmup: '🔥 Warm Up',
 			main: '💪 Main',
 			cool: '❄️ Cool Down',
-			alternatives: '🔀 Alternatives'
+			alternatives: '🔀 Alternatives',
 		};
 
 		div.innerHTML = `
@@ -315,7 +315,7 @@ function renderExercises() {
 					</div>
 					<div class="flex-1">
 						<div class="flex items-center gap-2 mb-1">
-							<span class="text-xs font-bold text-slate-400">${typeLabels[exercise.type] || exercise.type}</span>
+							<span class="text-xs font-bold text-slate-400">${typeLabels[ exercise.type ] || exercise.type}</span>
 							<span class="text-xs text-slate-500 font-mono">${exercise.id}</span>
 						</div>
 						<div class="font-bold text-white">${exercise.title || exercise.type}</div>
@@ -400,8 +400,8 @@ function handleDrop( e ) {
 		const newOrder = items.map( item => parseInt( item.dataset.index ) );
 
 		// Reorder exercises array
-		const day = currentSchedule.days[currentDayIndex];
-		const newDetails = newOrder.map( index => day.details[index] );
+		const day = currentSchedule.days[ currentDayIndex ];
+		const newDetails = newOrder.map( index => day.details[ index ] );
 		day.details = newDetails;
 
 		// Re-render
@@ -436,10 +436,10 @@ function getDragAfterElement( container, y ) {
 		const offset = y - box.top - box.height / 2;
 
 		if ( offset < 0 && offset > closest.offset ) {
-			return { offset: offset, element: child };
-		} else {
-			return closest;
-		}
+			return { offset, element: child };
+		} 
+		return closest;
+		
 	}, { offset: Number.NEGATIVE_INFINITY } ).element;
 }
 
@@ -455,7 +455,7 @@ function deleteExercise( index ) {
 		return;
 	}
 
-	const day = currentSchedule.days[currentDayIndex];
+	const day = currentSchedule.days[ currentDayIndex ];
 	day.details.splice( index, 1 );
 
 	renderExercises();
@@ -474,7 +474,7 @@ function addExercise() {
 		title: '',
 		desc: '',
 		weight: '',
-		defaultUnit: 'KG'
+		defaultUnit: 'KG',
 	} );
 }
 
@@ -486,8 +486,8 @@ function addExercise() {
  */
 function editExercise( index ) {
 	currentExerciseIndex = index;
-	const day = currentSchedule.days[currentDayIndex];
-	showExerciseModal( day.details[index] );
+	const day = currentSchedule.days[ currentDayIndex ];
+	showExerciseModal( day.details[ index ] );
 }
 
 /**
@@ -678,16 +678,16 @@ function saveExercise() {
 			exercise = {
 				id: document.getElementById( 'ex-id' ).value,
 				type: 'alternatives',
-				alternatives: alternativesText ? JSON.parse( alternativesText ) : []
+				alternatives: alternativesText ? JSON.parse( alternativesText ) : [],
 			};
 		} else {
 			const timersText = document.getElementById( 'ex-timers' ).value;
 			const repCounterText = document.getElementById( 'ex-repcounter' ).value;
 			exercise = {
 				id: document.getElementById( 'ex-id' ).value,
-				type: type,
+				type,
 				title: document.getElementById( 'ex-title' ).value,
-				desc: document.getElementById( 'ex-desc' ).value
+				desc: document.getElementById( 'ex-desc' ).value,
 			};
 
 			const weight = document.getElementById( 'ex-weight' ).value;
@@ -712,11 +712,11 @@ function saveExercise() {
 		}
 
 		// Add or update exercise
-		const day = currentSchedule.days[currentDayIndex];
+		const day = currentSchedule.days[ currentDayIndex ];
 		if ( currentExerciseIndex === -1 ) {
 			day.details.push( exercise );
 		} else {
-			day.details[currentExerciseIndex] = exercise;
+			day.details[ currentExerciseIndex ] = exercise;
 		}
 
 		closeExerciseModal();

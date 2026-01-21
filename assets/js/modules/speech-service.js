@@ -113,35 +113,35 @@ export class SpeechService {
 			utterance.pitch = options.pitch || 1.0;
 			utterance.volume = options.volume || 0.9;
 
-		// Wait for voices to load
-		if ( ! this.voicesLoaded ) {
-			let hasSpoken = false; // Track if we've already called speakUtterance
+			// Wait for voices to load
+			if ( ! this.voicesLoaded ) {
+				let hasSpoken = false; // Track if we've already called speakUtterance
 
-			const checkVoices = setInterval( () => {
-				const voices = window.speechSynthesis.getVoices();
-				if ( voices.length > 0 ) {
+				const checkVoices = setInterval( () => {
+					const voices = window.speechSynthesis.getVoices();
+					if ( voices.length > 0 ) {
+						clearInterval( checkVoices );
+						this.voicesLoaded = true;
+
+						if ( !hasSpoken ) {
+							hasSpoken = true;
+							this.speakUtterance( utterance, resolve, reject );
+						}
+					}
+				}, 100 );
+
+				// Timeout after 3 seconds - only speak if not already spoken
+				setTimeout( () => {
 					clearInterval( checkVoices );
-					this.voicesLoaded = true;
 
-					if (!hasSpoken) {
+					if ( !hasSpoken ) {
 						hasSpoken = true;
 						this.speakUtterance( utterance, resolve, reject );
 					}
-				}
-			}, 100 );
-
-			// Timeout after 3 seconds - only speak if not already spoken
-			setTimeout( () => {
-				clearInterval( checkVoices );
-
-				if (!hasSpoken) {
-					hasSpoken = true;
-					this.speakUtterance( utterance, resolve, reject );
-				}
-			}, 3000 );
-		} else {
-			this.speakUtterance( utterance, resolve, reject );
-		}
+				}, 3000 );
+			} else {
+				this.speakUtterance( utterance, resolve, reject );
+			}
 		} );
 	}
 

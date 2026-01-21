@@ -35,7 +35,7 @@ export class ModalStateMachine extends StateMachine {
 			MODAL_TYPES.COMPLETION,
 			MODAL_TYPES.SICK_MODE,
 			MODAL_TYPES.REP_COUNTER,
-			MODAL_TYPES.MENU
+			MODAL_TYPES.MENU,
 		] );
 
 		// From any modal - can only close (return to NONE)

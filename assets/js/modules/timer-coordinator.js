@@ -34,12 +34,12 @@ export class TimerCoordinator {
 	 * @param {string} id - Unique identifier for this interval.
 	 * @return {number} Interval ID.
 	 */
-	setInterval(callback, delay, id) {
+	setInterval( callback, delay, id ) {
 		// Clear any existing interval with same ID
-		this.clearInterval(id);
+		this.clearInterval( id );
 
-		const intervalId = setInterval(callback, delay);
-		this.intervals.set(id, intervalId);
+		const intervalId = setInterval( callback, delay );
+		this.intervals.set( id, intervalId );
 		return intervalId;
 	}
 
@@ -49,10 +49,10 @@ export class TimerCoordinator {
 	 * @param {string} id - Interval identifier.
 	 * @return {void}
 	 */
-	clearInterval(id) {
-		if (this.intervals.has(id)) {
-			clearInterval(this.intervals.get(id));
-			this.intervals.delete(id);
+	clearInterval( id ) {
+		if ( this.intervals.has( id ) ) {
+			clearInterval( this.intervals.get( id ) );
+			this.intervals.delete( id );
 		}
 	}
 
@@ -64,12 +64,12 @@ export class TimerCoordinator {
 	 * @param {string} id - Unique identifier for this timeout.
 	 * @return {number} Timeout ID.
 	 */
-	setTimeout(callback, delay, id) {
+	setTimeout( callback, delay, id ) {
 		// Clear any existing timeout with same ID
-		this.clearTimeout(id);
+		this.clearTimeout( id );
 
-		const timeoutId = setTimeout(callback, delay);
-		this.timeouts.set(id, timeoutId);
+		const timeoutId = setTimeout( callback, delay );
+		this.timeouts.set( id, timeoutId );
 		return timeoutId;
 	}
 
@@ -79,10 +79,10 @@ export class TimerCoordinator {
 	 * @param {string} id - Timeout identifier.
 	 * @return {void}
 	 */
-	clearTimeout(id) {
-		if (this.timeouts.has(id)) {
-			clearTimeout(this.timeouts.get(id));
-			this.timeouts.delete(id);
+	clearTimeout( id ) {
+		if ( this.timeouts.has( id ) ) {
+			clearTimeout( this.timeouts.get( id ) );
+			this.timeouts.delete( id );
 		}
 	}
 
@@ -92,9 +92,9 @@ export class TimerCoordinator {
 	 * @return {void}
 	 */
 	clearAllIntervals() {
-		this.intervals.forEach((intervalId) => {
-			clearInterval(intervalId);
-		});
+		this.intervals.forEach( ( intervalId ) => {
+			clearInterval( intervalId );
+		} );
 		this.intervals.clear();
 	}
 
@@ -104,9 +104,9 @@ export class TimerCoordinator {
 	 * @return {void}
 	 */
 	clearAllTimeouts() {
-		this.timeouts.forEach((timeoutId) => {
-			clearTimeout(timeoutId);
-		});
+		this.timeouts.forEach( ( timeoutId ) => {
+			clearTimeout( timeoutId );
+		} );
 		this.timeouts.clear();
 	}
 
@@ -116,8 +116,8 @@ export class TimerCoordinator {
 	 * @param {string} text - Text to speak.
 	 * @return {Promise<void>} Resolves when speech complete.
 	 */
-	async speak(text) {
-		return this.speechService.speak(text);
+	async speak( text ) {
+		return this.speechService.speak( text );
 	}
 
 	/**

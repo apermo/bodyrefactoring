@@ -32,10 +32,10 @@ export class ScheduleService {
 	 * @param {Array} schedules - Array of available schedules from backend.
 	 * @return {Promise<void>}
 	 */
-	async initialize(schedules) {
+	async initialize( schedules ) {
 		this.availableSchedules = schedules;
-		if (schedules.length > 0) {
-			this.startDate = new Date(schedules[0].date + 'T00:00:00');
+		if ( schedules.length > 0 ) {
+			this.startDate = new Date( schedules[ 0 ].date + 'T00:00:00' );
 		}
 	}
 
@@ -63,7 +63,7 @@ export class ScheduleService {
 	 * @param {number} offset - Week offset to set.
 	 * @return {void}
 	 */
-	setWeekOffset(offset) {
+	setWeekOffset( offset ) {
 		this.currentWeekOffset = offset;
 	}
 
@@ -73,7 +73,7 @@ export class ScheduleService {
 	 * @param {number} direction - Direction to navigate (-1 = prev, 1 = next).
 	 * @return {void}
 	 */
-	changeWeek(direction) {
+	changeWeek( direction ) {
 		this.currentWeekOffset += direction;
 	}
 
@@ -87,39 +87,39 @@ export class ScheduleService {
 	 * @param {string} dateStr - ISO date string (YYYY-MM-DD).
 	 * @return {Promise<Array|null>} Array of day configurations or null.
 	 */
-	async fetchScheduleForDate(dateStr) {
+	async fetchScheduleForDate( dateStr ) {
 		// Find latest schedule where schedule.date <= dateStr
 		let bestMatch = null;
-		for (const sched of this.availableSchedules) {
-			if (sched.date <= dateStr) {
+		for ( const sched of this.availableSchedules ) {
+			if ( sched.date <= dateStr ) {
 				bestMatch = sched;
 			} else {
 				break;
 			}
 		}
 
-		if (!bestMatch) {
+		if ( !bestMatch ) {
 			return null;
 		}
 
 		// Check cache
-		if (this.scheduleCache[bestMatch.file]) {
-			return this.scheduleCache[bestMatch.file];
+		if ( this.scheduleCache[ bestMatch.file ] ) {
+			return this.scheduleCache[ bestMatch.file ];
 		}
 
 		// Fetch with cache busting via mtime
 		const cacheBuster = bestMatch.mtime ? `?v=${bestMatch.mtime}` : '';
-		const res = await fetch(`trainings/${bestMatch.file}${cacheBuster}`);
+		const res = await fetch( `trainings/${bestMatch.file}${cacheBuster}` );
 		const json = await res.json();
 
 		// Handle versioned structure (support v1 and v2)
 		if ( json.version !== 1 && json.version !== 2 ) {
-			console.error(`Unsupported schedule version: ${json.version}`);
+			console.error( `Unsupported schedule version: ${json.version}` );
 			return null;
 		}
 
 		// Cache the days array
-		this.scheduleCache[bestMatch.file] = json.days;
+		this.scheduleCache[ bestMatch.file ] = json.days;
 		return json.days;
 	}
 
@@ -174,13 +174,13 @@ export class ScheduleService {
 	 * @param {Date} mondayDate - Monday date of current displayed week.
 	 * @return {boolean} True if can navigate to previous week.
 	 */
-	canNavigatePrevious(mondayDate) {
-		if (!this.startDate) {
+	canNavigatePrevious( mondayDate ) {
+		if ( !this.startDate ) {
 			return false;
 		}
 
-		const startDateClean = new Date(this.startDate);
-		startDateClean.setHours(0, 0, 0, 0);
+		const startDateClean = new Date( this.startDate );
+		startDateClean.setHours( 0, 0, 0, 0 );
 
 		return mondayDate > startDateClean;
 	}
@@ -191,13 +191,13 @@ export class ScheduleService {
 	 * @return {string} Week display text (e.g., "Aktuelle Woche", "+2 Wochen").
 	 */
 	getWeekDisplayText() {
-		if (this.currentWeekOffset === 0) {
+		if ( this.currentWeekOffset === 0 ) {
 			return 'Aktuelle Woche';
-		} else if (this.currentWeekOffset > 0) {
+		} else if ( this.currentWeekOffset > 0 ) {
 			return `+${this.currentWeekOffset} Wochen`;
-		} else {
-			return `${this.currentWeekOffset} Wochen`;
-		}
+		} 
+		return `${this.currentWeekOffset} Wochen`;
+		
 	}
 }
 

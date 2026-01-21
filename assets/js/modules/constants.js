@@ -97,7 +97,7 @@ export const STORAGE_KEYS = {
 	 */
 	sick( date, field ) {
 		return `${this.SICK_PREFIX}${date}_${field}`;
-	}
+	},
 };
 
 /**
@@ -112,7 +112,7 @@ export const CONFIG = {
 	SPLASH_SCREEN_FADE_DELAY: 800, // ms
 	SPLASH_SCREEN_HIDE_DELAY: 1300, // ms
 	SCROLL_DELAY: 200, // ms
-	SCROLL_OFFSET: 140 // px
+	SCROLL_OFFSET: 140, // px
 };
 
 /**
@@ -125,7 +125,7 @@ export const APP_STATES = {
 	SCHEDULE_VIEW: 'schedule_view',
 	TIMER_ACTIVE: 'timer_active',
 	REP_COUNTER_ACTIVE: 'rep_counter_active',
-	MODAL_OPEN: 'modal_open'
+	MODAL_OPEN: 'modal_open',
 };
 
 /**
@@ -138,7 +138,7 @@ export const TIMER_STATES = {
 	COUNTDOWN: 'countdown',
 	RUNNING: 'running',
 	REST_PERIOD: 'rest_period',
-	WAITING_READY: 'waiting_ready'
+	WAITING_READY: 'waiting_ready',
 };
 
 /**
@@ -152,7 +152,7 @@ export const REP_COUNTER_STATES = {
 	SHOWING_GO: 'showing_go',
 	COUNTING_REPS: 'counting',
 	RESTING: 'resting',
-	COMPLETED: 'completed'
+	COMPLETED: 'completed',
 };
 
 /**
@@ -165,7 +165,7 @@ export const MODAL_TYPES = {
 	COMPLETION: 'completion',
 	SICK_MODE: 'sick_mode',
 	REP_COUNTER: 'rep_counter',
-	MENU: 'menu'
+	MENU: 'menu',
 };
 
 /**
@@ -181,6 +181,6 @@ export const QUOTES = [
 	'Level Up! Du wirst jeden Tag besser.',
 	'Schweiß ist nur Fett, das weint.',
 	'Disziplin ist Freiheit.',
-	'Ein Schritt näher am Ziel.'
+	'Ein Schritt näher am Ziel.',
 ];
 

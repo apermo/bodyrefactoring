@@ -103,7 +103,7 @@ export function showNotification( message, type = 'success', duration = 3000 ) {
 	const colors = {
 		success: 'bg-green-500',
 		error: 'bg-red-500',
-		info: 'bg-blue-500'
+		info: 'bg-blue-500',
 	};
 
 	const notification = document.createElement( 'div' );
