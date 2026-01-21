@@ -8,6 +8,7 @@
  */
 
 :root {
+
 	/* Base Colors - Primary Palette */
 	--color-primary: #38bdf8;           /* Cyan - main accent */
 	--color-primary-rgb: 56, 189, 248;  /* RGB for rgba() */
@@ -57,8 +58,8 @@
 	--color-rep-base: var(--color-text-secondary);   /* Grey - base circle - aliases text-secondary */
 
 	/* Font Families */
-	--font-primary: 'Roboto', sans-serif;
-	--font-mono: 'JetBrains Mono', monospace;
+	--font-primary: "Roboto", sans-serif;
+	--font-mono: "JetBrains Mono", monospace;
 }
 
 body {
@@ -79,7 +80,7 @@ body {
 	width: 100%;
 	height: 100%;
 	z-index: -1;
-	background-image: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.75)), url('../img/background.jpg');
+	background-image: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.75)), url("../img/background.jpg");
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -219,9 +220,11 @@ body {
 }
 
 @keyframes pulse-ready {
+
 	0%, 100% {
 		transform: scale(1);
 	}
+
 	50% {
 		transform: scale(1.05);
 	}
@@ -365,10 +368,6 @@ body {
 	margin: 0;
 }
 
-.weight-input[type=number] {
-	-moz-appearance: textfield;
-}
-
 .weight-input:focus {
 	outline: none;
 	border-bottom: 2px solid var(--color-primary);
@@ -387,7 +386,7 @@ body {
 
 .alt-divider::before,
 .alt-divider::after {
-	content: '';
+	content: "";
 	flex: 1;
 	border-bottom: 1px dashed var(--color-border-primary);
 	margin: 0 0.5rem;
@@ -439,24 +438,30 @@ body {
 
 /* Animations */
 @keyframes pulse {
+
 	0% {
 		box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0.7);
 	}
+
 	70% {
 		box-shadow: 0 0 0 6px rgba(var(--color-danger-rgb), 0);
 	}
+
 	100% {
 		box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0);
 	}
 }
 
 @keyframes pulse-red {
+
 	0% {
 		box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0.4);
 	}
+
 	70% {
 		box-shadow: 0 0 0 10px rgba(var(--color-danger-rgb), 0);
 	}
+
 	100% {
 		box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0);
 	}
@@ -487,14 +492,17 @@ body {
 
 /* Rep Counter Animations */
 @keyframes repPulse {
+
 	0% {
 		transform: scale(0.8);
 		opacity: 0.5;
 	}
+
 	50% {
 		transform: scale(1.15);
 		opacity: 1;
 	}
+
 	100% {
 		transform: scale(1);
 		opacity: 1;
@@ -502,12 +510,15 @@ body {
 }
 
 @keyframes repBreathe {
+
 	0% {
 		transform: scale(1);
 	}
+
 	50% {
 		transform: scale(0.75);
 	}
+
 	100% {
 		transform: scale(0.5);
 	}
@@ -565,6 +576,7 @@ body {
 
 /* Debug Mode Toggle - Hide in standalone (web app) mode */
 @media (display-mode: standalone) {
+
 	.hide-in-standalone {
 		display: none !important;
 	}

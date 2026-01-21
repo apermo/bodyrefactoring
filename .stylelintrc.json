@@ -1,41 +1,13 @@
 {
 	"extends": [
-		"stylelint-config-standard"
+		"@wordpress/stylelint-config"
 	],
 	"rules": {
-		"indentation": "tab",
-		"selector-class-pattern": null,
-		"custom-property-pattern": null,
-		"keyframes-name-pattern": null,
 		"no-descending-specificity": null,
-		"property-no-vendor-prefix": null,
-		"selector-no-vendor-prefix": null,
-		"value-no-vendor-prefix": null,
-		"at-rule-no-vendor-prefix": null,
-		"media-feature-name-no-vendor-prefix": null,
-		"color-function-notation": "legacy",
-		"alpha-value-notation": "number",
+		"color-named": null,
+		"font-weight-notation": null,
 		"font-family-name-quotes": "always-unless-keyword",
 		"function-url-quotes": "always",
-		"selector-attribute-quotes": "always",
-		"string-quotes": "double",
-		"declaration-block-single-line-max-declarations": 1,
-		"max-line-length": [120, {
-			"ignore": ["comments"]
-		}],
-		"rule-empty-line-before": ["always", {
-			"except": ["first-nested"],
-			"ignore": ["after-comment"]
-		}],
-		"at-rule-empty-line-before": ["always", {
-			"except": ["first-nested", "blockless-after-same-name-blockless"],
-			"ignore": ["after-comment"]
-		}],
-		"comment-empty-line-before": ["always", {
-			"except": ["first-nested"],
-			"ignore": ["stylelint-commands"]
-		}],
-		"declaration-empty-line-before": "never",
-		"custom-property-empty-line-before": "never"
+		"selector-attribute-quotes": "always"
 	}
 }
