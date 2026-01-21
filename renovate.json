@@ -1,0 +1,36 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "group:allNonMajor"
+  ],
+  "schedule": ["before 9am on monday"],
+  "timezone": "Europe/Berlin",
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Group all npm updates",
+      "matchManagers": ["npm"],
+      "groupName": "npm dependencies"
+    },
+    {
+      "description": "Group all Composer updates",
+      "matchManagers": ["composer"],
+      "groupName": "composer dependencies"
+    },
+    {
+      "description": "Auto-merge npm devDependencies",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Auto-merge Composer dev dependencies",
+      "matchManagers": ["composer"],
+      "matchDepTypes": ["require-dev"],
+      "automerge": true,
+      "automergeType": "pr"
+    }
+  ]
+}
