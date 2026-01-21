@@ -221,12 +221,17 @@ This document outlines planned features and improvements for the Body Refactorin
 **Note**: Built on refactored renderSchedule() (v14.3.0) for cleaner integration. These features were originally in v14.0.0 but moved here to ensure proper test coverage (v14.2.0) and clean code foundation (v14.3.0) are in place first.
 
 #### Rep Cooldown Timer Improvements
+- ✅ **Set Timing Log Button** (v14.3.1)
+  - "Set erfassen" button during rest periods
+  - Logs timing data to notes for schedule calibration
+  - Future: Auto-update schedule JSON with suggested timing
+
 - **Quick Access Panel During Cooldown**
   - Access day's logbook/notes without aborting rep counter
   - Adjust weight/level settings directly from cooldown screen
   - Swipe or tab interface to access these features
   - Changes saved immediately to storage
-  
+
 - **Sleep Prevention Mechanism**
   - Add "Ready?" confirmation button at 10s mark during cooldown
   - Forces user interaction to prevent screen sleep

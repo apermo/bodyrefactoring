@@ -1505,6 +1505,7 @@ let repCounterState = {
 	delayMilliseconds: 3000,
 	currentSet: 0,
 	currentRep: 0,
+	setStartTime: 0,
 };
 let repCounterInterval = null;
 let repCountdownInterval = null;
@@ -1617,6 +1618,12 @@ function showRepCounterModal() {
 function hideRepCounterModal() {
 	const modal = document.getElementById( 'rep-counter-modal' );
 	modal.classList.add( 'hidden' );
+
+	// Hide log timing button
+	const logBtn = document.getElementById( 'log-set-timing-btn' );
+	if ( logBtn ) {
+		logBtn.classList.add( 'hidden' );
+	}
 }
 
 /**
@@ -1757,6 +1764,13 @@ function startRepCountdown() {
  */
 function startRepCounting() {
 	repCounterState.currentRep = 1;
+	repCounterState.setStartTime = Date.now();
+
+	// Hide log timing button when counting starts
+	const logBtn = document.getElementById( 'log-set-timing-btn' );
+	if ( logBtn ) {
+		logBtn.classList.add( 'hidden' );
+	}
 
 	// Update display and speak first rep immediately
 	updateRepCounterModal();
@@ -1781,8 +1795,17 @@ function startRepCounting() {
 		repCounterState.currentRep++;
 		updateRepCounterModal();
 
-		// Speak rep number
-		speak( `${repCounterState.currentRep}` );
+		// Speak rep number or countdown for last 3 reps
+		const repsRemaining = repCounterState.repsPerSet - repCounterState.currentRep;
+		if ( repsRemaining === 0 ) {
+			speak( 'Der letzte' );
+		} else if ( repsRemaining === 1 ) {
+			speak( 'Noch 2' );
+		} else if ( repsRemaining === 2 ) {
+			speak( 'Noch 3' );
+		} else {
+			speak( `${repCounterState.currentRep}` );
+		}
 
 		// Vibrate on each rep
 		if ( navigator.vibrate ) {
@@ -1848,6 +1871,42 @@ function abortRepCounter() {
 }
 
 /**
+ * Log set timing to notes for calibration.
+ *
+ * Appends timing data to the day's notes in the format:
+ * "EXERCISENAME - Set N - Finished after X.Y s, suggested time: XXX ms"
+ *
+ * @return {void}
+ */
+function logSetTiming() {
+	const elapsedMs = Date.now() - repCounterState.setStartTime;
+	const elapsedSeconds = ( elapsedMs / 1000 ).toFixed( 1 );
+	const setNumber = repCounterState.currentSet;
+	const exerciseName = repCounterState.exerciseTitle;
+	const suggestedMs = Math.round( elapsedMs / repCounterState.repsPerSet );
+
+	const logEntry = `${exerciseName} - Satz ${setNumber} - Fertig nach ${elapsedSeconds} s, empfohlene Zeit: ${suggestedMs} ms`;
+
+	// Get current note and append
+	const currentNote = domainStorage.getNote( repCounterState.exerciseDate );
+	const newNote = currentNote ? `${currentNote}\n${logEntry}` : logEntry;
+	domainStorage.setNote( repCounterState.exerciseDate, newNote );
+
+	// Visual feedback
+	const btn = document.getElementById( 'log-set-timing-btn' );
+	if ( btn ) {
+		btn.innerHTML = '<i data-lucide="check" class="w-6 h-6 inline mr-2"></i>Gespeichert!';
+		btn.disabled = true;
+		lucide.createIcons();
+		timerCoordinator.setTimeout( () => {
+			btn.innerHTML = '<i data-lucide="clock" class="w-6 h-6 inline mr-2"></i>Set erfassen';
+			lucide.createIcons();
+			btn.disabled = false;
+		}, 1500, 'log_timing_feedback' );
+	}
+}
+
+/**
  * Complete current set and start rest or finish exercise.
  *
  * @return {void}
@@ -1870,6 +1929,15 @@ function completeSet() {
  * @return {void}
  */
 function startRestPeriod() {
+	// Show log timing button during rest
+	const logBtn = document.getElementById( 'log-set-timing-btn' );
+	if ( logBtn ) {
+		logBtn.classList.remove( 'hidden' );
+		logBtn.textContent = 'Set erfassen';
+		logBtn.disabled = false;
+		lucide.createIcons();
+	}
+
 	// Update modal for rest
 	document.getElementById( 'rep-status-text' ).textContent = 'Pause (Tippen für 5s)';
 	document.getElementById( 'rep-total' ).textContent = '';
@@ -1908,7 +1976,8 @@ function startRestPeriod() {
 		}
 		isRestWaiting = false;
 
-		// Remove waiting class
+		// Update text and remove waiting class simultaneously
+		currentNumberEl.textContent = `${timeLeft}s`;
 		currentNumberEl.classList.remove( 'waiting-ready' );
 
 		// Resume the countdown for remaining seconds
@@ -2839,6 +2908,7 @@ window.submitAppMode = submitAppMode;
 window.abortRepCounter = abortRepCounter;
 window.startSpecificTimer = startSpecificTimer;
 window.startRepCounter = startRepCounter;
+window.logSetTiming = logSetTiming;
 window.backToNormal = backToNormal;
 window.importData = importData;
 window.miniConfetti = miniConfetti;
