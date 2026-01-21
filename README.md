@@ -426,7 +426,7 @@ git push origin :refs/tags/test-deploy
 7. Click "Abbrechen" to cancel anytime
 
 **Timing Calibration (optional):**
-During rest periods, a green "Set erfassen" button appears. Tap it to log the set's timing to your notes for schedule calibration. The log entry shows:
+A purple "Set bereits fertig" button appears during sets. Tap it to log the set's timing to your notes for schedule calibration. The log entry shows:
 - Exercise name and set number
 - Actual elapsed time
 - Suggested milliseconds per rep (for updating your schedule JSON)

@@ -17,11 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Mark stale after 30 days of inactivity
   - Close after 14 additional days without response
   - Exempt: `dependencies`, `security`, `in-progress`, `pinned` labels
-- **Rep counter timing log**: Optional "Set erfassen" button during sets
+- **Rep counter timing log**: "Set bereits fertig" button during sets
   - Button visible during counting and rest, disabled after logging once per set
   - Logs set timing to day's notes for schedule calibration
   - Format: "Exercise - Satz N - Fertig nach X.Y s, empfohlene Zeit: XXX ms"
   - Notes textarea refreshes automatically when rep counter closes
+  - Purple color scheme matching rep counter chip
 - **Rep counter countdown speech**: Last 3 reps announced differently
   - "Noch 3", "Noch 2", "Der letzte" instead of numbers
 
@@ -34,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Rep counter**: Fix "Bereit?" text jump when resuming from ready state
   - Text and class now update simultaneously to prevent layout shift
+- **Rep counter**: Update set info when cooldown starts
+  - Shows next set number and side indicator immediately (cooldown belongs to next set)
 - **JavaScript linting**: Fix all ESLint errors across codebase (34 → 0)
   - Fix variable shadowing in timer functions (renamed inner loop variables)
   - Fix unused variable declarations (prefixed with underscore where intentionally unused)
