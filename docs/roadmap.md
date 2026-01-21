@@ -9,23 +9,17 @@ This document outlines planned features and improvements for the Body Refactorin
 **Priority: High**  
 **Focus**: Automated code quality enforcement and consistency
 
-#### `.cursorrules` Review & Organization
-- **Review and Reorganize `.cursorrules`**
-  - File has grown to 937 lines with multiple additions over time
-  - Review for redundancy and contradictions
-  - Better logical grouping of related rules
-  - Clearer section hierarchy and navigation
-  - Remove outdated or superseded rules
-  - Consolidate duplicate information
-  - Add table of contents for easy navigation
-  - Ensure all rules are still relevant and actionable
-  - Verify examples are up-to-date with current codebase
-  - Consider splitting into multiple focused files if needed (e.g., `.cursorrules-git`, `.cursorrules-code-quality`)
+#### `.cursorrules` Migration to `CLAUDE.md`
+- **Migrate and Remove `.cursorrules`**
+  - `.cursorrules` (1180 lines) was created for Cursor IDE
+  - `CLAUDE.md` was created as successor for Claude Code
+  - Validate critical rules are in CLAUDE.md, then remove .cursorrules
+  - Single source of truth: CLAUDE.md
 
 **Why in this version:**
 - Complements linting setup (both focus on code quality standards)
-- Clean ruleset helps AI assistants follow standards more effectively
-- Better organization improves AI adherence to git workflow rules
+- Single source of truth reduces maintenance burden
+- CLAUDE.md serves both Claude Code and provides guidance for other AI tools
 - Should be done before major coding work in v14.4+ to ensure consistency
 
 #### PHP Linting
@@ -71,7 +65,7 @@ This document outlines planned features and improvements for the Body Refactorin
 
 #### CI/CD Integration
 - **Pre-commit Hooks**
-  - Husky + lint-staged configuration
+  - lint-staged via `.githooks/pre-commit` (extends existing hook system)
   - Auto-fix on commit (when possible)
   - Block commits with unfixable errors
   - Fast: Only lints staged files
@@ -124,9 +118,10 @@ This document outlines planned features and improvements for the Body Refactorin
   - `npm run lint:check` - Check without fixing (for CI)
 
 - **Pre-commit Hook**
-  - Install Husky: `npx husky install`
+  - Use existing `.githooks/` system (no Husky needed)
   - Install lint-staged: `npm install --save-dev lint-staged`
   - Configuration in `package.json`
+  - Add `.githooks/pre-commit` to run lint-staged
   - Runs appropriate linter based on file type
 
 - **GitHub Actions**
@@ -142,8 +137,8 @@ This document outlines planned features and improvements for the Body Refactorin
 - `.stylelintrc.json` - Stylelint configuration
 - `.eslintignore` - Files to ignore (ESLint)
 - `.stylelintignore` - Files to ignore (Stylelint)
-- `.husky/pre-commit` - Pre-commit hook script
-- `package.json` - Updated with lint scripts and lint-staged config
+- `.githooks/pre-commit` - Pre-commit hook script (lint-staged)
+- `package.json` - New file with lint scripts and lint-staged config
 
 **Benefits:**
 - ✅ **Consistency** - All code follows same standards
@@ -1086,31 +1081,6 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ---
 
-## 🚀 Backlog - Infrastructure & DevOps
-
-### ✅ PR Preview Environments (IMPLEMENTED in v14.1.0)
-
-**Goal:** Automatic test environment for each pull request to review changes before merging.
-
-**Implementation:** Netlify Deploy Previews
-
-**What was implemented:**
-- ✅ Netlify configuration (`netlify.toml`)
-- ✅ Build script (`build.php`) for PHP → HTML conversion
-- ✅ Automatic deployment on PR creation/update
-- ✅ Unique preview URLs per PR
-- ✅ Zero-config setup (works automatically after connecting repo)
-- ✅ Auto-cleanup on PR close
-- ✅ ~30-second build time
-- ✅ Free tier (100GB bandwidth/month - more than sufficient)
-
-**Preview URL format:**
-`https://deploy-preview-{pr-number}--bodyrefactoring.netlify.app`
-
-**Setup completed:** January 9, 2026
-
----
-
 ## 📅 Backlog - User Features
 
 ### Server-Side Storage & Sync
@@ -1237,7 +1207,7 @@ SYNC_API_URL=/api/storage
 
 ---
 
-**Last Updated**: January 19, 2026
-**Current Stable Release**: v14.2.4
+**Last Updated**: January 21, 2026
+**Current Stable Release**: v14.2.8
 **Development Cycle**: v14
 
