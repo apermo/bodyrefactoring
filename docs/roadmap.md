@@ -46,7 +46,41 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.4.0 ⏳ - Automated Testing with Playwright
+### v14.4.0 🚧 - Rep Counter Enhancements
+
+**Status: In Progress**
+**Focus**: Rep counter UX improvements and code quality fixes
+
+#### Completed Features
+
+- ✅ **Rep Counter Timing Log**
+  - "Set bereits fertig" button during sets
+  - Logs set timing to day's notes for schedule calibration
+  - Format: "Exercise - Satz N - Fertig nach X.Y s, empfohlene Zeit: XXX ms"
+  - Notes textarea refreshes automatically when rep counter closes
+  - Purple color scheme matching rep counter chip
+
+- ✅ **Rep Counter Countdown Speech**
+  - Last 3 reps announced differently
+  - "Noch 3", "Noch 2", "Der letzte" instead of numbers
+
+- ✅ **Set Info Updates**
+  - Shows next set number and side indicator immediately when cooldown starts
+  - Cooldown belongs to next set
+
+- ✅ **Fix "Bereit?" Text Jump**
+  - Text and class now update simultaneously to prevent layout shift
+
+#### Also in This Release
+
+- ✅ **Renovate Configuration** - Automated dependency update PRs
+- ✅ **Stale Bot Workflow** - Auto-close inactive issues and PRs
+- ✅ **ESLint Improvements** - Allow console.log, ignore underscore-prefixed variables
+- ✅ **JavaScript Linting Fixed** - All 34 ESLint errors resolved
+
+---
+
+### v14.5.0 ⏳ - Automated Testing with Playwright
 
 **Priority: High**  
 **Focus**: End-to-end testing for critical user flows
@@ -169,14 +203,14 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.5.0 ⏳ - renderSchedule() Refactor
+### v14.6.0 ⏳ - renderSchedule() Refactor
 
 **Priority: High**  
 **Focus**: Code quality and maintainability - refactor before complex features
 
 **Why Now?**
-- Clean foundation before advanced rep counter features (v14.4.0)
-- Playwright tests (v14.2.0) provide safety net for refactoring
+- Clean foundation before advanced rep counter features (v14.7.0)
+- Playwright tests (v14.5.0) provide safety net for refactoring
 - Easier to add v15.0.0 overrides to clean, modular code
 - 307-line function is too large and handles too many responsibilities
 - Quality first: Better to delay rep counter slightly for cleaner codebase
@@ -201,7 +235,7 @@ This document outlines planned features and improvements for the Body Refactorin
 **Benefits:**
 - ✅ Small, testable methods (< 30 lines each)
 - ✅ Clear responsibilities
-- ✅ Easier to add rep counter features (v14.4.0)
+- ✅ Easier to add rep counter features (v14.7.0)
 - ✅ Easier to add overrides (v15.0.0)
 - ✅ Easier to add XP badges (v16.0.0)
 
@@ -213,12 +247,12 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.6.0 ⏳ - Advanced Rep Counter Features
+### v14.7.0 ⏳ - Advanced Rep Counter Features
 
 **Priority: High**  
 **Focus**: Complex rep counter enhancements on clean foundation
 
-**Note**: Built on refactored renderSchedule() (v14.3.0) for cleaner integration. These features were originally in v14.0.0 but moved here to ensure proper test coverage (v14.2.0) and clean code foundation (v14.3.0) are in place first.
+**Note**: Built on refactored renderSchedule() (v14.6.0) for cleaner integration. These features were originally in v14.0.0 but moved here to ensure proper test coverage (v14.5.0) and clean code foundation (v14.3.0) are in place first.
 
 #### Rep Cooldown Timer Improvements
 - ✅ **Set Timing Log Button** (v14.3.1)
@@ -279,7 +313,7 @@ This document outlines planned features and improvements for the Body Refactorin
   - Visual feedback should be consistent throughout all state changes
   - Previous issue: Abrupt switch from last rep to cooldown, color/content mismatch
 
-**Why After v14.2.0 (Testing)?**
+**Why After v14.5.0 (Testing)?**
 - Complex state management needs test coverage
 - Timing-critical features (10s prompt, 50% progress) need verification
 - Tests catch edge cases before they reach production
@@ -344,7 +378,7 @@ This document outlines planned features and improvements for the Body Refactorin
   - No interaction timeout: Show notification, restart countdown (safety)
   - NoSleep.js integration for additional prevention
 
-**Playwright Test Coverage (v14.2.0 provides foundation):**
+**Playwright Test Coverage (v14.5.0 provides foundation):**
 - Test cooldown timer accuracy
 - Verify "Ready?" prompt at 10s
 - Test quick access panel interactions
@@ -367,7 +401,7 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.7.0 ⏳ - Streak Feature Rework
+### v14.8.0 ⏳ - Streak Feature Rework
 
 **Priority: Medium**
 **Focus**: Decouple streak calculation from individual task ticks
@@ -976,8 +1010,8 @@ All features optimized for iPhone/PWA:
 ## 🗂️ Backlog - Code Quality & Refactoring
 
 **Note:** The two major refactoring tasks (renderSchedule and calculateStreak) have been scheduled in the v14.x cycle:
-- ✅ **renderSchedule() Refactor** → Scheduled for v14.3.0
-- ✅ **calculateStreak() Refactor** → Scheduled for v14.5.0
+- ✅ **renderSchedule() Refactor** → Scheduled for v14.6.0
+- ✅ **calculateStreak() Refactor** → Scheduled for v14.8.0
 
 This section is now empty but reserved for future refactoring tasks that arise during development.
 
@@ -1133,7 +1167,7 @@ SYNC_API_URL=/api/storage
 
 ---
 
-**Last Updated**: January 21, 2026
-**Current Stable Release**: v14.3.0
+**Last Updated**: January 22, 2026
+**Current Stable Release**: v14.4.0
 **Development Cycle**: v14
 
