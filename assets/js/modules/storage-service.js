@@ -84,7 +84,13 @@ export class StorageService {
 	 */
 	getBoolean( key, defaultValue = false ) {
 		const value = this.get( key );
-		return value === 'true' ? true : value === 'false' ? false : defaultValue;
+		if ( value === 'true' ) {
+			return true;
+		}
+		if ( value === 'false' ) {
+			return false;
+		}
+		return defaultValue;
 	}
 
 	/**

@@ -9,7 +9,6 @@
  */
 
 import { generateICS, downloadICS, calculateWorkoutDuration } from './calendar-service.js';
-import { getLocalISODate } from './utils.js';
 
 // Storage keys for calendar preferences
 const STORAGE_KEYS = {
@@ -132,7 +131,7 @@ function generateTimeOptions( selectedTime ) {
  * @return {void}
  */
 export function showCalendarModal( config ) {
-	const { date, dayName, exercises, schedule, onSuccess } = config;
+	const { date, dayName, exercises, schedule: _schedule, onSuccess: _onSuccess } = config;
 
 	// Calculate duration
 	const duration = calculateWorkoutDuration( exercises );

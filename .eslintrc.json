@@ -24,8 +24,8 @@
 		"computed-property-spacing": ["error", "always"],
 		"object-curly-spacing": ["error", "always"],
 		"camelcase": ["error", { "properties": "never" }],
-		"no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-		"no-console": ["warn", { "allow": ["warn", "error"] }],
+		"no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+		"no-console": ["warn", { "allow": ["log", "warn", "error"] }],
 		"no-alert": "off",
 		"prefer-const": "error",
 		"no-var": "error",
@@ -48,6 +48,9 @@
 		"jsdoc/require-returns-description": "off",
 		"jsdoc/check-line-alignment": "off",
 		"jsdoc/empty-tags": "off",
+		"jsdoc/no-undefined-types": ["error", {
+			"definedTypes": ["SpeechSynthesisVoice", "SpeechSynthesisUtterance"]
+		}],
 		"@wordpress/no-unused-vars-before-return": "error",
 		"@wordpress/dependency-group": "off",
 		"import/no-unresolved": "off"

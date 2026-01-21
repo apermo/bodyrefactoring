@@ -22,7 +22,7 @@ import { StateManager } from './modules/state-manager.js';
 import { SpeechService } from './modules/speech-service.js';
 import { TimerCoordinator } from './modules/timer-coordinator.js';
 import { showCalendarModal, isEventAdded } from './modules/calendar-modal.js';
-import { getLocalISODate, getToday, scrollToElement } from './modules/utils.js';
+import { getLocalISODate } from './modules/utils.js';
 import { checkAndShowIntroModal, closeIntroModal } from './intro-modal.js';
 
 // --- STATE MACHINES & SERVICES ---
@@ -32,8 +32,8 @@ const repCounterStateMachine = new RepCounterStateMachine();
 const modalStateMachine = new ModalStateMachine();
 const storage = new StorageService();
 const domainStorage = new DomainStorageService( storage );
-const stateManager = new StateManager();
-const speech = new SpeechService();
+const _stateManager = new StateManager();
+const _speech = new SpeechService();
 const timerCoordinator = new TimerCoordinator();
 
 // Debug mode - removes day editing restrictions
@@ -55,7 +55,7 @@ const quotes = QUOTES;
 
 // Loaded special schedules (recovery and sick activities loaded from JSON)
 let loadedRecoveryActivities = [];
-let loadedSickActivities = [];
+let _loadedSickActivities = [];
 
 // --- GLOBAL STATE ---
 let currentWeekOffset = 0;
@@ -213,7 +213,7 @@ async function loadSpecialSchedules() {
 		if ( sickRes.ok ) {
 			const sickJson = await sickRes.json();
 			if ( sickJson.days && sickJson.days[ 0 ] && sickJson.days[ 0 ].details ) {
-				loadedSickActivities = sickJson.days[ 0 ].details;
+				_loadedSickActivities = sickJson.days[ 0 ].details;
 			}
 		}
 	} catch ( error ) {
@@ -2249,10 +2249,10 @@ function resumeTimerFromReady() {
 	// Resume the countdown
 	timerCoordinator.setInterval( () => {
 		timeLeft--;
-		const mins = Math.floor( timeLeft / 60 );
-		const secs = timeLeft % 60;
-		const displayTime = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-		document.getElementById( 'timer-text' ).innerText = displayTime;
+		const minsRemaining = Math.floor( timeLeft / 60 );
+		const secsRemaining = timeLeft % 60;
+		const timeDisplay = `${minsRemaining}:${secsRemaining < 10 ? '0' : ''}${secsRemaining}`;
+		document.getElementById( 'timer-text' ).innerText = timeDisplay;
 
 		if ( timeLeft <= 3 && timeLeft > 0 ) {
 			speak( timeLeft.toString() );
@@ -2553,7 +2553,6 @@ function activateRecoveryMode() {
  * @return {void}
  */
 function useSickShield() {
-	const shields = getShields();
 	const today = getLocalISODate( new Date() );
 
 	// Check if already in recovery or sick mode today
@@ -2566,6 +2565,8 @@ function useSickShield() {
 		alert( 'Heute ist bereits als Krank-Tag markiert!' );
 		return;
 	}
+
+	const shields = getShields();
 
 	if ( shields === 0 ) {
 		// No shields available - offer to use sick mode without shield
@@ -2589,14 +2590,12 @@ function useSickShield() {
 		closeSickModeModal();
 		renderSchedule();
 		alert( '✅ Schutzschild aktiviert! Gute Besserung!\n\nTrinke heute ausreichend Wasser/Tee.\n\n✅ Dein Streak bleibt erhalten.' );
-	} else {
+	} else if ( confirm( '⚠️ Ohne Schild fortfahren?\n\nDein Streak wird unterbrochen, aber du kannst die Krankheit dokumentieren.' ) ) {
 		// User cancelled - ask if they want to use without shield
-		if ( confirm( '⚠️ Ohne Schild fortfahren?\n\nDein Streak wird unterbrochen, aber du kannst die Krankheit dokumentieren.' ) ) {
-			domainStorage.setSickDay( today, false );
-			closeSickModeModal();
-			renderSchedule();
-			alert( '✅ Krank-Modus aktiviert (ohne Schild).\n\nGute Besserung!\n\n⚠️ Dein Streak wird unterbrochen.' );
-		}
+		domainStorage.setSickDay( today, false );
+		closeSickModeModal();
+		renderSchedule();
+		alert( '✅ Krank-Modus aktiviert (ohne Schild).\n\nGute Besserung!\n\n⚠️ Dein Streak wird unterbrochen.' );
 	}
 }
 
@@ -2845,6 +2844,7 @@ window.importData = importData;
 window.miniConfetti = miniConfetti;
 window.toggleAccordion = toggleAccordion;
 window.toggleUnit = toggleUnit;
+window.focusWeightInput = focusWeightInput;
 window.handleWeightBlur = handleWeightBlur;
 window.saveNote = saveNote;
 window.saveWeight = saveWeight;

@@ -36,10 +36,10 @@ export class StreakCalculatorService {
 	 *
 	 * @async
 	 * @param {Function} isDayComplete - Function to check if day is complete.
-	 * @param {Array} recoveryActivities - Recovery activities array.
+	 * @param {Array} _recoveryActivities - Recovery activities array (unused).
 	 * @return {Promise<number>} Current streak count.
 	 */
-	async calculateStreak( isDayComplete, recoveryActivities ) {
+	async calculateStreak( isDayComplete, _recoveryActivities ) {
 		let streak = 0;
 		let weekCounter = 0;
 		const checkDate = new Date();

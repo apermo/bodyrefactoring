@@ -373,7 +373,7 @@ function handleDragOver( e ) {
 	e.dataTransfer.dropEffect = 'move';
 
 	const afterElement = getDragAfterElement( this.parentElement, e.clientY );
-	if ( afterElement == null ) {
+	if ( afterElement === null ) {
 		this.parentElement.appendChild( draggedElement );
 	} else {
 		this.parentElement.insertBefore( draggedElement, afterElement );
@@ -829,3 +829,16 @@ function exportSchedule() {
 	alert( 'Schedule exported! Commit to Git to deploy.' );
 }
 
+// Expose functions to global scope for HTML onclick handlers
+window.loadAvailableSchedules = loadAvailableSchedules;
+window.createNewSchedule = createNewSchedule;
+window.loadSchedule = loadSchedule;
+window.importSchedule = importSchedule;
+window.pasteJSON = pasteJSON;
+window.switchDay = switchDay;
+window.deleteExercise = deleteExercise;
+window.addExercise = addExercise;
+window.editExercise = editExercise;
+window.saveExercise = saveExercise;
+window.validateSchedule = validateSchedule;
+window.exportSchedule = exportSchedule;

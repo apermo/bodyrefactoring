@@ -11,7 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ESLint config**: Allow `console.log` in addition to `warn` and `error`
+- **ESLint config**: Add `varsIgnorePattern` to ignore underscore-prefixed unused variables
+
 ### Fixed
+
+- **JavaScript linting**: Fix all ESLint errors across codebase (34 → 0)
+  - Fix variable shadowing in timer functions (renamed inner loop variables)
+  - Fix unused variable declarations (prefixed with underscore where intentionally unused)
+  - Fix `no-lonely-if` pattern (convert `else { if }` to `else if`)
+  - Fix JSDoc param names to match function signatures
+  - Fix bitwise operations with eslint-disable comments (intentional in hash function)
+  - Expose schedule-editor functions to window for HTML onclick handlers
 
 ## [14.3.0] - 2026-01-21
 
