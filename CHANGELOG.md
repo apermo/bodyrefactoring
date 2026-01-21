@@ -14,9 +14,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESLint for JavaScript with browser globals
   - Stylelint for CSS with standard config
   - `npm run lint` and `npm run lint:fix` commands
+- **Linting ratchet**: Threshold-based linting prevents new errors
+  - Baseline files track current error/warning counts per linter
+  - CI fails if error counts increase (regression detected)
+  - Baselines auto-update when counts decrease (improvement)
+  - Scripts: `.github/scripts/*-threshold.sh`
+  - Baselines: `phpcs-baseline.json`, `eslint-baseline.json`, `stylelint-baseline.json`
+- **Stricter PHPCS rules**: Extended ruleset from FNet standards
+  - PHPCompatibilityWP for PHP version checks
+  - Slevomat type hint enforcement (return, parameter, property)
+  - YoastCS file comment sniffs
+  - CamelCase naming conventions
+  - Disallow Yoda conditions and long array syntax
+  - Namespace/use statement rules (sorted, no unused)
 - **GitHub Actions lint workflow**: Automated linting on PRs and pushes to main
 - **Pre-commit hooks**: Automated checks before each commit
-  - lint-staged runs configured linters on staged files only
+  - lint-staged runs threshold scripts on staged files
   - Version sync automatically updates `package.json` from `composer.json`
   - Setup script: `bash .githooks/setup.sh`
 - **CONTRIBUTING.md**: Development setup instructions for new contributors
@@ -25,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Pre-commit hook**: Now requires DDEV for linting locally; GitHub Actions runs directly without DDEV
 - **CLAUDE.md**: Migrated AI development instructions from `.cursorrules`
+- **PHPCS scope**: Now only scans PHP files in `assets/`, `tools/`, `trainings/` directories
 
 ## [14.2.8] - 2026-01-20
 

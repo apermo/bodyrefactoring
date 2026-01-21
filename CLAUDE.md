@@ -240,13 +240,35 @@ When user says "let's start with vX.Y.Z":
 
 ## Linting
 
-Run linters before committing:
+### Commands
 ```bash
-npm run lint        # Run all linters
+npm run lint        # Show all errors (detailed output)
 npm run lint:fix    # Auto-fix issues
+npm run lint:check  # Threshold check (used in CI/pre-commit)
 ```
 
 Individual linters:
-- `npm run lint:php` - PHP (PHPCS)
-- `npm run lint:js` - JavaScript (ESLint)
-- `npm run lint:css` - CSS (Stylelint)
+- `npm run lint:php` / `lint:php:check` - PHP (PHPCS)
+- `npm run lint:js` / `lint:js:check` - JavaScript (ESLint)
+- `npm run lint:css` / `lint:css:check` - CSS (Stylelint)
+
+### Linting Ratchet (No New Errors)
+
+The project uses threshold-based linting: existing errors allowed, new errors blocked.
+
+**Baseline files** (committed to repo):
+- `phpcs-baseline.json` - PHP error/warning counts
+- `eslint-baseline.json` - JavaScript error/warning counts
+- `stylelint-baseline.json` - CSS error/warning counts
+
+**Behavior:**
+- Counts increase → commit/CI **fails** (regression detected)
+- Counts decrease → baseline **auto-updates** (improvement saved)
+
+**Threshold scripts:** `.github/scripts/*-threshold.sh`
+
+**To fix errors and update baseline:**
+```bash
+npm run lint:fix    # Auto-fix what's possible
+npm run lint:check  # Re-run to update baselines
+```

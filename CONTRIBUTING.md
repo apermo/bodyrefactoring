@@ -51,29 +51,67 @@ This configures:
 ### Running All Linters
 
 ```bash
-npm run lint        # Check all files
+npm run lint        # Check all files (shows all errors)
 npm run lint:fix    # Auto-fix all files
-npm run lint:check  # Check without fixing (used in CI)
+npm run lint:check  # Threshold check (used in CI and pre-commit)
 ```
 
 ### Individual Linters
 
 **PHP (PHPCS - WordPress Coding Standards):**
 ```bash
-npm run lint:php        # Check PHP files
+npm run lint:php        # Check PHP files (shows all errors)
 npm run lint:php:fix    # Auto-fix with PHPCBF
+npm run lint:php:check  # Threshold check
 ```
 
 **JavaScript (ESLint):**
 ```bash
-npm run lint:js         # Check JS files
+npm run lint:js         # Check JS files (shows all errors)
 npm run lint:js:fix     # Auto-fix issues
+npm run lint:js:check   # Threshold check
 ```
 
 **CSS (Stylelint):**
 ```bash
-npm run lint:css        # Check CSS files
+npm run lint:css        # Check CSS files (shows all errors)
 npm run lint:css:fix    # Auto-fix issues
+npm run lint:css:check  # Threshold check
+```
+
+### Linting Ratchet (Threshold System)
+
+The project uses a **ratchet** approach to linting: existing errors are allowed, but new errors are blocked.
+
+**How it works:**
+1. Baseline files track current error/warning counts:
+   - `phpcs-baseline.json` - PHP errors/warnings
+   - `eslint-baseline.json` - JavaScript errors/warnings
+   - `stylelint-baseline.json` - CSS errors/warnings
+
+2. On every commit (lint-staged) and CI run:
+   - Current error count is compared against baseline
+   - **Regression blocked**: If counts increase → commit/CI fails
+   - **Improvement auto-saved**: If counts decrease → baseline auto-updates
+
+**Example output:**
+```
+PHPCS: Errors 254/254, Warnings 0/0
+PHPCS threshold check passed
+```
+
+**Benefits:**
+- No need to fix all existing errors immediately
+- Prevents new errors from being introduced
+- Error counts can only go down over time
+- Gradual code quality improvement
+
+**Fixing errors to improve baseline:**
+```bash
+npm run lint:php:fix    # Auto-fix PHP issues
+npm run lint:js:fix     # Auto-fix JS issues
+npm run lint:css:fix    # Auto-fix CSS issues
+npm run lint:check      # Re-run to update baselines
 ```
 
 ### Common Lint Errors and Fixes
