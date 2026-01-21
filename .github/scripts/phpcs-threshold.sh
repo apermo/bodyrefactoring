@@ -11,11 +11,14 @@ if [ ! -f "$BASELINE_FILE" ]; then
 	exit 1
 fi
 
-# Run PHPCS and extract totals (allow non-zero exit)
-# Use -q (quiet), --no-colors, and -p to override phpcs.xml progress settings
-RESULT=$(vendor/bin/phpcs --report=json -q --no-colors 2>/dev/null || true)
-CURRENT_ERRORS=$(echo "$RESULT" | jq '.totals.errors // 0')
-CURRENT_WARNINGS=$(echo "$RESULT" | jq '.totals.warnings // 0')
+# Run PHPCS and write JSON to temp file (avoids stdout contamination from progress)
+TEMP_FILE=$(mktemp)
+trap "rm -f $TEMP_FILE" EXIT
+vendor/bin/phpcs --report=json --report-file="$TEMP_FILE" > /dev/null 2>&1 || true
+
+# Extract totals from JSON file
+CURRENT_ERRORS=$(jq '.totals.errors // 0' "$TEMP_FILE")
+CURRENT_WARNINGS=$(jq '.totals.warnings // 0' "$TEMP_FILE")
 
 # Read baseline
 BASELINE_ERRORS=$(jq '.errors // 0' "$BASELINE_FILE")
