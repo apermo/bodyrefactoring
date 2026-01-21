@@ -3,14 +3,12 @@
 	<description>Custom ruleset based on WordPress Coding Standards for Body Refactoring</description>
 
 	<!-- What to scan -->
-	<file>.</file>
+	<file>assets/</file>
+	<file>tools/</file>
+	<file>trainings/</file>
 
-	<!-- Exclude directories -->
-	<exclude-pattern>/vendor/*</exclude-pattern>
-	<exclude-pattern>/node_modules/*</exclude-pattern>
-	<exclude-pattern>/.ddev/*</exclude-pattern>
-	<exclude-pattern>/dist/*</exclude-pattern>
-	<exclude-pattern>/.netlify/*</exclude-pattern>
+	<!-- Only scan PHP files (JS/CSS handled by ESLint/Stylelint) -->
+	<arg name="extensions" value="php"/>
 
 	<!-- Show progress and colors -->
 	<arg value="ps"/>
@@ -27,7 +25,7 @@
 		<!-- Allow short array syntax -->
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
 		<!-- Allow short ternary -->
-		<exclude name="WordPress.PHP.DisallowShortTernary"/>
+		<exclude name="Universal.Operators.DisallowShortTernary"/>
 		<!-- Allow file names without prefix (not a plugin) -->
 		<exclude name="WordPress.Files.FileName"/>
 		<!-- Allow non-prefixed hooks (not a plugin) -->

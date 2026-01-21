@@ -9,31 +9,31 @@
 		"lint:check": "npm run lint:php:check && npm run lint:js:check && npm run lint:css:check",
 		"lint:php": "vendor/bin/phpcs",
 		"lint:php:fix": "vendor/bin/phpcbf",
-		"lint:php:check": "vendor/bin/phpcs --report=summary",
+		"lint:php:check": "bash .github/scripts/phpcs-threshold.sh",
 		"lint:js": "eslint assets/js/",
 		"lint:js:fix": "eslint assets/js/ --fix",
-		"lint:js:check": "eslint assets/js/ --max-warnings=0",
+		"lint:js:check": "bash .github/scripts/eslint-threshold.sh",
 		"lint:css": "stylelint \"assets/css/**/*.css\"",
 		"lint:css:fix": "stylelint \"assets/css/**/*.css\" --fix",
-		"lint:css:check": "stylelint \"assets/css/**/*.css\" --max-warnings=0",
+		"lint:css:check": "bash .github/scripts/stylelint-threshold.sh",
 		"prepare": "bash .githooks/setup.sh"
 	},
 	"devDependencies": {
-		"eslint": "^8.57.0",
 		"@wordpress/eslint-plugin": "^21.0.0",
+		"eslint": "^8.57.0",
+		"lint-staged": "^15.2.0",
 		"stylelint": "^16.12.0",
-		"stylelint-config-standard": "^36.0.1",
-		"lint-staged": "^15.2.0"
+		"stylelint-config-standard": "^36.0.1"
 	},
 	"lint-staged": {
 		"*.php": [
-			"vendor/bin/phpcs --report=summary"
+			"bash .github/scripts/phpcs-threshold.sh"
 		],
 		"assets/js/**/*.js": [
-			"eslint --max-warnings=0"
+			"bash .github/scripts/eslint-threshold.sh"
 		],
 		"assets/css/**/*.css": [
-			"stylelint --max-warnings=0"
+			"bash .github/scripts/stylelint-threshold.sh"
 		]
 	},
 	"engines": {

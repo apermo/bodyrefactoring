@@ -37,11 +37,13 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Run PHPCS
-        run: vendor/bin/phpcs --report=checkstyle --report-file=phpcs-report.xml || true
+      - name: Run PHPCS threshold check
+        run: bash .github/scripts/phpcs-threshold.sh
 
-      - name: Show PHPCS results
-        run: vendor/bin/phpcs || true
+      - name: Generate PHPCS annotations
+        if: always()
+        run: |
+          vendor/bin/phpcs --report=checkstyle --report-file=phpcs-report.xml || true
 
       - name: Annotate PHPCS results
         if: always()
