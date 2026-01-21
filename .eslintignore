@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build output
+dist/
+
+# Netlify
+.netlify/
+
+# External libraries (CDN-loaded)
+# No local copies to ignore
+
+# Minified files
+*.min.js
