@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.3.0] - 2026-01-21
+
+### Added
+
+- **Linting infrastructure**: Comprehensive code quality tooling
+  - PHPCS for PHP with WordPress coding standard
+  - ESLint for JavaScript with browser globals
+  - Stylelint for CSS with standard config
+  - `npm run lint` and `npm run lint:fix` commands
+- **GitHub Actions lint workflow**: Automated linting on PRs and pushes to main
+- **Pre-commit hooks**: Automated checks before each commit
+  - lint-staged runs configured linters on staged files only
+  - Version sync automatically updates `package.json` from `composer.json`
+  - Setup script: `bash .githooks/setup.sh`
+- **CONTRIBUTING.md**: Development setup instructions for new contributors
+
+### Changed
+
+- **Pre-commit hook**: Now requires DDEV for linting locally; GitHub Actions runs directly without DDEV
+- **CLAUDE.md**: Migrated AI development instructions from `.cursorrules`
+
 ## [14.2.8] - 2026-01-20
 
 ### Fixed
