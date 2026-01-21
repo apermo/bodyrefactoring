@@ -652,6 +652,7 @@ The repository includes automated checks that run on every PR and push to main:
 - CHANGELOG entry validation
 - Schedule JSON validation
 - **Renovate**: Automated dependency update PRs (weekly, grouped by ecosystem)
+- **Stale bot**: Auto-labels and closes inactive issues/PRs (30 days stale, 14 days to close)
 
 These run automatically - no setup required.
 

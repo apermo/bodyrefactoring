@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Weekly schedule (Monday mornings, Europe/Berlin)
   - Grouped updates by ecosystem (npm, Composer)
   - Auto-merge for devDependencies after CI passes
+- **Stale bot workflow**: Auto-close inactive issues and PRs
+  - Mark stale after 30 days of inactivity
+  - Close after 14 additional days without response
+  - Exempt: `dependencies`, `security`, `in-progress`, `pinned` labels
 
 ### Changed
 
