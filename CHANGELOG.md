@@ -17,9 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Mark stale after 30 days of inactivity
   - Close after 14 additional days without response
   - Exempt: `dependencies`, `security`, `in-progress`, `pinned` labels
-- **Rep counter timing log**: Optional "Set erfassen" button during rest periods
+- **Rep counter timing log**: Optional "Set erfassen" button during sets
+  - Button visible during counting and rest, disabled after logging once per set
   - Logs set timing to day's notes for schedule calibration
   - Format: "Exercise - Satz N - Fertig nach X.Y s, empfohlene Zeit: XXX ms"
+  - Notes textarea refreshes automatically when rep counter closes
 - **Rep counter countdown speech**: Last 3 reps announced differently
   - "Noch 3", "Noch 2", "Der letzte" instead of numbers
 

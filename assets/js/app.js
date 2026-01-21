@@ -1506,6 +1506,8 @@ let repCounterState = {
 	currentSet: 0,
 	currentRep: 0,
 	setStartTime: 0,
+	completedSetNumber: 0,
+	setTimingLogged: false,
 };
 let repCounterInterval = null;
 let repCountdownInterval = null;
@@ -1623,6 +1625,17 @@ function hideRepCounterModal() {
 	const logBtn = document.getElementById( 'log-set-timing-btn' );
 	if ( logBtn ) {
 		logBtn.classList.add( 'hidden' );
+	}
+
+	// Refresh notes textarea if timing was logged
+	if ( repCounterState.exerciseDate ) {
+		const noteKey = `${NOTE_PREFIX}${repCounterState.exerciseDate}`;
+		const textareas = document.querySelectorAll( 'textarea' );
+		textareas.forEach( textarea => {
+			if ( textarea.getAttribute( 'oninput' )?.includes( noteKey ) ) {
+				textarea.value = domainStorage.getNote( repCounterState.exerciseDate );
+			}
+		} );
 	}
 }
 
@@ -1765,11 +1778,15 @@ function startRepCountdown() {
 function startRepCounting() {
 	repCounterState.currentRep = 1;
 	repCounterState.setStartTime = Date.now();
+	repCounterState.setTimingLogged = false;
 
-	// Hide log timing button when counting starts
+	// Show and enable log timing button for this set
 	const logBtn = document.getElementById( 'log-set-timing-btn' );
 	if ( logBtn ) {
-		logBtn.classList.add( 'hidden' );
+		logBtn.classList.remove( 'hidden' );
+		logBtn.disabled = false;
+		logBtn.innerHTML = '<i data-lucide="clock" class="w-6 h-6 inline mr-2"></i>Set erfassen';
+		lucide.createIcons();
 	}
 
 	// Update display and speak first rep immediately
@@ -1879,9 +1896,17 @@ function abortRepCounter() {
  * @return {void}
  */
 function logSetTiming() {
+	// Prevent double logging
+	if ( repCounterState.setTimingLogged ) {
+		return;
+	}
+	repCounterState.setTimingLogged = true;
+
 	const elapsedMs = Date.now() - repCounterState.setStartTime;
 	const elapsedSeconds = ( elapsedMs / 1000 ).toFixed( 1 );
-	const setNumber = repCounterState.currentSet;
+
+	// Use completedSetNumber if in cooldown (set already incremented), otherwise currentSet
+	const setNumber = repCounterState.completedSetNumber > 0 ? repCounterState.completedSetNumber : repCounterState.currentSet;
 	const exerciseName = repCounterState.exerciseTitle;
 	const suggestedMs = Math.round( elapsedMs / repCounterState.repsPerSet );
 
@@ -1892,17 +1917,12 @@ function logSetTiming() {
 	const newNote = currentNote ? `${currentNote}\n${logEntry}` : logEntry;
 	domainStorage.setNote( repCounterState.exerciseDate, newNote );
 
-	// Visual feedback
+	// Visual feedback - button stays disabled until next set
 	const btn = document.getElementById( 'log-set-timing-btn' );
 	if ( btn ) {
 		btn.innerHTML = '<i data-lucide="check" class="w-6 h-6 inline mr-2"></i>Gespeichert!';
 		btn.disabled = true;
 		lucide.createIcons();
-		timerCoordinator.setTimeout( () => {
-			btn.innerHTML = '<i data-lucide="clock" class="w-6 h-6 inline mr-2"></i>Set erfassen';
-			lucide.createIcons();
-			btn.disabled = false;
-		}, 1500, 'log_timing_feedback' );
 	}
 }
 
@@ -1912,6 +1932,8 @@ function logSetTiming() {
  * @return {void}
  */
 function completeSet() {
+	// Store completed set number before incrementing (for timing log)
+	repCounterState.completedSetNumber = repCounterState.currentSet;
 	repCounterState.currentSet++;
 
 	if ( repCounterState.currentSet > repCounterState.totalSets ) {
@@ -1929,15 +1951,6 @@ function completeSet() {
  * @return {void}
  */
 function startRestPeriod() {
-	// Show log timing button during rest
-	const logBtn = document.getElementById( 'log-set-timing-btn' );
-	if ( logBtn ) {
-		logBtn.classList.remove( 'hidden' );
-		logBtn.textContent = 'Set erfassen';
-		logBtn.disabled = false;
-		lucide.createIcons();
-	}
-
 	// Update modal for rest
 	document.getElementById( 'rep-status-text' ).textContent = 'Pause (Tippen für 5s)';
 	document.getElementById( 'rep-total' ).textContent = '';
