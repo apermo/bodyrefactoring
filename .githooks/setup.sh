@@ -14,6 +14,7 @@ chmod +x .githooks/*
 echo "✅ Git hooks configured successfully!"
 echo ""
 echo "Hooks installed:"
+echo "  - pre-commit: Runs lint-staged (PHP, JS, CSS linting)"
 echo "  - commit-msg: Validates Conventional Commits format"
 echo ""
 echo "Your commits will now be validated automatically."
