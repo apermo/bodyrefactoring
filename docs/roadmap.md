@@ -4,153 +4,45 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ## 📋 Feature Roadmap
 
-### v14.3.0 ⏳ - Linting & Code Quality
+### v14.3.0 ✅ - Linting & Code Quality
 
-**Priority: High**  
+**Status: Complete**
 **Focus**: Automated code quality enforcement and consistency
 
-#### `.cursorrules` Review & Organization
-- **Review and Reorganize `.cursorrules`**
-  - File has grown to 937 lines with multiple additions over time
-  - Review for redundancy and contradictions
-  - Better logical grouping of related rules
-  - Clearer section hierarchy and navigation
-  - Remove outdated or superseded rules
-  - Consolidate duplicate information
-  - Add table of contents for easy navigation
-  - Ensure all rules are still relevant and actionable
-  - Verify examples are up-to-date with current codebase
-  - Consider splitting into multiple focused files if needed (e.g., `.cursorrules-git`, `.cursorrules-code-quality`)
+#### Completed Features
 
-**Why in this version:**
-- Complements linting setup (both focus on code quality standards)
-- Clean ruleset helps AI assistants follow standards more effectively
-- Better organization improves AI adherence to git workflow rules
-- Should be done before major coding work in v14.4+ to ensure consistency
+- ✅ **Linting Infrastructure**
+  - PHPCS for PHP with WordPress coding standards
+  - ESLint for JavaScript with browser globals
+  - Stylelint for CSS with standard config
+  - `npm run lint` and `npm run lint:fix` commands
 
-#### PHP Linting
-- **WordPress Coding Standards (Opinionated)**
-  - Install and configure PHP_CodeSniffer (PHPCS)
-  - Use WordPress-Extra ruleset as base
-  - Custom ruleset configuration for project-specific rules
-  - Automatic fixing with PHP Code Beautifier (PHPCBF)
-  - Integration with PHPStorm/VS Code for real-time feedback
+- ✅ **Linting Ratchet (Threshold System)**
+  - Baseline files track current error/warning counts
+  - CI fails if error counts increase (regression blocked)
+  - Baselines auto-update when counts decrease (improvement)
+  - Scripts: `.github/scripts/*-threshold.sh`
 
-- **Linting Scope**
-  - All PHP files in project root
-  - `/trainings/` PHP files
-  - `/assets/` PHP files (cachebuster.php)
-  - Excludes: `/vendor/`, `/node_modules/`
+- ✅ **Stricter PHPCS Rules**
+  - PHPCompatibilityWP for PHP version checks
+  - Slevomat type hint enforcement (return, param, property)
+  - YoastCS file comment sniffs
+  - CamelCase naming conventions
+  - Disallow Yoda conditions and long array syntax
 
-#### JavaScript Linting
-- **ESLint with WordPress-inspired Rules**
-  - Configure ESLint with WordPress JavaScript standards (loosely)
-  - Custom rules adapted for ES6 modules
-  - Support for async/await patterns
-  - JSDoc validation for all functions
-  - Code complexity warnings (cyclomatic complexity)
+- ✅ **CI/CD Integration**
+  - GitHub Actions workflow: `.github/workflows/lint.yml`
+  - Pre-commit hooks via lint-staged
+  - Threshold checks on every commit and PR
 
-- **Linting Scope**
-  - `/assets/js/app.js`
-  - `/assets/js/schedule-editor.js`
-  - All `/assets/js/modules/*.js` files
-  - Excludes: External libraries, minified files
+- ✅ **Documentation**
+  - CONTRIBUTING.md with linting guide and ratchet explanation
+  - CLAUDE.md updated with linting commands
 
-#### CSS Linting
-- **Stylelint with WordPress CSS Standards**
-  - Configure Stylelint with WordPress CSS Coding Standards
-  - Tailwind CSS compatibility
-  - Custom properties validation
-  - Selector complexity warnings
-  - Automatic fixing for formatting issues
-
-- **Linting Scope**
-  - `/assets/css/styles.css`
-  - Any additional CSS files
-  - Inline styles detection (warnings only)
-
-#### CI/CD Integration
-- **Pre-commit Hooks**
-  - Husky + lint-staged configuration
-  - Auto-fix on commit (when possible)
-  - Block commits with unfixable errors
-  - Fast: Only lints staged files
-
-- **GitHub Actions Workflow**
-  - New workflow: `.github/workflows/lint.yml`
-  - Runs on: Pull requests, pushes to main
-  - Separate jobs for PHP, JS, CSS
-  - Annotates PR with lint errors
-  - Fails CI if errors found
-  - Caches dependencies for speed
-
-#### Developer Experience
-- **IDE Integration**
-  - PHPStorm/IntelliJ IDEA configuration files
-  - VS Code settings and extensions recommendations
-  - Real-time linting while coding
-  - Quick-fix suggestions
-  - Format on save configuration
-
-- **Documentation**
-  - CONTRIBUTING.md with code style guide
-  - Setup instructions for linters
-  - Common errors and how to fix them
-  - Ignore patterns documentation
-
-**Technical Implementation:**
-
-- **PHP Setup**
-  - Install via Composer: `squizlabs/php_codesniffer`, `wp-coding-standards/wpcs`
-  - Custom ruleset: `phpcs.xml` in project root
-  - NPM script: `npm run lint:php`
-  - NPM script: `npm run lint:php:fix`
-
-- **JavaScript Setup**
-  - Install via NPM: `eslint`, `@wordpress/eslint-plugin` (as base)
-  - Custom config: `.eslintrc.json`
-  - NPM script: `npm run lint:js`
-  - NPM script: `npm run lint:js:fix`
-
-- **CSS Setup**
-  - Install via NPM: `stylelint`, `stylelint-config-wordpress`
-  - Custom config: `.stylelintrc.json`
-  - NPM script: `npm run lint:css`
-  - NPM script: `npm run lint:css:fix`
-
-- **Combined Scripts**
-  - `npm run lint` - Run all linters
-  - `npm run lint:fix` - Auto-fix all files
-  - `npm run lint:check` - Check without fixing (for CI)
-
-- **Pre-commit Hook**
-  - Install Husky: `npx husky install`
-  - Install lint-staged: `npm install --save-dev lint-staged`
-  - Configuration in `package.json`
-  - Runs appropriate linter based on file type
-
-- **GitHub Actions**
-  - Create `.github/workflows/lint.yml`
-  - Three parallel jobs: PHP, JavaScript, CSS
-  - Uses actions: `actions/checkout`, `shivammathur/setup-php`, `actions/setup-node`
-  - Cache Composer and NPM dependencies
-  - Annotate PR with errors using problem matchers
-
-**Configuration Files to Add:**
-- `phpcs.xml` - PHP_CodeSniffer ruleset
-- `.eslintrc.json` - ESLint configuration
-- `.stylelintrc.json` - Stylelint configuration
-- `.eslintignore` - Files to ignore (ESLint)
-- `.stylelintignore` - Files to ignore (Stylelint)
-- `.husky/pre-commit` - Pre-commit hook script
-- `package.json` - Updated with lint scripts and lint-staged config
-
-**Benefits:**
-- ✅ **Consistency** - All code follows same standards
-- ✅ **Quality** - Catch errors before they reach production
-- ✅ **Documentation** - JSDoc enforced for all functions
-- ✅ **Automated** - No manual checks needed
-- ✅ **Fast feedback** - IDE integration catches issues while coding
+**Baseline Counts (as of implementation):**
+- PHP: 254 errors, 0 warnings
+- JavaScript: 3418 errors, 11 warnings
+- CSS: 13 errors, 0 warnings
 
 ---
 
@@ -1086,31 +978,6 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ---
 
-## 🚀 Backlog - Infrastructure & DevOps
-
-### ✅ PR Preview Environments (IMPLEMENTED in v14.1.0)
-
-**Goal:** Automatic test environment for each pull request to review changes before merging.
-
-**Implementation:** Netlify Deploy Previews
-
-**What was implemented:**
-- ✅ Netlify configuration (`netlify.toml`)
-- ✅ Build script (`build.php`) for PHP → HTML conversion
-- ✅ Automatic deployment on PR creation/update
-- ✅ Unique preview URLs per PR
-- ✅ Zero-config setup (works automatically after connecting repo)
-- ✅ Auto-cleanup on PR close
-- ✅ ~30-second build time
-- ✅ Free tier (100GB bandwidth/month - more than sufficient)
-
-**Preview URL format:**
-`https://deploy-preview-{pr-number}--bodyrefactoring.netlify.app`
-
-**Setup completed:** January 9, 2026
-
----
-
 ## 📅 Backlog - User Features
 
 ### Server-Side Storage & Sync
@@ -1237,7 +1104,7 @@ SYNC_API_URL=/api/storage
 
 ---
 
-**Last Updated**: January 19, 2026
-**Current Stable Release**: v14.2.4
+**Last Updated**: January 21, 2026
+**Current Stable Release**: v14.3.0
 **Development Cycle**: v14
 

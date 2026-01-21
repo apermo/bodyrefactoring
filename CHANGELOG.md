@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.3.0] - 2026-01-21
+
+### Added
+
+- **Linting infrastructure**: Comprehensive code quality tooling
+  - PHPCS for PHP with WordPress coding standard
+  - ESLint for JavaScript with browser globals
+  - Stylelint for CSS with standard config
+  - `npm run lint` and `npm run lint:fix` commands
+- **Linting ratchet**: Threshold-based linting prevents new errors
+  - Baseline files track current error/warning counts per linter
+  - CI fails if error counts increase (regression detected)
+  - Baselines auto-update when counts decrease (improvement)
+  - Scripts: `.github/scripts/*-threshold.sh`
+  - Baselines: `phpcs-baseline.json`, `eslint-baseline.json`, `stylelint-baseline.json`
+- **Stricter PHPCS rules**: Extended ruleset from FNet standards
+  - PHPCompatibilityWP for PHP version checks
+  - Slevomat type hint enforcement (return, parameter, property)
+  - YoastCS file comment sniffs
+  - CamelCase naming conventions
+  - Disallow Yoda conditions and long array syntax
+  - Namespace/use statement rules (sorted, no unused)
+- **GitHub Actions lint workflow**: Automated linting on PRs and pushes to main
+- **Pre-commit hooks**: Automated checks before each commit
+  - lint-staged runs threshold scripts on staged files
+  - Version sync automatically updates `package.json` from `composer.json`
+  - Setup script: `bash .githooks/setup.sh`
+- **CONTRIBUTING.md**: Development setup instructions for new contributors
+
+### Changed
+
+- **Pre-commit hook**: Now requires DDEV for linting locally; GitHub Actions runs directly without DDEV
+- **CLAUDE.md**: Migrated AI development instructions from `.cursorrules`
+- **PHPCS scope**: Now only scans PHP files in `assets/`, `tools/`, `trainings/` directories
+
 ## [14.2.8] - 2026-01-20
 
 ### Fixed
@@ -622,7 +657,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Streak preserved when using shields during illness
 - Visual indicators accurately reflect shield usage status
 
-## [8.0.0] - 2026-01-02
+## 8.0.0 - 2026-01-02
 
 ### Added
 
@@ -655,7 +690,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Inline CSS from `index.php`
 - Hardcoded version numbers (now use cache busting)
 
-## [7.0.0] - 2025-12-28
+## 7.0.0 - 2025-12-28
 
 ### Added
 
@@ -673,7 +708,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated from hardcoded schedule to JSON configuration
 - Schedule API endpoint (`trainings/index.php`)
 
-## [6.0.0] - 2025-12-22
+## 6.0.0 - 2025-12-22
 
 ### Added
 
@@ -684,7 +719,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Super confetti on full day completion
 - Random motivational quote system (8 quotes)
 
-## [5.0.0] - 2025-12-20
+## 5.0.0 - 2025-12-20
 
 ### Added
 
@@ -694,7 +729,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Visual separator for alternatives ("ODER")
 - Enhanced exercise type badges (Warm Up, Mission, Cooldown)
 
-## [4.0.0] - 2025-12-18
+## 4.0.0 - 2025-12-18
 
 ### Added
 
@@ -707,7 +742,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - FAB (Floating Action Button) for quick 60s pause timer
 - Timer chips for each exercise
 
-## [3.0.0] - 2025-12-15
+## 3.0.0 - 2025-12-15
 
 ### Added
 
@@ -719,7 +754,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for all user data
 - Export/Import functionality (JSON backup)
 
-## [2.0.0] - 2025-12-12
+## 2.0.0 - 2025-12-12
 
 ### Added
 
@@ -735,7 +770,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UI redesigned with card-based layout
 - Accordion-style day expansion
 
-## [1.0.0] - 2025-12-10
+## 1.0.0 - 2025-12-10
 
 ### Added
 
@@ -753,4 +788,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for client-side data
 - Responsive design for mobile devices
 
-
+[14.3.0]: https://github.com/apermo/bodyrefactoring/compare/v14.2.8...v14.3.0
+[14.2.8]: https://github.com/apermo/bodyrefactoring/compare/v14.2.7...v14.2.8
+[14.2.7]: https://github.com/apermo/bodyrefactoring/compare/v14.2.6...v14.2.7
+[14.2.6]: https://github.com/apermo/bodyrefactoring/compare/v14.2.5...v14.2.6
+[14.2.5]: https://github.com/apermo/bodyrefactoring/compare/v14.2.4...v14.2.5
+[14.2.4]: https://github.com/apermo/bodyrefactoring/compare/v14.2.3...v14.2.4
+[14.2.3]: https://github.com/apermo/bodyrefactoring/compare/v14.2.2...v14.2.3
+[14.2.2]: https://github.com/apermo/bodyrefactoring/compare/v14.2.1...v14.2.2
+[14.2.1]: https://github.com/apermo/bodyrefactoring/compare/v14.2.0...v14.2.1
+[14.2.0]: https://github.com/apermo/bodyrefactoring/compare/v14.1.3...v14.2.0
+[14.1.3]: https://github.com/apermo/bodyrefactoring/compare/v14.1.2...v14.1.3
+[14.1.2]: https://github.com/apermo/bodyrefactoring/compare/v14.1.1...v14.1.2
+[14.1.1]: https://github.com/apermo/bodyrefactoring/compare/v14.1.0...v14.1.1
+[14.1.0]: https://github.com/apermo/bodyrefactoring/compare/v14.0.0...v14.1.0
+[14.0.0]: https://github.com/apermo/bodyrefactoring/compare/v13.0.0...v14.0.0
+[13.0.0]: https://github.com/apermo/bodyrefactoring/compare/v12.0.0...v13.0.0
+[12.0.0]: https://github.com/apermo/bodyrefactoring/compare/v10.2.0...v12.0.0
+[10.2.0]: https://github.com/apermo/bodyrefactoring/compare/v10.1.1...v10.2.0
+[10.1.1]: https://github.com/apermo/bodyrefactoring/compare/v10.1.0...v10.1.1
+[10.1.0]: https://github.com/apermo/bodyrefactoring/compare/v10.0.1...v10.1.0
+[10.0.1]: https://github.com/apermo/bodyrefactoring/compare/v10.0.0...v10.0.1
+[10.0.0]: https://github.com/apermo/bodyrefactoring/compare/v9.3.1...v10.0.0
+[9.3.1]: https://github.com/apermo/bodyrefactoring/compare/v9.3.0...v9.3.1
+[9.3.0]: https://github.com/apermo/bodyrefactoring/compare/v9.2.1...v9.3.0
+[9.2.1]: https://github.com/apermo/bodyrefactoring/compare/v9.2.0...v9.2.1
+[9.2.0]: https://github.com/apermo/bodyrefactoring/compare/v9.1.0...v9.2.0
+[9.1.0]: https://github.com/apermo/bodyrefactoring/compare/v9.0.0...v9.1.0
+[9.0.0]: https://github.com/apermo/bodyrefactoring/compare/v8.0.0...v9.0.0

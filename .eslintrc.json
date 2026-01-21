@@ -1,0 +1,51 @@
+{
+	"root": true,
+	"extends": [
+		"plugin:@wordpress/eslint-plugin/recommended"
+	],
+	"env": {
+		"browser": true,
+		"es2022": true
+	},
+	"parserOptions": {
+		"ecmaVersion": 2022,
+		"sourceType": "module"
+	},
+	"globals": {
+		"confetti": "readonly",
+		"lucide": "readonly"
+	},
+	"rules": {
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
+		"no-tabs": "off",
+		"space-in-parens": ["error", "always"],
+		"array-bracket-spacing": ["error", "always"],
+		"computed-property-spacing": ["error", "always"],
+		"object-curly-spacing": ["error", "always"],
+		"camelcase": ["error", { "properties": "never" }],
+		"no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+		"no-console": ["warn", { "allow": ["warn", "error"] }],
+		"prefer-const": "error",
+		"no-var": "error",
+		"eqeqeq": ["error", "always"],
+		"curly": ["error", "all"],
+		"brace-style": ["error", "1tbs"],
+		"comma-dangle": ["error", "always-multiline"],
+		"semi": ["error", "always"],
+		"quotes": ["error", "single", { "avoidEscape": true }],
+		"jsdoc/require-jsdoc": ["warn", {
+			"require": {
+				"FunctionDeclaration": true,
+				"MethodDefinition": true,
+				"ClassDeclaration": true,
+				"ArrowFunctionExpression": false,
+				"FunctionExpression": false
+			}
+		}],
+		"jsdoc/require-param-description": "off",
+		"jsdoc/require-returns-description": "off",
+		"@wordpress/no-unused-vars-before-return": "error",
+		"@wordpress/dependency-group": "off",
+		"import/no-unresolved": "off"
+	}
+}

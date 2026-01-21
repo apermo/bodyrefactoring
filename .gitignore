@@ -1,8 +1,10 @@
 .env
 .idea
 /vendor/
-composer.lock
 /private/
+
+# Node.js
+/node_modules/
 
 # Netlify build output
 dist/

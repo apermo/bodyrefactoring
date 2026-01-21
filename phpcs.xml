@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<ruleset name="Body Refactoring Coding Standards">
+	<description>Custom ruleset based on WordPress Coding Standards for Body Refactoring</description>
+
+	<!-- What to scan -->
+	<file>assets/</file>
+	<file>tools/</file>
+	<file>trainings/</file>
+
+	<!-- Only scan PHP files (JS/CSS handled by ESLint/Stylelint) -->
+	<arg name="extensions" value="php"/>
+
+	<!-- Show progress and colors -->
+	<arg value="ps"/>
+	<arg name="colors"/>
+
+	<!-- Show sniff codes in all reports -->
+	<arg value="ns"/>
+
+	<!-- Strip file paths for readability -->
+	<arg name="basepath" value="."/>
+
+	<!-- Check for cross-version support -->
+	<config name="testVersion" value="8.3-"/>
+	<rule ref="PHPCompatibilityWP">
+		<include-pattern>*\.php$</include-pattern>
+	</rule>
+
+	<!-- Use WordPress Extra as base (includes WordPress-Core) -->
+	<rule ref="WordPress-Extra">
+		<!-- Allow short array syntax -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<!-- Allow short ternary -->
+		<exclude name="Universal.Operators.DisallowShortTernary"/>
+		<!-- Allow file names without prefix (not a plugin) -->
+		<exclude name="WordPress.Files.FileName"/>
+		<!-- Allow non-prefixed hooks (not a plugin) -->
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals"/>
+		<!-- Disallow Yoda conditions -->
+		<exclude name="WordPress.PHP.YodaConditions"/>
+		<!-- Allow short open echo tags -->
+		<exclude name="Generic.PHP.DisallowShortOpenTag.EchoFound"/>
+		<exclude name="Squiz.PHP.EmbeddedPhp.ShortOpenEchoNoSemicolon"/>
+		<!-- Do not enforce alignment -->
+		<exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning"/>
+		<exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned"/>
+	</rule>
+
+	<!-- Use WordPress Documentation standards for comments -->
+	<rule ref="WordPress-Docs">
+		<!-- Exclude in favour of YoastCS FileComment sniff -->
+		<exclude name="Squiz.Commenting.FileComment"/>
+	</rule>
+
+	<!-- Yoast FileComment exclusions (extends Squiz sniff) -->
+	<rule ref="Yoast.Commenting.FileComment">
+		<exclude name="Yoast.Commenting.FileComment.IncorrectAuthor"/>
+		<exclude name="Yoast.Commenting.FileComment.IncorrectCopyright"/>
+		<exclude name="Yoast.Commenting.FileComment.MissingAuthorTag"/>
+		<exclude name="Yoast.Commenting.FileComment.MissingSubpackageTag"/>
+		<exclude name="Yoast.Commenting.FileComment.MissingCopyrightTag"/>
+		<exclude name="Yoast.Commenting.FileComment.PackageTagOrder"/>
+		<exclude name="Yoast.Commenting.FileComment.SubpackageTagOrder"/>
+		<exclude name="Yoast.Commenting.FileComment.AuthorTagOrder"/>
+		<exclude name="Yoast.Commenting.FileComment.CopyrightTagOrder"/>
+	</rule>
+
+	<!-- Disallow Yoda conditions -->
+	<rule ref="Generic.ControlStructures.DisallowYodaConditions"/>
+
+	<!-- Disallow long array syntax -->
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+	<!-- Enforce tab indentation -->
+	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
+
+	<!-- Require docblocks for all functions -->
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
+	</rule>
+
+	<!-- Inline comment end char as warning instead of error -->
+	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
+		<type>warning</type>
+	</rule>
+
+	<!-- Line length -->
+	<rule ref="Generic.Files.LineLength">
+		<properties>
+			<property name="lineLimit" value="120"/>
+			<property name="absoluteLineLimit" value="0"/>
+		</properties>
+	</rule>
+
+	<!-- CamelCase function names (allow names like getHTML) -->
+	<rule ref="Generic.NamingConventions.CamelCapsFunctionName">
+		<properties>
+			<property name="strict" value="false"/>
+		</properties>
+	</rule>
+
+	<!-- CamelCase variable names -->
+	<rule ref="Squiz.NamingConventions.ValidVariableName">
+		<exclude name="Squiz.NamingConventions.ValidVariableName.PrivateNoUnderscore"/>
+	</rule>
+
+	<!-- Enforce concatenation operators at start of line in multi-line -->
+	<rule ref="Universal.Operators.ConcatPosition"/>
+
+	<!-- Forbid long closures (max 5 lines) -->
+	<rule ref="Universal.FunctionDeclarations.NoLongClosures">
+		<properties>
+			<property name="maxLines" value="5"/>
+		</properties>
+		<exclude name="Universal.FunctionDeclarations.NoLongClosures.ExceedsRecommended"/>
+	</rule>
+
+	<!-- Enforce return type hints -->
+	<rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint">
+		<properties>
+			<property name="enableObjectTypeHint" value="true"/>
+			<property name="enableMixedTypeHint" value="true"/>
+		</properties>
+		<exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification"/>
+	</rule>
+
+	<!-- Enforce parameter type hints -->
+	<rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
+		<properties>
+			<property name="enableObjectTypeHint" value="true"/>
+			<property name="enableMixedTypeHint" value="true"/>
+		</properties>
+		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification"/>
+	</rule>
+
+	<!-- Enforce property type hints -->
+	<rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint">
+		<exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingTraversableTypeHintSpecification"/>
+		<exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.UselessAnnotation"/>
+	</rule>
+
+	<!-- Enforce alphabetically sorted use statements -->
+	<rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses">
+		<properties>
+			<property name="psr12Compatible" value="true"/>
+			<property name="caseSensitive" value="false"/>
+		</properties>
+	</rule>
+
+	<!-- Disallow unused use statements -->
+	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
+		<properties>
+			<property name="searchAnnotations" value="true"/>
+		</properties>
+	</rule>
+
+	<!-- Disallow use const/function statements -->
+	<rule ref="Universal.UseStatements.DisallowUseConst"/>
+	<rule ref="Universal.UseStatements.DisallowUseFunction"/>
+
+	<!-- PSR-1 class declaration -->
+	<rule ref="PSR1.Classes.ClassDeclaration"/>
+
+	<!-- Security: Validate, sanitize, escape -->
+	<rule ref="WordPress.Security.EscapeOutput"/>
+	<rule ref="WordPress.Security.NonceVerification"/>
+	<rule ref="WordPress.Security.ValidatedSanitizedInput"/>
+</ruleset>

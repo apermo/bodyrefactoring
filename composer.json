@@ -3,7 +3,7 @@
 	"description": "Body Refactoring - Personal Training Tracker with Dynamic Scheduling",
 	"type": "project",
 	"license": "GPL-2.0-or-later",
-	"version": "14.2.8",
+	"version": "14.3.0",
 	"authors": [
 		{
 			"name": "Christoph Daum",
@@ -13,9 +13,22 @@
 	"require": {
 		"php": ">=8.3"
 	},
+	"require-dev": {
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"phpcsstandards/phpcsextra": "^1.2",
+		"phpcsstandards/phpcsutils": "^1.0",
+		"slevomat/coding-standard": "^8.15",
+		"squizlabs/php_codesniffer": "^3.11",
+		"wp-coding-standards/wpcs": "^3.1",
+		"yoast/yoastcs": "^3.1"
+	},
 	"config": {
 		"vendor-dir": "vendor",
-		"optimize-autoloader": true
+		"optimize-autoloader": true,
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	},
 	"autoload": {
 		"files": [

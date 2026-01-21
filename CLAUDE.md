@@ -2,6 +2,25 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Critical Rules
+
+### Git Operations
+**NEVER run git commands (add, commit, push) without explicit user permission.**
+
+After making code changes:
+1. Explain what changed
+2. Ask: "Ready to commit?"
+3. WAIT for user to say "yes", "commit", or "push"
+4. Only then run git commands
+
+**Understanding user commands:**
+- **"commit"**: Only `git add` and `git commit`, then STOP (don't mention pushing)
+- **"push"** or **"commit and push"**: Full workflow including push
+- When you ask "Ready to commit?" and user says "yes": commit AND push
+
+### Communication Style
+- Always communicate in English, even if user writes in German
+
 ## Project Overview
 
 Body Refactoring is a personal, gamified progressive web app (PWA) for fitness tracking and habit building. It uses LocalStorage for data persistence and a PHP backend for serving dynamic training schedules.
@@ -21,10 +40,14 @@ php validate-schedule.php                    # Validates all schedules
 php validate-schedule.php schedule-2026-01-15.json  # Validate specific file
 ```
 
-### Git Hooks Setup (enables commit message validation)
+### Git Hooks Setup (enables linting and version sync)
 ```bash
 bash .githooks/setup.sh
 ```
+
+Pre-commit hooks run scripts in `.githooks/pre-commit.d/` in order:
+- `01-version-sync.sh` - Syncs `package.json` version from `composer.json`
+- `02-lint-staged.sh` - Runs lint-staged (PHP, JS, CSS linting)
 
 ### Local GitHub Actions Testing (optional, requires act)
 ```bash
@@ -158,3 +181,94 @@ App uses explicit state machines for app lifecycle, timers, modals. See `/assets
 - Test on iOS Safari (primary target)
 - Test as installed PWA (Add to Home Screen)
 - Validate JSON schedules before committing
+
+## Code Quality Principles
+
+### SOLID Principles
+Follow Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion.
+
+### Clean Code
+- Self-documenting code with clear naming
+- Functions should be small and focused (< 20 lines ideal)
+- Avoid deep nesting (max 3 levels)
+- DRY (Don't Repeat Yourself), YAGNI (You Aren't Gonna Need It)
+
+### Testability
+- Avoid tight coupling between components
+- Use dependency injection over direct instantiation
+- Keep functions pure when possible
+- Separate business logic from presentation
+
+## Git Workflow Details
+
+### File Movement
+**ALWAYS use `git mv`** to move or rename files (preserves history).
+```bash
+git mv old-name.md new-name.md
+git mv file.md docs/folder/
+```
+
+### Starting a New Version
+When user says "let's start with vX.Y.Z":
+1. `git checkout main && git pull origin main`
+2. `git checkout -b vX.Y.Z`
+3. Update `composer.json` version (without 'v' prefix)
+4. Commit: `chore: bump version to X.Y.Z`
+   - The pre-commit hook auto-syncs `package.json` from `composer.json`
+5. Prepare CHANGELOG.md with new unreleased section
+6. Commit: `docs(changelog): prepare vX.Y.Z section`
+7. Ask about deleting previous branch
+8. Check roadmap.md for planned work
+9. Provide status summary
+
+**Version sync:** `composer.json` is the authoritative source. The pre-commit hook automatically syncs the version to `package.json`. GitHub Actions validates that versions match on PRs.
+
+## Roadmap Tracking
+
+### Status Indicators for docs/roadmap.md
+- ✅ Complete (entire section finished)
+- 🚧 In Progress (currently working on)
+- 🔄 Partially Complete (some items done)
+- (no emoji) Planned (not started)
+
+### Roadmap Footer Format
+```markdown
+**Last Updated**: YYYY-MM-DD
+**Current Stable Release**: vX.Y.Z
+**Development Cycle**: vN
+```
+
+## Linting
+
+### Commands
+```bash
+npm run lint        # Show all errors (detailed output)
+npm run lint:fix    # Auto-fix issues
+npm run lint:check  # Threshold check (used in CI/pre-commit)
+```
+
+Individual linters:
+- `npm run lint:php` / `lint:php:check` - PHP (PHPCS)
+- `npm run lint:js` / `lint:js:check` - JavaScript (ESLint)
+- `npm run lint:css` / `lint:css:check` - CSS (Stylelint)
+
+### Linting Ratchet (No New Errors)
+
+The project uses threshold-based linting: existing errors allowed, new errors blocked.
+
+**Baseline files** (committed to repo):
+- `phpcs-baseline.json` - PHP error/warning counts
+- `eslint-baseline.json` - JavaScript error/warning counts
+- `stylelint-baseline.json` - CSS error/warning counts
+
+**Behavior:**
+- Counts increase → commit/CI **fails** (regression detected)
+- Counts decrease → baseline **auto-updates** (improvement saved)
+
+**Threshold scripts:** `.github/scripts/*-threshold.sh`
+
+**To fix errors and update baseline:**
+```bash
+npm run lint:fix    # Auto-fix what's possible
+npm run lint:check  # Re-run to update baselines
+```

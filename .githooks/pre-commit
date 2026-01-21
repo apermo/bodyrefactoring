@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# Git pre-commit hook runner
+# Executes all scripts in pre-commit.d/ directory in alphabetical order
+#
+# Scripts are numbered for execution order:
+#   01-version-sync.sh  - Sync versions (may stage files)
+#   02-lint-staged.sh   - Run linting (after version sync)
+#
+# To disable a script, rename it (e.g., 01-version-sync.sh.disabled)
+# To add a new task, create a numbered script in pre-commit.d/
+
+HOOKS_DIR="$(dirname "$0")"
+SCRIPTS_DIR="$HOOKS_DIR/pre-commit.d"
+
+# Check if scripts directory exists
+if [ ! -d "$SCRIPTS_DIR" ]; then
+	echo "No pre-commit.d directory found, skipping pre-commit hooks"
+	exit 0
+fi
+
+# Run all executable .sh scripts in order
+for script in "$SCRIPTS_DIR"/*.sh; do
+	# Skip if no matching files
+	[ -e "$script" ] || continue
+
+	# Make sure script is executable
+	if [ ! -x "$script" ]; then
+		chmod +x "$script"
+	fi
+
+	# Run the script
+	"$script"
+	STATUS=$?
+
+	# Exit with script's status if it failed
+	if [ $STATUS -ne 0 ]; then
+		exit $STATUS
+	fi
+done
+
+exit 0
