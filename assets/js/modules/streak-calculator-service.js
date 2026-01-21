@@ -23,7 +23,7 @@ export class StreakCalculatorService {
 	 * @param {Object} storage - Storage service instance.
 	 * @param {Object} scheduleService - Schedule service instance.
 	 */
-	constructor(storage, scheduleService) {
+	constructor( storage, scheduleService ) {
 		this.storage = storage;
 		this.scheduleService = scheduleService;
 	}
@@ -36,68 +36,68 @@ export class StreakCalculatorService {
 	 *
 	 * @async
 	 * @param {Function} isDayComplete - Function to check if day is complete.
-	 * @param {Array} recoveryActivities - Recovery activities array.
+	 * @param {Array} _recoveryActivities - Recovery activities array (unused).
 	 * @return {Promise<number>} Current streak count.
 	 */
-	async calculateStreak(isDayComplete, recoveryActivities) {
+	async calculateStreak( isDayComplete, _recoveryActivities ) {
 		let streak = 0;
 		let weekCounter = 0;
-		let checkDate = new Date();
-		const todayIso = getLocalISODate(checkDate);
+		const checkDate = new Date();
+		const todayIso = getLocalISODate( checkDate );
 
 		const awardedMilestones = this.getAwardedShieldMilestones();
 
 		// Check today
-		const config = await this.scheduleService.fetchScheduleForDate(todayIso);
+		const config = await this.scheduleService.fetchScheduleForDate( todayIso );
 		const dayIdx = checkDate.getDay();
-		const dayData = config ? config.find(d => d.dayIndex === dayIdx) : null;
+		const dayData = config ? config.find( d => d.dayIndex === dayIdx ) : null;
 
-		const todayComplete = dayData && isDayComplete(todayIso, dayData.details);
-		const todayRecovery = this.storage.get(`${STORAGE_KEYS.RECOVERY_PREFIX}${todayIso}_active`) === 'true' && isDayComplete(todayIso, []);
-		const todaySickWithShield = this.storage.get(`${STORAGE_KEYS.SICK_PREFIX}${todayIso}_active`) === 'true' &&
-			this.storage.get(`${STORAGE_KEYS.SICK_PREFIX}${todayIso}_shield`) === 'true' &&
-			isDayComplete(todayIso, []);
+		const todayComplete = dayData && isDayComplete( todayIso, dayData.details );
+		const todayRecovery = this.storage.get( `${STORAGE_KEYS.RECOVERY_PREFIX}${todayIso}_active` ) === 'true' && isDayComplete( todayIso, [] );
+		const todaySickWithShield = this.storage.get( `${STORAGE_KEYS.SICK_PREFIX}${todayIso}_active` ) === 'true' &&
+			this.storage.get( `${STORAGE_KEYS.SICK_PREFIX}${todayIso}_shield` ) === 'true' &&
+			isDayComplete( todayIso, [] );
 
-		if (todayComplete || todayRecovery || todaySickWithShield) {
+		if ( todayComplete || todayRecovery || todaySickWithShield ) {
 			streak++;
-			if (todayComplete) {
+			if ( todayComplete ) {
 				weekCounter++;
-				if (weekCounter % 7 === 0 && !awardedMilestones.has(weekCounter)) {
+				if ( weekCounter % 7 === 0 && !awardedMilestones.has( weekCounter ) ) {
 					this.awardShield();
-					this.addAwardedShieldMilestone(weekCounter);
+					this.addAwardedShieldMilestone( weekCounter );
 				}
 			}
 		}
 
-		checkDate.setDate(checkDate.getDate() - 1);
+		checkDate.setDate( checkDate.getDate() - 1 );
 
 		// Check historical days
-		while (true) {
-			const dateStr = getLocalISODate(checkDate);
-			if (dateStr < getLocalISODate(this.scheduleService.getStartDate())) {
+		while ( true ) {
+			const dateStr = getLocalISODate( checkDate );
+			if ( dateStr < getLocalISODate( this.scheduleService.getStartDate() ) ) {
 				break;
 			}
 
-			const histConfig = await this.scheduleService.fetchScheduleForDate(dateStr);
+			const histConfig = await this.scheduleService.fetchScheduleForDate( dateStr );
 			const histDayIdx = checkDate.getDay();
-			const histDayData = histConfig ? histConfig.find(d => d.dayIndex === histDayIdx) : null;
+			const histDayData = histConfig ? histConfig.find( d => d.dayIndex === histDayIdx ) : null;
 
-			const dayComplete = histDayData && isDayComplete(dateStr, histDayData.details);
-			const recoveryComplete = this.storage.get(`${STORAGE_KEYS.RECOVERY_PREFIX}${dateStr}_active`) === 'true' && isDayComplete(dateStr, []);
-			const sickDayWithShield = this.storage.get(`${STORAGE_KEYS.SICK_PREFIX}${dateStr}_active`) === 'true' &&
-				this.storage.get(`${STORAGE_KEYS.SICK_PREFIX}${dateStr}_shield`) === 'true' &&
-				isDayComplete(dateStr, []);
+			const dayComplete = histDayData && isDayComplete( dateStr, histDayData.details );
+			const recoveryComplete = this.storage.get( `${STORAGE_KEYS.RECOVERY_PREFIX}${dateStr}_active` ) === 'true' && isDayComplete( dateStr, [] );
+			const sickDayWithShield = this.storage.get( `${STORAGE_KEYS.SICK_PREFIX}${dateStr}_active` ) === 'true' &&
+				this.storage.get( `${STORAGE_KEYS.SICK_PREFIX}${dateStr}_shield` ) === 'true' &&
+				isDayComplete( dateStr, [] );
 
-			if (dayComplete || recoveryComplete || sickDayWithShield) {
+			if ( dayComplete || recoveryComplete || sickDayWithShield ) {
 				streak++;
-				if (dayComplete) {
+				if ( dayComplete ) {
 					weekCounter++;
-					if (weekCounter % 7 === 0 && !awardedMilestones.has(weekCounter)) {
+					if ( weekCounter % 7 === 0 && !awardedMilestones.has( weekCounter ) ) {
 						this.awardShield();
-						this.addAwardedShieldMilestone(weekCounter);
+						this.addAwardedShieldMilestone( weekCounter );
 					}
 				}
-				checkDate.setDate(checkDate.getDate() - 1);
+				checkDate.setDate( checkDate.getDate() - 1 );
 			} else {
 				break;
 			}
@@ -112,8 +112,8 @@ export class StreakCalculatorService {
 	 * @return {number} Number of shields (0-MAX_SHIELDS).
 	 */
 	getShields() {
-		const shields = parseInt(this.storage.get(STORAGE_KEYS.SHIELDS) || '0');
-		return Math.min(shields, CONFIG.MAX_SHIELDS);
+		const shields = parseInt( this.storage.get( STORAGE_KEYS.SHIELDS ) || '0' );
+		return Math.min( shields, CONFIG.MAX_SHIELDS );
 	}
 
 	/**
@@ -122,14 +122,14 @@ export class StreakCalculatorService {
 	 * @return {Set<number>} Set of milestone numbers.
 	 */
 	getAwardedShieldMilestones() {
-		const stored = this.storage.get(STORAGE_KEYS.SHIELDS_AWARDED);
-		if (!stored) {
+		const stored = this.storage.get( STORAGE_KEYS.SHIELDS_AWARDED );
+		if ( !stored ) {
 			return new Set();
 		}
 		try {
-			const array = JSON.parse(stored);
-			return new Set(array);
-		} catch (e) {
+			const array = JSON.parse( stored );
+			return new Set( array );
+		} catch ( e ) {
 			return new Set();
 		}
 	}
@@ -140,10 +140,10 @@ export class StreakCalculatorService {
 	 * @param {number} milestone - Milestone number.
 	 * @return {void}
 	 */
-	addAwardedShieldMilestone(milestone) {
+	addAwardedShieldMilestone( milestone ) {
 		const milestones = this.getAwardedShieldMilestones();
-		milestones.add(milestone);
-		this.storage.set(STORAGE_KEYS.SHIELDS_AWARDED, JSON.stringify(Array.from(milestones)));
+		milestones.add( milestone );
+		this.storage.set( STORAGE_KEYS.SHIELDS_AWARDED, JSON.stringify( Array.from( milestones ) ) );
 	}
 
 	/**
@@ -153,8 +153,8 @@ export class StreakCalculatorService {
 	 */
 	awardShield() {
 		const current = this.getShields();
-		if (current < CONFIG.MAX_SHIELDS) {
-			this.storage.set(STORAGE_KEYS.SHIELDS, (current + 1).toString());
+		if ( current < CONFIG.MAX_SHIELDS ) {
+			this.storage.set( STORAGE_KEYS.SHIELDS, ( current + 1 ).toString() );
 		}
 	}
 
@@ -165,8 +165,8 @@ export class StreakCalculatorService {
 	 */
 	useShield() {
 		const current = this.getShields();
-		if (current > 0) {
-			this.storage.set(STORAGE_KEYS.SHIELDS, (current - 1).toString());
+		if ( current > 0 ) {
+			this.storage.set( STORAGE_KEYS.SHIELDS, ( current - 1 ).toString() );
 			return true;
 		}
 		return false;
@@ -179,8 +179,8 @@ export class StreakCalculatorService {
 	 */
 	refundShield() {
 		const current = this.getShields();
-		if (current < CONFIG.MAX_SHIELDS) {
-			this.storage.set(STORAGE_KEYS.SHIELDS, (current + 1).toString());
+		if ( current < CONFIG.MAX_SHIELDS ) {
+			this.storage.set( STORAGE_KEYS.SHIELDS, ( current + 1 ).toString() );
 		}
 	}
 }

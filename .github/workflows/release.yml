@@ -35,6 +35,30 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Update changelog date
+        if: steps.check-tag.outputs.exists == 'false'
+        id: update-changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # Check if this version has "Unreleased" in CHANGELOG
+          if grep -q "^## \[$VERSION\] - Unreleased" CHANGELOG.md; then
+            TODAY=$(date +%Y-%m-%d)
+            sed -i "s/^## \[$VERSION\] - Unreleased/## [$VERSION] - $TODAY/" CHANGELOG.md
+            echo "updated=true" >> $GITHUB_OUTPUT
+            echo "date=$TODAY" >> $GITHUB_OUTPUT
+          else
+            echo "updated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit changelog date
+        if: steps.update-changelog.outputs.updated == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "docs(changelog): set release date for v${{ steps.version.outputs.version }}"
+          git push
+
       - name: Extract changelog notes
         if: steps.check-tag.outputs.exists == 'false'
         id: changelog

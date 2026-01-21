@@ -9,12 +9,11 @@
  */
 
 import { generateICS, downloadICS, calculateWorkoutDuration } from './calendar-service.js';
-import { getLocalISODate } from './utils.js';
 
 // Storage keys for calendar preferences
 const STORAGE_KEYS = {
 	TIME_PREFIX: 'calendar_time_',       // + weekday (monday, tuesday, etc.)
-	ADDED_PREFIX: 'calendar_added_'      // + date (2026-01-13)
+	ADDED_PREFIX: 'calendar_added_',      // + date (2026-01-13)
 };
 
 /**
@@ -132,7 +131,7 @@ function generateTimeOptions( selectedTime ) {
  * @return {void}
  */
 export function showCalendarModal( config ) {
-	const { date, dayName, exercises, schedule, onSuccess } = config;
+	const { date, dayName, exercises, schedule: _schedule, onSuccess: _onSuccess } = config;
 
 	// Calculate duration
 	const duration = calculateWorkoutDuration( exercises );
@@ -150,7 +149,7 @@ export function showCalendarModal( config ) {
 		weekday: 'short',
 		year: 'numeric',
 		month: '2-digit',
-		day: '2-digit'
+		day: '2-digit',
 	} );
 
 	// Create modal HTML
@@ -291,7 +290,7 @@ function handleAddToCalendar( config ) {
 		dayName,
 		reminderMinutes: 15,
 		recurring,
-		schedule
+		schedule,
 	} );
 
 	// Download .ics file
@@ -319,7 +318,9 @@ function handleAddToCalendar( config ) {
  */
 export function closeCalendarModal() {
 	const modal = document.getElementById( 'calendar-modal' );
-	if ( !modal ) return;
+	if ( !modal ) {
+		return;
+	}
 
 	// Fade out animation
 	modal.style.opacity = '0';

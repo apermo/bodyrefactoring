@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.4.0] - Unreleased
+
+### Added
+
+- **Renovate configuration**: Automated dependency update PRs
+  - Weekly schedule (Monday mornings, Europe/Berlin)
+  - Grouped updates by ecosystem (npm, Composer)
+  - Auto-merge for devDependencies after CI passes
+- **Stale bot workflow**: Auto-close inactive issues and PRs
+  - Mark stale after 30 days of inactivity
+  - Close after 14 additional days without response
+  - Exempt: `dependencies`, `security`, `in-progress`, `pinned` labels
+- **Rep counter timing log**: "Set bereits fertig" button during sets
+  - Button visible during counting and rest, disabled after logging once per set
+  - Logs set timing to day's notes for schedule calibration
+  - Format: "Exercise - Satz N - Fertig nach X.Y s, empfohlene Zeit: XXX ms"
+  - Notes textarea refreshes automatically when rep counter closes
+  - Purple color scheme matching rep counter chip
+- **Rep counter countdown speech**: Last 3 reps announced differently
+  - "Noch 3", "Noch 2", "Der letzte" instead of numbers
+
+### Changed
+
+- **ESLint config**: Allow `console.log` in addition to `warn` and `error`
+- **ESLint config**: Add `varsIgnorePattern` to ignore underscore-prefixed unused variables
+
+### Fixed
+
+- **Rep counter**: Fix "Bereit?" text jump when resuming from ready state
+  - Text and class now update simultaneously to prevent layout shift
+- **Rep counter**: Update set info when cooldown starts
+  - Shows next set number and side indicator immediately (cooldown belongs to next set)
+- **JavaScript linting**: Fix all ESLint errors across codebase (34 → 0)
+  - Fix variable shadowing in timer functions (renamed inner loop variables)
+  - Fix unused variable declarations (prefixed with underscore where intentionally unused)
+  - Fix `no-lonely-if` pattern (convert `else { if }` to `else if`)
+  - Fix JSDoc param names to match function signatures
+  - Fix bitwise operations with eslint-disable comments (intentional in hash function)
+  - Expose schedule-editor functions to window for HTML onclick handlers
+
 ## [14.3.0] - 2026-01-21
 
 ### Added
@@ -788,6 +828,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for client-side data
 - Responsive design for mobile devices
 
+[14.4.0]: https://github.com/apermo/bodyrefactoring/compare/v14.3.0...v14.4.0
 [14.3.0]: https://github.com/apermo/bodyrefactoring/compare/v14.2.8...v14.3.0
 [14.2.8]: https://github.com/apermo/bodyrefactoring/compare/v14.2.7...v14.2.8
 [14.2.7]: https://github.com/apermo/bodyrefactoring/compare/v14.2.6...v14.2.7

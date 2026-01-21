@@ -84,7 +84,13 @@ export class StorageService {
 	 */
 	getBoolean( key, defaultValue = false ) {
 		const value = this.get( key );
-		return value === 'true' ? true : value === 'false' ? false : defaultValue;
+		if ( value === 'true' ) {
+			return true;
+		}
+		if ( value === 'false' ) {
+			return false;
+		}
+		return defaultValue;
 	}
 
 	/**
@@ -344,7 +350,7 @@ export class StorageService {
 			STORAGE_KEYS.WEIGHT_PREFIX,
 			STORAGE_KEYS.UNIT_PREFIX,
 			STORAGE_KEYS.SICK_PREFIX,
-			STORAGE_KEYS.RECOVERY_PREFIX
+			STORAGE_KEYS.RECOVERY_PREFIX,
 		];
 		const singleKeys = [ STORAGE_KEYS.SHIELDS, STORAGE_KEYS.SHIELDS_AWARDED ];
 
@@ -379,7 +385,7 @@ export class StorageService {
 			STORAGE_KEYS.WEIGHT_PREFIX,
 			STORAGE_KEYS.UNIT_PREFIX,
 			STORAGE_KEYS.SICK_PREFIX,
-			STORAGE_KEYS.RECOVERY_PREFIX
+			STORAGE_KEYS.RECOVERY_PREFIX,
 		];
 		const singleKeys = [ STORAGE_KEYS.SHIELDS, STORAGE_KEYS.SHIELDS_AWARDED ];
 

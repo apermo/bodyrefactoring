@@ -92,18 +92,6 @@
 		</properties>
 	</rule>
 
-	<!-- CamelCase function names (allow names like getHTML) -->
-	<rule ref="Generic.NamingConventions.CamelCapsFunctionName">
-		<properties>
-			<property name="strict" value="false"/>
-		</properties>
-	</rule>
-
-	<!-- CamelCase variable names -->
-	<rule ref="Squiz.NamingConventions.ValidVariableName">
-		<exclude name="Squiz.NamingConventions.ValidVariableName.PrivateNoUnderscore"/>
-	</rule>
-
 	<!-- Enforce concatenation operators at start of line in multi-line -->
 	<rule ref="Universal.Operators.ConcatPosition"/>
 

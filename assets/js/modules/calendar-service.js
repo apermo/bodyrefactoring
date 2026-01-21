@@ -77,8 +77,8 @@ function simpleHash( str ) {
 	let hash = 0;
 	for ( let i = 0; i < str.length; i++ ) {
 		const char = str.charCodeAt( i );
-		hash = ( ( hash << 5 ) - hash ) + char;
-		hash = hash & hash; // Convert to 32-bit integer
+		hash = ( ( hash << 5 ) - hash ) + char; // eslint-disable-line no-bitwise
+		hash = hash & hash; // eslint-disable-line no-bitwise -- Convert to 32-bit integer
 	}
 	return Math.abs( hash ).toString( 36 );
 }
@@ -187,7 +187,7 @@ export function generateICS( config ) {
 		dayName,
 		reminderMinutes = 15,
 		recurring = false,
-		schedule = null
+		schedule = null,
 	} = config;
 
 	const uid = generateEventUID( date, exercises );
@@ -207,7 +207,7 @@ export function generateICS( config ) {
 		.join( '\\n' );
 
 	const description = escapeICalText(
-		`Trainingsplan: ${dayName}\\n\\nÜbungen:\\n${exerciseList}`
+		`Trainingsplan: ${dayName}\\n\\nÜbungen:\\n${exerciseList}`,
 	);
 
 	// Calculate end time
@@ -215,7 +215,7 @@ export function generateICS( config ) {
 	endDateTime.setMinutes( endDateTime.getMinutes() + duration );
 	const dtEnd = formatDateTime(
 		endDateTime.toISOString().split( 'T' )[ 0 ],
-		endDateTime.toTimeString().slice( 0, 5 )
+		endDateTime.toTimeString().slice( 0, 5 ),
 	);
 
 	// Build RRULE if recurring
@@ -254,7 +254,7 @@ export function generateICS( config ) {
 		`DESCRIPTION:Training in ${reminderMinutes} Minuten`,
 		'END:VALARM',
 		'END:VEVENT',
-		'END:VCALENDAR'
+		'END:VCALENDAR',
 	].filter( line => line !== '' ).join( '\r\n' ); // Filter empty RRULE line
 
 	return ics;

@@ -403,6 +403,12 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 				<i data-lucide="x" class="w-6 h-6 inline mr-2"></i>
 				Abbrechen
 			</button>
+
+			<!-- Log Set Timing Button (hidden by default, shown during set) -->
+			<button id="log-set-timing-btn" onclick="logSetTiming()" class="hidden w-full bg-purple-500/20 hover:bg-purple-500/30 border-2 border-purple-500 text-white font-bold py-4 rounded-xl transition mt-16">
+				<i data-lucide="clock" class="w-6 h-6 inline mr-2"></i>
+				Set bereits fertig
+			</button>
 		</div>
 	</div>
 

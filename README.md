@@ -425,10 +425,16 @@ git push origin :refs/tags/test-deploy
 6. Tap rest timer to skip to 5 seconds if you're ready earlier
 7. Click "Abbrechen" to cancel anytime
 
-**Visual Feedback:**
+**Timing Calibration (optional):**
+A purple "Set bereits fertig" button appears during sets. Tap it to log the set's timing to your notes for schedule calibration. The log entry shows:
+- Exercise name and set number
+- Actual elapsed time
+- Suggested milliseconds per rep (for updating your schedule JSON)
+
+**Visual & Audio Feedback:**
 - Countdown: Yellow numbers breathing (5-4-3-2-1)
-- Regular reps: Blue numbers with breathing animation
-- Last 3 reps: Green numbers with enhanced glow
+- Regular reps: Blue numbers with breathing animation, voice counts rep number
+- Last 3 reps: Green numbers with enhanced glow, voice says "Noch 3", "Noch 2", "Der letzte"
 - Rest timer: Yellow countdown with breathing animation
 - Completion: Green checkmark + confetti
 
@@ -649,8 +655,10 @@ git commit --no-verify
 The repository includes automated checks that run on every PR and push to main:
 - Conventional Commits validation
 - Version bump verification
-- CHANGELOG entry validation  
+- CHANGELOG entry validation
 - Schedule JSON validation
+- **Renovate**: Automated dependency update PRs (weekly, grouped by ecosystem)
+- **Stale bot**: Auto-labels and closes inactive issues/PRs (30 days stale, 14 days to close)
 
 These run automatically - no setup required.
 

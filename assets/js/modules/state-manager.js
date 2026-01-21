@@ -29,7 +29,7 @@ export class StateManager {
 			interval: null,
 			isRunning: false,
 			timeLeft: 0,
-			currentLabel: ''
+			currentLabel: '',
 		};
 
 		// Rep counter state
@@ -47,7 +47,7 @@ export class StateManager {
 			restSeconds: 60,
 			delayMilliseconds: 3000,
 			currentSet: 0,
-			currentRep: 0
+			currentRep: 0,
 		};
 
 		// State change listeners
@@ -298,7 +298,7 @@ export class StateManager {
 			active: true,
 			interval: null,
 			countdownInterval: null,
-			startTimeout: null
+			startTimeout: null,
 		};
 
 		this.notify( 'repCounter.init', config );
@@ -348,7 +348,7 @@ export class StateManager {
 			restSeconds: 60,
 			delayMilliseconds: 3000,
 			currentSet: 0,
-			currentRep: 0
+			currentRep: 0,
 		};
 
 		this.notify( 'repCounter.reset', true );

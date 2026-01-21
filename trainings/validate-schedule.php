@@ -19,12 +19,12 @@
  * @param string $file_path Path to the JSON file to validate.
  * @return array Validation result with 'valid' boolean and 'errors' array.
  */
-function validate_schedule_file( $file_path ) {
-	$result = array(
+function validate_schedule_file( string $file_path ): array {
+	$result = [
 		'valid'  => false,
-		'errors' => array(),
+		'errors' => [],
 		'file'   => basename( $file_path ),
-	);
+	];
 
 	// Check if file exists.
 	if ( ! file_exists( $file_path ) ) {
@@ -34,7 +34,7 @@ function validate_schedule_file( $file_path ) {
 
 	// Check filename pattern.
 	$filename = basename( $file_path );
-	$special_schedules = array( 'schedule-recovery.json', 'schedule-sick.json', 'template-schedule.json' );
+	$special_schedules = [ 'schedule-recovery.json', 'schedule-sick.json', 'template-schedule.json' ];
 	if ( ! preg_match( '/^schedule-\d{4}-\d{2}-\d{2}\.json$/', $filename ) && ! in_array( $filename, $special_schedules, true ) ) {
 		$result['errors'][] = 'Filename must match pattern: schedule-YYYY-MM-DD.json (or be a special schedule)';
 	}
@@ -66,8 +66,8 @@ function validate_schedule_file( $file_path ) {
  * @param mixed $data Parsed JSON data.
  * @return array Array of error messages.
  */
-function validate_schedule_structure( $data ) {
-	$errors = array();
+function validate_schedule_structure( mixed $data ): array {
+	$errors = [];
 
 	// Must be an object with version and days.
 	if ( ! is_array( $data ) ) {
@@ -78,13 +78,10 @@ function validate_schedule_structure( $data ) {
 	// Check for required root fields.
 	if ( ! isset( $data['version'] ) ) {
 		$errors[] = "Missing required field 'version' at root level";
-	} else {
-		// Validate version.
-		if ( ! is_int( $data['version'] ) ) {
-			$errors[] = "'version' must be an integer";
-		} elseif ( $data['version'] < 1 || $data['version'] > 2 ) {
-			$errors[] = "'version' must be 1 or 2";
-		}
+	} elseif ( ! is_int( $data['version'] ) ) {
+		$errors[] = "'version' must be an integer";
+	} elseif ( $data['version'] < 1 || $data['version'] > 2 ) {
+		$errors[] = "'version' must be 1 or 2";
 	}
 
 	if ( ! isset( $data['days'] ) ) {
@@ -104,8 +101,8 @@ function validate_schedule_structure( $data ) {
 		return $errors;
 	}
 
-	$used_ids         = array();
-	$used_day_indices = array();
+	$used_ids         = [];
+	$used_day_indices = [];
 
 	// Validate each day.
 	foreach ( $data['days'] as $day_index => $day ) {
@@ -117,13 +114,12 @@ function validate_schedule_structure( $data ) {
 		}
 
 		// Check required fields.
-		$required_fields = array( 'id', 'dayIndex', 'name', 'theme', 'details' );
+		$required_fields = [ 'id', 'dayIndex', 'name', 'theme', 'details' ];
 		foreach ( $required_fields as $field ) {
 			if ( ! isset( $day[ $field ] ) ) {
 				$errors[] = "$day_prefix: Missing required field '$field'";
 			}
 		}
-
 
 		// Validate id.
 		if ( isset( $day['id'] ) ) {
@@ -188,9 +184,9 @@ function validate_schedule_structure( $data ) {
  * @param int    $version Schema version (1 or 2).
  * @return array Array of error messages.
  */
-function validate_exercises( $exercises, $day_prefix, $version = 1 ) {
-	$errors   = array();
-	$used_ids = array();
+function validate_exercises( array $exercises, string $day_prefix, int $version = 1 ): array {
+	$errors   = [];
+	$used_ids = [];
 
 	foreach ( $exercises as $ex_index => $exercise ) {
 		$ex_prefix = "$day_prefix, Exercise $ex_index";
@@ -223,30 +219,27 @@ function validate_exercises( $exercises, $day_prefix, $version = 1 ) {
 
 		// Validate type.
 		if ( isset( $exercise['type'] ) ) {
-			$valid_types = array( 'warmup', 'main', 'cool', 'alternatives' );
-			if ( 2 === $version ) {
+			$valid_types = [ 'warmup', 'main', 'cool', 'alternatives' ];
+			if ( $version === 2 ) {
 				$valid_types[] = 'custom';
 			}
 			if ( ! in_array( $exercise['type'], $valid_types, true ) ) {
 				$errors[] = "$ex_prefix: 'type' must be one of: " . implode( ', ', $valid_types );
+			} elseif ( $exercise['type'] === 'alternatives' ) {
+				$alt_errors = validate_alternatives( $exercise, $ex_prefix, $version );
+				foreach ( $alt_errors as $err ) {
+					$errors[] = $err;
+				}
 			} else {
-				// Type-specific validation.
-				if ( 'alternatives' === $exercise['type'] ) {
-					$alt_errors = validate_alternatives( $exercise, $ex_prefix, $version );
-					foreach ( $alt_errors as $error ) {
-						$errors[] = $error;
-					}
-				} else {
-					$regular_errors = validate_regular_exercise( $exercise, $ex_prefix, $version );
-					foreach ( $regular_errors as $error ) {
-						$errors[] = $error;
-					}
+				$regular_errors = validate_regular_exercise( $exercise, $ex_prefix, $version );
+				foreach ( $regular_errors as $err ) {
+					$errors[] = $err;
 				}
 			}
 		}
 
 		// Validate v2 fields.
-		if ( 2 === $version ) {
+		if ( $version === 2 ) {
 			$v2_errors = validate_v2_fields( $exercise, $ex_prefix );
 			foreach ( $v2_errors as $error ) {
 				$errors[] = $error;
@@ -273,8 +266,8 @@ function validate_exercises( $exercises, $day_prefix, $version = 1 ) {
  * @param int    $version Schema version (1 or 2).
  * @return array Array of error messages.
  */
-function validate_regular_exercise( $exercise, $ex_prefix, $version = 1 ) {
-	$errors = array();
+function validate_regular_exercise( array $exercise, string $ex_prefix, int $version = 1 ): array {
+	$errors = [];
 
 	// Required fields for regular exercises.
 	if ( ! isset( $exercise['title'] ) ) {
@@ -306,7 +299,7 @@ function validate_regular_exercise( $exercise, $ex_prefix, $version = 1 ) {
 	}
 
 	// V2: customLabel is required for type=custom.
-	if ( 2 === $version && isset( $exercise['type'] ) && 'custom' === $exercise['type'] ) {
+	if ( $version === 2 && isset( $exercise['type'] ) && $exercise['type'] === 'custom' ) {
 		if ( ! isset( $exercise['customLabel'] ) ) {
 			$errors[] = "$ex_prefix: 'customLabel' is required for type 'custom'";
 		} elseif ( ! is_string( $exercise['customLabel'] ) || empty( $exercise['customLabel'] ) ) {
@@ -333,8 +326,8 @@ function validate_regular_exercise( $exercise, $ex_prefix, $version = 1 ) {
  * @param int    $version Schema version (1 or 2).
  * @return array Array of error messages.
  */
-function validate_alternatives( $exercise, $ex_prefix, $version = 1 ) {
-	$errors = array();
+function validate_alternatives( array $exercise, string $ex_prefix, int $version = 1 ): array {
+	$errors = [];
 
 	if ( ! isset( $exercise['alternatives'] ) ) {
 		$errors[] = "$ex_prefix: Missing required field 'alternatives'";
@@ -390,8 +383,8 @@ function validate_alternatives( $exercise, $ex_prefix, $version = 1 ) {
  * @param string $prefix Prefix for error messages.
  * @return array Array of error messages.
  */
-function validate_timers( $timers, $prefix ) {
-	$errors = array();
+function validate_timers( mixed $timers, string $prefix ): array {
+	$errors = [];
 
 	if ( ! is_array( $timers ) ) {
 		$errors[] = "$prefix: 'timers' must be an array";
@@ -430,8 +423,8 @@ function validate_timers( $timers, $prefix ) {
  * @param string $ex_prefix Prefix for error messages.
  * @return array Array of error messages.
  */
-function validate_v2_fields( $exercise, $ex_prefix ) {
-	$errors = array();
+function validate_v2_fields( array $exercise, string $ex_prefix ): array {
+	$errors = [];
 
 	// Validate optional field.
 	if ( isset( $exercise['optional'] ) && ! is_bool( $exercise['optional'] ) ) {
@@ -469,8 +462,8 @@ function validate_v2_fields( $exercise, $ex_prefix ) {
  * @param int    $version Schema version (1 or 2).
  * @return array Array of error messages.
  */
-function validate_rep_counter( $rep_counter, $ex_prefix, $version = 1 ) {
-	$errors     = array();
+function validate_rep_counter( mixed $rep_counter, string $ex_prefix, int $version = 1 ): array {
+	$errors     = [];
 	$rep_prefix = "$ex_prefix, repCounter";
 
 	if ( ! is_array( $rep_counter ) ) {
@@ -479,7 +472,7 @@ function validate_rep_counter( $rep_counter, $ex_prefix, $version = 1 ) {
 	}
 
 	// Required fields.
-	$required_fields = array( 'sets', 'reps', 'restSeconds', 'delayMilliseconds' );
+	$required_fields = [ 'sets', 'reps', 'restSeconds', 'delayMilliseconds' ];
 	foreach ( $required_fields as $field ) {
 		if ( ! isset( $rep_counter[ $field ] ) ) {
 			$errors[] = "$rep_prefix: Missing required field '$field'";
@@ -515,7 +508,7 @@ function validate_rep_counter( $rep_counter, $ex_prefix, $version = 1 ) {
 	}
 
 	// V2: Validate bilateral field.
-	if ( 2 === $version && isset( $rep_counter['bilateral'] ) ) {
+	if ( $version === 2 && isset( $rep_counter['bilateral'] ) ) {
 		if ( ! is_bool( $rep_counter['bilateral'] ) ) {
 			$errors[] = "$rep_prefix: 'bilateral' must be a boolean";
 		}
@@ -559,7 +552,7 @@ if ( empty( $files ) ) {
 	}
 } else {
 	// Process file arguments - prepend __DIR__ if needed.
-	$processed_files = array();
+	$processed_files = [];
 	foreach ( $files as $file ) {
 		// If file is not an absolute path and doesn't exist as-is, prepend __DIR__.
 		if ( ! str_starts_with( $file, '/' ) && ! file_exists( $file ) ) {
@@ -584,22 +577,26 @@ foreach ( $files as $file ) {
 	$total_files++;
 	$result = validate_schedule_file( $file );
 
+	// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- CLI tool, not web output.
 	if ( $result['valid'] ) {
 		$valid_files++;
 		echo "✓ {$result['file']}: VALID\n";
 	} else {
 		$invalid_files++;
 		echo "✗ {$result['file']}: INVALID\n";
-		foreach ( $result['errors'] as $error ) {
-			echo "  - $error\n";
+		foreach ( $result['errors'] as $err ) {
+			echo "  - $err\n";
 		}
 	}
+	// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- CLI tool, not web output.
 echo "\n";
 echo "Summary:\n";
 echo "  Total files: $total_files\n";
 echo "  Valid: $valid_files\n";
 echo "  Invalid: $invalid_files\n";
+// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 exit( $invalid_files > 0 ? 1 : 0 );

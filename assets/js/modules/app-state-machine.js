@@ -38,7 +38,7 @@ export class AppStateMachine extends StateMachine {
 		this.allow( APP_STATES.SCHEDULE_VIEW, [
 			APP_STATES.TIMER_ACTIVE,
 			APP_STATES.REP_COUNTER_ACTIVE,
-			APP_STATES.MODAL_OPEN
+			APP_STATES.MODAL_OPEN,
 		] );
 
 		// From TIMER_ACTIVE - can only return to schedule view
