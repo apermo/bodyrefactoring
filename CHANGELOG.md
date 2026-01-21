@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Renovate configuration**: Automated dependency update PRs
+  - Weekly schedule (Monday mornings, Europe/Berlin)
+  - Grouped updates by ecosystem (npm, Composer)
+  - Auto-merge for devDependencies after CI passes
+
 ### Changed
 
 - **ESLint config**: Allow `console.log` in addition to `warn` and `error`

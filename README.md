@@ -649,8 +649,9 @@ git commit --no-verify
 The repository includes automated checks that run on every PR and push to main:
 - Conventional Commits validation
 - Version bump verification
-- CHANGELOG entry validation  
+- CHANGELOG entry validation
 - Schedule JSON validation
+- **Renovate**: Automated dependency update PRs (weekly, grouped by ecosystem)
 
 These run automatically - no setup required.
 
