@@ -1,57 +1,42 @@
 #!/bin/bash
 #
-# Git pre-commit hook to run lint-staged
-# Validates code quality before allowing commits
+# Git pre-commit hook runner
+# Executes all scripts in pre-commit.d/ directory in alphabetical order
 #
-# This hook runs:
-# - PHPCS for PHP files
-# - ESLint for JavaScript files
-# - Stylelint for CSS files
+# Scripts are numbered for execution order:
+#   01-version-sync.sh  - Sync versions (may stage files)
+#   02-lint-staged.sh   - Run linting (after version sync)
+#
+# To disable a script, rename it (e.g., 01-version-sync.sh.disabled)
+# To add a new task, create a numbered script in pre-commit.d/
 
-# Color codes for output
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-GREEN='\033[0;32m'
-NC='\033[0m' # No Color
+HOOKS_DIR="$(dirname "$0")"
+SCRIPTS_DIR="$HOOKS_DIR/pre-commit.d"
 
-echo "🔍 Running lint-staged..."
-
-# Check if node_modules exists
-if [ ! -d "node_modules" ]; then
-	echo -e "${YELLOW}⚠️  node_modules not found. Skipping JavaScript and CSS linting.${NC}"
-	echo "   Run 'npm install' to enable full linting."
-	echo ""
+# Check if scripts directory exists
+if [ ! -d "$SCRIPTS_DIR" ]; then
+	echo "No pre-commit.d directory found, skipping pre-commit hooks"
+	exit 0
 fi
 
-# Check if vendor exists (for PHPCS)
-if [ ! -d "vendor" ]; then
-	echo -e "${YELLOW}⚠️  vendor not found. Skipping PHP linting.${NC}"
-	echo "   Run 'composer install' to enable PHP linting."
-	echo ""
-fi
+# Run all executable .sh scripts in order
+for script in "$SCRIPTS_DIR"/*.sh; do
+	# Skip if no matching files
+	[ -e "$script" ] || continue
 
-# Run lint-staged if available
-if [ -f "node_modules/.bin/lint-staged" ]; then
-	npx lint-staged
-	LINT_STATUS=$?
-
-	if [ $LINT_STATUS -ne 0 ]; then
-		echo ""
-		echo -e "${RED}❌ Linting failed!${NC}"
-		echo "   Please fix the issues above before committing."
-		echo ""
-		echo "   To auto-fix issues, run:"
-		echo "     npm run lint:fix"
-		echo ""
-		echo "   To bypass linting (not recommended):"
-		echo "     git commit --no-verify"
-		exit 1
+	# Make sure script is executable
+	if [ ! -x "$script" ]; then
+		chmod +x "$script"
 	fi
 
-	echo -e "${GREEN}✓ Linting passed${NC}"
-else
-	echo -e "${YELLOW}⚠️  lint-staged not installed. Skipping pre-commit linting.${NC}"
-	echo "   Run 'npm install' to enable linting."
-fi
+	# Run the script
+	"$script"
+	STATUS=$?
+
+	# Exit with script's status if it failed
+	if [ $STATUS -ne 0 ]; then
+		exit $STATUS
+	fi
+done
 
 exit 0

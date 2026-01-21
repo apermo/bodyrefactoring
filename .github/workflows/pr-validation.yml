@@ -199,10 +199,55 @@ jobs:
       result: ${{ steps.schedule-validation.outputs.result || steps.set-skipped.outputs.result }}
       message: ${{ steps.schedule-validation.outputs.message || steps.set-skipped.outputs.message }}
 
+  validate-version-sync:
+    name: Check Version Sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Compare versions
+        id: version-sync-check
+        run: |
+          # Get version from composer.json (authoritative source)
+          COMPOSER_VERSION=$(php -r "echo json_decode(file_get_contents('composer.json'))->version;")
+          echo "composer.json version: $COMPOSER_VERSION"
+
+          # Get version from package.json
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "package.json version: $PACKAGE_VERSION"
+
+          # Compare versions
+          if [ "$COMPOSER_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "result=failed" >> $GITHUB_OUTPUT
+            echo "message=composer.json ($COMPOSER_VERSION) and package.json ($PACKAGE_VERSION) versions do not match" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "result=success" >> $GITHUB_OUTPUT
+            echo "message=Versions in sync: $COMPOSER_VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR (failure)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## Version Sync Failed\n\n${{ steps.version-sync-check.outputs.message }}\n\nThe `package.json` version must match `composer.json`. Run `git commit` locally with the pre-commit hook enabled to auto-sync, or manually update `package.json`.'
+            })
+
+    outputs:
+      result: ${{ steps.version-sync-check.outputs.result }}
+
   update-pr-checkboxes:
     name: Update PR Checkboxes
     runs-on: ubuntu-latest
-    needs: [validate-version, validate-changelog, validate-schedules]
+    needs: [validate-version, validate-changelog, validate-schedules, validate-version-sync]
     # Only update checkboxes when validation jobs ran (not on description edits)
     if: always() && github.event.action != 'edited'
     steps:
@@ -259,7 +304,7 @@ jobs:
   post-results:
     name: Post Validation Results
     runs-on: ubuntu-latest
-    needs: [validate-version, validate-changelog, validate-schedules]
+    needs: [validate-version, validate-changelog, validate-schedules, validate-version-sync]
     # Only post results when validation jobs ran (not on description edits)
     if: always() && github.event.action != 'edited'
     steps:
@@ -270,6 +315,7 @@ jobs:
             const versionResult = '${{ needs.validate-version.outputs.result }}';
             const changelogResult = '${{ needs.validate-changelog.outputs.result }}';
             const scheduleResult = '${{ needs.validate-schedules.outputs.result }}';
+            const versionSyncResult = '${{ needs.validate-version-sync.outputs.result }}';
 
             let summary = '## 🤖 Automated PR Validation Results\n\n';
 
@@ -302,8 +348,17 @@ jobs:
               summary += '⏭️ **Schedule Validation**: Skipped\n';
             }
 
+            // Version sync check
+            if (versionSyncResult === 'success') {
+              summary += '✅ **Version Sync**: Passed - composer.json and package.json versions match\n';
+            } else if (versionSyncResult === 'failed') {
+              summary += '❌ **Version Sync**: Failed - Version mismatch between composer.json and package.json\n';
+            } else {
+              summary += '⏭️ **Version Sync**: Skipped\n';
+            }
+
             // Overall status - treat skipped as success for overall status
-            const allPassed = versionResult === 'success' && changelogResult === 'success' && (scheduleResult === 'success' || scheduleResult === 'skipped');
+            const allPassed = versionResult === 'success' && changelogResult === 'success' && (scheduleResult === 'success' || scheduleResult === 'skipped') && versionSyncResult === 'success';
             if (allPassed) {
               summary += '\n---\n✨ **All checks passed!** This PR is ready for review.\n';
             } else {

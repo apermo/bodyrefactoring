@@ -40,10 +40,14 @@ php validate-schedule.php                    # Validates all schedules
 php validate-schedule.php schedule-2026-01-15.json  # Validate specific file
 ```
 
-### Git Hooks Setup (enables commit message validation)
+### Git Hooks Setup (enables linting and version sync)
 ```bash
 bash .githooks/setup.sh
 ```
+
+Pre-commit hooks run scripts in `.githooks/pre-commit.d/` in order:
+- `01-version-sync.sh` - Syncs `package.json` version from `composer.json`
+- `02-lint-staged.sh` - Runs lint-staged (PHP, JS, CSS linting)
 
 ### Local GitHub Actions Testing (optional, requires act)
 ```bash
@@ -210,11 +214,14 @@ When user says "let's start with vX.Y.Z":
 2. `git checkout -b vX.Y.Z`
 3. Update `composer.json` version (without 'v' prefix)
 4. Commit: `chore: bump version to X.Y.Z`
+   - The pre-commit hook auto-syncs `package.json` from `composer.json`
 5. Prepare CHANGELOG.md with new unreleased section
 6. Commit: `docs(changelog): prepare vX.Y.Z section`
 7. Ask about deleting previous branch
 8. Check roadmap.md for planned work
 9. Provide status summary
+
+**Version sync:** `composer.json` is the authoritative source. The pre-commit hook automatically syncs the version to `package.json`. GitHub Actions validates that versions match on PRs.
 
 ## Roadmap Tracking
 
