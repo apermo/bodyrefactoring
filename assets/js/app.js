@@ -1785,7 +1785,7 @@ function startRepCounting() {
 	if ( logBtn ) {
 		logBtn.classList.remove( 'hidden' );
 		logBtn.disabled = false;
-		logBtn.innerHTML = '<i data-lucide="clock" class="w-6 h-6 inline mr-2"></i>Set erfassen';
+		logBtn.innerHTML = '<i data-lucide="clock" class="w-6 h-6 inline mr-2"></i>Set bereits fertig';
 		lucide.createIcons();
 	}
 
@@ -1920,7 +1920,7 @@ function logSetTiming() {
 	// Visual feedback - button stays disabled until next set
 	const btn = document.getElementById( 'log-set-timing-btn' );
 	if ( btn ) {
-		btn.innerHTML = '<i data-lucide="check" class="w-6 h-6 inline mr-2"></i>Gespeichert!';
+		btn.innerHTML = '<i data-lucide="check" class="w-6 h-6 inline mr-2"></i>Zeit im Log gespeichert';
 		btn.disabled = true;
 		lucide.createIcons();
 	}

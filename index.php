@@ -398,16 +398,16 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 				Bereit...
 			</div>
 
-			<!-- Log Set Timing Button (hidden by default, shown during rest) -->
-			<button id="log-set-timing-btn" onclick="logSetTiming()" class="hidden w-full bg-green-500/20 hover:bg-green-500/30 border-2 border-green-500 text-white font-bold py-4 rounded-xl transition mb-4">
-				<i data-lucide="clock" class="w-6 h-6 inline mr-2"></i>
-				Set erfassen
-			</button>
-
 			<!-- Abort Button -->
 			<button onclick="abortRepCounter()" class="w-full bg-red-500/20 hover:bg-red-500/30 border-2 border-red-500 text-white font-bold py-4 rounded-xl transition">
 				<i data-lucide="x" class="w-6 h-6 inline mr-2"></i>
 				Abbrechen
+			</button>
+
+			<!-- Log Set Timing Button (hidden by default, shown during set) -->
+			<button id="log-set-timing-btn" onclick="logSetTiming()" class="hidden w-full bg-purple-500/20 hover:bg-purple-500/30 border-2 border-purple-500 text-white font-bold py-4 rounded-xl transition mt-16">
+				<i data-lucide="clock" class="w-6 h-6 inline mr-2"></i>
+				Set bereits fertig
 			</button>
 		</div>
 	</div>
