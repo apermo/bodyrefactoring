@@ -14,8 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Chromium and WebKit (Safari) browser testing
   - Mobile Safari viewport testing
   - Page Object Model pattern (`tests/pages/AppPage.js`)
-  - Initial smoke tests for app initialization
   - NPM scripts: `test`, `test:headed`, `test:debug`, `test:ui`, `test:report`
+- **Comprehensive e2e test suite** (36 tests)
+  - App initialization and navigation
+  - Exercise completion with localStorage persistence
+  - Rep counter full flow (2x5 reps, 7s cooldown)
+  - Notes/logbook functionality
+  - Recovery and sick mode
+  - Mock schedule for fast, predictable tests
 
 ## [14.4.3] - 2026-01-22
 
