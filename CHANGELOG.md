@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [14.5.0] - Unreleased
 
+### Added
+
+- **Playwright e2e testing infrastructure**
+  - Configured for DDEV local development server
+  - Chromium and WebKit (Safari) browser testing
+  - Mobile Safari viewport testing
+  - Page Object Model pattern (`tests/pages/AppPage.js`)
+  - Initial smoke tests for app initialization
+  - NPM scripts: `test`, `test:headed`, `test:debug`, `test:ui`, `test:report`
+
 ## [14.4.3] - 2026-01-22
 
 ### Fixed
