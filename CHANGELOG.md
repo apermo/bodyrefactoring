@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.4.2] - Unreleased
+
+### Added
+- **Copilot instructions for commit messages and PR descriptions**: `.github/git-commit-instructions.md`
+  - Conventional Commits format
+  - Types, character limits, rules, and examples
+
 ## [14.4.1] - 2026-01-22
 
 ### Fixed
@@ -842,6 +849,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for client-side data
 - Responsive design for mobile devices
 
+[14.4.2]: https://github.com/apermo/bodyrefactoring/compare/v14.4.1...v14.4.2
 [14.4.1]: https://github.com/apermo/bodyrefactoring/compare/v14.4.0...v14.4.1
 [14.4.0]: https://github.com/apermo/bodyrefactoring/compare/v14.3.0...v14.4.0
 [14.3.0]: https://github.com/apermo/bodyrefactoring/compare/v14.2.8...v14.3.0
