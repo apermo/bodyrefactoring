@@ -1199,6 +1199,6 @@ SYNC_API_URL=/api/storage
 ---
 
 **Last Updated**: January 22, 2026
-**Current Stable Release**: v14.4.0
+**Current Stable Release**: v14.4.3
 **Development Cycle**: v14
 
