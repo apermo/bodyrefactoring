@@ -1043,6 +1043,37 @@ This section is now empty but reserved for future refactoring tasks that arise d
 
 ---
 
+### Self-Hosted PR Preview Deployments
+
+**Goal:** Replace Netlify with self-hosted PHP-compatible preview deployments
+
+**Background:**
+- Netlify free tier exhausted (January 2026)
+- Static-only limitation incompatible with PHP backend roadmap
+- Need full PHP support for future features (Schedule Management, Server-Side Sync)
+
+**Proposed implementation:**
+- GitHub Action deploys PR branches to Plesk subdomains
+- URL pattern: `pr-{number}.bodyrefactoring.de`
+- Cleanup action removes subdomain when PR closes
+- Full PHP support using existing hosting
+
+**Technical approach:**
+- SSH/SFTP deployment from GitHub Actions
+- DNS wildcard for `*.bodyrefactoring.de`
+- Plesk API or CLI for subdomain management
+- Secrets: SSH key, Plesk credentials
+
+**Benefits:**
+- Zero additional hosting cost
+- Full PHP support
+- Aligns with backend-heavy roadmap
+- Complete feature parity with production
+
+**Priority:** Low (local DDEV testing sufficient for now)
+
+---
+
 ### Server-Side Storage & Sync
 
 **Goal:** Enable data synchronization across devices without user accounts (initially)
