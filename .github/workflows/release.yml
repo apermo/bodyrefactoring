@@ -59,6 +59,13 @@ jobs:
           git commit -m "docs(changelog): set release date for v${{ steps.version.outputs.version }}"
           git push
 
+      - name: Get release target
+        if: steps.check-tag.outputs.exists == 'false'
+        id: target
+        run: |
+          # Use current HEAD - either changelog commit or original merge commit
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
       - name: Extract changelog notes
         if: steps.check-tag.outputs.exists == 'false'
         id: changelog
@@ -77,14 +84,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="${{ steps.version.outputs.tag }}"
-          # Create draft release pointing to this commit
+          # Create draft release pointing to HEAD (includes changelog commit if made)
           # Publishing the draft will create the tag and trigger deploy
-          # Capture actual URL from gh output (includes untagged-xxx for drafts)
           RELEASE_URL=$(gh release create "$TAG" \
             --title "$TAG" \
             --notes-file release_notes.md \
             --draft \
-            --target ${{ github.sha }})
+            --target ${{ steps.target.outputs.sha }})
           echo "url=$RELEASE_URL" >> $GITHUB_OUTPUT
 
       - name: Comment on merged PR
