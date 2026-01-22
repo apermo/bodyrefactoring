@@ -1,0 +1,145 @@
+{
+	"version": 1,
+	"days": [
+		{
+			"id": "mon",
+			"dayIndex": 1,
+			"name": "MONTAG",
+			"theme": "Test Day - Full Features",
+			"icon": "dumbbell",
+			"colorClass": "text-blue-400",
+			"bgClass": "bg-blue-500/10",
+			"details": [
+				{
+					"id": "warmup_test",
+					"type": "warmup",
+					"title": "Warmup Exercise",
+					"desc": "Test warmup with timers",
+					"timers": [
+						{ "l": "30s", "s": 30 },
+						{ "l": "1 Min", "s": 60 }
+					]
+				},
+				{
+					"id": "main_with_repcounter",
+					"type": "main",
+					"title": "Rep Counter Exercise",
+					"desc": "2 sets x 5 reps for testing",
+					"weight": "5",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 5,
+						"restSeconds": 7,
+						"delayMilliseconds": 1000
+					}
+				},
+				{
+					"id": "main_with_weight",
+					"type": "main",
+					"title": "Weight Exercise",
+					"desc": "Exercise with weight tracking",
+					"weight": "10",
+					"defaultUnit": "KG"
+				},
+				{
+					"id": "main_simple",
+					"type": "main",
+					"title": "Simple Exercise",
+					"desc": "Basic exercise without extras"
+				},
+				{
+					"id": "cool_test",
+					"type": "cool",
+					"title": "Cooldown Exercise",
+					"desc": "Test cooldown",
+					"timers": [
+						{ "l": "2 Min", "s": 120 }
+					]
+				}
+			]
+		},
+		{
+			"id": "wed",
+			"dayIndex": 3,
+			"name": "MITTWOCH",
+			"theme": "Test Day - Alternatives",
+			"icon": "heart",
+			"colorClass": "text-red-400",
+			"bgClass": "bg-red-500/10",
+			"details": [
+				{
+					"id": "warmup_wed",
+					"type": "warmup",
+					"title": "Wednesday Warmup",
+					"desc": "Simple warmup"
+				},
+				{
+					"id": "alt_exercise",
+					"type": "alternatives",
+					"alternatives": [
+						{
+							"title": "Alternative A",
+							"desc": "First alternative option",
+							"weight": "3",
+							"defaultUnit": "STUFE"
+						},
+						{
+							"title": "Alternative B",
+							"desc": "Second alternative option"
+						}
+					]
+				},
+				{
+					"id": "main_wed",
+					"type": "main",
+					"title": "Wednesday Main",
+					"desc": "Regular main exercise"
+				}
+			]
+		},
+		{
+			"id": "fri",
+			"dayIndex": 5,
+			"name": "FREITAG",
+			"theme": "Test Day - Minimal",
+			"icon": "flame",
+			"colorClass": "text-orange-400",
+			"bgClass": "bg-orange-500/10",
+			"details": [
+				{
+					"id": "warmup_fri",
+					"type": "warmup",
+					"title": "Friday Warmup",
+					"desc": "Quick warmup"
+				},
+				{
+					"id": "main_fri",
+					"type": "main",
+					"title": "Friday Main",
+					"desc": "Single main exercise"
+				}
+			]
+		},
+		{
+			"id": "sun",
+			"dayIndex": 0,
+			"name": "SONNTAG",
+			"theme": "Rest Day",
+			"icon": "bed",
+			"colorClass": "text-purple-400",
+			"bgClass": "bg-purple-500/10",
+			"details": [
+				{
+					"id": "rest_stretch",
+					"type": "cool",
+					"title": "Light Stretching",
+					"desc": "Optional recovery stretching",
+					"timers": [
+						{ "l": "5 Min", "s": 300 }
+					]
+				}
+			]
+		}
+	]
+}

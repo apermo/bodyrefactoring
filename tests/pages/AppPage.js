@@ -37,8 +37,13 @@ class AppPage {
 
 	/**
 	 * Set consent cookie and navigate to the app.
+	 *
+	 * @param {Object} options - Navigation options.
+	 * @param {boolean} options.skipIntro - Skip the intro modal (default: true).
 	 */
-	async goto() {
+	async goto( options = {} ) {
+		const { skipIntro = true } = options;
+
 		// Set consent cookie before navigating
 		await this.page.context().addCookies( [ {
 			name: 'br_consent',
@@ -46,6 +51,13 @@ class AppPage {
 			domain: 'bodyrefactoring.ddev.site',
 			path: '/',
 		} ] );
+
+		// Skip intro modal by setting localStorage before page loads
+		if ( skipIntro ) {
+			await this.page.addInitScript( () => {
+				localStorage.setItem( 'body_refactoring_intro_seen', 'true' );
+			} );
+		}
 
 		await this.page.goto( '/' );
 	}
