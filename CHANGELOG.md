@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.4.1] - Unreleased
+
+### Fixed
+
+- **Release workflow**: Target HEAD after changelog date commit
+  - Release was targeting original merge commit, missing automated changes
+  - Now captures HEAD after any commits to include all changes
+
+### Removed
+
+- **Netlify PR previews**: Disabled due to free tier exhaustion
+  - Removed `netlify.toml` and `build.php`
+  - Self-hosted PHP-based previews planned for future (see roadmap)
+
 ## [14.4.0] - 2026-01-21
 
 ### Added
@@ -828,6 +842,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for client-side data
 - Responsive design for mobile devices
 
+[14.4.1]: https://github.com/apermo/bodyrefactoring/compare/v14.4.0...v14.4.1
 [14.4.0]: https://github.com/apermo/bodyrefactoring/compare/v14.3.0...v14.4.0
 [14.3.0]: https://github.com/apermo/bodyrefactoring/compare/v14.2.8...v14.3.0
 [14.2.8]: https://github.com/apermo/bodyrefactoring/compare/v14.2.7...v14.2.8
