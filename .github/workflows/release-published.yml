@@ -19,14 +19,13 @@ jobs:
         run: |
           # Get release info
           TAG="${{ github.event.release.tag_name }}"
-          COMMIT="${{ github.event.release.target_commitish }}"
           RELEASE_URL="${{ github.event.release.html_url }}"
 
-          # Find the PR that was merged with this commit
-          PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --state merged --search "$COMMIT" --json number --jq '.[0].number')
+          # Find the PR by matching head branch to tag (e.g., v14.4.3)
+          PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --state merged --head "$TAG" --json number --jq '.[0].number')
 
           if [ -z "$PR_NUMBER" ]; then
-            echo "No merged PR found for commit $COMMIT"
+            echo "No merged PR found for branch $TAG"
             exit 0
           fi
 
