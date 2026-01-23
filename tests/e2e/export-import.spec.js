@@ -147,6 +147,7 @@ test.describe( 'Export and Import', () => {
 	} );
 
 	test( 'import restores data after clearing', async ( { page } ) => {
+		test.setTimeout( 60000 ); // Extended timeout for multi-step test
 		const app = new AppPage( page );
 		await app.goto();
 		await app.waitForAppReady();

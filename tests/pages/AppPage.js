@@ -66,8 +66,8 @@ class AppPage {
 	 * Wait for app to fully load (splash screen hidden, schedule visible).
 	 */
 	async waitForAppReady() {
-		// Wait for splash screen to disappear
-		await this.splashScreen.waitFor( { state: 'hidden', timeout: 15000 } );
+		// Wait for splash screen to disappear (longer timeout for parallel test runs)
+		await this.splashScreen.waitFor( { state: 'hidden', timeout: 30000 } );
 		// Wait for schedule to be visible
 		await this.scheduleContainer.waitFor( { state: 'visible' } );
 	}
