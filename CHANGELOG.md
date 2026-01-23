@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.5.0] - Unreleased
+
+### Added
+
+- **Playwright e2e testing infrastructure**
+  - Configured for DDEV local development server
+  - Default browser: Mobile Safari (iOS viewport)
+  - Configurable via `BROWSERS` env var (e.g., `BROWSERS=chromium,webkit`)
+  - Page Object Model pattern (`tests/pages/AppPage.js`)
+  - NPM scripts: `test`, `test:headed`, `test:debug`, `test:ui`, `test:report`, `test:all`
+- **Comprehensive e2e test suite** (58 tests across 10 spec files)
+  - App initialization and navigation
+  - Consent screen and intro modal flow with cookie/localStorage verification
+  - Exercise completion with localStorage persistence
+  - Exercise boundaries (day locking, confirmation dialogs)
+  - Rep counter full flow (2x5 reps @ 1s, 7s cooldown)
+  - Rep counter timing verification (4 reps @ 1.5s, 15s cooldown)
+  - Notes/logbook functionality
+  - Export/import data functionality
+  - Recovery and sick mode
+  - Mock schedule for fast, predictable tests
+- **Test categorization** (quick vs slow)
+  - Quick tests (default): 54 tests, ~27s, suitable for PR checks
+  - Slow tests (`@slow`): 4 tests involving real-time rep counter flows
+  - `npm test` runs quick tests only, `npm run test:full` runs all
+- **Testing documentation** (`docs/testing.md`)
+  - How to run tests
+  - Test architecture and file structure
+  - Adding new tests guide
+  - Consent/intro screen handling
+
+### Changed
+
+- **Test reliability improvements**
+  - Replaced silent if blocks with explicit `test.skip()` for proper reporting
+  - Replaced XPath selectors with CSS `.filter({ has: })` approach
+  - Increased splash screen timeout (15s → 30s) for parallel test stability
+  - Added visibility assertions before interactions
+
 ## [14.4.3] - 2026-01-22
 
 ### Fixed

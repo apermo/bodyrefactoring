@@ -10,3 +10,7 @@
 dist/
 .netlify/
 
+# Playwright
+test-results/
+playwright-report/
+

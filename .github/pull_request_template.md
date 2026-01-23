@@ -1,7 +1,6 @@
-## Description
+## Summary
 
-<!-- Provide a brief description of the changes in this PR -->
-<!-- An AI-generated summary will be automatically posted as a comment below -->
+<!-- 2-3 sentences: what this PR does and why -->
 
 ## Type of Change
 
@@ -19,15 +18,25 @@
 
 <!-- Link to related issues, e.g., "Fixes #123" or "Closes #456" -->
 
-## Changes Made
+## Changelog
 
-<!-- List the specific changes made in this PR -->
+<!-- Mirror CHANGELOG.md format. Remove empty sections. -->
 
-- 
+### Added
+
+-
+
+### Changed
+
+-
+
+### Fixed
+
+-
 
 ## Testing
 
-<!-- Describe the testing you've done -->
+<!-- User fills these in -->
 
 - [ ] Tested locally
 - [ ] Tested on mobile device (iOS/Android)
@@ -35,6 +44,8 @@
 - [ ] Tested with different workout scenarios
 
 ## Checklist
+
+<!-- User fills these in -->
 
 - [ ] I have commented my code where necessary
 - [ ] I have updated the CHANGELOG.md following [Keep a Changelog](https://keepachangelog.com/) format
@@ -46,9 +57,4 @@
 
 ## Deployment Notes
 
-<!-- Any special deployment considerations? -->
-
-## Additional Context
-
-<!-- Add any other context about the PR here -->
-
+<!-- Any special deployment considerations? Leave empty if none. -->

@@ -742,9 +742,10 @@ This project was built using **Vibe Coding** — a fluid, iterative collaboratio
 capability.
 
 * **Concept & Vision:** [apermo](https://github.com/apermo)
-* **AI Co-Pilots:** 
+* **AI Co-Pilots:**
   - Google Gemini (Initial code generation, logic implementation, UI design)
-  - GitHub Copilot using Claude Sonnet 3.5 (Refactoring, architecture design, code quality improvements, continuous development)
+  - GitHub Copilot using Claude Sonnet 4.5 (Refactoring, architecture design, code quality improvements, continuous development)
+  - Claude Code using Claude Sonnet & Opus 4.5 (since v14.2.0+: Testing infrastructure, workflow automation, documentation, continuous development)
 
 ### **Special Thanks**
 

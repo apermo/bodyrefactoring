@@ -2,6 +2,8 @@
 
 This document outlines planned features and improvements for the Body Refactoring app.
 
+**Vision**: A privacy-first, gamified progressive web app that can be customized for any recurring task tracking - from fitness routines to daily habits. Fork it, brand it, make it yours.
+
 ## 📋 Feature Roadmap
 
 ### v14.3.0 ✅ - Linting & Code Quality
@@ -80,9 +82,9 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.5.0 ⏳ - Automated Testing with Playwright
+### v14.5.0 🚧 - Automated Testing with Playwright
 
-**Priority: High**  
+**Status: In Progress**
 **Focus**: End-to-end testing for critical user flows
 
 #### Test Coverage
@@ -203,13 +205,125 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.6.0 ⏳ - renderSchedule() Refactor
+### v14.6.0 ⏳ - Multi-Use Gamified Todo List
 
-**Priority: High**  
+**Priority: High**
+**Focus**: Transform the app into a reusable, customizable gamified task tracker
+
+**Goal**: Enable anyone to fork this project and create their own private, gamified todo list with custom branding, password protection, and easy schedule management.
+
+#### Password Protection
+
+- **Environment-Based Authentication**
+  - If `.env` contains `APP_PASSWORD`, show login screen instead of consent
+  - Password stored encrypted in `.env` (bcrypt or similar)
+  - Login form: Simple password field + submit button
+  - Auth cookie contains hash substring of encrypted password
+  - Changing password in `.env` automatically invalidates all sessions
+
+- **Session Management**
+  - Cookie-based authentication (no localStorage for security)
+  - Configurable session duration via `.env`
+  - "Remember me" option for longer sessions
+  - Logout button in menu when authenticated
+
+- **Graceful Fallback**
+  - No `APP_PASSWORD` in `.env` → Normal consent flow (current behavior)
+  - Allows public instances without authentication
+
+#### Schedule Upload & Management
+
+- **In-App Schedule Upload**
+  - Upload button in settings/menu (when authenticated)
+  - Accepts `schedule-*.json` files
+  - Validates against schema before accepting
+  - Preview schedule before confirming
+  - Replaces/adds to existing schedules
+
+- **Schedule Editor Integration**
+  - Editor already exists (branch reference: `3ad1a80`)
+  - Integrate editor into authenticated app
+  - Edit → Save → Immediate effect
+  - No manual file copying required
+
+#### Protected Schedule Path
+
+- **Configurable Schedule Location**
+  - `.env` option: `SCHEDULE_PATH=/custom/path/`
+  - Default: `/trainings/` (current behavior)
+  - Non-standard path = obscurity protection
+
+- **Access Control Options**
+  - Option 1: `.htaccess` protection for `/trainings/`
+  - Option 2: PHP-based access control (check auth cookie)
+  - Option 3: Store schedules outside webroot, serve via PHP
+  - Prevents unauthorized schedule access even if domain known
+
+#### Customizable Branding
+
+- **App Identity (via `.env` or config)**
+  - `APP_NAME` - Custom app title (default: "Body Refactoring")
+  - `APP_ICON` - Path to custom icon/logo
+  - `APP_BACKGROUND` - Background image URL or gradient
+  - `APP_COLOR_SCHEME` - Primary color theme (e.g., "green", "blue", "purple")
+
+- **Color Scheme Presets**
+  - Default: Current cyan/blue theme
+  - Green: Nature/wellness theme
+  - Purple: Focus/productivity theme
+  - Custom: Define via CSS variables
+
+- **PWA Manifest Generation**
+  - Dynamic `manifest.json` based on config
+  - Custom app name in "Add to Home Screen"
+  - Custom icons for PWA installation
+  - Theme color matches color scheme
+
+#### Technical Implementation
+
+- **New Files**
+  - `auth.php` - Authentication logic
+  - `config.php` - Environment/config loading
+  - `upload.php` - Schedule upload handler
+  - `.env.example` - Template with all options documented
+
+- **Modified Files**
+  - `index.php` - Auth check, dynamic branding
+  - `assets/css/styles.css` - CSS variables for theming
+  - `assets/js/app.js` - Config-aware initialization
+
+- **Environment Variables**
+  ```env
+  # Authentication (optional - omit for public instance)
+  APP_PASSWORD_HASH=$2y$10$...  # bcrypt hash
+  SESSION_DURATION=86400        # 24 hours
+
+  # Branding
+  APP_NAME="My Todo List"
+  APP_ICON=/assets/custom-icon.png
+  APP_BACKGROUND=/assets/bg.jpg
+  APP_COLOR_SCHEME=green
+
+  # Security
+  SCHEDULE_PATH=/private/schedules/
+  ```
+
+**Benefits:**
+- ✅ **Reusable** - Fork and customize for any purpose
+- ✅ **Private** - Password protection keeps data secure
+- ✅ **Flexible** - Upload schedules without code changes
+- ✅ **Branded** - Make it your own with custom theming
+- ✅ **Simple** - No database required, file-based storage
+
+---
+
+### v14.7.0 ⏳ - renderSchedule() Refactor
+
+**Priority: High**
 **Focus**: Code quality and maintainability - refactor before complex features
 
 **Why Now?**
-- Clean foundation before advanced rep counter features (v14.7.0)
+- Clean foundation before advanced rep counter features (v14.8.0)
 - Playwright tests (v14.5.0) provide safety net for refactoring
 - Easier to add v15.0.0 overrides to clean, modular code
 - 307-line function is too large and handles too many responsibilities
@@ -228,14 +342,14 @@ This document outlines planned features and improvements for the Body Refactorin
 - `renderDayCard()` - Single day card
 - `renderExercise()` - Exercise rows (normal, alternatives)
 - `renderRecoveryDay()` - Recovery mode
-- `renderSickDay()` - Sick mode  
+- `renderSickDay()` - Sick mode
 - `renderNotes()` - Logbook section
 - Helper methods for weight inputs, timers, rep counter chips
 
 **Benefits:**
 - ✅ Small, testable methods (< 30 lines each)
 - ✅ Clear responsibilities
-- ✅ Easier to add rep counter features (v14.7.0)
+- ✅ Easier to add rep counter features (v14.8.0)
 - ✅ Easier to add overrides (v15.0.0)
 - ✅ Easier to add XP badges (v16.0.0)
 
@@ -247,12 +361,12 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.7.0 ⏳ - Advanced Rep Counter Features
+### v14.8.0 ⏳ - Advanced Rep Counter Features
 
-**Priority: High**  
+**Priority: High**
 **Focus**: Complex rep counter enhancements on clean foundation
 
-**Note**: Built on refactored renderSchedule() (v14.6.0) for cleaner integration. These features were originally in v14.0.0 but moved here to ensure proper test coverage (v14.5.0) and clean code foundation (v14.3.0) are in place first.
+**Note**: Built on refactored renderSchedule() (v14.7.0) for cleaner integration. These features were originally in v14.0.0 but moved here to ensure proper test coverage (v14.5.0) and clean code foundation (v14.3.0) are in place first.
 
 #### Rep Cooldown Timer Improvements
 - ✅ **Set Timing Log Button** (v14.3.1)
@@ -401,7 +515,7 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.8.0 ⏳ - Streak Feature Rework
+### v14.9.0 ⏳ - Streak Feature Rework
 
 **Priority: Medium**
 **Focus**: Decouple streak calculation from individual task ticks
@@ -1010,8 +1124,8 @@ All features optimized for iPhone/PWA:
 ## 🗂️ Backlog - Code Quality & Refactoring
 
 **Note:** The two major refactoring tasks (renderSchedule and calculateStreak) have been scheduled in the v14.x cycle:
-- ✅ **renderSchedule() Refactor** → Scheduled for v14.6.0
-- ✅ **calculateStreak() Refactor** → Scheduled for v14.8.0
+- ✅ **renderSchedule() Refactor** → Scheduled for v14.7.0
+- ✅ **calculateStreak() Refactor** → Scheduled for v14.9.0
 
 This section is now empty but reserved for future refactoring tasks that arise during development.
 
@@ -1198,7 +1312,7 @@ SYNC_API_URL=/api/storage
 
 ---
 
-**Last Updated**: January 22, 2026
-**Current Stable Release**: v14.4.0
-**Development Cycle**: v14
+**Last Updated**: January 23, 2026
+**Current Stable Release**: v14.4.3
+**Development Cycle**: v14 (v14.5.0 in progress)
 
