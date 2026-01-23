@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Schedule schema v3** with date-based task filtering
+  - `custom` exercise type with `customLabel` for user-defined badges
+  - `dateCondition` field for conditional task display:
+    - `once`: Show only on specific date (YYYY-MM-DD)
+    - `weekOfMonth`: Show only during specific weeks [1-5]
+    - `weekParity`: Show only in odd or even ISO weeks
+  - `dateDescription` field displayed as amber badge in UI
+  - Date-filtered tasks excluded from day completion requirements
+  - Validator updated to support v3 schema
+
 ## [14.5.0] - 2026-01-23
 
 ### Added
