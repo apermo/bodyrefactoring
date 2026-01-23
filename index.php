@@ -5,11 +5,22 @@ require_once __DIR__ . '/assets/cachebuster.php';
 // Prevent aggressive caching of the main HTML (especially for iOS PWA)
 header( 'Cache-Control: no-cache, must-revalidate' );
 
-// Check for consent cookie
-if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' ) {
+// Authentication check - redirect to login if auth enabled and not authenticated
+if ( isAuthEnabled() && ! isAuthenticated() ) {
+	require_once __DIR__ . '/login.php';
+	exit;
+}
+
+// Consent check - only for non-authenticated instances
+if ( ! isAuthEnabled() && ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' ) ) {
 	require_once __DIR__ . '/consent.php';
 	exit;
 }
+
+// Split app name for header display
+$nameParts = explode( ' ', APP_NAME, 2 );
+$firstName = htmlspecialchars( $nameParts[0] );
+$restName  = isset( $nameParts[1] ) ? htmlspecialchars( $nameParts[1] ) : '';
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -19,11 +30,11 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 		  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<meta name="apple-mobile-web-app-title" content="BodyRefactoring">
-	<link rel="apple-touch-icon" href="assets/img/gymlogo.png">
-	<link rel="icon" type="image/png" href="assets/img/gymlogo.png">
+	<meta name="apple-mobile-web-app-title" content="<?php echo htmlspecialchars( APP_NAME ); ?>">
+	<link rel="apple-touch-icon" href="<?php echo htmlspecialchars( APP_ICON ); ?>">
+	<link rel="icon" type="image/png" href="<?php echo htmlspecialchars( APP_ICON ); ?>">
 	<meta name="robots" content="noindex, nofollow, noarchive">
-	<title>Body Refactoring App v<?php echo APP_VERSION; ?></title>
+	<title><?php echo htmlspecialchars( APP_NAME ); ?> v<?php echo APP_VERSION; ?></title>
 
 	<script src="https://cdn.tailwindcss.com"></script>
 	<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -39,6 +50,13 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 
 		// Debug log enabled (from PHP config)
 		window.DEBUG_LOG_ENABLED = <?php echo DEBUG_LOG_ENABLED ? 'true' : 'false'; ?>;
+
+		// Schedule path (from PHP config)
+		window.SCHEDULE_PATH = '<?php echo SCHEDULE_PATH; ?>';
+
+		// App branding (from PHP config)
+		window.APP_NAME = '<?php echo htmlspecialchars( APP_NAME, ENT_QUOTES ); ?>';
+		window.APP_COLOR_SCHEME = '<?php echo APP_COLOR_SCHEME; ?>';
 
 		// Debug logging functions - always available
 		window.debugLog = function(message, type = 'info') {
@@ -102,7 +120,7 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 	</script>
  	<script type="module" src="<?php echo asset( 'assets/js/app.js' ); ?>"></script>
 </head>
-<body onclick="closeMenuOutside(event)">
+<body class="<?php echo getColorSchemeClass(); ?>" onclick="closeMenuOutside(event)">
 
 <div id="bg-fixed"></div>
 
@@ -168,8 +186,8 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 </div>
 
 <div id="splash-screen">
-	<h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 mb-4 animate-pulse">
-		BODY REFACTORING</h1>
+	<h1 class="text-4xl font-black text-transparent bg-clip-text app-gradient mb-4 animate-pulse">
+		<?php echo htmlspecialchars( strtoupper( APP_NAME ) ); ?></h1>
 	<div class="text-slate-500 font-mono text-xs">INITIALIZING v<?php echo APP_VERSION; ?>...</div>
 </div>
 
@@ -178,8 +196,8 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 	<div class="flex justify-between items-center mb-6 pt-4 relative z-50">
 		<div>
 			<h1 class="text-xl font-black text-white uppercase leading-none">
-				<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Body</span>
-				Refactoring
+				<span class="text-transparent bg-clip-text app-gradient"><?php echo $firstName; ?></span>
+				<?php echo $restName; ?>
 			</h1>
 			<p class="text-slate-500 font-mono text-[10px] mt-1">
 				v<?php echo APP_VERSION; ?>
@@ -242,10 +260,17 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 				<span class="truncate">Website</span>
 			</a>
 			<a href="https://github.com/apermo/bodyrefactoring" target="_blank"
-			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
+			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white <?php echo isAuthEnabled() ? '' : 'border-b border-slate-700'; ?> flex items-center gap-3 w-full">
 				<i data-lucide="github" class="w-4 h-4 flex-shrink-0"></i>
 				<span class="truncate">GitHub Repo</span>
 			</a>
+			<?php if ( isAuthEnabled() ) : ?>
+			<a href="logout.php"
+			   class="px-4 py-3 text-left text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 border-b border-slate-700 flex items-center gap-3 w-full">
+				<i data-lucide="log-out" class="w-4 h-4 flex-shrink-0"></i>
+				<span class="truncate">Abmelden</span>
+			</a>
+			<?php endif; ?>
 			<div class="px-4 py-3">
 				<button onclick="toggleModeInput()" class="flex items-center gap-3 text-sm text-slate-300 hover:text-white w-full">
 					<i data-lucide="user" class="w-4 h-4 text-cyan-400 flex-shrink-0"></i>
@@ -416,11 +441,11 @@ if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' 
 	<div id="intro-modal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[200] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
 		<div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl border-2 border-slate-700 p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
 			<div class="text-center mb-6">
-				<img src="assets/img/gymlogo.png" alt="Body Refactoring" class="w-24 h-24 mx-auto rounded-2xl mb-4 shadow-lg">
-				<h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 mb-2">
-					Willkommen bei Body Refactoring!
+				<img src="<?php echo htmlspecialchars( APP_ICON ); ?>" alt="<?php echo htmlspecialchars( APP_NAME ); ?>" class="w-24 h-24 mx-auto rounded-2xl mb-4 shadow-lg">
+				<h2 class="text-3xl font-black text-transparent bg-clip-text app-gradient mb-2">
+					Willkommen bei <?php echo htmlspecialchars( APP_NAME ); ?>!
 				</h2>
-				<p class="text-slate-400">Meine persönliche Fitness-Tracking App</p>
+				<p class="text-slate-400">Meine persönliche Gamified Task App</p>
 			</div>
 
 			<!-- Privacy First -->

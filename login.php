@@ -1,9 +1,9 @@
 <?php
 /**
- * Consent Page
+ * Login Page
  *
- * Privacy consent screen shown to users before accessing the app.
- * Only shown when no password protection is enabled.
+ * Password authentication screen for protected instances.
+ * Only shown when APP_PASSWORD_HASH is set in .env.
  *
  * @package BodyRefactoring
  */
@@ -11,6 +11,27 @@
 // Load tools.php if not already loaded
 if ( ! defined( 'APP_VERSION' ) ) {
 	require_once __DIR__ . '/tools.php';
+}
+
+// Redirect if auth not enabled or already authenticated
+if ( ! isAuthEnabled() || isAuthenticated() ) {
+	header( 'Location: index.php' );
+	exit;
+}
+
+$showError = false;
+
+// Handle login form submission
+if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+	$password = $_POST['password'] ?? '';
+
+	if ( verifyPassword( $password ) ) {
+		setAuthCookie();
+		header( 'Location: index.php' );
+		exit;
+	} else {
+		$showError = true;
+	}
 }
 
 // Split app name for styling (first word highlighted)
@@ -54,7 +75,7 @@ $accentColor  = $accentColors[ APP_COLOR_SCHEME ] ?? $accentColors['default'];
 	<link rel="apple-touch-icon" href="<?php echo htmlspecialchars( APP_ICON ); ?>">
 	<link rel="icon" type="image/png" href="<?php echo htmlspecialchars( APP_ICON ); ?>">
 	<meta name="robots" content="noindex, nofollow, noarchive">
-	<title>Datenschutz & Einwilligung - <?php echo htmlspecialchars( APP_NAME ); ?></title>
+	<title>Login - <?php echo htmlspecialchars( APP_NAME ); ?></title>
 
 	<style>
 		* { margin: 0; padding: 0; box-sizing: border-box; }
@@ -68,13 +89,13 @@ $accentColor  = $accentColors[ APP_COLOR_SCHEME ] ?? $accentColors['default'];
 			padding: 20px;
 			color: #e2e8f0;
 		}
-		.consent-container {
+		.login-container {
 			background: rgba(30, 41, 59, 0.95);
 			backdrop-filter: blur(10px);
 			border: 2px solid rgba(51, 65, 85, 0.5);
 			border-radius: 24px;
 			padding: 40px;
-			max-width: 600px;
+			max-width: 400px;
 			width: 100%;
 			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 		}
@@ -86,98 +107,62 @@ $accentColor  = $accentColors[ APP_COLOR_SCHEME ] ?? $accentColors['default'];
 			-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 		}
 		.subtitle { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 30px; }
-		.consent-content {
-			background: rgba(15, 23, 42, 0.5);
-			border: 1px solid rgba(51, 65, 85, 0.5);
-			border-radius: 16px;
-			padding: 24px;
-			margin-bottom: 24px;
+		.login-form label {
+			display: block; font-size: 14px; font-weight: 600; color: #94a3b8; margin-bottom: 8px;
 		}
-		h2 { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: #f1f5f9; }
-		p { line-height: 1.6; color: #cbd5e1; margin-bottom: 16px; font-size: 14px; }
-		.cdn-list {
-			background: rgba(15, 23, 42, 0.5);
-			border: 1px solid rgba(51, 65, 85, 0.5);
-			border-radius: 12px;
-			padding: 16px;
-			margin: 16px 0;
+		.login-form input[type="password"] {
+			width: 100%; padding: 14px 16px;
+			background: rgba(15, 23, 42, 0.8);
+			border: 2px solid rgba(51, 65, 85, 0.5);
+			border-radius: 12px; color: #e2e8f0; font-size: 16px;
+			margin-bottom: 16px; transition: border-color 0.2s;
 		}
-		.cdn-list h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #f1f5f9; }
-		.cdn-list ul { list-style: none; padding: 0; }
-		.cdn-list li { padding: 8px 0; color: #94a3b8; font-size: 13px; border-bottom: 1px solid rgba(51, 65, 85, 0.3); }
-		.cdn-list li:last-child { border-bottom: none; }
-		.highlight {
-			background: rgba(<?php echo APP_COLOR_SCHEME === 'green' ? '34, 197, 94' : ( APP_COLOR_SCHEME === 'purple' ? '168, 85, 247' : ( APP_COLOR_SCHEME === 'amber' ? '245, 158, 11' : '34, 211, 238' ) ); ?>, 0.1);
-			border: 1px solid rgba(<?php echo APP_COLOR_SCHEME === 'green' ? '34, 197, 94' : ( APP_COLOR_SCHEME === 'purple' ? '168, 85, 247' : ( APP_COLOR_SCHEME === 'amber' ? '245, 158, 11' : '34, 211, 238' ) ); ?>, 0.3);
-			border-radius: 8px; padding: 12px; color: <?php echo $accentColor; ?>; font-size: 13px; font-weight: 600; margin-top: 16px;
+		.login-form input[type="password"]:focus {
+			outline: none; border-color: <?php echo $accentColor; ?>;
 		}
-		.buttons { display: flex; gap: 12px; margin-top: 24px; }
-		button {
-			flex: 1; padding: 16px; border: none; border-radius: 12px;
+		.error-message {
+			background: rgba(239, 68, 68, 0.2);
+			border: 1px solid rgba(239, 68, 68, 0.5);
+			border-radius: 8px; padding: 12px;
+			color: #ef4444; font-size: 14px; margin-bottom: 16px;
+		}
+		.submit-btn {
+			width: 100%; padding: 16px; border: none; border-radius: 12px;
 			font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+			background: <?php echo $buttonGradient; ?>; color: white;
 		}
-		.accept-btn { background: <?php echo $buttonGradient; ?>; color: white; }
-		.accept-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4); }
-		.decline-btn { background: rgba(71, 85, 105, 0.5); color: #cbd5e1; }
-		.decline-btn:hover { background: rgba(71, 85, 105, 0.7); }
+		.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4); }
 		.footer-links { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(51, 65, 85, 0.5); text-align: center; }
 		.footer-links p { font-size: 13px; color: #94a3b8; margin-bottom: 8px; }
 		.footer-links a { color: <?php echo $accentColor; ?>; text-decoration: none; font-weight: 600; }
-		@media (max-width: 640px) {
-			.consent-container { padding: 24px; }
-			h1 { font-size: 24px; }
-			.buttons { flex-direction: column; }
-		}
+		@media (max-width: 640px) { .login-container { padding: 24px; } h1 { font-size: 24px; } }
 	</style>
 </head>
 <body>
-	<div class="consent-container">
+	<div class="login-container">
 		<div class="logo">
 			<img src="<?php echo htmlspecialchars( APP_ICON ); ?>" alt="<?php echo htmlspecialchars( APP_NAME ); ?> Logo">
 			<h1><?php echo $firstName; ?><?php echo $restName ? ' ' . $restName : ''; ?></h1>
-			<p class="subtitle">Datenschutz & Einwilligung</p>
+			<p class="subtitle">Geschützte Instanz</p>
 		</div>
 
-		<div class="consent-content">
-			<h2>🔒 Deine Privatsphäre</h2>
-			<p>Diese App nutzt externe CDN-Dienste für Styling und Funktionalität. Beim Laden dieser Ressourcen kann deine IP-Adresse an folgende Drittanbieter übermittelt werden:</p>
+		<form method="POST" class="login-form">
+			<?php if ( $showError ) : ?>
+				<div class="error-message">
+					Falsches Passwort. Bitte versuche es erneut.
+				</div>
+			<?php endif; ?>
 
-			<div class="cdn-list">
-				<h3>Externe Ressourcen:</h3>
-				<ul>
-					<li><strong>Tailwind CSS</strong> – cdn.tailwindcss.com</li>
-					<li><strong>Canvas Confetti</strong> – cdn.jsdelivr.net</li>
-					<li><strong>Google Fonts</strong> – fonts.googleapis.com</li>
-					<li><strong>Lucide Icons</strong> – unpkg.com</li>
-				</ul>
-			</div>
+			<label for="password">Passwort</label>
+			<input type="password" id="password" name="password" required autofocus placeholder="••••••••">
 
-			<div class="highlight">
-				✅ Alle deine Daten werden ausschließlich lokal in deinem Browser gespeichert (LocalStorage). Es werden keine persönlichen Daten an Server übertragen oder extern gespeichert.
-			</div>
-		</div>
-
-		<div class="buttons">
-			<button class="decline-btn" onclick="declineConsent()">Ablehnen</button>
-			<button class="accept-btn" onclick="acceptConsent()">Akzeptieren & Fortfahren</button>
-		</div>
+			<button type="submit" class="submit-btn">Anmelden</button>
+		</form>
 
 		<div class="footer-links">
 			<p>Ein Projekt von <a href="https://christoph-daum.de" target="_blank">Christoph Daum</a></p>
 			<p>Open Source auf <a href="https://github.com/apermo/bodyrefactoring" target="_blank">GitHub</a></p>
 		</div>
 	</div>
-
-	<script>
-		function acceptConsent() {
-			const expiryDate = new Date();
-			expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-			document.cookie = `br_consent=accepted; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
-			window.location.reload();
-		}
-		function declineConsent() {
-			alert('Ohne Zustimmung kann die App leider nicht genutzt werden, da sie auf externe Ressourcen angewiesen ist.');
-		}
-	</script>
 </body>
 </html>

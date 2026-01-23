@@ -50,6 +50,9 @@ const SHIELDS_KEY = STORAGE_KEYS.SHIELDS;
 const SHIELDS_AWARDED_KEY = STORAGE_KEYS.SHIELDS_AWARDED;
 const MAX_SHIELDS = CONFIG.MAX_SHIELDS;
 
+// Schedule path from PHP config (defaults to 'trainings')
+const SCHEDULE_PATH = window.SCHEDULE_PATH || 'trainings';
+
 // Use imported constants
 const quotes = QUOTES;
 
@@ -122,7 +125,7 @@ async function initApp() {
 		if ( window.debugLog ) {
 			window.debugLog( 'Fetching trainings/...', 'info' );
 		}
-		const response = await fetch( 'trainings/' );
+		const response = await fetch( `${SCHEDULE_PATH}/` );
 
 		if ( !response.ok ) {
 			throw new Error( `Failed to load schedules: ${response.status} ${response.statusText}` );
@@ -200,7 +203,7 @@ async function initApp() {
 async function loadSpecialSchedules() {
 	try {
 		// Load recovery schedule
-		const recoveryRes = await fetch( 'trainings/schedule-recovery.json' );
+		const recoveryRes = await fetch( `${SCHEDULE_PATH}/schedule-recovery.json` );
 		if ( recoveryRes.ok ) {
 			const recoveryJson = await recoveryRes.json();
 			if ( recoveryJson.days && recoveryJson.days[ 0 ] && recoveryJson.days[ 0 ].details ) {
@@ -209,7 +212,7 @@ async function loadSpecialSchedules() {
 		}
 
 		// Load sick schedule
-		const sickRes = await fetch( 'trainings/schedule-sick.json' );
+		const sickRes = await fetch( `${SCHEDULE_PATH}/schedule-sick.json` );
 		if ( sickRes.ok ) {
 			const sickJson = await sickRes.json();
 			if ( sickJson.days && sickJson.days[ 0 ] && sickJson.days[ 0 ].details ) {
@@ -327,7 +330,7 @@ async function fetchScheduleForDate( dateStr ) {
 	}
 
 	// Fetch
-	const res = await fetch( `trainings/${bestMatch.file}` );
+	const res = await fetch( `${SCHEDULE_PATH}/${bestMatch.file}` );
 	const json = await res.json();
 
 	// Handle new structure: { version: 1, days: [...] }
