@@ -5,6 +5,7 @@
 	"description": "Body Refactoring - Personal Training Tracker with Dynamic Scheduling",
 	"scripts": {
 		"test": "npx playwright test",
+		"test:all": "BROWSERS=chromium,webkit,mobile-safari npx playwright test",
 		"test:headed": "npx playwright test --headed",
 		"test:debug": "npx playwright test --debug",
 		"test:ui": "npx playwright test --ui",
