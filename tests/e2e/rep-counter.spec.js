@@ -17,14 +17,14 @@ test.describe( 'Rep Counter', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Expand first day card (Monday has rep counter exercise)
-		const firstDayCard = app.getDayCard( 0 );
-		await firstDayCard.click();
+		// Expand today's card (has rep counter exercise)
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
 
-		// Find and click the rep counter chip
-		const repCounterChip = page.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
+		// Find and click the rep counter chip within today's card
+		const repCounterChip = todayCard.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
 		await repCounterChip.waitFor( { state: 'visible' } );
-		await repCounterChip.click();
+		await repCounterChip.click( { force: true } );
 
 		// Rep counter modal should be visible
 		const modal = page.locator( '#rep-counter-modal' );
@@ -36,10 +36,11 @@ test.describe( 'Rep Counter', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Expand day and start rep counter
-		await app.getDayCard( 0 ).click();
-		const repCounterChip = page.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
-		await repCounterChip.click();
+		// Expand today's card and start rep counter
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
+		const repCounterChip = todayCard.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
+		await repCounterChip.click( { force: true } );
 
 		// Check that the modal shows the exercise title
 		const modalTitle = page.locator( '#rep-counter-modal #rep-exercise-title' );
@@ -53,9 +54,10 @@ test.describe( 'Rep Counter', () => {
 		await app.waitForAppReady();
 
 		// Start rep counter
-		await app.getDayCard( 0 ).click();
-		const repCounterChip = page.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
-		await repCounterChip.click();
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
+		const repCounterChip = todayCard.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
+		await repCounterChip.click( { force: true } );
 
 		// Check set info is displayed
 		const setInfo = page.locator( '#rep-counter-modal #rep-set-info' );
@@ -69,9 +71,10 @@ test.describe( 'Rep Counter', () => {
 		await app.waitForAppReady();
 
 		// Start rep counter
-		await app.getDayCard( 0 ).click();
-		const repCounterChip = page.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
-		await repCounterChip.click();
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
+		const repCounterChip = todayCard.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
+		await repCounterChip.click( { force: true } );
 
 		// Modal should be visible
 		const modal = page.locator( '#rep-counter-modal' );
@@ -86,8 +89,7 @@ test.describe( 'Rep Counter', () => {
 	} );
 
 	test( 'completes full rep counter flow (2 sets x 5 reps)', async ( { page } ) => {
-		// This test uses mock schedule with 1s delay, 10s rest
-		// Total time: ~5s (set 1) + 10s (rest) + 5s (set 2) = ~20s
+		// Total time: ~5s (set 1) + 7s (rest) + 5s (set 2) = ~17s
 		test.setTimeout( 45000 );
 
 		const app = new AppPage( page );
@@ -95,16 +97,17 @@ test.describe( 'Rep Counter', () => {
 		await app.waitForAppReady();
 
 		// Start rep counter
-		await app.getDayCard( 0 ).click();
-		const repCounterChip = page.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
-		await repCounterChip.click();
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
+		const repCounterChip = todayCard.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
+		await repCounterChip.click( { force: true } );
 
 		const modal = page.locator( '#rep-counter-modal' );
 		await expect( modal ).toBeVisible();
 
 		// Wait for rep counter to complete (all sets)
 		// Mock schedule has 2 sets x 5 reps @ 1000ms = 10s per set
-		// Plus 10s rest between sets = ~20-25s total
+		// Plus 7s rest between sets = ~20-25s total
 		await waitForRepCounterComplete( page, 40000 );
 
 		// Modal should be hidden after completion
@@ -118,18 +121,19 @@ test.describe( 'Rep Counter', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Find the exercise row with rep counter
-		await app.getDayCard( 0 ).click();
+		// Find the exercise row with rep counter within today's card
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
 
 		// Find the rep counter chip and its parent exercise row
-		const repCounterChip = page.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
+		const repCounterChip = todayCard.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
 		const exerciseRow = repCounterChip.locator( 'xpath=ancestor::div[contains(@class, "exercise-row")]' );
 
 		// Verify not completed initially
 		await expect( exerciseRow ).not.toHaveClass( /completed/ );
 
 		// Start rep counter
-		await repCounterChip.click();
+		await repCounterChip.click( { force: true } );
 
 		// Wait for completion
 		await waitForRepCounterComplete( page, 40000 );
@@ -146,18 +150,16 @@ test.describe( 'Rep Counter', () => {
 		await app.waitForAppReady();
 
 		// Start rep counter
-		await app.getDayCard( 0 ).click();
-		const repCounterChip = page.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
-		await repCounterChip.click();
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
+		const repCounterChip = todayCard.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
+		await repCounterChip.click( { force: true } );
 
 		// Wait for first set to complete and cooldown to start
 		// First set: 5 reps @ 1s = 5s, then cooldown begins
 		await page.waitForTimeout( 7000 );
 
-		// Should be in cooldown state - check for cooldown display
-		const cooldownDisplay = page.locator( '#rep-counter-modal #rep-cooldown-display' );
-		// The cooldown might show remaining seconds
-		// This depends on the exact implementation
+		// Should be in cooldown state - modal should still be visible
 		const modal = page.locator( '#rep-counter-modal' );
 		await expect( modal ).toBeVisible();
 	} );
@@ -167,11 +169,12 @@ test.describe( 'Rep Counter', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Expand day card
-		await app.getDayCard( 0 ).click();
+		// Expand today's card
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
 
-		// Find rep counter chip
-		const repCounterChip = page.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
+		// Find rep counter chip within today's card
+		const repCounterChip = todayCard.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
 		await expect( repCounterChip ).toBeVisible();
 
 		// Chip should display set x rep info (e.g., "2 x 5")

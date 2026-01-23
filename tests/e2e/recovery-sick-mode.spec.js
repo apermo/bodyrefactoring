@@ -129,4 +129,40 @@ test.describe( 'Recovery and Sick Mode', () => {
 		const count = await dayCards.count();
 		expect( count ).toBeGreaterThan( 0 );
 	} );
+
+	test( 'can return to normal mode from recovery', async ( { page } ) => {
+		const app = new AppPage( page );
+		await app.goto();
+		await app.waitForAppReady();
+
+		// Activate recovery mode first
+		await app.openMenu();
+		await page.locator( 'button:has-text("Krank / Recovery")' ).click();
+		await page.locator( '#sick-mode-modal.open' ).waitFor( { state: 'attached' } );
+		await page.locator( '#sick-mode-modal button:has-text("Recovery Modus")' ).click();
+		await page.waitForTimeout( 1000 );
+
+		// Find today's card and expand it
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
+
+		// Look for "Zurück zu Normal" button
+		const backToNormalButton = page.locator( 'button:has-text("Zurück zu Normal")' );
+		await expect( backToNormalButton ).toBeVisible();
+
+		// Set up dialog handler for confirmation
+		page.on( 'dialog', async ( dialog ) => {
+			await dialog.accept();
+		} );
+
+		// Click back to normal
+		await backToNormalButton.click();
+
+		// Wait for schedule to update
+		await page.waitForTimeout( 1000 );
+
+		// The "Zurück zu Normal" button should no longer be visible
+		// (we're back to normal schedule)
+		await expect( backToNormalButton ).toHaveCount( 0 );
+	} );
 } );

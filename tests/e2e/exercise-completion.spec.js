@@ -13,17 +13,20 @@ test.describe( 'Exercise Completion', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Find the first day card and expand it
-		const firstDayCard = app.getDayCard( 0 );
-		await firstDayCard.click();
+		// Find today's card (not locked) and expand it
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
 
 		// Wait for exercises to be visible
-		const exerciseRow = page.locator( '.exercise-row' ).first();
+		const exerciseRow = todayCard.locator( '.exercise-row' ).first();
 		await exerciseRow.waitFor( { state: 'visible' } );
+
+		// Scroll into view to avoid sticky header overlap
+		await exerciseRow.scrollIntoViewIfNeeded();
 
 		// Click the check circle
 		const checkCircle = exerciseRow.locator( '.check-circle' );
-		await checkCircle.click();
+		await checkCircle.click( { force: true } );
 
 		// Exercise row should have 'completed' class
 		await expect( exerciseRow ).toHaveClass( /completed/ );
@@ -34,25 +37,24 @@ test.describe( 'Exercise Completion', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Find and expand first day card
-		const firstDayCard = app.getDayCard( 0 );
-		await firstDayCard.click();
+		// Find today's card (not locked) and expand it
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
 
-		const exerciseRow = page.locator( '.exercise-row' ).first();
+		const exerciseRow = todayCard.locator( '.exercise-row' ).first();
 		await exerciseRow.waitFor( { state: 'visible' } );
+
+		// Scroll into view to avoid sticky header overlap
+		await exerciseRow.scrollIntoViewIfNeeded();
+
 		const checkCircle = exerciseRow.locator( '.check-circle' );
 
 		// Complete the exercise
-		await checkCircle.click();
+		await checkCircle.click( { force: true } );
 		await expect( exerciseRow ).toHaveClass( /completed/ );
 
-		// Set up dialog handler for confirmation (past days show a confirm dialog)
-		page.on( 'dialog', async ( dialog ) => {
-			await dialog.accept();
-		} );
-
-		// Uncomplete the exercise
-		await checkCircle.click();
+		// Today should not require confirmation - just uncomplete
+		await checkCircle.click( { force: true } );
 		await expect( exerciseRow ).not.toHaveClass( /completed/ );
 	} );
 
@@ -61,14 +63,18 @@ test.describe( 'Exercise Completion', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Complete an exercise
-		const firstDayCard = app.getDayCard( 0 );
-		await firstDayCard.click();
+		// Complete an exercise on today's card
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
 
-		const exerciseRow = page.locator( '.exercise-row' ).first();
+		const exerciseRow = todayCard.locator( '.exercise-row' ).first();
 		await exerciseRow.waitFor( { state: 'visible' } );
+
+		// Scroll into view to avoid sticky header overlap
+		await exerciseRow.scrollIntoViewIfNeeded();
+
 		const checkCircle = exerciseRow.locator( '.check-circle' );
-		await checkCircle.click();
+		await checkCircle.click( { force: true } );
 
 		// Check localStorage has the completion stored
 		const storageKeys = await page.evaluate( () => {
@@ -85,25 +91,29 @@ test.describe( 'Exercise Completion', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Complete an exercise
-		const firstDayCard = app.getDayCard( 0 );
-		await firstDayCard.click();
+		// Complete an exercise on today's card
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
 
-		const exerciseRow = page.locator( '.exercise-row' ).first();
+		const exerciseRow = todayCard.locator( '.exercise-row' ).first();
 		await exerciseRow.waitFor( { state: 'visible' } );
+
+		// Scroll into view to avoid sticky header overlap
+		await exerciseRow.scrollIntoViewIfNeeded();
+
 		const checkCircle = exerciseRow.locator( '.check-circle' );
-		await checkCircle.click();
+		await checkCircle.click( { force: true } );
 		await expect( exerciseRow ).toHaveClass( /completed/ );
 
 		// Reload the page
 		await page.reload();
 		await app.waitForAppReady();
 
-		// Expand the day card again
-		await app.getDayCard( 0 ).click();
+		// Expand today's card again
+		await page.locator( '.day-card.day-active' ).click();
 
 		// Exercise should still be completed
-		const exerciseRowAfterReload = page.locator( '.exercise-row' ).first();
+		const exerciseRowAfterReload = page.locator( '.day-card.day-active .exercise-row' ).first();
 		await expect( exerciseRowAfterReload ).toHaveClass( /completed/ );
 	} );
 
@@ -112,20 +122,24 @@ test.describe( 'Exercise Completion', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Expand first day card
-		const firstDayCard = app.getDayCard( 0 );
-		await firstDayCard.click();
+		// Expand today's card (not locked)
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
 
-		// Get all exercise rows
-		const exerciseRows = page.locator( '.exercise-row' );
+		// Get all exercise rows within today's card
+		const exerciseRows = todayCard.locator( '.exercise-row' );
 		const count = await exerciseRows.count();
 
 		// Complete first two exercises (if available)
 		const toComplete = Math.min( count, 2 );
 		for ( let i = 0; i < toComplete; i++ ) {
 			const row = exerciseRows.nth( i );
+
+			// Scroll into view to avoid sticky header overlap
+			await row.scrollIntoViewIfNeeded();
+
 			const checkCircle = row.locator( '.check-circle' );
-			await checkCircle.click();
+			await checkCircle.click( { force: true } );
 			await expect( row ).toHaveClass( /completed/ );
 		}
 
@@ -140,29 +154,31 @@ test.describe( 'Exercise Completion', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Expand first day card
-		const firstDayCard = app.getDayCard( 0 );
-		await firstDayCard.click();
+		// Expand today's card (not locked)
+		const todayCard = page.locator( '.day-card.day-active' );
+		await todayCard.click();
 
-		// Complete all exercises in the day
-		const exerciseRows = page.locator( '.exercise-row:visible' );
+		// Complete all exercises in today's card
+		const exerciseRows = todayCard.locator( '.exercise-row' );
 		const count = await exerciseRows.count();
 
 		for ( let i = 0; i < count; i++ ) {
 			const row = exerciseRows.nth( i );
+
+			// Scroll into view to avoid sticky header overlap
+			await row.scrollIntoViewIfNeeded();
+
 			// Only click if not already completed
 			const isCompleted = await row.evaluate( ( el ) =>
 				el.classList.contains( 'completed' )
 			);
 			if ( ! isCompleted ) {
 				const checkCircle = row.locator( '.check-circle' );
-				await checkCircle.click();
+				await checkCircle.click( { force: true } );
 			}
 		}
 
-		// Day card should reflect completion (typically shows checkmark or different styling)
-		// The exact indicator depends on app implementation
-		// For now, verify all exercises are completed
+		// Verify all exercises are completed
 		for ( let i = 0; i < count; i++ ) {
 			await expect( exerciseRows.nth( i ) ).toHaveClass( /completed/ );
 		}

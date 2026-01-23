@@ -102,7 +102,7 @@
 			"id": "fri",
 			"dayIndex": 5,
 			"name": "FREITAG",
-			"theme": "Test Day - Minimal",
+			"theme": "Test Day - With Rep Counter",
 			"icon": "flame",
 			"colorClass": "text-orange-400",
 			"bgClass": "bg-orange-500/10",
@@ -114,10 +114,38 @@
 					"desc": "Quick warmup"
 				},
 				{
+					"id": "main_fri_repcounter",
+					"type": "main",
+					"title": "Rep Counter Exercise",
+					"desc": "2 sets x 5 reps for testing",
+					"weight": "5",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 5,
+						"restSeconds": 7,
+						"delayMilliseconds": 1000
+					}
+				},
+				{
 					"id": "main_fri",
 					"type": "main",
 					"title": "Friday Main",
 					"desc": "Single main exercise"
+				},
+				{
+					"id": "main_fri_timing_test",
+					"type": "main",
+					"title": "Timing Test Exercise",
+					"desc": "4 reps @ 1.5s for timing verification",
+					"weight": "10",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 4,
+						"restSeconds": 15,
+						"delayMilliseconds": 1500
+					}
 				}
 			]
 		},
