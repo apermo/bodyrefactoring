@@ -317,27 +317,29 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.7.0 ⏳ - renderSchedule() Refactor
+### v15.0.0 ⏳ - app.js Refactoring
 
-**Priority: High**
-**Focus**: Code quality and maintainability - refactor before complex features
+**Priority: HIGH**
+**Focus**: Break down the monolithic app.js into maintainable, modular components
 
 **Why Now?**
-- Clean foundation before advanced rep counter features (v14.8.0)
+- app.js has grown too large and complex
 - Playwright tests (v14.5.0) provide safety net for refactoring
-- Easier to add v15.0.0 overrides to clean, modular code
-- 307-line function is too large and handles too many responsibilities
-- Quality first: Better to delay rep counter slightly for cleaner codebase
+- Clean foundation required before adding more features
+- Code quality and maintainability are critical for long-term sustainability
 
 #### Current Problem
-- **renderSchedule()**: ~307 lines, handles too many responsibilities
-- Mixed concerns: DOM manipulation, business logic, state management
-- Difficult to test, maintain, and extend
-- Adding new features requires modifying massive function
+- **app.js**: Monolithic file handling too many responsibilities
+- **renderSchedule()**: ~307 lines, mixed concerns (DOM manipulation, business logic, state management)
+- Difficult to test individual components in isolation
+- Adding new features requires modifying massive interconnected code
+- High cognitive load when debugging or extending functionality
 
-#### Solution: ScheduleRenderer Class
+#### Solution: Modular Architecture
 
-**Extract into focused methods:**
+**Phase 1: ScheduleRenderer Class**
+
+Extract `renderSchedule()` into focused methods:
 - `renderNavigation()` - Week navigation logic
 - `renderDayCard()` - Single day card
 - `renderExercise()` - Exercise rows (normal, alternatives)
@@ -346,27 +348,67 @@ This document outlines planned features and improvements for the Body Refactorin
 - `renderNotes()` - Logbook section
 - Helper methods for weight inputs, timers, rep counter chips
 
+**Phase 2: Component Extraction**
+
+Break down remaining app.js into dedicated modules:
+- `UIController` - DOM manipulation and event binding
+- `ExerciseController` - Exercise completion logic
+- `ModalController` - Modal management (completion, confirmation dialogs)
+- `NavigationController` - Week/day navigation
+- `InitializationService` - App startup and configuration
+
+**Phase 3: Event System**
+
+- Implement pub/sub pattern for loose coupling
+- Components communicate via events, not direct calls
+- Easier to test and maintain
+
+#### Target Architecture
+
+```
+assets/js/
+├── app.js                    # Minimal orchestrator (~100 lines)
+├── modules/
+│   ├── constants.js          # (existing)
+│   ├── state-manager.js      # (existing)
+│   ├── storage-service.js    # (existing)
+│   ├── schedule-renderer.js  # NEW: UI rendering
+│   ├── ui-controller.js      # NEW: DOM/events
+│   ├── exercise-controller.js # NEW: Exercise logic
+│   ├── modal-controller.js   # NEW: Modals
+│   └── ...
+```
+
 **Benefits:**
-- ✅ Small, testable methods (< 30 lines each)
-- ✅ Clear responsibilities
-- ✅ Easier to add rep counter features (v14.8.0)
-- ✅ Easier to add overrides (v15.0.0)
-- ✅ Easier to add XP badges (v16.0.0)
+- ✅ Small, testable modules (< 100 lines each)
+- ✅ Clear separation of concerns
+- ✅ Easier onboarding for future development
+- ✅ Faster debugging (isolated components)
+- ✅ Foundation for v16.0.0 overrides system
+- ✅ Foundation for v17.0.0 XP badges
 
 **Refactoring Strategy:**
 1. Extract methods incrementally (test after each)
-2. Wrap in ScheduleRenderer class
-3. Update app.js to use new class
-4. Verify with Playwright tests
+2. Create new module files
+3. Wrap related methods in classes/modules
+4. Update app.js to orchestrate modules
+5. Verify with Playwright tests at each step
+6. No feature changes - pure refactoring
+
+**Success Criteria:**
+- app.js reduced to < 200 lines (orchestration only)
+- No function exceeds 50 lines
+- All modules independently testable
+- Playwright tests pass without modification
 
 ---
 
-### v14.8.0 ⏳ - Advanced Rep Counter Features
+### v15.1.0 ⏳ - Advanced Rep Counter Features
 
 **Priority: High**
 **Focus**: Complex rep counter enhancements on clean foundation
 
-**Note**: Built on refactored renderSchedule() (v14.7.0) for cleaner integration. These features were originally in v14.0.0 but moved here to ensure proper test coverage (v14.5.0) and clean code foundation (v14.3.0) are in place first.
+**Note**: Built on refactored renderSchedule() (v15.0.0) for cleaner integration. These features were originally in v14.0.0 but moved here to ensure proper test coverage (v14.5.0) and clean code foundation (v14.3.0) are in place first.
 
 #### Rep Cooldown Timer Improvements
 - ✅ **Set Timing Log Button** (v14.3.1)
@@ -515,7 +557,7 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v14.9.0 ⏳ - Streak Feature Rework
+### v15.2.0 ⏳ - Streak Feature Rework
 
 **Priority: Medium**
 **Focus**: Decouple streak calculation from individual task ticks
@@ -551,12 +593,12 @@ This document outlines planned features and improvements for the Body Refactorin
 - ✅ Schedule changes don't break historical streaks
 - ✅ Clear separation: task completion vs day completion
 - ✅ Predictable recovery/sick day behavior
-- ✅ Reusable in XP system (v16.0.0)
+- ✅ Reusable in XP system (v17.0.0)
 - ✅ Testable without full schedule context
 
 ---
 
-### v15.0.0 - Dynamic Rep/Set Management
+### v16.0.0 - Dynamic Rep/Set Management
 
 **Priority: High**  
 **Focus**: Remove need to edit JSON files for Rep/Set adjustments
@@ -597,7 +639,7 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v16.0.0 - XP & Progression System
+### v17.0.0 - XP & Progression System
 
 **Priority: Medium**  
 **Focus**: Gamification and schedule lifecycle management
@@ -724,12 +766,12 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ---
 
-### v17.0.0 - Schedule Management Refactoring (Phase 1)
+### v18.0.0 - Schedule Management Refactoring (Phase 1)
 
 **Priority: High**  
 **Focus**: Privacy-first architecture with smooth transition
 
-**Note**: This is Phase 1 - localStorage implementation with fallback. Repository cleanup happens in v17.1.0 or v18.0.0.
+**Note**: This is Phase 1 - localStorage implementation with fallback. Repository cleanup happens in v18.1.0 or v19.0.0.
 
 #### Core Changes
 - **localStorage Schedule Management**
@@ -744,13 +786,13 @@ This document outlines planned features and improvements for the Body Refactorin
   - Automatically imports existing schedule on first load
   - Saves imported schedule to localStorage
   - Seamless transition for existing user (no manual export/import needed)
-  - Schedules remain in repository during v17.0.0 for compatibility
+  - Schedules remain in repository during v18.0.0 for compatibility
 
-- **Repository Status (v17.0.0)**
-  - **Keep** all `schedule-*.json` files in `/trainings/` directory
+- **Repository Status (v18.0.0)**
+  - **Keep** all `schedule-*.json` files in `/schedules/` directory
   - Keep `schema-schedule-v*.json` and `template-schedule.json`
   - Schedules serve as fallback during transition
-  - Note: Repository cleanup planned for v17.1.0 or v18.0.0
+  - Note: Repository cleanup planned for v18.1.0 or v19.0.0
 
 #### Upload & Validation System
 
@@ -883,7 +925,7 @@ This document outlines planned features and improvements for the Body Refactorin
   - Upload button to import schedules
   - Autocomplete backed by localStorage schedule library
 
-- **Repository Cleanup (v17.1.0 or v18.0.0)**
+- **Repository Cleanup (v18.1.0 or v19.0.0)**
   - Phase 2: Remove `schedule-2025-*.json` and `schedule-2026-*.json`
   - Keep `template-schedule.json` as reference
   - Keep `schema-schedule-v*.json` for validation
@@ -938,19 +980,19 @@ This document outlines planned features and improvements for the Body Refactorin
 
 **Breaking Changes:**
 
-- ⚠️ **v17.0.0**: No breaking changes! Smooth transition with fallback
+- ⚠️ **v18.0.0**: No breaking changes! Smooth transition with fallback
   - localStorage preferred, webspace schedules as fallback
   - Existing user: No action needed, automatic import on first load
   - New users: Can upload schedules or use webspace fallback
-- ⚠️ **v17.1.0/v18.0.0**: Repository schedules removed (breaking)
+- ⚠️ **v18.1.0/v19.0.0**: Repository schedules removed (breaking)
   - Must have schedule in localStorage or upload one
   - Onboarding screen guides new users
   - Demo/example schedule available
 
 **Migration Steps (for solo user):**
 
-**v17.0.0 - Automatic & Seamless:**
-1. Deploy v17.0.0 to production
+**v18.0.0 - Automatic & Seamless:**
+1. Deploy v18.0.0 to production
 2. On first load:
    - App checks localStorage (empty)
    - Loads from webspace `/trainings/schedule-*.json`
@@ -959,8 +1001,8 @@ This document outlines planned features and improvements for the Body Refactorin
 3. Everything works as before - no manual intervention needed!
 4. Optionally: Use new upload UI to add more schedules
 
-**v17.1.0/v18.0.0 - Repository Cleanup:**
-1. Ensure schedule is in localStorage (already done in v17.0.0)
+**v18.1.0/v19.0.0 - Repository Cleanup:**
+1. Ensure schedule is in localStorage (already done in v18.0.0)
 2. Delete schedule JSON files from repository
 3. Update onboarding for new users
 4. Commit and push cleanup
@@ -978,8 +1020,8 @@ This document outlines planned features and improvements for the Body Refactorin
 
 ## 🎯 Feature Prioritization & Rationale
 
-### High Priority (v14.x, v15, v17)
-**Rep Counter Enhancements**, **Code Quality**, **Testing**, **Dynamic Rep/Set Management**, and **Schedule Management Refactoring** are high priority because:
+### High Priority (v14.x, v15, v16, v18)
+**Rep Counter Enhancements**, **Code Quality**, **Testing**, **app.js Refactoring**, **Dynamic Rep/Set Management**, and **Schedule Management Refactoring** are high priority because:
 
 **v14.0 - Rep Counter Basics:**
 1. **Immediate UX improvements** - Basic rep counter functionality
@@ -998,44 +1040,49 @@ This document outlines planned features and improvements for the Body Refactorin
 2. **Regression prevention** - Automated tests catch breaking changes
 3. **Documentation** - Tests serve as executable documentation
 4. **Faster development** - Less manual testing needed
-5. **Foundation** - Required before major refactorings (v14.3, v15-v17)
+5. **Foundation** - Required before major refactorings (v15-v18)
 
-**v14.3 - Advanced Rep Counter:**
-1. **Complex state management** - Requires test coverage from v14.2
-2. **Timing-critical features** - 10s prompts, 50% progress timing
-3. **Sleep prevention** - Mission-critical for workout safety
-4. **Animation refinements** - Visual polish with regression protection
+**v15 - app.js Refactoring:**
+1. **Code maintainability** - Break down monolithic file into modules
+2. **Foundation for features** - Clean architecture enables faster development
+3. **Testability** - Isolated components are easier to test
+4. **Quality first** - Better to refactor before adding more complexity
 
-**v15 - Dynamic Management:**
+**v16 - Dynamic Management:**
 1. **Remove friction** - No JSON editing for common adjustments
 2. **Progressive overload** - Built-in support for training progression
 3. **Flexibility** - Quick adjustments without breaking base schedule
 
-**v17 - Schedule Management:**
+**v18 - Schedule Management:**
 1. **Privacy-first** - Personal workout data stays out of public repository
 2. **Architecture shift** - Enables true multi-user functionality
 3. **Deployment efficiency** - Faster, cleaner deployments without schedule changes
 4. **Foundation for future** - Required before considering any multi-user features
 
-### Medium Priority (v16)
+### Medium Priority (v17)
 **XP System** is medium priority because:
 1. **Nice-to-have gamification** - Not blocking current functionality
 2. **Complex implementation** - Requires schema changes and new systems
 3. **Schedule lifecycle** - Useful but not urgent (current schedule workflow functions)
 4. **AI integration** - Innovative but experimental feature
-5. **Depends on v15** - Overrides system provides foundation for auto-progression
+5. **Depends on v16** - Overrides system provides foundation for auto-progression
 
 ### Version Ordering Rationale
 
 **Why linting and testing before features?**
 - Code quality and testing should come before major features
 - Linting ensures consistent code standards before refactoring
-- Tests prevent regressions during v15-v17 development
+- Tests prevent regressions during v15-v18 development
 
-**Why v17 after v16?**
-- v16 (XP system) works with current architecture
-- v17 is a breaking architectural change
-- Clean separation: v16 = features, v17 = architecture
+**Why v15 refactoring before v16 features?**
+- app.js has grown too large and complex
+- Clean code foundation enables faster feature development
+- Playwright tests (v14.5) provide safety net for refactoring
+
+**Why v18 after v17?**
+- v17 (XP system) works with current architecture
+- v18 is a breaking architectural change
+- Clean separation: v17 = features, v18 = architecture
 
 ---
 
@@ -1081,9 +1128,12 @@ All features optimized for iPhone/PWA:
 
 1. **v14.0.0 - Part 1**: Rep cooldown quick access (2-3 days)
 2. **v14.0.0 - Part 2**: Rep animation improvements (1-2 days)
-3. **v15.0.0**: Dynamic rep/set management (3-4 days)
-4. **v16.0.0 - Part 1**: XP system core (4-5 days)
-5. **v16.0.0 - Part 2**: Level up survey & AI export (2-3 days)
+3. **v15.0.0**: app.js refactoring (1-2 weeks)
+4. **v15.1.0**: Advanced rep counter features (3-4 days)
+5. **v15.2.0**: Streak feature rework (1-2 days)
+6. **v16.0.0**: Dynamic rep/set management (3-4 days)
+7. **v17.0.0 - Part 1**: XP system core (4-5 days)
+8. **v17.0.0 - Part 2**: Level up survey & AI export (2-3 days)
 
 **Total estimated effort**: 12-17 development days (2-3 weeks of actual calendar time)
 
@@ -1115,7 +1165,7 @@ All features optimized for iPhone/PWA:
 - ✅ **Faster debugging** - Failed checks are immediately identifiable
 
 **Future Additions:**
-- Schedule JSON validation workflow (when implementing v16.0.0 schema v2)
+- Schedule JSON validation workflow (when implementing v17.0.0 schema v2)
 - Automated changelog generation workflow
 - Release automation workflow
 
@@ -1124,8 +1174,8 @@ All features optimized for iPhone/PWA:
 ## 🗂️ Backlog - Code Quality & Refactoring
 
 **Note:** The two major refactoring tasks (renderSchedule and calculateStreak) have been scheduled in the v14.x cycle:
-- ✅ **renderSchedule() Refactor** → Scheduled for v14.7.0
-- ✅ **calculateStreak() Refactor** → Scheduled for v14.9.0
+- ✅ **renderSchedule() Refactor** → Scheduled for v15.0.0
+- ✅ **calculateStreak() Refactor** → Scheduled for v15.2.0
 
 This section is now empty but reserved for future refactoring tasks that arise during development.
 
@@ -1287,7 +1337,7 @@ SYNC_API_URL=/api/storage
 - ✅ Schedules can sync too (phase 4)
 
 **Dependencies:**
-- Should come after v17.0.0 (Schedule Management Refactoring)
+- Should come after v18.0.0 (Schedule Management Refactoring)
 - Builds on existing `StorageService.exportAll()` / `importAll()`
 
 ---
