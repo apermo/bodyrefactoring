@@ -1,7 +1,7 @@
 // @ts-check
 const { test, expect } = require( '@playwright/test' );
 const { AppPage } = require( '../pages/AppPage' );
-const { setupMockSchedule, getDateRelativeToToday } = require( '../fixtures/test-helpers' );
+const { setupMockSchedule } = require( '../fixtures/test-helpers' );
 
 test.describe( 'Exercise Checkbox Boundaries', () => {
 	test.beforeEach( async ( { page } ) => {
@@ -19,7 +19,7 @@ test.describe( 'Exercise Checkbox Boundaries', () => {
 
 		// Get first exercise
 		const exerciseRow = todayCard.locator( '.exercise-row' ).first();
-		await exerciseRow.waitFor( { state: 'visible' } );
+		await expect( exerciseRow ).toBeVisible();
 		const checkCircle = exerciseRow.locator( '.check-circle' );
 
 		// Track if dialog appeared
@@ -51,40 +51,37 @@ test.describe( 'Exercise Checkbox Boundaries', () => {
 		await page.waitForTimeout( 500 );
 
 		// Find a day card that is not locked (within 3 days)
-		// We need to find a card without the lock icon
-		const dayCards = page.locator( '.day-card:not(.day-locked)' );
-		const count = await dayCards.count();
+		const unlockedDayCards = page.locator( '.day-card:not(.day-locked)' );
+		const count = await unlockedDayCards.count();
 
-		if ( count > 0 ) {
-			const pastDayCard = dayCards.first();
-			await pastDayCard.click();
+		// Skip if no unlocked past days available
+		test.skip( count === 0, 'No unlocked past days available in previous week' );
 
-			const exerciseRow = pastDayCard.locator( '.exercise-row' ).first();
-			// Check if exercise row exists and is visible
-			const rowVisible = await exerciseRow.isVisible().catch( () => false );
+		const pastDayCard = unlockedDayCards.first();
+		await pastDayCard.click();
 
-			if ( rowVisible ) {
-				const checkCircle = exerciseRow.locator( '.check-circle' );
+		const exerciseRow = pastDayCard.locator( '.exercise-row' ).first();
+		await expect( exerciseRow ).toBeVisible();
 
-				// Track dialog
-				let dialogAppeared = false;
-				page.on( 'dialog', async ( dialog ) => {
-					dialogAppeared = true;
-					await dialog.accept();
-				} );
+		const checkCircle = exerciseRow.locator( '.check-circle' );
 
-				// Complete the exercise first
-				await checkCircle.click( { force: true } );
-				await page.waitForTimeout( 300 );
+		// Track dialog
+		let dialogAppeared = false;
+		page.on( 'dialog', async ( dialog ) => {
+			dialogAppeared = true;
+			await dialog.accept();
+		} );
 
-				// Now uncomplete - should show confirmation for past days
-				await checkCircle.click( { force: true } );
-				await page.waitForTimeout( 500 );
+		// Complete the exercise first
+		await checkCircle.click( { force: true } );
+		await page.waitForTimeout( 300 );
 
-				// Dialog should have appeared for past day
-				expect( dialogAppeared ).toBe( true );
-			}
-		}
+		// Now uncomplete - should show confirmation for past days
+		await checkCircle.click( { force: true } );
+		await page.waitForTimeout( 500 );
+
+		// Dialog should have appeared for past day
+		expect( dialogAppeared ).toBe( true );
 	} );
 
 	test( 'future days are locked and cannot be clicked', async ( { page } ) => {
@@ -104,19 +101,21 @@ test.describe( 'Exercise Checkbox Boundaries', () => {
 		expect( lockCount ).toBeGreaterThan( 0 );
 
 		// Find a locked day card
-		const lockedCard = page.locator( '.day-card.day-locked' ).first();
-		const hasLockedCard = await lockedCard.count() > 0;
+		const lockedCards = page.locator( '.day-card.day-locked' );
+		const lockedCount = await lockedCards.count();
 
-		if ( hasLockedCard ) {
-			await lockedCard.click();
+		// Skip if no locked cards found
+		test.skip( lockedCount === 0, 'No locked day cards found in next week' );
 
-			// Check circles should not be clickable (no cursor-pointer or no onclick)
-			const checkCircle = lockedCard.locator( '.check-circle' ).first();
-			const hasOnclick = await checkCircle.getAttribute( 'onclick' );
+		const lockedCard = lockedCards.first();
+		await lockedCard.click();
 
-			// Locked days should have empty onclick
-			expect( hasOnclick ).toBeFalsy();
-		}
+		// Check circles should not be clickable (no onclick handler)
+		const checkCircle = lockedCard.locator( '.check-circle' ).first();
+		const hasOnclick = await checkCircle.getAttribute( 'onclick' );
+
+		// Locked days should have empty onclick
+		expect( hasOnclick ).toBeFalsy();
 	} );
 
 	test( 'days more than 3 days ago are locked', async ( { page } ) => {
@@ -128,10 +127,6 @@ test.describe( 'Exercise Checkbox Boundaries', () => {
 		await app.goToPreviousWeek();
 		await app.goToPreviousWeek();
 		await page.waitForTimeout( 500 );
-
-		// All days this far back should be locked
-		const dayCards = page.locator( '.day-card' );
-		const count = await dayCards.count();
 
 		// Check that old days have lock indicators
 		const lockIcons = page.locator( '.lock-icon' );
@@ -148,10 +143,10 @@ test.describe( 'Exercise Checkbox Boundaries', () => {
 
 		// On current week, today should not be locked
 		const todayCard = page.locator( '.day-card.day-active' );
-		const hasLockIcon = await todayCard.locator( '.lock-icon' ).count();
+		const lockIconCount = await todayCard.locator( '.lock-icon' ).count();
 
 		// Today should not have a lock icon
-		expect( hasLockIcon ).toBe( 0 );
+		expect( lockIconCount ).toBe( 0 );
 
 		// Today's checkboxes should be clickable
 		await todayCard.click();

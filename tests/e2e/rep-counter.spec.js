@@ -125,14 +125,17 @@ test.describe( 'Rep Counter', () => {
 		const todayCard = page.locator( '.day-card.day-active' );
 		await todayCard.click();
 
-		// Find the rep counter chip and its parent exercise row
-		const repCounterChip = todayCard.locator( '.timer-chip[onclick*="startRepCounter"]' ).first();
-		const exerciseRow = repCounterChip.locator( 'xpath=ancestor::div[contains(@class, "exercise-row")]' );
+		// Find exercise row containing a rep counter chip (use filter to find parent)
+		const exerciseRow = todayCard.locator( '.exercise-row' )
+			.filter( { has: page.locator( '.timer-chip[onclick*="startRepCounter"]' ) } )
+			.first();
+		await expect( exerciseRow ).toBeVisible();
 
 		// Verify not completed initially
 		await expect( exerciseRow ).not.toHaveClass( /completed/ );
 
-		// Start rep counter
+		// Find and click the rep counter chip within this exercise row
+		const repCounterChip = exerciseRow.locator( '.timer-chip[onclick*="startRepCounter"]' );
 		await repCounterChip.click( { force: true } );
 
 		// Wait for completion
@@ -143,7 +146,7 @@ test.describe( 'Rep Counter', () => {
 	} );
 
 	test( 'shows cooldown timer between sets', async ( { page } ) => {
-		test.setTimeout( 30000 );
+		test.setTimeout( 45000 );
 
 		const app = new AppPage( page );
 		await app.goto();

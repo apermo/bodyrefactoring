@@ -166,44 +166,45 @@ test.describe( 'Export and Import', () => {
 			);
 		} );
 
-		if ( storageKeys.length > 0 ) {
-			const testKey = storageKeys[ 0 ];
+		// Skip test if no storage keys were created
+		test.skip( storageKeys.length === 0, 'No storage keys were created after completing exercise' );
 
-			// Export
-			const downloadPromise = page.waitForEvent( 'download' );
-			await app.openMenu();
-			await page.locator( 'button:has-text("Backup speichern")' ).click();
-			const download = await downloadPromise;
-			const downloadPath = await download.path();
+		const testKey = storageKeys[ 0 ];
 
-			// Clear localStorage
-			await page.evaluate( () => {
-				const keysToRemove = Object.keys( localStorage ).filter( ( k ) =>
-					k.startsWith( 'body_refactoring' )
-				);
-				keysToRemove.forEach( ( k ) => localStorage.removeItem( k ) );
-			} );
+		// Export
+		const downloadPromise = page.waitForEvent( 'download' );
+		await app.openMenu();
+		await page.locator( 'button:has-text("Backup speichern")' ).click();
+		const download = await downloadPromise;
+		const downloadPath = await download.path();
 
-			// Verify it's cleared
-			const clearedValue = await page.evaluate(
-				( key ) => localStorage.getItem( key ),
-				testKey
+		// Clear localStorage
+		await page.evaluate( () => {
+			const keysToRemove = Object.keys( localStorage ).filter( ( k ) =>
+				k.startsWith( 'body_refactoring' )
 			);
-			expect( clearedValue ).toBeNull();
+			keysToRemove.forEach( ( k ) => localStorage.removeItem( k ) );
+		} );
 
-			// Import the backup
-			page.on( 'dialog', async ( dialog ) => {
-				await dialog.accept();
-			} );
-			await page.locator( '#import-input' ).setInputFiles( downloadPath );
-			await page.waitForTimeout( 1000 );
+		// Verify it's cleared
+		const clearedValue = await page.evaluate(
+			( key ) => localStorage.getItem( key ),
+			testKey
+		);
+		expect( clearedValue ).toBeNull();
 
-			// Verify data is restored
-			const restoredValue = await page.evaluate(
-				( key ) => localStorage.getItem( key ),
-				testKey
-			);
-			expect( restoredValue ).toBe( 'true' );
-		}
+		// Import the backup
+		page.on( 'dialog', async ( dialog ) => {
+			await dialog.accept();
+		} );
+		await page.locator( '#import-input' ).setInputFiles( downloadPath );
+		await page.waitForTimeout( 1000 );
+
+		// Verify data is restored
+		const restoredValue = await page.evaluate(
+			( key ) => localStorage.getItem( key ),
+			testKey
+		);
+		expect( restoredValue ).toBe( 'true' );
 	} );
 } );
