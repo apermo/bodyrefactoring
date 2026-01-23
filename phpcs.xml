@@ -3,8 +3,14 @@
 	<description>Custom ruleset based on WordPress Coding Standards for Body Refactoring</description>
 
 	<!-- What to scan -->
+	<file>consent.php</file>
+	<file>deploy.php</file>
+	<file>index.php</file>
+	<file>login.php</file>
+	<file>logout.php</file>
+	<file>schedule-editor.php</file>
+	<file>tools.php</file>
 	<file>assets/</file>
-	<file>tools/</file>
 	<file>schedules/</file>
 
 	<!-- Only scan PHP files (JS/CSS handled by ESLint/Stylelint) -->
