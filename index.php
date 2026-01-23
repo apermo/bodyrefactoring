@@ -1,4 +1,13 @@
 <?php
+/**
+ * Main Application Entry Point
+ *
+ * Renders the Body Refactoring PWA interface.
+ *
+ * @package BodyRefactoring
+ */
+
+// Load dependencies and helpers.
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/assets/cachebuster.php';
 
@@ -118,7 +127,7 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 			return false;
 		};
 	</script>
- 	<script type="module" src="<?php echo asset( 'assets/js/app.js' ); ?>"></script>
+	 <script type="module" src="<?php echo asset( 'assets/js/app.js' ); ?>"></script>
 </head>
 <body class="<?php echo get_color_scheme_class(); ?>" onclick="closeMenuOutside(event)">
 

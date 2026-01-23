@@ -12,7 +12,7 @@
  *
  * @return string The version number.
  */
-function get_app_version() {
+function get_app_version(): string {
 	static $version = null;
 
 	if ( $version === null ) {
@@ -34,7 +34,7 @@ function get_app_version() {
  *
  * @param string $path Path to the .env file.
  */
-function load_env( $path ) {
+function load_env( string $path ): void {
 	if ( ! file_exists( $path ) ) {
 		http_response_code( 500 );
 		die( 'ERROR: .env file not found' );
@@ -124,8 +124,6 @@ function verify_password( string $password ): bool {
 
 /**
  * Set the authentication cookie.
- *
- * @return void
  */
 function set_auth_cookie(): void {
 	$token   = substr( hash( 'sha256', APP_PASSWORD_HASH ), 0, 32 );
@@ -135,8 +133,6 @@ function set_auth_cookie(): void {
 
 /**
  * Clear the authentication cookie (logout).
- *
- * @return void
  */
 function clear_auth_cookie(): void {
 	setcookie( AUTH_COOKIE_NAME, '', time() - 3600, '/', '', true, true );

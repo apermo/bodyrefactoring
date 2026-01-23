@@ -7,6 +7,7 @@
  * @package BodyRefactoring
  */
 
+// Clear auth cookie and redirect to home page.
 require_once __DIR__ . '/tools.php';
 
 clear_auth_cookie();

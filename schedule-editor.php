@@ -7,6 +7,7 @@
  * @package BodyRefactoring
  */
 
+// Load dependencies and helpers.
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/assets/cachebuster.php';
 ?>
