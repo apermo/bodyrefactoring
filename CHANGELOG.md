@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Password protection** for private instances
+  - `APP_PASSWORD_HASH` env var for bcrypt password authentication
+  - Dedicated login.php and logout.php pages
+  - Session management with configurable duration
+  - Logout button in menu when authenticated
+  - Graceful fallback to consent flow when no password set
+
+- **Customizable branding** via environment variables
+  - `APP_NAME` - Custom app title (default: "Body Refactoring")
+  - `APP_COLOR_SCHEME` - Color theme: default, green, purple, amber
+  - `APP_ICON` - Path to custom icon/logo
+  - Dynamic branding in splash screen, header, intro modal
+  - CSS color scheme classes with custom properties
+
+- **Configurable schedule path**
+  - `SCHEDULE_PATH` env var (default: "trainings")
+  - Enables separate schedule directories for different instances
+
 - **Schedule schema v3** with date-based task filtering
   - `custom` exercise type with `customLabel` for user-defined badges
   - `dateCondition` field for conditional task display:
