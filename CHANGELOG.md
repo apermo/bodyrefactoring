@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Export/import data functionality
   - Recovery and sick mode
   - Mock schedule for fast, predictable tests
+- **Test categorization** (quick vs slow)
+  - Quick tests (default): 54 tests, ~27s, suitable for PR checks
+  - Slow tests (`@slow`): 4 tests involving real-time rep counter flows
+  - `npm test` runs quick tests only, `npm run test:full` runs all
 - **Testing documentation** (`docs/testing.md`)
   - How to run tests
   - Test architecture and file structure

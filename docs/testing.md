@@ -22,12 +22,39 @@ npx playwright test tests/e2e/consent-intro.spec.js
 
 | Script | Description |
 |--------|-------------|
-| `npm test` | Run all tests in headless mode (mobile-safari) |
+| `npm test` | Run quick tests only, excludes `@slow` (~27s) |
+| `npm run test:full` | Run all tests including `@slow` (~1.5min) |
+| `npm run test:slow` | Run only `@slow` tests |
+| `npm run test:browsers` | Run all tests on all browsers |
 | `npm run test:headed` | Run tests with visible browser window |
 | `npm run test:debug` | Debug mode with Playwright Inspector |
 | `npm run test:ui` | Interactive UI mode for exploring tests |
 | `npm run test:report` | Open HTML report of last test run |
-| `npm run test:all` | Run tests on all browsers (chromium, firefox, webkit) |
+
+## Test Categories
+
+Tests are split into two categories:
+
+### Quick Tests (default)
+- Fast tests suitable for PR checks
+- Complete in ~27 seconds
+- Cover all features except full rep counter flows
+
+### Slow Tests (`@slow`)
+- Tests involving complete rep counter timing flows
+- Take 30-60 seconds each due to real-time counting
+- Run with `npm run test:full` or `npm run test:slow`
+- Should run when:
+  - Rep counter code is modified
+  - Major refactoring is done
+  - Before releases
+
+To mark a test as slow, add `@slow` to the test title:
+```javascript
+test( 'completes full rep counter flow @slow', async ( { page } ) => {
+    // ...
+});
+```
 
 ## Browser Configuration
 

@@ -186,19 +186,29 @@ App uses explicit state machines for app lifecycle, timers, modals. See `/assets
 ### Playwright E2E Tests
 
 ```bash
-npm test              # Run all tests (mobile-safari)
+npm test              # Quick tests only, excludes @slow (~27s)
+npm run test:full     # All tests including @slow (~1.5min)
+npm run test:slow     # Only @slow tests
+npm run test:browsers # All tests on all browsers
 npm run test:headed   # Run with visible browser
 npm run test:debug    # Debug mode with Playwright Inspector
 npm run test:ui       # Interactive UI mode
 npm run test:report   # View last test report
-npm run test:all      # Run on all browsers (chromium, firefox, webkit)
 
 # Run specific test file
 npx playwright test tests/e2e/consent-intro.spec.js
 
 # Run with different browsers
 BROWSERS=chromium,webkit npm test
+TEST_MODE=full BROWSERS=chromium npm test  # Full tests on Chrome
 ```
+
+### Test Categories
+
+- **Quick tests** (default): Fast tests for PR checks (~27s)
+- **Slow tests** (`@slow`): Full rep counter timing flows (30-60s each)
+
+Run `test:full` when modifying rep counter code or before releases.
 
 ### Test Architecture
 
