@@ -178,9 +178,51 @@ App uses explicit state machines for app lifecycle, timers, modals. See `/assets
 
 ## Testing
 
+### Manual Testing
 - Test on iOS Safari (primary target)
 - Test as installed PWA (Add to Home Screen)
 - Validate JSON schedules before committing
+
+### Playwright E2E Tests
+
+```bash
+npm test              # Run all tests (mobile-safari)
+npm run test:headed   # Run with visible browser
+npm run test:debug    # Debug mode with Playwright Inspector
+npm run test:ui       # Interactive UI mode
+npm run test:report   # View last test report
+npm run test:all      # Run on all browsers (chromium, firefox, webkit)
+
+# Run specific test file
+npx playwright test tests/e2e/consent-intro.spec.js
+
+# Run with different browsers
+BROWSERS=chromium,webkit npm test
+```
+
+### Test Architecture
+
+- **Page Objects**: `tests/pages/AppPage.js` - reusable page interactions
+- **Fixtures**: `tests/fixtures/` - mock schedule and test helpers
+- **Specs**: `tests/e2e/*.spec.js` - test files organized by feature
+
+### Consent & Intro Screen Handling
+
+Tests bypass consent/intro by default via `AppPage.goto()`:
+- Sets `br_consent` cookie before navigation
+- Sets `body_refactoring_intro_seen` localStorage via `addInitScript()`
+
+To test these screens explicitly, see `consent-intro.spec.js`.
+
+### Adding New Tests
+
+1. Use `setupMockSchedule(page)` in `beforeEach` for predictable data
+2. Use `AppPage` methods for common interactions
+3. Use `test.skip()` for conditional tests, not silent if blocks
+4. Scope locators within parent elements (e.g., `todayCard.locator(...)`)
+5. Add `{ force: true }` for clicks blocked by sticky header
+
+See `docs/testing.md` for detailed documentation.
 
 ## Code Quality Principles
 
