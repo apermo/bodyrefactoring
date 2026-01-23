@@ -6,21 +6,21 @@ require_once __DIR__ . '/assets/cachebuster.php';
 header( 'Cache-Control: no-cache, must-revalidate' );
 
 // Authentication check - redirect to login if auth enabled and not authenticated
-if ( isAuthEnabled() && ! isAuthenticated() ) {
+if ( is_auth_enabled() && ! is_authenticated() ) {
 	require_once __DIR__ . '/login.php';
 	exit;
 }
 
 // Consent check - only for non-authenticated instances
-if ( ! isAuthEnabled() && ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' ) ) {
+if ( ! is_auth_enabled() && ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' ) ) {
 	require_once __DIR__ . '/consent.php';
 	exit;
 }
 
 // Split app name for header display
-$nameParts = explode( ' ', APP_NAME, 2 );
-$firstName = htmlspecialchars( $nameParts[0] );
-$restName  = isset( $nameParts[1] ) ? htmlspecialchars( $nameParts[1] ) : '';
+$name_parts = explode( ' ', APP_NAME, 2 );
+$first_name = htmlspecialchars( $name_parts[0] );
+$rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -120,7 +120,7 @@ $restName  = isset( $nameParts[1] ) ? htmlspecialchars( $nameParts[1] ) : '';
 	</script>
  	<script type="module" src="<?php echo asset( 'assets/js/app.js' ); ?>"></script>
 </head>
-<body class="<?php echo getColorSchemeClass(); ?>" onclick="closeMenuOutside(event)">
+<body class="<?php echo get_color_scheme_class(); ?>" onclick="closeMenuOutside(event)">
 
 <div id="bg-fixed"></div>
 
@@ -196,8 +196,8 @@ $restName  = isset( $nameParts[1] ) ? htmlspecialchars( $nameParts[1] ) : '';
 	<div class="flex justify-between items-center mb-6 pt-4 relative z-50">
 		<div>
 			<h1 class="text-xl font-black text-white uppercase leading-none">
-				<span class="text-transparent bg-clip-text app-gradient"><?php echo $firstName; ?></span>
-				<?php echo $restName; ?>
+				<span class="text-transparent bg-clip-text app-gradient"><?php echo $first_name; ?></span>
+				<?php echo $rest_name; ?>
 			</h1>
 			<p class="text-slate-500 font-mono text-[10px] mt-1">
 				v<?php echo APP_VERSION; ?>
@@ -260,11 +260,11 @@ $restName  = isset( $nameParts[1] ) ? htmlspecialchars( $nameParts[1] ) : '';
 				<span class="truncate">Website</span>
 			</a>
 			<a href="https://github.com/apermo/bodyrefactoring" target="_blank"
-			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white <?php echo isAuthEnabled() ? '' : 'border-b border-slate-700'; ?> flex items-center gap-3 w-full">
+			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white <?php echo is_auth_enabled() ? '' : 'border-b border-slate-700'; ?> flex items-center gap-3 w-full">
 				<i data-lucide="github" class="w-4 h-4 flex-shrink-0"></i>
 				<span class="truncate">GitHub Repo</span>
 			</a>
-			<?php if ( isAuthEnabled() ) : ?>
+			<?php if ( is_auth_enabled() ) : ?>
 			<a href="logout.php"
 			   class="px-4 py-3 text-left text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 border-b border-slate-700 flex items-center gap-3 w-full">
 				<i data-lucide="log-out" class="w-4 h-4 flex-shrink-0"></i>

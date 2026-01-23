@@ -12,15 +12,15 @@
  *
  * @return string The version number.
  */
-function getAppVersion() {
+function get_app_version() {
 	static $version = null;
 
 	if ( $version === null ) {
-		$composerFile = __DIR__ . '/composer.json';
+		$composer_file = __DIR__ . '/composer.json';
 
-		if ( file_exists( $composerFile ) ) {
-			$composerData = json_decode( file_get_contents( $composerFile ), true );
-			$version = $composerData['version'] ?? '0.0.0';
+		if ( file_exists( $composer_file ) ) {
+			$composer_data = json_decode( file_get_contents( $composer_file ), true );
+			$version = $composer_data['version'] ?? '0.0.0';
 		} else {
 			$version = '0.0.0';
 		}
@@ -34,7 +34,7 @@ function getAppVersion() {
  *
  * @param string $path Path to the .env file.
  */
-function loadEnv( $path ) {
+function load_env( $path ) {
 	if ( ! file_exists( $path ) ) {
 		http_response_code( 500 );
 		die( 'ERROR: .env file not found' );
@@ -63,10 +63,10 @@ function loadEnv( $path ) {
 	}
 }
 
-loadEnv( __DIR__ . '/.env' );
+load_env( __DIR__ . '/.env' );
 
 // Define version constant
-define( 'APP_VERSION', getAppVersion() );
+define( 'APP_VERSION', get_app_version() );
 define( 'MODE_RESET_PASSWORD', getenv( 'RESET_PASSWORD_MODE' ) );
 define( 'DEBUG_LOG_ENABLED', getenv( 'DEBUG_MODE' ) === 'true' );
 
@@ -86,7 +86,7 @@ define( 'AUTH_COOKIE_NAME', 'br_auth_' . substr( md5( APP_NAME ), 0, 8 ) );
  *
  * @return bool True if APP_PASSWORD_HASH is set.
  */
-function isAuthEnabled(): bool {
+function is_auth_enabled(): bool {
 	return ! empty( APP_PASSWORD_HASH );
 }
 
@@ -95,8 +95,8 @@ function isAuthEnabled(): bool {
  *
  * @return bool True if user has valid auth cookie.
  */
-function isAuthenticated(): bool {
-	if ( ! isAuthEnabled() ) {
+function is_authenticated(): bool {
+	if ( ! is_auth_enabled() ) {
 		return true; // No auth required
 	}
 
@@ -105,8 +105,8 @@ function isAuthenticated(): bool {
 	}
 
 	// Cookie should contain a hash that matches our password hash
-	$expectedToken = substr( hash( 'sha256', APP_PASSWORD_HASH ), 0, 32 );
-	return hash_equals( $expectedToken, $_COOKIE[ AUTH_COOKIE_NAME ] );
+	$expected_token = substr( hash( 'sha256', APP_PASSWORD_HASH ), 0, 32 );
+	return hash_equals( $expected_token, $_COOKIE[ AUTH_COOKIE_NAME ] );
 }
 
 /**
@@ -115,8 +115,8 @@ function isAuthenticated(): bool {
  * @param string $password The password to verify.
  * @return bool True if password is correct.
  */
-function verifyPassword( string $password ): bool {
-	if ( ! isAuthEnabled() ) {
+function verify_password( string $password ): bool {
+	if ( ! is_auth_enabled() ) {
 		return false;
 	}
 	return password_verify( $password, APP_PASSWORD_HASH );
@@ -127,7 +127,7 @@ function verifyPassword( string $password ): bool {
  *
  * @return void
  */
-function setAuthCookie(): void {
+function set_auth_cookie(): void {
 	$token   = substr( hash( 'sha256', APP_PASSWORD_HASH ), 0, 32 );
 	$expires = time() + SESSION_DURATION;
 	setcookie( AUTH_COOKIE_NAME, $token, $expires, '/', '', true, true );
@@ -138,7 +138,7 @@ function setAuthCookie(): void {
  *
  * @return void
  */
-function clearAuthCookie(): void {
+function clear_auth_cookie(): void {
 	setcookie( AUTH_COOKIE_NAME, '', time() - 3600, '/', '', true, true );
 }
 
@@ -147,9 +147,8 @@ function clearAuthCookie(): void {
  *
  * @return string CSS class name for the color scheme.
  */
-function getColorSchemeClass(): string {
+function get_color_scheme_class(): string {
 	$scheme = APP_COLOR_SCHEME;
 	$valid  = [ 'default', 'green', 'purple', 'amber' ];
 	return in_array( $scheme, $valid, true ) ? "scheme-{$scheme}" : 'scheme-default';
 }
-

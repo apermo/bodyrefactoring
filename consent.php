@@ -14,9 +14,9 @@ if ( ! defined( 'APP_VERSION' ) ) {
 }
 
 // Split app name for styling (first word highlighted)
-$nameParts = explode( ' ', APP_NAME, 2 );
-$firstName = htmlspecialchars( $nameParts[0] );
-$restName  = isset( $nameParts[1] ) ? htmlspecialchars( $nameParts[1] ) : '';
+$name_parts = explode( ' ', APP_NAME, 2 );
+$first_name = htmlspecialchars( $name_parts[0] );
+$rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 
 // Color scheme values
 $gradients = [
@@ -27,21 +27,21 @@ $gradients = [
 ];
 $gradient  = $gradients[ APP_COLOR_SCHEME ] ?? $gradients['default'];
 
-$buttonGradients = [
+$button_gradients = [
 	'default' => 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
 	'green'   => 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
 	'purple'  => 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
 	'amber'   => 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
 ];
-$buttonGradient  = $buttonGradients[ APP_COLOR_SCHEME ] ?? $buttonGradients['default'];
+$button_gradient  = $button_gradients[ APP_COLOR_SCHEME ] ?? $button_gradients['default'];
 
-$accentColors = [
+$accent_colors = [
 	'default' => '#22d3ee',
 	'green'   => '#22c55e',
 	'purple'  => '#a855f7',
 	'amber'   => '#f59e0b',
 ];
-$accentColor  = $accentColors[ APP_COLOR_SCHEME ] ?? $accentColors['default'];
+$accent_color  = $accent_colors[ APP_COLOR_SCHEME ] ?? $accent_colors['default'];
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -109,20 +109,20 @@ $accentColor  = $accentColors[ APP_COLOR_SCHEME ] ?? $accentColors['default'];
 		.highlight {
 			background: rgba(<?php echo APP_COLOR_SCHEME === 'green' ? '34, 197, 94' : ( APP_COLOR_SCHEME === 'purple' ? '168, 85, 247' : ( APP_COLOR_SCHEME === 'amber' ? '245, 158, 11' : '34, 211, 238' ) ); ?>, 0.1);
 			border: 1px solid rgba(<?php echo APP_COLOR_SCHEME === 'green' ? '34, 197, 94' : ( APP_COLOR_SCHEME === 'purple' ? '168, 85, 247' : ( APP_COLOR_SCHEME === 'amber' ? '245, 158, 11' : '34, 211, 238' ) ); ?>, 0.3);
-			border-radius: 8px; padding: 12px; color: <?php echo $accentColor; ?>; font-size: 13px; font-weight: 600; margin-top: 16px;
+			border-radius: 8px; padding: 12px; color: <?php echo $accent_color; ?>; font-size: 13px; font-weight: 600; margin-top: 16px;
 		}
 		.buttons { display: flex; gap: 12px; margin-top: 24px; }
 		button {
 			flex: 1; padding: 16px; border: none; border-radius: 12px;
 			font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s;
 		}
-		.accept-btn { background: <?php echo $buttonGradient; ?>; color: white; }
+		.accept-btn { background: <?php echo $button_gradient; ?>; color: white; }
 		.accept-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4); }
 		.decline-btn { background: rgba(71, 85, 105, 0.5); color: #cbd5e1; }
 		.decline-btn:hover { background: rgba(71, 85, 105, 0.7); }
 		.footer-links { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(51, 65, 85, 0.5); text-align: center; }
 		.footer-links p { font-size: 13px; color: #94a3b8; margin-bottom: 8px; }
-		.footer-links a { color: <?php echo $accentColor; ?>; text-decoration: none; font-weight: 600; }
+		.footer-links a { color: <?php echo $accent_color; ?>; text-decoration: none; font-weight: 600; }
 		@media (max-width: 640px) {
 			.consent-container { padding: 24px; }
 			h1 { font-size: 24px; }
@@ -134,7 +134,7 @@ $accentColor  = $accentColors[ APP_COLOR_SCHEME ] ?? $accentColors['default'];
 	<div class="consent-container">
 		<div class="logo">
 			<img src="<?php echo htmlspecialchars( APP_ICON ); ?>" alt="<?php echo htmlspecialchars( APP_NAME ); ?> Logo">
-			<h1><?php echo $firstName; ?><?php echo $restName ? ' ' . $restName : ''; ?></h1>
+			<h1><?php echo $first_name; ?><?php echo $rest_name ? ' ' . $rest_name : ''; ?></h1>
 			<p class="subtitle">Datenschutz & Einwilligung</p>
 		</div>
 

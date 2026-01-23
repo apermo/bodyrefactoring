@@ -9,6 +9,6 @@
 
 require_once __DIR__ . '/tools.php';
 
-clearAuthCookie();
+clear_auth_cookie();
 header( 'Location: index.php' );
 exit;

@@ -14,30 +14,30 @@ if ( ! defined( 'APP_VERSION' ) ) {
 }
 
 // Redirect if auth not enabled or already authenticated
-if ( ! isAuthEnabled() || isAuthenticated() ) {
+if ( ! is_auth_enabled() || is_authenticated() ) {
 	header( 'Location: index.php' );
 	exit;
 }
 
-$showError = false;
+$show_error = false;
 
 // Handle login form submission
 if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
 	$password = $_POST['password'] ?? '';
 
-	if ( verifyPassword( $password ) ) {
-		setAuthCookie();
+	if ( verify_password( $password ) ) {
+		set_auth_cookie();
 		header( 'Location: index.php' );
 		exit;
 	} else {
-		$showError = true;
+		$show_error = true;
 	}
 }
 
 // Split app name for styling (first word highlighted)
-$nameParts = explode( ' ', APP_NAME, 2 );
-$firstName = htmlspecialchars( $nameParts[0] );
-$restName  = isset( $nameParts[1] ) ? htmlspecialchars( $nameParts[1] ) : '';
+$name_parts = explode( ' ', APP_NAME, 2 );
+$first_name = htmlspecialchars( $name_parts[0] );
+$rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 
 // Color scheme values
 $gradients = [
@@ -48,21 +48,21 @@ $gradients = [
 ];
 $gradient  = $gradients[ APP_COLOR_SCHEME ] ?? $gradients['default'];
 
-$buttonGradients = [
+$button_gradients = [
 	'default' => 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
 	'green'   => 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
 	'purple'  => 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
 	'amber'   => 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
 ];
-$buttonGradient  = $buttonGradients[ APP_COLOR_SCHEME ] ?? $buttonGradients['default'];
+$button_gradient  = $button_gradients[ APP_COLOR_SCHEME ] ?? $button_gradients['default'];
 
-$accentColors = [
+$accent_colors = [
 	'default' => '#22d3ee',
 	'green'   => '#22c55e',
 	'purple'  => '#a855f7',
 	'amber'   => '#f59e0b',
 ];
-$accentColor  = $accentColors[ APP_COLOR_SCHEME ] ?? $accentColors['default'];
+$accent_color  = $accent_colors[ APP_COLOR_SCHEME ] ?? $accent_colors['default'];
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -118,7 +118,7 @@ $accentColor  = $accentColors[ APP_COLOR_SCHEME ] ?? $accentColors['default'];
 			margin-bottom: 16px; transition: border-color 0.2s;
 		}
 		.login-form input[type="password"]:focus {
-			outline: none; border-color: <?php echo $accentColor; ?>;
+			outline: none; border-color: <?php echo $accent_color; ?>;
 		}
 		.error-message {
 			background: rgba(239, 68, 68, 0.2);
@@ -129,12 +129,12 @@ $accentColor  = $accentColors[ APP_COLOR_SCHEME ] ?? $accentColors['default'];
 		.submit-btn {
 			width: 100%; padding: 16px; border: none; border-radius: 12px;
 			font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s;
-			background: <?php echo $buttonGradient; ?>; color: white;
+			background: <?php echo $button_gradient; ?>; color: white;
 		}
 		.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4); }
 		.footer-links { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(51, 65, 85, 0.5); text-align: center; }
 		.footer-links p { font-size: 13px; color: #94a3b8; margin-bottom: 8px; }
-		.footer-links a { color: <?php echo $accentColor; ?>; text-decoration: none; font-weight: 600; }
+		.footer-links a { color: <?php echo $accent_color; ?>; text-decoration: none; font-weight: 600; }
 		@media (max-width: 640px) { .login-container { padding: 24px; } h1 { font-size: 24px; } }
 	</style>
 </head>
@@ -142,12 +142,12 @@ $accentColor  = $accentColors[ APP_COLOR_SCHEME ] ?? $accentColors['default'];
 	<div class="login-container">
 		<div class="logo">
 			<img src="<?php echo htmlspecialchars( APP_ICON ); ?>" alt="<?php echo htmlspecialchars( APP_NAME ); ?> Logo">
-			<h1><?php echo $firstName; ?><?php echo $restName ? ' ' . $restName : ''; ?></h1>
+			<h1><?php echo $first_name; ?><?php echo $rest_name ? ' ' . $rest_name : ''; ?></h1>
 			<p class="subtitle">Geschützte Instanz</p>
 		</div>
 
 		<form method="POST" class="login-form">
-			<?php if ( $showError ) : ?>
+			<?php if ( $show_error ) : ?>
 				<div class="error-message">
 					Falsches Passwort. Bitte versuche es erneut.
 				</div>
