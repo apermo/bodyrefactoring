@@ -60,9 +60,6 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 		// Debug log enabled (from PHP config)
 		window.DEBUG_LOG_ENABLED = <?php echo DEBUG_LOG_ENABLED ? 'true' : 'false'; ?>;
 
-		// Schedule path (from PHP config)
-		window.SCHEDULE_PATH = '<?php echo SCHEDULE_PATH; ?>';
-
 		// App branding (from PHP config)
 		window.APP_NAME = '<?php echo htmlspecialchars( APP_NAME, ENT_QUOTES ); ?>';
 		window.APP_COLOR_SCHEME = '<?php echo APP_COLOR_SCHEME; ?>';

@@ -146,8 +146,8 @@ export class ScheduleService {
 
 		// Fetch via API
 		try {
-			const schedulePath = window.SCHEDULE_PATH || 'schedules';
-			const res = await fetch( `${schedulePath}/?file=schedule-${type}.json` );
+			// Always use 'schedules' endpoint (regardless of where files are stored server-side)
+			const res = await fetch( `schedules/?file=schedule-${type}.json` );
 			if ( ! res.ok ) {
 				console.error( `Failed to fetch schedule-${type}.json` );
 				return null;

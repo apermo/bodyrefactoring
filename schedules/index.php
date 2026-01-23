@@ -52,7 +52,9 @@ if ( isset( $_GET['file'] ) ) {
 		exit;
 	}
 
-	$file_path = __DIR__ . '/' . $requested_file;
+	// Use SCHEDULE_PATH to read from configured directory (could be different from API endpoint)
+	$schedule_dir = $_SERVER['DOCUMENT_ROOT'] . '/' . SCHEDULE_PATH;
+	$file_path    = $schedule_dir . '/' . $requested_file;
 
 	if ( ! file_exists( $file_path ) ) {
 		http_response_code( 404 );
@@ -66,9 +68,10 @@ if ( isset( $_GET['file'] ) ) {
 	exit;
 }
 
-// List all available schedules.
-$files     = glob( __DIR__ . '/schedule-*.json' );
-$schedules = [];
+// List all available schedules from configured directory.
+$schedule_dir = $_SERVER['DOCUMENT_ROOT'] . '/' . SCHEDULE_PATH;
+$files        = glob( $schedule_dir . '/schedule-*.json' );
+$schedules    = [];
 
 foreach ( $files as $file ) {
 	$basename = basename( $file );
@@ -76,7 +79,7 @@ foreach ( $files as $file ) {
 	if ( preg_match( '/schedule-(\d{4}-\d{2}-\d{2})\.json/', $basename, $matches ) ) {
 		$schedules[] = [
 			'date'  => $matches[1],
-			'url'   => SCHEDULE_PATH . '/?file=' . $basename,
+			'url'   => 'schedules/?file=' . $basename,
 			'mtime' => filemtime( $file ),
 		];
 	}

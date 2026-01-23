@@ -50,8 +50,8 @@ const SHIELDS_KEY = STORAGE_KEYS.SHIELDS;
 const SHIELDS_AWARDED_KEY = STORAGE_KEYS.SHIELDS_AWARDED;
 const MAX_SHIELDS = CONFIG.MAX_SHIELDS;
 
-// Schedule path from PHP config (defaults to 'schedules')
-const SCHEDULE_PATH = window.SCHEDULE_PATH || 'schedules';
+// Schedule API endpoint (always 'schedules', regardless of where files are stored)
+const SCHEDULE_PATH = 'schedules';
 
 // Use imported constants
 const quotes = QUOTES;
