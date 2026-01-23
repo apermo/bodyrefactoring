@@ -20,7 +20,7 @@ let scheduleFilename = null;
  */
 async function loadAvailableSchedules() {
 	try {
-		const response = await fetch( 'trainings/index.php' );
+		const response = await fetch( 'schedules/' );
 		const schedules = await response.json();
 
 		const select = document.getElementById( 'existing-schedules' );
@@ -28,8 +28,10 @@ async function loadAvailableSchedules() {
 
 		schedules.forEach( schedule => {
 			const option = document.createElement( 'option' );
-			option.value = schedule.file;
-			option.textContent = `${schedule.date} - ${schedule.file}`;
+			// Extract filename from URL (e.g., "schedules/?file=schedule-2026-01-19.json" → "schedule-2026-01-19.json")
+			const filename = schedule.url ? schedule.url.split( 'file=' )[ 1 ] : schedule.file;
+			option.value = filename;
+			option.textContent = `${schedule.date} - ${filename}`;
 			select.appendChild( option );
 		} );
 	} catch ( error ) {
@@ -98,7 +100,7 @@ async function loadSchedule() {
 	}
 
 	try {
-		const response = await fetch( `trainings/${filename}` );
+		const response = await fetch( `schedules/?file=${filename}` );
 		const data = await response.json();
 
 		currentSchedule = data;

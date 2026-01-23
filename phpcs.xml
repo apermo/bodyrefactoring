@@ -5,7 +5,7 @@
 	<!-- What to scan -->
 	<file>assets/</file>
 	<file>tools/</file>
-	<file>trainings/</file>
+	<file>schedules/</file>
 
 	<!-- Only scan PHP files (JS/CSS handled by ESLint/Stylelint) -->
 	<arg name="extensions" value="php"/>

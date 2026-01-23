@@ -35,7 +35,7 @@ Body Refactoring is a personal, gamified progressive web app (PWA) for fitness t
 
 ### Schedule Validation (run before committing schedule changes)
 ```bash
-cd trainings/
+cd schedules/
 php validate-schedule.php                    # Validates all schedules
 php validate-schedule.php schedule-2026-01-15.json  # Validate specific file
 ```
@@ -77,7 +77,7 @@ Main application logic is in `/assets/js/app.js` (being refactored incrementally
 
 ### Schedule Files
 
-Located in `/trainings/`:
+Located in `/schedules/`:
 - Named `schedule-YYYY-MM-DD.json`
 - App loads the most recent schedule ≤ current date
 - Schema: `schema-schedule-v1.json`, Template: `template-schedule.json`
@@ -187,7 +187,7 @@ App uses explicit state machines for app lifecycle, timers, modals. See `/assets
 - Main app: `index.php`
 - Styles: `assets/css/styles.css`
 - JavaScript: `assets/js/app.js`, `assets/js/modules/`
-- Training schedules: `trainings/*.json`
+- Training schedules: `schedules/*.json`
 - Schedule editor: `schedule-editor.php`
 - Documentation: `docs/`
 

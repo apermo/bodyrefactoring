@@ -74,7 +74,7 @@ define( 'DEBUG_LOG_ENABLED', getenv( 'DEBUG_MODE' ) === 'true' );
 define( 'APP_NAME', getenv( 'APP_NAME' ) ?: 'Body Refactoring' );
 define( 'APP_COLOR_SCHEME', getenv( 'APP_COLOR_SCHEME' ) ?: 'default' );
 define( 'APP_ICON', getenv( 'APP_ICON' ) ?: 'assets/img/gymlogo.png' );
-define( 'SCHEDULE_PATH', getenv( 'SCHEDULE_PATH' ) ?: 'trainings' );
+define( 'SCHEDULE_PATH', getenv( 'SCHEDULE_PATH' ) ?: 'schedules' );
 define( 'APP_PASSWORD_HASH', getenv( 'APP_PASSWORD_HASH' ) ?: '' );
 define( 'SESSION_DURATION', (int) ( getenv( 'SESSION_DURATION' ) ?: 86400 ) );
 

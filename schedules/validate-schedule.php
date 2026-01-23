@@ -606,7 +606,7 @@ if ( PHP_SAPI !== 'cli' ) {
 	http_response_code( 403 );
 	echo "Error: This script can only be run from the command line.\n\n";
 	echo "Usage:\n";
-	echo "  cd trainings/\n";
+	echo "  cd schedules/\n";
 	echo "  php validate-schedule.php                    # Validates all schedules\n";
 	echo "  php validate-schedule.php schedule-2026-01-15.json\n";
 	exit( 1 );

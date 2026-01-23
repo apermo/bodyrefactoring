@@ -1,0 +1,18 @@
+# Secure Schedule Access (Apache)
+# Deny direct access to JSON files; all access must go through index.php API
+#
+# Note: For nginx servers (like DDEV), see .ddev/nginx/schedules-security.conf
+
+# Deny direct access to all JSON files
+<FilesMatch "\.json$">
+	Order Allow,Deny
+	Deny from all
+</FilesMatch>
+
+# Allow index.php to handle all requests
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_URI} !index\.php
+	RewriteRule ^(.*)$ index.php [L]
+</IfModule>

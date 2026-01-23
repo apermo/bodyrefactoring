@@ -23,9 +23,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Dynamic branding in splash screen, header, intro modal
   - CSS color scheme classes with custom properties
 
+- **Secure schedule API endpoint**
+  - All schedule access now routes through `schedules/index.php` API
+  - Direct JSON file access blocked (`.htaccess` for Apache, nginx config for DDEV)
+  - API respects `APP_PASSWORD_HASH` authentication when configured
+  - GET `/schedules/` returns list with URLs
+  - GET `/schedules/?file=schedule-*.json` serves schedule content
+
 - **Configurable schedule path**
-  - `SCHEDULE_PATH` env var (default: "trainings")
+  - `SCHEDULE_PATH` env var (default: "schedules")
   - Enables separate schedule directories for different instances
+
+### Changed
+
+- Renamed `trainings/` directory to `schedules/`
 
 - **Schedule schema v3** with date-based task filtering
   - `custom` exercise type with `customLabel` for user-defined badges

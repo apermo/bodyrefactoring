@@ -50,8 +50,8 @@ const SHIELDS_KEY = STORAGE_KEYS.SHIELDS;
 const SHIELDS_AWARDED_KEY = STORAGE_KEYS.SHIELDS_AWARDED;
 const MAX_SHIELDS = CONFIG.MAX_SHIELDS;
 
-// Schedule path from PHP config (defaults to 'trainings')
-const SCHEDULE_PATH = window.SCHEDULE_PATH || 'trainings';
+// Schedule path from PHP config (defaults to 'schedules')
+const SCHEDULE_PATH = window.SCHEDULE_PATH || 'schedules';
 
 // Use imported constants
 const quotes = QUOTES;
@@ -65,7 +65,7 @@ let currentWeekOffset = 0;
 
 // Global State for Dynamic Scheduling
 const state = {
-	availableSchedules: [], // List of { date: 'YYYY-MM-DD', file: '...' }
+	availableSchedules: [], // List of { date: 'YYYY-MM-DD', url: '...' }
 	scheduleCache: {},      // Cache content of JSON files
 	startDate: null,         // Derived from first schedule
 };
@@ -123,7 +123,7 @@ async function initApp() {
 
 		// Fetch schedules (redirects to index.php on Plesk or schedules.json on Netlify)
 		if ( window.debugLog ) {
-			window.debugLog( 'Fetching trainings/...', 'info' );
+			window.debugLog( 'Fetching schedules/...', 'info' );
 		}
 		const response = await fetch( `${SCHEDULE_PATH}/` );
 
@@ -202,8 +202,8 @@ async function initApp() {
  */
 async function loadSpecialSchedules() {
 	try {
-		// Load recovery schedule
-		const recoveryRes = await fetch( `${SCHEDULE_PATH}/schedule-recovery.json` );
+		// Load recovery schedule via API
+		const recoveryRes = await fetch( `${SCHEDULE_PATH}/?file=schedule-recovery.json` );
 		if ( recoveryRes.ok ) {
 			const recoveryJson = await recoveryRes.json();
 			if ( recoveryJson.days && recoveryJson.days[ 0 ] && recoveryJson.days[ 0 ].details ) {
@@ -211,8 +211,8 @@ async function loadSpecialSchedules() {
 			}
 		}
 
-		// Load sick schedule
-		const sickRes = await fetch( `${SCHEDULE_PATH}/schedule-sick.json` );
+		// Load sick schedule via API
+		const sickRes = await fetch( `${SCHEDULE_PATH}/?file=schedule-sick.json` );
 		if ( sickRes.ok ) {
 			const sickJson = await sickRes.json();
 			if ( sickJson.days && sickJson.days[ 0 ] && sickJson.days[ 0 ].details ) {
@@ -325,12 +325,12 @@ async function fetchScheduleForDate( dateStr ) {
 	}
 
 	// Check Cache
-	if ( state.scheduleCache[ bestMatch.file ] ) {
-		return state.scheduleCache[ bestMatch.file ];
+	if ( state.scheduleCache[ bestMatch.url ] ) {
+		return state.scheduleCache[ bestMatch.url ];
 	}
 
-	// Fetch
-	const res = await fetch( `${SCHEDULE_PATH}/${bestMatch.file}` );
+	// Fetch via API URL
+	const res = await fetch( bestMatch.url );
 	const json = await res.json();
 
 	// Handle new structure: { version: 1, days: [...] }
@@ -341,7 +341,7 @@ async function fetchScheduleForDate( dateStr ) {
 	}
 
 	// Cache the days array (not the wrapper object)
-	state.scheduleCache[ bestMatch.file ] = json.days;
+	state.scheduleCache[ bestMatch.url ] = json.days;
 	return json.days;
 }
 

@@ -128,10 +128,10 @@ jobs:
           echo "Changed files:"
           echo "$CHANGED_FILES"
 
-          # Check if any files in trainings/ directory changed
-          if echo "$CHANGED_FILES" | grep -q "^trainings/"; then
+          # Check if any files in schedules/ directory changed
+          if echo "$CHANGED_FILES" | grep -q "^schedules/"; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "Training files have changed, validation needed"
+            echo "Schedule files have changed, validation needed"
           else
             echo "has_changes=false" >> $GITHUB_OUTPUT
             echo "No training files changed, skipping validation"
