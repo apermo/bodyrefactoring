@@ -7,20 +7,26 @@ const { defineConfig, devices } = require( '@playwright/test' );
  * Uses DDEV for local development server.
  * Start DDEV before running tests: ddev start
  *
+ * Test Categories:
+ * - Quick tests (default): Fast tests suitable for PR checks
+ * - Slow tests (@slow): Tests involving full rep counter flows (30-60s each)
+ *
+ * Examples:
+ *   npm test                    # Quick tests only (excludes @slow)
+ *   npm run test:full           # All tests including @slow
+ *   npm run test:slow           # Only @slow tests
+ *
  * Browser Configuration:
  * - Default: iOS Safari (mobile-safari) - the primary target
  * - Use --project flag to specify browsers
  *
  * Examples:
- *   npm test                                       # Runs on mobile-safari only (default)
- *   npm test -- --project=chromium                 # Runs on Chrome only
- *   npm test -- --project=webkit                   # Runs on Desktop Safari only
- *   npm test -- --project=mobile-safari            # Runs on iOS Safari only
- *   npm test -- --project=chromium --project=webkit --project=mobile-safari  # All browsers
+ *   npm test                                       # Quick tests on mobile-safari
+ *   npm test -- --project=chromium                 # Quick tests on Chrome
+ *   npm run test:full -- --project=webkit          # All tests on Desktop Safari
+ *   BROWSERS=chromium,webkit npm run test:full     # All tests on multiple browsers
  *
  * Available projects: chromium, webkit, mobile-safari
- *
- * To run all browsers, use: npm run test:all
  *
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -51,8 +57,24 @@ const allProjects = [
 // Filter to selected browsers (default: mobile-safari)
 const projects = allProjects.filter( ( p ) => selectedBrowsers.includes( p.name ) );
 
+// Test filtering: exclude @slow tests by default
+// TEST_MODE=full  -> run all tests (no grep filter)
+// TEST_MODE=slow  -> run only @slow tests
+// (default)       -> exclude @slow tests
+const testMode = process.env.TEST_MODE;
+let grepConfig = {};
+if ( testMode === 'full' ) {
+	// No filter - run everything
+} else if ( testMode === 'slow' ) {
+	grepConfig = { grep: /@slow/ };
+} else {
+	// Default: exclude slow tests
+	grepConfig = { grepInvert: /@slow/ };
+}
+
 module.exports = defineConfig( {
 	testDir: './tests/e2e',
+	...grepConfig,
 	fullyParallel: true,
 	forbidOnly: !! process.env.CI,
 	retries: process.env.CI ? 1 : 0,

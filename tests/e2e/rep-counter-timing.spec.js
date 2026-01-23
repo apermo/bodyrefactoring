@@ -65,7 +65,7 @@ test.describe( 'Rep Counter Timing Verification', () => {
 		await expect( title ).toContainText( 'Timing Test Exercise' );
 	} );
 
-	test( 'complete rep counter flow with 4 reps and 15s cooldown', async ( { page } ) => {
+	test( 'complete rep counter flow with 4 reps and 15s cooldown @slow', async ( { page } ) => {
 		// Total expected time:
 		// - 3s countdown
 		// - Set 1: 4 * 1.5s = 6s

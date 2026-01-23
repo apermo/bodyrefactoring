@@ -88,7 +88,7 @@ test.describe( 'Rep Counter', () => {
 		await expect( modal ).toBeHidden();
 	} );
 
-	test( 'completes full rep counter flow (2 sets x 5 reps)', async ( { page } ) => {
+	test( 'completes full rep counter flow (2 sets x 5 reps) @slow', async ( { page } ) => {
 		// Total time: ~5s (set 1) + 7s (rest) + 5s (set 2) = ~17s
 		test.setTimeout( 45000 );
 
@@ -114,7 +114,7 @@ test.describe( 'Rep Counter', () => {
 		await expect( modal ).toBeHidden();
 	} );
 
-	test( 'marks exercise complete after rep counter finishes', async ( { page } ) => {
+	test( 'marks exercise complete after rep counter finishes @slow', async ( { page } ) => {
 		test.setTimeout( 45000 );
 
 		const app = new AppPage( page );
@@ -145,7 +145,7 @@ test.describe( 'Rep Counter', () => {
 		await expect( exerciseRow ).toHaveClass( /completed/ );
 	} );
 
-	test( 'shows cooldown timer between sets', async ( { page } ) => {
+	test( 'shows cooldown timer between sets @slow', async ( { page } ) => {
 		test.setTimeout( 45000 );
 
 		const app = new AppPage( page );
