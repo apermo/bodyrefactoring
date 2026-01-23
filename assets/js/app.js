@@ -242,6 +242,57 @@ function isExerciseHiddenByMode( exercise ) {
 	return exercise.hideOn.includes( currentMode );
 }
 
+/**
+ * Check if exercise should be shown based on its dateCondition.
+ *
+ * Evaluates the dateCondition field against the given date.
+ * If no dateCondition is set, the exercise is always shown.
+ *
+ * @param {Object} exercise - Exercise object.
+ * @param {Date} targetDate - The date to check against.
+ * @return {boolean} True if exercise should be shown.
+ */
+function shouldShowExerciseForDate( exercise, targetDate ) {
+	// No condition means always show
+	if ( ! exercise.dateCondition ) {
+		return true;
+	}
+
+	const condition = exercise.dateCondition;
+
+	// One-time task: show only on exact date
+	if ( condition.once ) {
+		const targetIso = targetDate.toISOString().split( 'T' )[ 0 ];
+		return condition.once === targetIso;
+	}
+
+	// Week of month: check if current week matches
+	if ( condition.weekOfMonth ) {
+		const dayOfMonth = targetDate.getDate();
+		const weekOfMonth = Math.ceil( dayOfMonth / 7 );
+		return condition.weekOfMonth.includes( weekOfMonth );
+	}
+
+	// Week parity: check if ISO week number is odd/even
+	if ( condition.weekParity ) {
+		// Calculate ISO week number
+		const tempDate = new Date( targetDate.getTime() );
+		tempDate.setHours( 0, 0, 0, 0 );
+		// Set to nearest Thursday (current date + 4 - current day number, making Sunday day 7)
+		tempDate.setDate( tempDate.getDate() + 4 - ( tempDate.getDay() || 7 ) );
+		// Get first day of year
+		const yearStart = new Date( tempDate.getFullYear(), 0, 1 );
+		// Calculate full weeks to nearest Thursday
+		const weekNumber = Math.ceil( ( ( tempDate - yearStart ) / 86400000 + 1 ) / 7 );
+
+		const isOdd = weekNumber % 2 === 1;
+		return condition.weekParity === 'odd' ? isOdd : ! isOdd;
+	}
+
+	// Unknown condition type - show by default
+	return true;
+}
+
 
 /**
  * Fetch the schedule configuration for a specific date.
@@ -565,6 +616,11 @@ async function renderSchedule() {
 		} else {
 		// Normal day - render regular exercises
 			day.details.forEach( ex => {
+				// Skip exercises that don't match date condition
+				if ( ! shouldShowExerciseForDate( ex, day.fullDateObj ) ) {
+					return;
+				}
+
 				const hiddenByMode = isExerciseHiddenByMode( ex );
 				const uniqueKey = `${STORAGE_PREFIX}${day.storageDate}_${ex.id}`;
 				const isChecked = domainStorage.isExerciseComplete( day.storageDate, ex.id );
@@ -670,6 +726,9 @@ async function renderSchedule() {
 					const optionalClass = ex.optional ? 'exercise-optional' : '';
 					const optionalBadge = ex.optional ? '<span class="badge-optional ml-2">Optional</span>' : '';
 
+					// Date description indicator
+					const dateDescBadge = ex.dateDescription ? `<span class="badge-date-desc ml-2">${ex.dateDescription}</span>` : '';
+
 					exercisesHtml += `
 					<div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''} ${optionalClass} ${hiddenByMode ? 'hidden' : ''}">
 						<div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1 ${day.isLocked ? '' : 'cursor-pointer'}"
@@ -677,7 +736,7 @@ async function renderSchedule() {
 							<i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
 						</div>
 						<div class="flex-grow exercise-text">
-							<div class="flex items-center"><span class="${badgeClass}">${badgeText}</span>${optionalBadge}</div>
+							<div class="flex items-center flex-wrap gap-1"><span class="${badgeClass}">${badgeText}</span>${optionalBadge}${dateDescBadge}</div>
 							<div class="font-bold text-white text-lg leading-tight">${ex.title}</div>
 							<div class="text-xs text-slate-400 mt-0.5">${ex.desc}</div>
 							${timersHtml}
@@ -1206,8 +1265,21 @@ function isDayComplete( dateIso, details ) {
 		return false;
 	}
 
-	// Only exclude optional exercises - hidden tasks are still required!
-	const requiredExercises = details.filter( ex => ! ex.optional );
+	// Convert dateIso to Date object for dateCondition filtering
+	const targetDate = new Date( dateIso + 'T12:00:00' );
+
+	// Exclude optional exercises AND exercises that don't match dateCondition
+	const requiredExercises = details.filter( ex => {
+		// Skip optional exercises
+		if ( ex.optional ) {
+			return false;
+		}
+		// Skip exercises that don't match the date condition
+		if ( ! shouldShowExerciseForDate( ex, targetDate ) ) {
+			return false;
+		}
+		return true;
+	} );
 
 	// If no required exercises remain, consider day complete
 	if ( requiredExercises.length === 0 ) {

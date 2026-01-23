@@ -80,8 +80,8 @@ function validate_schedule_structure( mixed $data ): array {
 		$errors[] = "Missing required field 'version' at root level";
 	} elseif ( ! is_int( $data['version'] ) ) {
 		$errors[] = "'version' must be an integer";
-	} elseif ( $data['version'] < 1 || $data['version'] > 2 ) {
-		$errors[] = "'version' must be 1 or 2";
+	} elseif ( $data['version'] < 1 || $data['version'] > 3 ) {
+		$errors[] = "'version' must be 1, 2, or 3";
 	}
 
 	if ( ! isset( $data['days'] ) ) {
@@ -220,7 +220,7 @@ function validate_exercises( array $exercises, string $day_prefix, int $version 
 		// Validate type.
 		if ( isset( $exercise['type'] ) ) {
 			$valid_types = [ 'warmup', 'main', 'cool', 'alternatives' ];
-			if ( $version === 2 ) {
+			if ( $version >= 2 ) {
 				$valid_types[] = 'custom';
 			}
 			if ( ! in_array( $exercise['type'], $valid_types, true ) ) {
@@ -239,9 +239,17 @@ function validate_exercises( array $exercises, string $day_prefix, int $version 
 		}
 
 		// Validate v2 fields.
-		if ( $version === 2 ) {
+		if ( $version >= 2 ) {
 			$v2_errors = validate_v2_fields( $exercise, $ex_prefix );
 			foreach ( $v2_errors as $error ) {
+				$errors[] = $error;
+			}
+		}
+
+		// Validate v3 fields.
+		if ( $version >= 3 ) {
+			$v3_errors = validate_v3_fields( $exercise, $ex_prefix );
+			foreach ( $v3_errors as $error ) {
 				$errors[] = $error;
 			}
 		}
@@ -448,6 +456,79 @@ function validate_v2_fields( array $exercise, string $ex_prefix ): array {
 	if ( isset( $exercise['customLabel'] ) ) {
 		if ( ! is_string( $exercise['customLabel'] ) || empty( $exercise['customLabel'] ) ) {
 			$errors[] = "$ex_prefix: 'customLabel' must be a non-empty string";
+		}
+	}
+
+	return $errors;
+}
+
+/**
+ * Validate v3-specific exercise fields (dateCondition, dateDescription).
+ *
+ * @param array  $exercise Exercise data.
+ * @param string $ex_prefix Prefix for error messages.
+ * @return array Array of error messages.
+ */
+function validate_v3_fields( array $exercise, string $ex_prefix ): array {
+	$errors = [];
+
+	// Validate dateDescription field.
+	if ( isset( $exercise['dateDescription'] ) ) {
+		if ( ! is_string( $exercise['dateDescription'] ) || empty( $exercise['dateDescription'] ) ) {
+			$errors[] = "$ex_prefix: 'dateDescription' must be a non-empty string";
+		}
+	}
+
+	// Validate dateCondition field.
+	if ( isset( $exercise['dateCondition'] ) ) {
+		$condition        = $exercise['dateCondition'];
+		$condition_prefix = "$ex_prefix, dateCondition";
+
+		if ( ! is_array( $condition ) ) {
+			$errors[] = "$condition_prefix: Must be an object";
+			return $errors;
+		}
+
+		// Only one condition type allowed.
+		$condition_keys = array_keys( $condition );
+		$valid_keys     = [ 'once', 'weekOfMonth', 'weekParity' ];
+		$found_keys     = array_intersect( $condition_keys, $valid_keys );
+
+		if ( count( $found_keys ) === 0 ) {
+			$errors[] = "$condition_prefix: Must contain one of: 'once', 'weekOfMonth', or 'weekParity'";
+		} elseif ( count( $found_keys ) > 1 ) {
+			$errors[] = "$condition_prefix: Only one condition type allowed (found: " . implode( ', ', $found_keys ) . ')';
+		} else {
+			// Validate the specific condition type.
+			$key = reset( $found_keys );
+
+			if ( $key === 'once' ) {
+				if ( ! is_string( $condition['once'] ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $condition['once'] ) ) {
+					$errors[] = "$condition_prefix: 'once' must be an ISO date string (YYYY-MM-DD)";
+				}
+			} elseif ( $key === 'weekOfMonth' ) {
+				if ( ! is_array( $condition['weekOfMonth'] ) ) {
+					$errors[] = "$condition_prefix: 'weekOfMonth' must be an array";
+				} elseif ( empty( $condition['weekOfMonth'] ) ) {
+					$errors[] = "$condition_prefix: 'weekOfMonth' must contain at least one week number";
+				} else {
+					foreach ( $condition['weekOfMonth'] as $index => $week ) {
+						if ( ! is_int( $week ) || $week < 1 || $week > 5 ) {
+							$errors[] = "$condition_prefix: 'weekOfMonth[$index]' must be an integer between 1 and 5";
+						}
+					}
+				}
+			} elseif ( $key === 'weekParity' ) {
+				if ( ! in_array( $condition['weekParity'], [ 'odd', 'even' ], true ) ) {
+					$errors[] = "$condition_prefix: 'weekParity' must be 'odd' or 'even'";
+				}
+			}
+		}
+
+		// Check for unknown keys.
+		$unknown_keys = array_diff( $condition_keys, $valid_keys );
+		if ( ! empty( $unknown_keys ) ) {
+			$errors[] = "$condition_prefix: Unknown keys: " . implode( ', ', $unknown_keys );
 		}
 	}
 
