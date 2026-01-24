@@ -175,7 +175,9 @@ Before creating new functions:
 - **Link to issues**: When a commit completes an issue, include `closes #N` in the commit body to auto-close the issue on merge
 
 ### CHANGELOG.md
-- Update `[Unreleased]` section for every change
+Follows [Keep a Changelog](https://keepachangelog.com/) standard:
+- Use `## [Unreleased]` header for work in progress (NOT `## [X.Y.Z] Unreleased`)
+- On release, workflow automatically changes `[Unreleased]` → `[X.Y.Z] - DATE`
 - Sections: Added, Changed, Deprecated, Removed, Fixed, Security
 - **Never list bugs in "Fixed" if introduced and fixed in the same version**
 
@@ -326,11 +328,10 @@ When user says "let's start with vX.Y.Z":
 3. Update `composer.json` version (without 'v' prefix)
 4. Commit: `chore: bump version to X.Y.Z`
    - The pre-commit hook auto-syncs `package.json` from `composer.json`
-5. Prepare CHANGELOG.md with new unreleased section
-6. Commit: `docs(changelog): prepare vX.Y.Z section`
-7. Ask about deleting previous branch
-8. Check GitHub milestone for planned work: `gh issue list --milestone "vX.Y.Z"`
-9. Provide status summary
+5. Ensure CHANGELOG.md has `## [Unreleased]` section (add if missing after release)
+6. Ask about deleting previous branch
+7. Check GitHub milestone for planned work: `gh issue list --milestone "vX.Y.Z"`
+8. Provide status summary
 
 **Version sync:** `composer.json` is the authoritative source. The pre-commit hook automatically syncs the version to `package.json`. GitHub Actions validates that versions match on PRs.
 

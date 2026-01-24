@@ -40,10 +40,10 @@ jobs:
         id: update-changelog
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          # Check if this version has "Unreleased" in CHANGELOG
-          if grep -q "^## \[$VERSION\] - Unreleased" CHANGELOG.md; then
-            TODAY=$(date +%Y-%m-%d)
-            sed -i "s/^## \[$VERSION\] - Unreleased/## [$VERSION] - $TODAY/" CHANGELOG.md
+          TODAY=$(date +%Y-%m-%d)
+          # Replace [Unreleased] with [VERSION] - DATE (Keep a Changelog standard)
+          if grep -q "^## \[Unreleased\]" CHANGELOG.md; then
+            sed -i "s/^## \[Unreleased\]/## [$VERSION] - $TODAY/" CHANGELOG.md
             echo "updated=true" >> $GITHUB_OUTPUT
             echo "date=$TODAY" >> $GITHUB_OUTPUT
           else
