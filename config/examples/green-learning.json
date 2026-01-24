@@ -1,0 +1,34 @@
+{
+	"theme": {
+		"colors": {
+			"primary": "#22c55e",
+			"primaryRgb": "34, 197, 94",
+			"success": "#10b981",
+			"successRgb": "16, 185, 129"
+		},
+		"gradients": {
+			"app": "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+			"appAccent": "#22c55e"
+		}
+	},
+	"strings": {
+		"training": {
+			"complete": "Lernziel erreicht!",
+			"currentStreak": "Lern-Serie",
+			"continueButton": "Weiter lernen!"
+		},
+		"quotes": [
+			"Wissen ist Macht.",
+			"Jeden Tag ein bisschen schlauer.",
+			"Lernen ist wie Rudern gegen den Strom.",
+			"Der Weg ist das Ziel.",
+			"Übung macht den Meister.",
+			"Neugier ist der Anfang von allem.",
+			"Heute gelernt, morgen gewusst.",
+			"Bildung öffnet Türen."
+		]
+	},
+	"features": {
+		"speechEnabled": false
+	}
+}

@@ -1,0 +1,34 @@
+{
+	"theme": {
+		"colors": {
+			"primary": "#ef4444",
+			"primaryRgb": "239, 68, 68",
+			"success": "#f97316",
+			"successRgb": "249, 115, 22"
+		},
+		"gradients": {
+			"app": "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+			"appAccent": "#ef4444"
+		}
+	},
+	"strings": {
+		"training": {
+			"complete": "Ziel erreicht!",
+			"currentStreak": "Fokus-Tage",
+			"continueButton": "Weiter!"
+		},
+		"quotes": [
+			"Fokus schlägt Talent.",
+			"Eine Sache nach der anderen.",
+			"Ablenkungen sind der Feind.",
+			"Deep Work zahlt sich aus.",
+			"Konzentration ist Superkraft.",
+			"Heute zählt.",
+			"Weniger ist mehr.",
+			"Du bist auf dem richtigen Weg."
+		]
+	},
+	"features": {
+		"speechEnabled": false
+	}
+}
