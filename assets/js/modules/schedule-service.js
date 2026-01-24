@@ -21,8 +21,10 @@ export class ScheduleService {
 		this.availableSchedules = [];
 		this.scheduleCache = {};
 		this.specialScheduleCache = {};
+		this.dayCache = {};
 		this.startDate = null;
 		this.currentWeekOffset = 0;
+		this.usePerDayApi = true; // Will be set to false if per-day API unavailable
 	}
 
 	/**
@@ -121,6 +123,121 @@ export class ScheduleService {
 		// Cache the days array
 		this.scheduleCache[ bestMatch.url ] = json.days;
 		return json.days;
+	}
+
+	/**
+	 * Fetch schedule for a specific date using per-day API.
+	 *
+	 * Uses the new /schedules/day/?date=YYYY-MM-DD endpoint with fallback
+	 * to the legacy file-based approach if the database API is unavailable.
+	 *
+	 * @async
+	 * @param {string} dateStr - ISO date string (YYYY-MM-DD).
+	 * @return {Promise<Object|null>} Day configuration or null if skipped/not found.
+	 */
+	async fetchDaySchedule( dateStr ) {
+		// Check cache first
+		if ( this.dayCache[ dateStr ] ) {
+			return this.dayCache[ dateStr ];
+		}
+
+		// Try per-day API if enabled
+		if ( this.usePerDayApi ) {
+			try {
+				const response = await fetch( `schedules/day/?date=${dateStr}` );
+
+				// Handle skip override (204 No Content)
+				if ( response.status === 204 ) {
+					this.dayCache[ dateStr ] = null;
+					return null;
+				}
+
+				// Handle database unavailable (503) - fall back to legacy
+				if ( response.status === 503 ) {
+					console.warn( 'Per-day API unavailable, falling back to legacy' );
+					this.usePerDayApi = false;
+					return this.fetchDayScheduleLegacy( dateStr );
+				}
+
+				// Handle not found (404)
+				if ( response.status === 404 ) {
+					this.dayCache[ dateStr ] = null;
+					return null;
+				}
+
+				// Handle success
+				if ( response.ok ) {
+					const dayData = await response.json();
+					this.dayCache[ dateStr ] = dayData;
+					return dayData;
+				}
+
+				// Other errors - fall back to legacy
+				console.warn( `Per-day API error (${response.status}), using legacy` );
+				return this.fetchDayScheduleLegacy( dateStr );
+
+			} catch ( error ) {
+				console.warn( 'Per-day API fetch failed, using legacy:', error );
+				this.usePerDayApi = false;
+				return this.fetchDayScheduleLegacy( dateStr );
+			}
+		}
+
+		// Use legacy approach
+		return this.fetchDayScheduleLegacy( dateStr );
+	}
+
+	/**
+	 * Fetch schedule for date using legacy file-based approach.
+	 *
+	 * @async
+	 * @param {string} dateStr - ISO date string (YYYY-MM-DD).
+	 * @return {Promise<Object|null>} Day configuration or null.
+	 */
+	async fetchDayScheduleLegacy( dateStr ) {
+		const days = await this.fetchScheduleForDate( dateStr );
+		if ( ! days ) {
+			return null;
+		}
+
+		// Calculate day index from date
+		const date = new Date( dateStr + 'T00:00:00' );
+		const dayIndex = date.getDay(); // 0 = Sunday
+
+		// Find matching day
+		const day = days.find( ( d ) => d.dayIndex === dayIndex );
+		if ( ! day ) {
+			return null;
+		}
+
+		// Format response to match per-day API structure
+		const dayData = {
+			date: dateStr,
+			dayIndex,
+			id: day.id,
+			name: day.name,
+			theme: day.theme,
+			icon: day.icon,
+			colorClass: day.colorClass,
+			bgClass: day.bgClass,
+			details: day.details,
+			hasOverride: false,
+			templateName: null,
+		};
+
+		this.dayCache[ dateStr ] = dayData;
+		return dayData;
+	}
+
+	/**
+	 * Clear the day cache.
+	 *
+	 * Call this when schedule data may have changed.
+	 *
+	 * @return {void}
+	 */
+	clearDayCache() {
+		this.dayCache = {};
 	}
 
 	/**

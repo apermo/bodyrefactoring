@@ -347,6 +347,107 @@ async function fetchScheduleForDate( dateStr ) {
 	return json.days;
 }
 
+/**
+ * Fetch schedule for a specific day using the per-day API.
+ *
+ * Uses the /schedules/day/?date=YYYY-MM-DD endpoint with fallback
+ * to the legacy file-based approach if the database API is unavailable.
+ *
+ * @async
+ * @param {string} dateStr - ISO date string (YYYY-MM-DD).
+ * @param {number} dayIndex - Day of week (0=Sun, 6=Sat) for legacy fallback.
+ * @return {Promise<Object|null>} Day configuration or null if skipped/not found.
+ */
+async function fetchDaySchedule( dateStr, dayIndex ) {
+	// Check cache first
+	if ( state.dayCache && state.dayCache[ dateStr ] ) {
+		return state.dayCache[ dateStr ];
+	}
+
+	// Initialize day cache if needed
+	if ( ! state.dayCache ) {
+		state.dayCache = {};
+	}
+
+	// Try per-day API if enabled
+	if ( state.usePerDayApi !== false ) {
+		try {
+			const response = await fetch( `schedules/day/?date=${dateStr}` );
+
+			// Handle skip override (204 No Content)
+			if ( response.status === 204 ) {
+				state.dayCache[ dateStr ] = null;
+				return null;
+			}
+
+			// Handle database unavailable (503) - fall back to legacy
+			if ( response.status === 503 ) {
+				console.warn( 'Per-day API unavailable, falling back to legacy' );
+				state.usePerDayApi = false;
+				return fetchDayScheduleLegacy( dateStr, dayIndex );
+			}
+
+			// Handle not found (404)
+			if ( response.status === 404 ) {
+				state.dayCache[ dateStr ] = null;
+				return null;
+			}
+
+			// Handle success
+			if ( response.ok ) {
+				const dayData = await response.json();
+				state.dayCache[ dateStr ] = dayData;
+				return dayData;
+			}
+
+			// Other errors - fall back to legacy
+			console.warn( `Per-day API error (${response.status}), using legacy` );
+			return fetchDayScheduleLegacy( dateStr, dayIndex );
+
+		} catch ( error ) {
+			console.warn( 'Per-day API fetch failed, using legacy:', error );
+			state.usePerDayApi = false;
+			return fetchDayScheduleLegacy( dateStr, dayIndex );
+		}
+	}
+
+	// Use legacy approach
+	return fetchDayScheduleLegacy( dateStr, dayIndex );
+}
+
+/**
+ * Fetch schedule for a day using legacy file-based approach.
+ *
+ * @async
+ * @param {string} dateStr - ISO date string (YYYY-MM-DD).
+ * @param {number} dayIndex - Day of week (0=Sun, 6=Sat).
+ * @return {Promise<Object|null>} Day configuration or null.
+ */
+async function fetchDayScheduleLegacy( dateStr, dayIndex ) {
+	const days = await fetchScheduleForDate( dateStr );
+	if ( ! days ) {
+		return null;
+	}
+
+	// Find matching day
+	const day = days.find( ( d ) => d.dayIndex === dayIndex );
+	if ( ! day ) {
+		return null;
+	}
+
+	// Format response to match per-day API structure
+	const dayData = {
+		date: dateStr,
+		dayIndex,
+		...day,
+		hasOverride: false,
+		templateName: null,
+	};
+
+	state.dayCache[ dateStr ] = dayData;
+	return dayData;
+}
+
 // --- CORE FUNCTIONS ---
 
 
@@ -387,20 +488,12 @@ async function getComputedSchedule() {
 		}
 		const dateStr = targetDate.toLocaleDateString( 'de-DE', dateOptions );
 
-		// Fetch Config for this specific day
-		// (This allows mid-week schedule changes!)
-		const scheduleConfig = await fetchScheduleForDate( isoDate );
-
-		// Find correct day in config (Mon=1 ... Sun=0)
-		// Note: getDay() returns 0 for Sun, 1 for Mon
+		// Fetch Config for this specific day using per-day API
+		// (This allows mid-week schedule changes and database overrides!)
 		const targetDayIndex = targetDate.getDay();
+		const dayData = await fetchDaySchedule( isoDate, targetDayIndex );
 
-		let dayData = null;
-		if ( scheduleConfig ) {
-			dayData = scheduleConfig.find( d => d.dayIndex === targetDayIndex );
-		}
-
-		// If no data found (e.g. before start date), return dummy or null
+		// If no data found (e.g. before start date or skip override), return dummy
 		if ( !dayData ) {
 			return {
 				id: 'invalid',
@@ -1183,10 +1276,9 @@ async function calculateStreak() {
 	// Get already awarded shield milestones
 	const awardedMilestones = getAwardedShieldMilestones();
 
-	// Check Today
-	let config = await fetchScheduleForDate( todayIso );
+	// Check Today using per-day API
 	let dayIdx = checkDate.getDay();
-	let dayData = config ? config.find( d => d.dayIndex === dayIdx ) : null;
+	let dayData = await fetchDaySchedule( todayIso, dayIdx );
 
 	const todayComplete = dayData && isDayComplete( todayIso, dayData.details );
 	const todayRecovery = domainStorage.isRecoveryDay( todayIso ) && isDayComplete( todayIso, [] );
@@ -1212,9 +1304,8 @@ async function calculateStreak() {
 			break;
 		}
 
-		config = await fetchScheduleForDate( dateStr );
 		dayIdx = checkDate.getDay();
-		dayData = config ? config.find( d => d.dayIndex === dayIdx ) : null;
+		dayData = await fetchDaySchedule( dateStr, dayIdx );
 
 		const dayComplete = dayData && isDayComplete( dateStr, dayData.details );
 		const recoveryComplete = domainStorage.isRecoveryDay( dateStr ) && isDayComplete( dateStr, [] );
