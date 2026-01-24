@@ -7,6 +7,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: write
 
 jobs:
   update-pr:
@@ -46,3 +47,32 @@ jobs:
           # Post new comment with final release link
           gh pr comment "$PR_NUMBER" --repo ${{ github.repository }} \
             --body "✅ Released: $RELEASE_URL"
+
+  close-milestone:
+    name: Close Milestone
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close matching milestone
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          echo "Release tag: $TAG"
+
+          # Find milestone matching the tag (e.g., v15.0.0)
+          MILESTONE_NUMBER=$(gh api "repos/${{ github.repository }}/milestones?state=open" \
+            --jq ".[] | select(.title == \"$TAG\") | .number")
+
+          if [ -z "$MILESTONE_NUMBER" ]; then
+            echo "No open milestone found matching '$TAG'"
+            exit 0
+          fi
+
+          echo "Found milestone #$MILESTONE_NUMBER, closing..."
+
+          # Close the milestone
+          gh api "repos/${{ github.repository }}/milestones/$MILESTONE_NUMBER" \
+            --method PATCH \
+            -f state=closed
+
+          echo "✅ Milestone '$TAG' closed successfully"

@@ -2,7 +2,7 @@ name: PR Validation
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - main
 
@@ -10,8 +10,83 @@ permissions:
   contents: read
   pull-requests: write
   checks: write
+  issues: read
 
 jobs:
+  validate-milestone:
+    name: Check Milestone
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-assign milestone from branch
+        if: github.event.action == 'opened'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          # Check if branch name matches vX.Y.Z pattern
+          if [[ "$BRANCH" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Branch matches version pattern: $BRANCH"
+            # Try to assign milestone (may fail if milestone doesn't exist)
+            gh pr edit ${{ github.event.number }} --repo ${{ github.repository }} --milestone "$BRANCH" || echo "Could not assign milestone $BRANCH (may not exist)"
+          else
+            echo "Branch '$BRANCH' does not match vX.Y.Z pattern, skipping auto-assign"
+          fi
+
+      - name: Check milestone assigned
+        id: milestone-check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Fetch current PR state (in case milestone was just auto-assigned)
+          MILESTONE=$(gh pr view ${{ github.event.number }} --repo ${{ github.repository }} --json milestone --jq '.milestone.title // empty')
+
+          if [ -z "$MILESTONE" ]; then
+            echo "result=failed" >> $GITHUB_OUTPUT
+            echo "message=No milestone assigned to this PR" >> $GITHUB_OUTPUT
+            echo "::error::No milestone assigned to this PR"
+            exit 1
+          fi
+          echo "result=success" >> $GITHUB_OUTPUT
+          echo "message=Milestone: $MILESTONE" >> $GITHUB_OUTPUT
+          echo "milestone=$MILESTONE" >> $GITHUB_OUTPUT
+          echo "✅ Milestone: $MILESTONE"
+
+      - name: Check open issues in milestone
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          MILESTONE="${{ steps.milestone-check.outputs.milestone }}"
+          OPEN_ISSUES=$(gh issue list --repo ${{ github.repository }} --milestone "$MILESTONE" --state open --json number --jq 'length')
+
+          if [ "$OPEN_ISSUES" -gt 0 ]; then
+            echo "::warning::Milestone '$MILESTONE' has $OPEN_ISSUES open issue(s)"
+            echo "⚠️ Milestone has $OPEN_ISSUES open issues"
+
+            # List the open issues
+            echo ""
+            echo "Open issues:"
+            gh issue list --repo ${{ github.repository }} --milestone "$MILESTONE" --state open --json number,title --jq '.[] | "  - #\(.number): \(.title)"'
+          else
+            echo "✅ All issues in milestone '$MILESTONE' are closed"
+          fi
+
+      - name: Comment on PR (failure)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## ⚠️ Milestone Check Failed\n\n${{ steps.milestone-check.outputs.message }}\n\nPlease assign a milestone to this PR before merging.'
+            })
+
+    outputs:
+      result: ${{ steps.milestone-check.outputs.result }}
+      milestone: ${{ steps.milestone-check.outputs.milestone }}
+
   validate-version:
     name: Check Version Bump
     runs-on: ubuntu-latest
@@ -247,7 +322,7 @@ jobs:
   update-pr-checkboxes:
     name: Update PR Checkboxes
     runs-on: ubuntu-latest
-    needs: [validate-version, validate-changelog, validate-schedules, validate-version-sync]
+    needs: [validate-milestone, validate-version, validate-changelog, validate-schedules, validate-version-sync]
     # Only update checkboxes when validation jobs ran (not on description edits)
     if: always() && github.event.action != 'edited'
     steps:
@@ -304,7 +379,7 @@ jobs:
   post-results:
     name: Post Validation Results
     runs-on: ubuntu-latest
-    needs: [validate-version, validate-changelog, validate-schedules, validate-version-sync]
+    needs: [validate-milestone, validate-version, validate-changelog, validate-schedules, validate-version-sync]
     # Only post results when validation jobs ran (not on description edits)
     if: always() && github.event.action != 'edited'
     steps:
@@ -312,12 +387,23 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const milestoneResult = '${{ needs.validate-milestone.outputs.result }}';
+            const milestone = '${{ needs.validate-milestone.outputs.milestone }}';
             const versionResult = '${{ needs.validate-version.outputs.result }}';
             const changelogResult = '${{ needs.validate-changelog.outputs.result }}';
             const scheduleResult = '${{ needs.validate-schedules.outputs.result }}';
             const versionSyncResult = '${{ needs.validate-version-sync.outputs.result }}';
 
             let summary = '## 🤖 Automated PR Validation Results\n\n';
+
+            // Milestone check
+            if (milestoneResult === 'success') {
+              summary += `✅ **Milestone Check**: Passed - Assigned to \`${milestone}\`\n`;
+            } else if (milestoneResult === 'failed') {
+              summary += '❌ **Milestone Check**: Failed - No milestone assigned\n';
+            } else {
+              summary += '⏭️ **Milestone Check**: Skipped\n';
+            }
 
             // Version check
             if (versionResult === 'success') {
@@ -358,7 +444,7 @@ jobs:
             }
 
             // Overall status - treat skipped as success for overall status
-            const allPassed = versionResult === 'success' && changelogResult === 'success' && (scheduleResult === 'success' || scheduleResult === 'skipped') && versionSyncResult === 'success';
+            const allPassed = milestoneResult === 'success' && versionResult === 'success' && changelogResult === 'success' && (scheduleResult === 'success' || scheduleResult === 'skipped') && versionSyncResult === 'success';
             if (allPassed) {
               summary += '\n---\n✨ **All checks passed!** This PR is ready for review.\n';
             } else {

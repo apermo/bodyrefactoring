@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Preview mode (`--dry-run`)
   - Schema initialization (`--init`)
 
+- **Milestone automation for GitHub workflows**
+  - PR validation requires milestone assignment (blocker)
+  - Auto-assign milestone from `vX.Y.Z` branch names
+  - Warning when milestone has open issues
+  - Auto-close milestone when release is published
+
 ### Changed
 
 - `schedule-service.js` now supports per-day API with `fetchDaySchedule()`
