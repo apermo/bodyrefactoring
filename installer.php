@@ -22,6 +22,53 @@ $success = null;
 $step    = $_GET['step'] ?? 'check';
 
 /**
+ * Get existing table information (names and row counts).
+ *
+ * @return array{exists: bool, tables: array<string, int>}
+ */
+function get_existing_tables_info(): array {
+	$our_tables = [
+		'schedule_templates',
+		'schedule_days',
+		'schedule_exercises',
+		'date_overrides',
+		'schedule_audit',
+	];
+
+	$result = [
+		'exists' => false,
+		'tables' => [],
+	];
+
+	if ( ! getenv( 'DB_HOST' ) || ! getenv( 'DB_NAME' ) ) {
+		return $result;
+	}
+
+	try {
+		$db = Database::get_instance();
+
+		foreach ( $our_tables as $table ) {
+			$check = $db->query_one(
+				"SELECT COUNT(*) as cnt FROM information_schema.tables
+				 WHERE table_schema = DATABASE() AND table_name = ?",
+				[ $table ]
+			);
+
+			if ( ( $check['cnt'] ?? 0 ) > 0 ) {
+				$result['exists'] = true;
+				$count            = $db->query_one( "SELECT COUNT(*) as cnt FROM `{$table}`" );
+				$result['tables'][ $table ] = (int) ( $count['cnt'] ?? 0 );
+			}
+		}
+	} catch ( PDOException $e ) {
+		// Connection failed or tables don't exist.
+		return $result;
+	}
+
+	return $result;
+}
+
+/**
  * Run pre-flight checks.
  *
  * @return array{passed: bool, checks: array}
@@ -208,7 +255,24 @@ function install_database( string $mode, ?string $file = null ): array {
 if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) ) {
 	$action = $_POST['action'];
 
-	if ( $action === 'install' ) {
+	if ( $action === 'set_version_only' ) {
+		// Just add DATABASE_VERSION to .env without touching the database.
+		if ( set_database_version( REQUIRED_DATABASE_VERSION ) ) {
+			$success = [
+				'message' => 'Configuration updated',
+				'details' => [
+					'DATABASE_VERSION set to ' . REQUIRED_DATABASE_VERSION,
+					'Existing database tables preserved',
+				],
+			];
+			$step = 'complete';
+		} else {
+			$error = [
+				'message' => 'Failed to update .env file',
+				'details' => [ 'Make sure .env is writable' ],
+			];
+		}
+	} elseif ( $action === 'install' ) {
 		$mode = $_POST['mode'] ?? 'empty';
 		$file = null;
 
@@ -230,8 +294,10 @@ if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) ) {
 }
 
 // Run preflight checks.
-$preflight = run_preflight_checks();
-$schedules = get_available_schedules();
+$preflight       = run_preflight_checks();
+$schedules       = get_available_schedules();
+$existing_tables = $preflight['passed'] ? get_existing_tables_info() : [ 'exists' => false, 'tables' => [] ];
+$force_install   = isset( $_GET['force'] ) && $_GET['force'] === '1';
 
 ?>
 <!DOCTYPE html>
@@ -306,8 +372,82 @@ $schedules = get_available_schedules();
 				</div>
 			</div>
 
+		<?php elseif ( $existing_tables['exists'] && ! $force_install ) : ?>
+			<!-- Warning: Tables Exist -->
+			<div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-6 mb-6">
+				<h2 class="text-xl font-semibold text-amber-400 mb-4">⚠️ Existing Tables Detected</h2>
+				<p class="text-slate-300 mb-4">
+					Database tables already exist, but <code class="bg-slate-700 px-1 rounded">DATABASE_VERSION</code> is missing from your <code class="bg-slate-700 px-1 rounded">.env</code> file.
+				</p>
+
+				<div class="bg-slate-800 rounded-lg p-4 mb-4">
+					<h3 class="text-sm font-medium text-slate-400 mb-3">Existing Tables</h3>
+					<table class="w-full text-sm">
+						<thead>
+							<tr class="text-slate-400 border-b border-slate-700">
+								<th class="text-left pb-2">Table</th>
+								<th class="text-right pb-2">Rows</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $existing_tables['tables'] as $table => $count ) : ?>
+								<tr class="border-b border-slate-700/50">
+									<td class="py-2 font-mono text-slate-300"><?php echo htmlspecialchars( $table ); ?></td>
+									<td class="py-2 text-right <?php echo $count > 0 ? 'text-green-400' : 'text-slate-500'; ?>">
+										<?php echo number_format( $count ); ?>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+
+				<div class="space-y-4">
+					<!-- Option 1: Just add .env variable -->
+					<form method="POST" class="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+						<input type="hidden" name="action" value="set_version_only">
+						<div class="flex items-start gap-4">
+							<div class="flex-1">
+								<h4 class="font-medium text-green-400">Keep existing data</h4>
+								<p class="text-sm text-slate-400 mt-1">
+									Add <code class="bg-slate-700 px-1 rounded">DATABASE_VERSION=<?php echo REQUIRED_DATABASE_VERSION; ?></code> to .env and use the existing tables.
+								</p>
+							</div>
+							<button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
+								Use Existing
+							</button>
+						</div>
+					</form>
+
+					<!-- Option 2: Reinstall (with warning) -->
+					<details class="bg-red-500/10 border border-red-500/30 rounded-lg">
+						<summary class="p-4 cursor-pointer font-medium text-red-400 hover:text-red-300">
+							Reinstall database (will overwrite data)
+						</summary>
+						<div class="px-4 pb-4">
+							<p class="text-sm text-slate-400 mb-4">
+								⚠️ This will drop and recreate all tables. Any existing schedule data will be lost.
+							</p>
+							<a href="?step=install&force=1" class="inline-block bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors">
+								Continue to Installation Options
+							</a>
+						</div>
+					</details>
+				</div>
+			</div>
+
 		<?php else : ?>
 			<!-- Installation Options -->
+			<?php if ( $force_install && $existing_tables['exists'] ) : ?>
+				<div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
+					<p class="text-red-400 font-medium">⚠️ Warning: Existing data will be overwritten</p>
+					<p class="text-sm text-slate-400 mt-1">
+						Found <?php echo count( $existing_tables['tables'] ); ?> existing table(s) with
+						<?php echo number_format( array_sum( $existing_tables['tables'] ) ); ?> total rows.
+						<a href="installer.php" class="text-blue-400 hover:underline">Go back</a> to preserve existing data.
+					</p>
+				</div>
+			<?php endif; ?>
 			<?php if ( $error ) : ?>
 				<div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
 					<p class="text-red-400 font-medium"><?php echo htmlspecialchars( $error['message'] ); ?></p>
