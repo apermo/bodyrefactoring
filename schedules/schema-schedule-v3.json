@@ -1,0 +1,343 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Body Refactoring Training Schedule v3",
+	"description": "Schema for validating training schedule JSON files (version 3). Adds custom type and date-based filtering.",
+	"type": "object",
+	"required": ["version", "days"],
+	"properties": {
+		"version": {
+			"type": "integer",
+			"description": "Schema version number",
+			"const": 3
+		},
+		"days": {
+			"type": "array",
+			"description": "Array of training days",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"required": ["id", "dayIndex", "name", "theme", "details"],
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Unique identifier for the day (e.g., 'mon', 'tue')",
+						"pattern": "^[a-z_]+$"
+					},
+					"dayIndex": {
+						"type": "integer",
+						"description": "Day of the week (0 or 7 = Sunday, 1 = Monday, ..., 6 = Saturday)",
+						"minimum": 0,
+						"maximum": 7
+					},
+					"name": {
+						"type": "string",
+						"description": "Display name of the day",
+						"minLength": 1
+					},
+					"theme": {
+						"type": "string",
+						"description": "Theme or focus of the training day",
+						"minLength": 1
+					},
+					"icon": {
+						"type": "string",
+						"description": "Lucide icon name"
+					},
+					"colorClass": {
+						"type": "string",
+						"description": "Tailwind color class for text"
+					},
+					"bgClass": {
+						"type": "string",
+						"description": "Tailwind background color class"
+					},
+					"details": {
+						"type": "array",
+						"description": "List of exercises/tasks for this day",
+						"minItems": 1,
+						"items": {
+							"oneOf": [
+								{
+									"$ref": "#/definitions/regularExercise"
+								},
+								{
+									"$ref": "#/definitions/customExercise"
+								},
+								{
+									"$ref": "#/definitions/alternativeExercise"
+								}
+							]
+						}
+					}
+				},
+				"additionalProperties": false
+			}
+		}
+	},
+	"additionalProperties": false,
+	"definitions": {
+		"dateCondition": {
+			"type": "object",
+			"description": "Date-based condition for when this task should appear. Only one condition type allowed.",
+			"oneOf": [
+				{
+					"properties": {
+						"once": {
+							"type": "string",
+							"description": "ISO date (YYYY-MM-DD) for one-time task",
+							"pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+						}
+					},
+					"required": ["once"],
+					"additionalProperties": false
+				},
+				{
+					"properties": {
+						"weekOfMonth": {
+							"type": "array",
+							"description": "Array of week numbers (1-5) within the month",
+							"items": {
+								"type": "integer",
+								"minimum": 1,
+								"maximum": 5
+							},
+							"minItems": 1,
+							"uniqueItems": true
+						}
+					},
+					"required": ["weekOfMonth"],
+					"additionalProperties": false
+				},
+				{
+					"properties": {
+						"weekParity": {
+							"type": "string",
+							"description": "Show only in odd or even ISO week numbers",
+							"enum": ["odd", "even"]
+						}
+					},
+					"required": ["weekParity"],
+					"additionalProperties": false
+				}
+			]
+		},
+		"exerciseBase": {
+			"type": "object",
+			"description": "Common properties for all exercise types",
+			"properties": {
+				"dateCondition": {
+					"$ref": "#/definitions/dateCondition"
+				},
+				"dateDescription": {
+					"type": "string",
+					"description": "Human-readable description of when task appears (displayed in UI)"
+				}
+			}
+		},
+		"regularExercise": {
+			"type": "object",
+			"required": ["id", "type", "title", "desc"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique identifier for the exercise",
+					"pattern": "^[a-z_]+$"
+				},
+				"type": {
+					"type": "string",
+					"description": "Exercise type",
+					"enum": ["warmup", "main", "cool"]
+				},
+				"title": {
+					"type": "string",
+					"description": "Exercise title",
+					"minLength": 1
+				},
+				"desc": {
+					"type": "string",
+					"description": "Exercise description",
+					"minLength": 1
+				},
+				"weight": {
+					"type": "string",
+					"description": "Default weight value"
+				},
+				"defaultUnit": {
+					"type": "string",
+					"description": "Unit for weight (KG, LBS, STUFE, etc.)"
+				},
+				"timers": {
+					"type": "array",
+					"description": "Timer options for this exercise",
+					"items": {
+						"$ref": "#/definitions/timer"
+					}
+				},
+				"repCounter": {
+					"$ref": "#/definitions/repCounter"
+				},
+				"dateCondition": {
+					"$ref": "#/definitions/dateCondition"
+				},
+				"dateDescription": {
+					"type": "string",
+					"description": "Human-readable description of when task appears (displayed in UI)"
+				}
+			},
+			"additionalProperties": false
+		},
+		"customExercise": {
+			"type": "object",
+			"description": "Custom task type with user-defined label",
+			"required": ["id", "type", "customLabel", "title", "desc"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique identifier for the task",
+					"pattern": "^[a-z_]+$"
+				},
+				"type": {
+					"type": "string",
+					"description": "Must be 'custom'",
+					"const": "custom"
+				},
+				"customLabel": {
+					"type": "string",
+					"description": "Custom badge label (e.g., 'Morgens', 'Abends', 'Einkauf')",
+					"minLength": 1
+				},
+				"title": {
+					"type": "string",
+					"description": "Task title",
+					"minLength": 1
+				},
+				"desc": {
+					"type": "string",
+					"description": "Task description",
+					"minLength": 1
+				},
+				"timers": {
+					"type": "array",
+					"description": "Timer options for this task",
+					"items": {
+						"$ref": "#/definitions/timer"
+					}
+				},
+				"dateCondition": {
+					"$ref": "#/definitions/dateCondition"
+				},
+				"dateDescription": {
+					"type": "string",
+					"description": "Human-readable description of when task appears (displayed in UI)"
+				}
+			},
+			"additionalProperties": false
+		},
+		"alternativeExercise": {
+			"type": "object",
+			"required": ["id", "type", "alternatives"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique identifier for the alternative group",
+					"pattern": "^[a-z_]+$"
+				},
+				"type": {
+					"type": "string",
+					"description": "Must be 'alternatives'",
+					"enum": ["alternatives"]
+				},
+				"alternatives": {
+					"type": "array",
+					"description": "List of alternative exercises",
+					"minItems": 2,
+					"items": {
+						"type": "object",
+						"required": ["title", "desc"],
+						"properties": {
+							"title": {
+								"type": "string",
+								"description": "Alternative exercise title",
+								"minLength": 1
+							},
+							"desc": {
+								"type": "string",
+								"description": "Alternative exercise description",
+								"minLength": 1
+							},
+							"weight": {
+								"type": "string",
+								"description": "Default weight value"
+							},
+							"defaultUnit": {
+								"type": "string",
+								"description": "Unit for weight"
+							},
+							"timers": {
+								"type": "array",
+								"description": "Timer options",
+								"items": {
+									"$ref": "#/definitions/timer"
+								}
+							}
+						},
+						"additionalProperties": false
+					}
+				},
+				"dateCondition": {
+					"$ref": "#/definitions/dateCondition"
+				},
+				"dateDescription": {
+					"type": "string",
+					"description": "Human-readable description of when task appears (displayed in UI)"
+				}
+			},
+			"additionalProperties": false
+		},
+		"timer": {
+			"type": "object",
+			"required": ["l", "s"],
+			"properties": {
+				"l": {
+					"type": "string",
+					"description": "Timer label (e.g., '5 Min')",
+					"minLength": 1
+				},
+				"s": {
+					"type": "integer",
+					"description": "Timer duration in seconds",
+					"minimum": 1
+				}
+			},
+			"additionalProperties": false
+		},
+		"repCounter": {
+			"type": "object",
+			"description": "Rep counter configuration for automatic vocal counting",
+			"required": ["sets", "reps", "restSeconds", "delayMilliseconds"],
+			"properties": {
+				"sets": {
+					"type": "integer",
+					"description": "Number of sets",
+					"minimum": 1
+				},
+				"reps": {
+					"type": "integer",
+					"description": "Repetitions per set",
+					"minimum": 1
+				},
+				"restSeconds": {
+					"type": "integer",
+					"description": "Rest duration between sets in seconds",
+					"minimum": 1
+				},
+				"delayMilliseconds": {
+					"type": "number",
+					"description": "Milliseconds per rep for automatic counting (e.g., 3000 = 3 seconds)",
+					"minimum": 1000
+				}
+			},
+			"additionalProperties": false
+		}
+	}
+}

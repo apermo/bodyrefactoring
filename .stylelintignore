@@ -5,8 +5,5 @@ vendor/
 # Build output
 dist/
 
-# Netlify
-.netlify/
-
 # Minified files
 *.min.css

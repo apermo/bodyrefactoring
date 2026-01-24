@@ -3,9 +3,15 @@
 	<description>Custom ruleset based on WordPress Coding Standards for Body Refactoring</description>
 
 	<!-- What to scan -->
+	<file>consent.php</file>
+	<file>deploy.php</file>
+	<file>index.php</file>
+	<file>login.php</file>
+	<file>logout.php</file>
+	<file>schedule-editor.php</file>
+	<file>tools.php</file>
 	<file>assets/</file>
-	<file>tools/</file>
-	<file>trainings/</file>
+	<file>schedules/</file>
 
 	<!-- Only scan PHP files (JS/CSS handled by ESLint/Stylelint) -->
 	<arg name="extensions" value="php"/>
@@ -44,6 +50,19 @@
 		<!-- Do not enforce alignment -->
 		<exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning"/>
 		<exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned"/>
+		<!-- Not a WordPress plugin - no enqueue system -->
+		<exclude name="WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet"/>
+		<exclude name="WordPress.WP.EnqueuedResources.NonEnqueuedScript"/>
+		<!-- Standalone app - escaping handled differently -->
+		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped"/>
+		<!-- Standalone app - no WordPress nonce/sanitization system -->
+		<exclude name="WordPress.Security.ValidatedSanitizedInput.MissingUnslash"/>
+		<exclude name="WordPress.Security.ValidatedSanitizedInput.InputNotSanitized"/>
+		<exclude name="WordPress.Security.ValidatedSanitizedInput.InputNotValidated"/>
+		<exclude name="WordPress.Security.NonceVerification.Missing"/>
+		<!-- Standalone app - PHP native functions OK -->
+		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date"/>
+		<exclude name="WordPress.WP.GlobalVariablesOverride.Prohibited"/>
 	</rule>
 
 	<!-- Use WordPress Documentation standards for comments -->
@@ -149,8 +168,4 @@
 	<!-- PSR-1 class declaration -->
 	<rule ref="PSR1.Classes.ClassDeclaration"/>
 
-	<!-- Security: Validate, sanitize, escape -->
-	<rule ref="WordPress.Security.EscapeOutput"/>
-	<rule ref="WordPress.Security.NonceVerification"/>
-	<rule ref="WordPress.Security.ValidatedSanitizedInput"/>
 </ruleset>

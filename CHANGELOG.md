@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.6.0] Unreleased
+
+### Added
+
+- **Password protection** for private instances
+  - `APP_PASSWORD_HASH` env var for bcrypt password authentication
+  - Dedicated login.php and logout.php pages
+  - Session management with configurable duration
+  - Logout button in menu when authenticated
+  - Graceful fallback to consent flow when no password set
+
+- **Customizable branding** via environment variables and config
+  - `APP_NAME` - Custom app title (default: "Body Refactoring")
+  - `APP_ICON` - Path to custom icon/logo
+  - Dynamic branding in splash screen, header, intro modal
+  - Color theming via Tailwind config in `app-settings.json`
+
+- **Secure schedule API endpoint**
+  - All schedule access now routes through `schedules/index.php` API
+  - Direct JSON file access blocked (`.htaccess` for Apache, nginx config for DDEV)
+  - API respects `APP_PASSWORD_HASH` authentication when configured
+  - GET `/schedules/` returns list with URLs
+  - GET `/schedules/?file=schedule-*.json` serves schedule content
+
+- **Configurable schedule path**
+  - `SCHEDULE_PATH` env var (default: "schedules")
+  - Enables separate schedule directories for different instances
+
+### Changed
+
+- Renamed `trainings/` directory to `schedules/`
+
+- **Schedule schema v3** with date-based task filtering
+  - `custom` exercise type with `customLabel` for user-defined badges
+  - `dateCondition` field for conditional task display:
+    - `once`: Show only on specific date (YYYY-MM-DD)
+    - `weekOfMonth`: Show only during specific weeks [1-5]
+    - `weekParity`: Show only in odd or even ISO weeks
+  - `dateDescription` field displayed as amber badge in UI
+  - Date-filtered tasks excluded from day completion requirements
+  - Validator updated to support v3 schema
+
 ## [14.5.0] - 2026-01-23
 
 ### Added
@@ -897,6 +939,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for client-side data
 - Responsive design for mobile devices
 
+[14.4.6]: https://github.com/apermo/bodyrefactoring/compare/v14.4.5...v14.4.6
+[14.4.5]: https://github.com/apermo/bodyrefactoring/compare/v14.4.4...v14.4.5
+[14.4.4]: https://github.com/apermo/bodyrefactoring/compare/v14.4.3...v14.4.4
 [14.4.3]: https://github.com/apermo/bodyrefactoring/compare/v14.4.2...v14.4.3
 [14.4.2]: https://github.com/apermo/bodyrefactoring/compare/v14.4.1...v14.4.2
 [14.4.1]: https://github.com/apermo/bodyrefactoring/compare/v14.4.0...v14.4.1

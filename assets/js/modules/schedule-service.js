@@ -103,13 +103,13 @@ export class ScheduleService {
 		}
 
 		// Check cache
-		if ( this.scheduleCache[ bestMatch.file ] ) {
-			return this.scheduleCache[ bestMatch.file ];
+		if ( this.scheduleCache[ bestMatch.url ] ) {
+			return this.scheduleCache[ bestMatch.url ];
 		}
 
-		// Fetch with cache busting via mtime
-		const cacheBuster = bestMatch.mtime ? `?v=${bestMatch.mtime}` : '';
-		const res = await fetch( `trainings/${bestMatch.file}${cacheBuster}` );
+		// Fetch via API URL with cache busting via mtime
+		const cacheBuster = bestMatch.mtime ? `&v=${bestMatch.mtime}` : '';
+		const res = await fetch( `${bestMatch.url}${cacheBuster}` );
 		const json = await res.json();
 
 		// Handle versioned structure (support v1 and v2)
@@ -119,7 +119,7 @@ export class ScheduleService {
 		}
 
 		// Cache the days array
-		this.scheduleCache[ bestMatch.file ] = json.days;
+		this.scheduleCache[ bestMatch.url ] = json.days;
 		return json.days;
 	}
 
@@ -144,9 +144,10 @@ export class ScheduleService {
 			return this.specialScheduleCache[ type ];
 		}
 
-		// Fetch
+		// Fetch via API
 		try {
-			const res = await fetch( `trainings/schedule-${type}.json` );
+			// Always use 'schedules' endpoint (regardless of where files are stored server-side)
+			const res = await fetch( `schedules/?file=schedule-${type}.json` );
 			if ( ! res.ok ) {
 				console.error( `Failed to fetch schedule-${type}.json` );
 				return null;

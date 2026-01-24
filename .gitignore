@@ -3,12 +3,14 @@
 /vendor/
 /private/
 
+# Custom configuration (user overrides)
+/custom-config/*.json
+
 # Node.js
 /node_modules/
 
-# Netlify build output
+# Build output
 dist/
-.netlify/
 
 # Playwright
 test-results/

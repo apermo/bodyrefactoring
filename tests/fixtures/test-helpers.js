@@ -40,12 +40,12 @@ function getDateRelativeToToday( daysOffset ) {
 async function setupMockSchedule( page, options = {} ) {
 	const scheduleDate = options.scheduleDate || getDateRelativeToToday( -30 );
 
-	// Mock the schedule list endpoint
-	await page.route( '**/trainings/', async ( route ) => {
+	// Mock the schedule list endpoint (supports both /schedules/ and /trainings/)
+	await page.route( '**/{schedules,trainings}/', async ( route ) => {
 		const scheduleList = [
 			{
 				date: scheduleDate,
-				file: 'mock-schedule.json',
+				url: 'schedules/?file=mock-schedule.json',
 				mtime: Date.now(),
 			},
 		];
@@ -56,8 +56,8 @@ async function setupMockSchedule( page, options = {} ) {
 		} );
 	} );
 
-	// Mock the mock schedule file
-	await page.route( '**/trainings/mock-schedule.json*', async ( route ) => {
+	// Mock the mock schedule file via API
+	await page.route( '**/{schedules,trainings}/*file=mock-schedule.json*', async ( route ) => {
 		await route.fulfill( {
 			status: 200,
 			contentType: 'application/json',
@@ -65,8 +65,8 @@ async function setupMockSchedule( page, options = {} ) {
 		} );
 	} );
 
-	// Mock recovery schedule
-	await page.route( '**/trainings/schedule-recovery.json*', async ( route ) => {
+	// Mock recovery schedule via API
+	await page.route( '**/{schedules,trainings}/*file=schedule-recovery.json*', async ( route ) => {
 		const recoverySchedule = {
 			version: 1,
 			days: [
@@ -103,8 +103,8 @@ async function setupMockSchedule( page, options = {} ) {
 		} );
 	} );
 
-	// Mock sick schedule
-	await page.route( '**/trainings/schedule-sick.json*', async ( route ) => {
+	// Mock sick schedule via API
+	await page.route( '**/{schedules,trainings}/*file=schedule-sick.json*', async ( route ) => {
 		const sickSchedule = {
 			version: 1,
 			days: [
@@ -246,6 +246,61 @@ async function startRepCounterForExercise( page, exerciseId ) {
 	await chip.click();
 }
 
+/**
+ * Setup test configuration overrides.
+ *
+ * Injects configuration overrides that will be merged with APP_CONFIG.
+ * Useful for testing features that require specific settings.
+ *
+ * @param {import('@playwright/test').Page} page            - Playwright page object.
+ * @param {Object}                          configOverrides - Configuration object to merge.
+ * @return {Promise<void>}
+ *
+ * @example
+ * // Enable login feature for testing
+ * await setupTestConfig(page, {
+ *     features: { loginEnabled: true }
+ * });
+ *
+ * @example
+ * // Override quotes for testing
+ * await setupTestConfig(page, {
+ *     strings: { quotes: ['Test quote 1', 'Test quote 2'] }
+ * });
+ */
+async function setupTestConfig( page, configOverrides = {} ) {
+	await page.addInitScript( ( config ) => {
+		window.TEST_CONFIG_OVERRIDE = config;
+	}, configOverrides );
+}
+
+/**
+ * Get the current app configuration from the page.
+ *
+ * @param {import('@playwright/test').Page} page - Playwright page object.
+ * @return {Promise<Object>} The merged configuration object.
+ */
+async function getAppConfig( page ) {
+	return await page.evaluate( () => {
+		if ( window.TEST_CONFIG_OVERRIDE ) {
+			// Deep merge (simplified)
+			const merge = ( target, source ) => {
+				const result = { ...target };
+				for ( const key in source ) {
+					if ( source[ key ] && typeof source[ key ] === 'object' && !Array.isArray( source[ key ] ) ) {
+						result[ key ] = merge( result[ key ] || {}, source[ key ] );
+					} else {
+						result[ key ] = source[ key ];
+					}
+				}
+				return result;
+			};
+			return merge( window.APP_CONFIG || {}, window.TEST_CONFIG_OVERRIDE );
+		}
+		return window.APP_CONFIG || {};
+	} );
+}
+
 module.exports = {
 	getTodayISO,
 	getDateRelativeToToday,
@@ -256,5 +311,7 @@ module.exports = {
 	waitForRepCounterModal,
 	waitForRepCounterComplete,
 	startRepCounterForExercise,
+	setupTestConfig,
+	getAppConfig,
 	mockSchedule,
 };

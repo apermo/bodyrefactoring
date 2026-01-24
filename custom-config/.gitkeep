@@ -1,0 +1,6 @@
+# Custom Configuration Directory
+#
+# Place your app-settings.json file here to override defaults.
+# Files in this directory are gitignored.
+#
+# Example: custom-config/app-settings.json

@@ -1,0 +1,88 @@
+{
+	"specialDays": {
+		"recovery": {
+			"name": "Recovery",
+			"theme": "Regeneration",
+			"icon": "heart-pulse",
+			"colorClass": "text-emerald-400",
+			"bgClass": "bg-emerald-500/10",
+			"activities": [
+				{ "id": "breathing", "type": "main", "title": "5 Min Atemübungen", "desc": "Tiefes Ein- und Ausatmen" },
+				{ "id": "stretching", "type": "main", "title": "Leichtes Stretching", "desc": "5 Minuten sanfte Dehnübungen" },
+				{ "id": "hydration", "type": "main", "title": "Flüssigkeitszufuhr", "desc": "2 Liter Wasser/Tee trinken" }
+			]
+		},
+		"sick": {
+			"name": "Krank",
+			"theme": "Genesung",
+			"icon": "thermometer",
+			"colorClass": "text-red-400",
+			"bgClass": "bg-red-500/10",
+			"activities": [
+				{ "id": "hydration", "type": "main", "title": "Flüssigkeitszufuhr", "desc": "2 Liter Wasser/Tee trinken" }
+			]
+		}
+	},
+	"app": {
+		"name": "Body Refactoring",
+		"icon": "assets/img/gymlogo.png",
+		"backgroundImage": "assets/img/background.jpg"
+	},
+	"tailwind": {
+	},
+	"theme": {
+		"colors": {
+			"primary": "#38bdf8",
+			"primaryRgb": "56, 189, 248",
+			"success": "#22c55e",
+			"successRgb": "34, 197, 94",
+			"danger": "#ef4444",
+			"dangerRgb": "239, 68, 68",
+			"warning": "#f59e0b",
+			"warningRgb": "245, 158, 11",
+			"warningDark": "#d97706",
+			"background": "#0f172a",
+			"backgroundRgb": "15, 23, 42",
+			"surface": "#1e293b",
+			"surfaceRgb": "30, 41, 59",
+			"text": "#e2e8f0",
+			"textMuted": "#94a3b8",
+			"textMutedRgb": "148, 163, 184",
+			"textSecondary": "#64748b",
+			"border": "#334155"
+		},
+		"gradients": {
+			"app": "linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%)",
+			"appAccent": "#22d3ee"
+		}
+	},
+	"strings": {
+		"training": {
+			"complete": "Training Complete!",
+			"currentStreak": "Aktuelle Streak",
+			"continueButton": "Weiter so!"
+		},
+		"quotes": [
+			"Stark! Wieder einen Tag geschafft.",
+			"Konsistenz ist der Schlüssel zum Erfolg.",
+			"Dein Zukunfts-Ich dankt dir.",
+			"Keine Ausreden, nur Ergebnisse.",
+			"Level Up! Du wirst jeden Tag besser.",
+			"Schweiß ist nur Fett, das weint.",
+			"Disziplin ist Freiheit.",
+			"Ein Schritt näher am Ziel."
+		]
+	},
+	"features": {
+		"loginEnabled": false,
+		"speechEnabled": true,
+		"notificationsEnabled": true,
+		"debugLogEnabled": false
+	},
+	"defaults": {
+		"timerDuration": 60,
+		"repCounterCountdown": 3,
+		"shieldAwardInterval": 7,
+		"maxShields": 3
+	}
+}

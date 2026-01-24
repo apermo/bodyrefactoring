@@ -7,6 +7,7 @@
  * @package BodyRefactoring
  */
 
+// Load dependencies and helpers.
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/assets/cachebuster.php';
 ?>
@@ -133,7 +134,7 @@ require_once __DIR__ . '/assets/cachebuster.php';
 				</div>
 			</div>
 			<div class="text-xs text-slate-400 bg-slate-900/50 border border-slate-700 rounded p-3">
-				<strong>💡 Deployment:</strong> Export the schedule, save it to <code class="text-cyan-400">trainings/</code> folder, validate with CLI, then commit and push to Git for automatic deployment.
+				<strong>💡 Deployment:</strong> Export the schedule, save it to <code class="text-cyan-400">schedules/</code> folder, validate with CLI, then commit and push to Git for automatic deployment.
 			</div>
 		</div>
 

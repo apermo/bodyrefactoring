@@ -24,6 +24,7 @@ import { TimerCoordinator } from './modules/timer-coordinator.js';
 import { showCalendarModal, isEventAdded } from './modules/calendar-modal.js';
 import { getLocalISODate } from './modules/utils.js';
 import { checkAndShowIntroModal, closeIntroModal } from './intro-modal.js';
+import configService from './modules/config-service.js';
 
 // --- STATE MACHINES & SERVICES ---
 const appStateMachine = new AppStateMachine();
@@ -50,19 +51,18 @@ const SHIELDS_KEY = STORAGE_KEYS.SHIELDS;
 const SHIELDS_AWARDED_KEY = STORAGE_KEYS.SHIELDS_AWARDED;
 const MAX_SHIELDS = CONFIG.MAX_SHIELDS;
 
-// Use imported constants
-const quotes = QUOTES;
+// Schedule API endpoint (always 'schedules', regardless of where files are stored)
+const SCHEDULE_PATH = 'schedules';
 
-// Loaded special schedules (recovery and sick activities loaded from JSON)
-let loadedRecoveryActivities = [];
-let _loadedSickActivities = [];
+// Use config service for quotes (allows customization per app type)
+const quotes = configService.getQuotes().length > 0 ? configService.getQuotes() : QUOTES;
 
 // --- GLOBAL STATE ---
 let currentWeekOffset = 0;
 
 // Global State for Dynamic Scheduling
 const state = {
-	availableSchedules: [], // List of { date: 'YYYY-MM-DD', file: '...' }
+	availableSchedules: [], // List of { date: 'YYYY-MM-DD', url: '...' }
 	scheduleCache: {},      // Cache content of JSON files
 	startDate: null,         // Derived from first schedule
 };
@@ -118,11 +118,11 @@ async function initApp() {
 			window.debugLog( 'Modules loaded, starting init', 'success' );
 		}
 
-		// Fetch schedules (redirects to index.php on Plesk or schedules.json on Netlify)
+		// Fetch schedules from API endpoint
 		if ( window.debugLog ) {
-			window.debugLog( 'Fetching trainings/...', 'info' );
+			window.debugLog( 'Fetching schedules/...', 'info' );
 		}
-		const response = await fetch( 'trainings/' );
+		const response = await fetch( `${SCHEDULE_PATH}/` );
 
 		if ( !response.ok ) {
 			throw new Error( `Failed to load schedules: ${response.status} ${response.statusText}` );
@@ -132,9 +132,6 @@ async function initApp() {
 		if ( window.debugLog ) {
 			window.debugLog( `Loaded ${state.availableSchedules.length} schedules`, 'success' );
 		}
-
-		// Load special schedules (recovery, sick) before rendering
-		await loadSpecialSchedules();
 
 		if ( state.availableSchedules.length > 0 ) {
 			state.startDate = new Date( state.availableSchedules[ 0 ].date + 'T00:00:00' );
@@ -189,39 +186,6 @@ async function initApp() {
 }
 
 /**
- * Load special schedules (recovery and sick) from JSON files.
- *
- * Fetches schedule-recovery.json and schedule-sick.json and stores
- * the activities in global variables for use during rendering.
- *
- * @async
- * @return {Promise<void>}
- */
-async function loadSpecialSchedules() {
-	try {
-		// Load recovery schedule
-		const recoveryRes = await fetch( 'trainings/schedule-recovery.json' );
-		if ( recoveryRes.ok ) {
-			const recoveryJson = await recoveryRes.json();
-			if ( recoveryJson.days && recoveryJson.days[ 0 ] && recoveryJson.days[ 0 ].details ) {
-				loadedRecoveryActivities = recoveryJson.days[ 0 ].details;
-			}
-		}
-
-		// Load sick schedule
-		const sickRes = await fetch( 'trainings/schedule-sick.json' );
-		if ( sickRes.ok ) {
-			const sickJson = await sickRes.json();
-			if ( sickJson.days && sickJson.days[ 0 ] && sickJson.days[ 0 ].details ) {
-				_loadedSickActivities = sickJson.days[ 0 ].details;
-			}
-		}
-	} catch ( error ) {
-		console.error( 'Error loading special schedules:', error );
-	}
-}
-
-/**
  * Check if exercise should be hidden by current mode.
  *
  * @param {Object} exercise - Exercise object.
@@ -240,6 +204,98 @@ function isExerciseHiddenByMode( exercise ) {
 
 	// Hidden if current mode is in hideOn array
 	return exercise.hideOn.includes( currentMode );
+}
+
+/**
+ * Calculate ISO week number for a given date.
+ *
+ * @param {Date} date - The date to calculate week number for.
+ * @return {number} ISO week number (1-53).
+ */
+function getISOWeekNumber( date ) {
+	const tempDate = new Date( date.getTime() );
+	tempDate.setHours( 0, 0, 0, 0 );
+	// Set to nearest Thursday (current date + 4 - current day number, making Sunday day 7)
+	tempDate.setDate( tempDate.getDate() + 4 - ( tempDate.getDay() || 7 ) );
+	// Get first day of year
+	const yearStart = new Date( tempDate.getFullYear(), 0, 1 );
+	// Calculate full weeks to nearest Thursday
+	return Math.ceil( ( ( tempDate - yearStart ) / 86400000 + 1 ) / 7 );
+}
+
+/**
+ * Calculate which week of the month a date falls in.
+ *
+ * @param {Date} date - The date to check.
+ * @return {number} Week of month (1-5).
+ */
+function getWeekOfMonth( date ) {
+	return Math.ceil( date.getDate() / 7 );
+}
+
+/**
+ * Get German month name for a date.
+ *
+ * @param {Date} date - The date.
+ * @return {string} German month name.
+ */
+function getGermanMonthName( date ) {
+	const months = [
+		'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+		'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+	];
+	return months[ date.getMonth() ];
+}
+
+/**
+ * Check if exercise should be shown based on its dateCondition.
+ *
+ * Evaluates the dateCondition field against the given date.
+ * If no dateCondition is set, the exercise is always shown.
+ *
+ * @param {Object} exercise - Exercise object.
+ * @param {Date} targetDate - The date to check against.
+ * @return {boolean} True if exercise should be shown.
+ */
+function shouldShowExerciseForDate( exercise, targetDate ) {
+	// No condition means always show
+	if ( ! exercise.dateCondition ) {
+		return true;
+	}
+
+	const condition = exercise.dateCondition;
+
+	// One-time task: show only on exact date
+	if ( condition.once ) {
+		const targetIso = targetDate.toISOString().split( 'T' )[ 0 ];
+		return condition.once === targetIso;
+	}
+
+	// Week of month: check if current week matches
+	if ( condition.weekOfMonth ) {
+		const dayOfMonth = targetDate.getDate();
+		const weekOfMonth = Math.ceil( dayOfMonth / 7 );
+		return condition.weekOfMonth.includes( weekOfMonth );
+	}
+
+	// Week parity: check if ISO week number is odd/even
+	if ( condition.weekParity ) {
+		// Calculate ISO week number
+		const tempDate = new Date( targetDate.getTime() );
+		tempDate.setHours( 0, 0, 0, 0 );
+		// Set to nearest Thursday (current date + 4 - current day number, making Sunday day 7)
+		tempDate.setDate( tempDate.getDate() + 4 - ( tempDate.getDay() || 7 ) );
+		// Get first day of year
+		const yearStart = new Date( tempDate.getFullYear(), 0, 1 );
+		// Calculate full weeks to nearest Thursday
+		const weekNumber = Math.ceil( ( ( tempDate - yearStart ) / 86400000 + 1 ) / 7 );
+
+		const isOdd = weekNumber % 2 === 1;
+		return condition.weekParity === 'odd' ? isOdd : ! isOdd;
+	}
+
+	// Unknown condition type - show by default
+	return true;
 }
 
 
@@ -271,12 +327,12 @@ async function fetchScheduleForDate( dateStr ) {
 	}
 
 	// Check Cache
-	if ( state.scheduleCache[ bestMatch.file ] ) {
-		return state.scheduleCache[ bestMatch.file ];
+	if ( state.scheduleCache[ bestMatch.url ] ) {
+		return state.scheduleCache[ bestMatch.url ];
 	}
 
-	// Fetch
-	const res = await fetch( `trainings/${bestMatch.file}` );
+	// Fetch via API URL
+	const res = await fetch( bestMatch.url );
 	const json = await res.json();
 
 	// Handle new structure: { version: 1, days: [...] }
@@ -287,7 +343,7 @@ async function fetchScheduleForDate( dateStr ) {
 	}
 
 	// Cache the days array (not the wrapper object)
-	state.scheduleCache[ bestMatch.file ] = json.days;
+	state.scheduleCache[ bestMatch.url ] = json.days;
 	return json.days;
 }
 
@@ -397,7 +453,9 @@ async function renderSchedule() {
 	// Nav Logic
 	const btnPrev = document.getElementById( 'btn-prev' );
 	const btnToday = document.getElementById( 'btn-today' );
+	const weekLabel = document.getElementById( 'week-label' );
 	const weekDisplay = document.getElementById( 'week-display' );
+	const weekInfo = document.getElementById( 'week-info' );
 
 	// Allow going back only if Monday is >= Global Start Date
 	const mondayDate = computedSchedule[ 0 ].fullDateObj;
@@ -406,16 +464,25 @@ async function renderSchedule() {
 
 	btnPrev.disabled = mondayDate <= startDateClean;
 
-	// Show "Today" button only when not on current week
+	// Calculate week info
+	const isoWeek = getISOWeekNumber( mondayDate );
+	const weekOfMonth = getWeekOfMonth( mondayDate );
+	const monthName = getGermanMonthName( mondayDate );
+
+	// Display KW as main element
+	weekDisplay.innerText = `KW ${isoWeek}`;
+	weekInfo.innerText = `${weekOfMonth}. Woche im ${monthName}`;
+
+	// Show week offset in label, "Today" button only when not on current week
 	if ( currentWeekOffset === 0 ) {
-		weekDisplay.innerText = 'Aktuelle Woche';
+		weekLabel.innerText = 'Aktuelle Woche';
 		btnToday.classList.add( 'hidden' );
 	} else {
 		btnToday.classList.remove( 'hidden' );
 		if ( currentWeekOffset > 0 ) {
-			weekDisplay.innerText = `+${currentWeekOffset} Wochen`;
+			weekLabel.innerText = `+${currentWeekOffset} Wochen`;
 		} else {
-			weekDisplay.innerText = `${currentWeekOffset} Wochen`;
+			weekLabel.innerText = `${currentWeekOffset} Wochen`;
 		}
 	}
 
@@ -435,7 +502,7 @@ async function renderSchedule() {
 			activeElementId = `card-${day.storageDate}`;
 		}
 
-		card.className = `day-card rounded-2xl bg-slate-800/40 border border-slate-700/50 overflow-hidden cursor-pointer ${activeClass} ${lockedClass}`;
+		card.className = configService.replaceTailwindClasses( `day-card rounded-2xl bg-slate-800/40 border border-slate-700/50 overflow-hidden cursor-pointer ${activeClass} ${lockedClass}` );
 
 		// Check Completion (Sync check is fine here)
 		let allDone = false;
@@ -508,7 +575,7 @@ async function renderSchedule() {
 						</div>
 				`;
 
-				loadedRecoveryActivities.forEach( activity => {
+				configService.getSpecialDayActivities( 'recovery' ).forEach( activity => {
 					const uniqueKey = `${RECOVERY_PREFIX}${day.storageDate}_${activity.id}`;
 					const isChecked = domainStorage.isRecoveryActivityComplete( day.storageDate, activity.id );
 
@@ -565,6 +632,11 @@ async function renderSchedule() {
 		} else {
 		// Normal day - render regular exercises
 			day.details.forEach( ex => {
+				// Skip exercises that don't match date condition
+				if ( ! shouldShowExerciseForDate( ex, day.fullDateObj ) ) {
+					return;
+				}
+
 				const hiddenByMode = isExerciseHiddenByMode( ex );
 				const uniqueKey = `${STORAGE_PREFIX}${day.storageDate}_${ex.id}`;
 				const isChecked = domainStorage.isExerciseComplete( day.storageDate, ex.id );
@@ -670,6 +742,9 @@ async function renderSchedule() {
 					const optionalClass = ex.optional ? 'exercise-optional' : '';
 					const optionalBadge = ex.optional ? '<span class="badge-optional ml-2">Optional</span>' : '';
 
+					// Date description indicator
+					const dateDescBadge = ex.dateDescription ? `<span class="badge-date-desc ml-2">${ex.dateDescription}</span>` : '';
+
 					exercisesHtml += `
 					<div class="flex items-start gap-4 exercise-row group py-4 border-b border-slate-800/50 last:border-0 ${isChecked ? 'completed' : ''} ${optionalClass} ${hiddenByMode ? 'hidden' : ''}">
 						<div class="w-8 h-8 rounded-full border-2 border-slate-500 check-circle flex items-center justify-center flex-shrink-0 mt-1 ${day.isLocked ? '' : 'cursor-pointer'}"
@@ -677,7 +752,7 @@ async function renderSchedule() {
 							<i data-lucide="check" class="w-5 h-5 text-slate-900"></i>
 						</div>
 						<div class="flex-grow exercise-text">
-							<div class="flex items-center"><span class="${badgeClass}">${badgeText}</span>${optionalBadge}</div>
+							<div class="flex items-center flex-wrap gap-1"><span class="${badgeClass}">${badgeText}</span>${optionalBadge}${dateDescBadge}</div>
 							<div class="font-bold text-white text-lg leading-tight">${ex.title}</div>
 							<div class="text-xs text-slate-400 mt-0.5">${ex.desc}</div>
 							${timersHtml}
@@ -732,7 +807,7 @@ async function renderSchedule() {
 			</div>
 		`;
 
-		card.innerHTML = headerHtml + detailsHtml;
+		card.innerHTML = configService.replaceTailwindClasses( headerHtml + detailsHtml );
 		container.appendChild( card );
 	} );
 
@@ -1191,7 +1266,7 @@ async function calculateStreak() {
 function isDayComplete( dateIso, details ) {
 	// Check if it's a recovery day
 	if ( domainStorage.isRecoveryDay( dateIso ) ) {
-		return loadedRecoveryActivities.every( activity => {
+		return configService.getSpecialDayActivities( 'recovery' ).every( activity => {
 			return domainStorage.isRecoveryActivityComplete( dateIso, activity.id );
 		} );
 	}
@@ -1206,8 +1281,21 @@ function isDayComplete( dateIso, details ) {
 		return false;
 	}
 
-	// Only exclude optional exercises - hidden tasks are still required!
-	const requiredExercises = details.filter( ex => ! ex.optional );
+	// Convert dateIso to Date object for dateCondition filtering
+	const targetDate = new Date( dateIso + 'T12:00:00' );
+
+	// Exclude optional exercises AND exercises that don't match dateCondition
+	const requiredExercises = details.filter( ex => {
+		// Skip optional exercises
+		if ( ex.optional ) {
+			return false;
+		}
+		// Skip exercises that don't match the date condition
+		if ( ! shouldShowExerciseForDate( ex, targetDate ) ) {
+			return false;
+		}
+		return true;
+	} );
 
 	// If no required exercises remain, consider day complete
 	if ( requiredExercises.length === 0 ) {
@@ -2715,7 +2803,7 @@ function backToNormal( dateIso ) {
 	}
 
 	// Remove all recovery activities
-	loadedRecoveryActivities.forEach( activity => {
+	configService.getSpecialDayActivities( 'recovery' ).forEach( activity => {
 		domainStorage.removeRecoveryActivity( dateIso, activity.id );
 	} );
 	domainStorage.removeRecoveryDay( dateIso );
