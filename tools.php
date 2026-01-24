@@ -76,7 +76,7 @@ define( 'APP_COLOR_SCHEME', getenv( 'APP_COLOR_SCHEME' ) ?: 'default' );
 define( 'APP_ICON', getenv( 'APP_ICON' ) ?: 'assets/img/gymlogo.png' );
 define( 'SCHEDULE_PATH', getenv( 'SCHEDULE_PATH' ) ?: 'schedules' );
 define( 'APP_PASSWORD_HASH', getenv( 'APP_PASSWORD_HASH' ) ?: '' );
-define( 'SESSION_DURATION', (int) ( getenv( 'SESSION_DURATION' ) ?: 86400 ) );
+define( 'SESSION_DURATION', (int) ( getenv( 'SESSION_DURATION' ) ?: 24966000 ) );
 
 // Auth cookie name (derived from app name for multi-instance support)
 define( 'AUTH_COOKIE_NAME', 'br_auth_' . substr( md5( APP_NAME ), 0, 8 ) );

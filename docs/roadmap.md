@@ -296,7 +296,7 @@ This document outlines planned features and improvements for the Body Refactorin
   ```env
   # Authentication (optional - omit for public instance)
   APP_PASSWORD_HASH=$2y$10$...  # bcrypt hash
-  SESSION_DURATION=86400        # 24 hours
+  SESSION_DURATION=24966000     # 1 year
 
   # Branding
   APP_NAME="My Todo List"
