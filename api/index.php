@@ -3,17 +3,40 @@
  * API Router
  *
  * Central entry point for all API requests.
- * Routes requests to appropriate handlers based on URL path.
+ * Routes requests to appropriate controllers based on URL path.
  *
  * URL Structure: /api/v1/{resource}/{action}
  *
  * Available endpoints:
  * - GET /api/v1/schedules/day?date=YYYY-MM-DD - Get schedule for specific date
  *
- * @package BodyRefactoring
+ * @package BodyRefactoring\Api
  */
 
 require_once __DIR__ . '/../tools.php';
+require_once __DIR__ . '/../includes/Database.php';
+require_once __DIR__ . '/../includes/ScheduleService.php';
+
+// Autoloader for API classes.
+spl_autoload_register(
+	function ( $class ) {
+		// Only handle BodyRefactoring\Api namespace.
+		$prefix = 'BodyRefactoring\\Api\\';
+		if ( strpos( $class, $prefix ) !== 0 ) {
+			return;
+		}
+
+		// Remove namespace prefix and convert to path.
+		$relative_class = substr( $class, strlen( $prefix ) );
+		$file           = __DIR__ . '/' . str_replace( '\\', '/', $relative_class ) . '.php';
+
+		if ( file_exists( $file ) ) {
+			require_once $file;
+		}
+	}
+);
+
+use BodyRefactoring\Api\V1\SchedulesController;
 
 // Set common headers.
 header( 'Content-Type: application/json' );
@@ -36,9 +59,9 @@ if ( is_auth_enabled() && ! is_authenticated() ) {
 }
 
 /**
- * Parse the request path to extract API version and route.
+ * Parse the request path to extract API version, resource, and action.
  *
- * @return array{version: string|null, route: string}
+ * @return array{version: string|null, resource: string|null, action: string|null}
  */
 function parse_request_path(): array {
 	$request_uri = $_SERVER['REQUEST_URI'] ?? '';
@@ -48,16 +71,23 @@ function parse_request_path(): array {
 	$path = preg_replace( '#^/api#', '', $path );
 	$path = trim( $path, '/' );
 
-	// Extract version if present (v1, v2, etc.).
-	$version = null;
-	if ( preg_match( '#^(v\d+)/(.*)$#', $path, $matches ) ) {
-		$version = $matches[1];
-		$path    = $matches[2];
+	// Extract version, resource, and action.
+	$parts = explode( '/', $path );
+
+	$version  = null;
+	$resource = null;
+	$action   = null;
+
+	if ( ! empty( $parts[0] ) && preg_match( '/^v\d+$/', $parts[0] ) ) {
+		$version = $parts[0];
+		$resource = $parts[1] ?? null;
+		$action   = $parts[2] ?? null;
 	}
 
 	return [
-		'version' => $version,
-		'route'   => $path,
+		'version'  => $version,
+		'resource' => $resource,
+		'action'   => $action,
 	];
 }
 
@@ -74,41 +104,34 @@ function api_error( int $code, string $message, array $extra = [] ): void {
 	exit;
 }
 
-/**
- * Send a JSON success response.
- *
- * @param mixed $data Response data.
- * @param int   $code HTTP status code.
- */
-function api_response( $data, int $code = 200 ): void {
-	http_response_code( $code );
-	echo json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
-	exit;
-}
-
 // Parse request.
 $request = parse_request_path();
 $method  = $_SERVER['REQUEST_METHOD'];
+$params  = $_GET;
 
 // Require API version.
 if ( $request['version'] === null ) {
 	api_error( 400, 'API version required. Use /api/v1/...' );
 }
 
-// Route to handlers.
-$route = $request['route'];
-
-switch ( true ) {
-	// GET /api/v1/schedules/day?date=YYYY-MM-DD
-	case $method === 'GET' && $route === 'schedules/day':
-		require_once __DIR__ . '/v1/schedules-day.php';
-		handle_schedules_day();
-		break;
-
-	// Future endpoints can be added here:
-	// case $method === 'GET' && $route === 'storage/{id}':
-	// case $method === 'PUT' && $route === 'storage/{id}':
-
-	default:
-		api_error( 404, 'Endpoint not found', [ 'route' => $route, 'method' => $method ] );
+// Require resource.
+if ( $request['resource'] === null ) {
+	api_error( 400, 'Resource required. Use /api/v1/{resource}/...' );
 }
+
+// Map resources to controllers.
+$controllers = [
+	'schedules' => SchedulesController::class,
+	// Future: 'storage' => StorageController::class,
+];
+
+$resource = $request['resource'];
+
+if ( ! isset( $controllers[ $resource ] ) ) {
+	api_error( 404, 'Resource not found', [ 'resource' => $resource ] );
+}
+
+// Instantiate controller and handle request.
+$controller_class = $controllers[ $resource ];
+$controller       = new $controller_class();
+$controller->handle( $request['action'] ?? 'index', $params );
