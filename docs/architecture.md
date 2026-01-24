@@ -261,6 +261,64 @@ const state = new StateManager();
 state.setCurrentWeekOffset(0);
 ```
 
+## Backend Architecture (v15.0+)
+
+### PHP Classes
+
+```
+/includes/
+├── Database.php           # PDO singleton, connection management
+├── ScheduleService.php    # Schedule queries and business logic
+├── config-loader.php      # JSON configuration loading
+└── database/
+    └── schema.sql         # MySQL schema definition
+```
+
+### Database Layer
+
+**Database.php** provides:
+- PDO connection singleton
+- Prepared statement helpers (`query`, `query_one`, `execute`)
+- Transaction support (`begin_transaction`, `commit`, `rollback`)
+- Schema initialization (`init_schema`, `tables_exist`)
+
+**ScheduleService.php** handles:
+- Template lookup by date (`get_active_template`)
+- Day retrieval with exercises (`get_template_day`, `get_day_exercises`)
+- Override application (replace, add, skip)
+- Date validation and response formatting
+
+### Schedule API
+
+**Per-day endpoint** (`/schedules/day/?date=YYYY-MM-DD`):
+```json
+{
+  "date": "2026-01-25",
+  "dayIndex": 6,
+  "id": "sat",
+  "name": "SAMSTAG",
+  "theme": "Full Body",
+  "details": [...],
+  "hasOverride": false,
+  "templateName": "Schedule 2026-01-19"
+}
+```
+
+**Override types:**
+- `replace`: Completely replace day configuration
+- `add`: Merge additional exercises into template day
+- `skip`: Return 204 No Content (day hidden)
+
+### Database Schema
+
+```sql
+schedule_templates (id, name, start_date, end_date, is_active)
+    └── schedule_days (id, template_id, day_index, name, theme, ...)
+            └── schedule_exercises (id, day_id, exercise_id, type, title, ...)
+
+date_overrides (id, target_date, override_type, day_config, exercises, note)
+```
+
 ## Error Handling
 
 All modules implement consistent error handling:
@@ -272,6 +330,6 @@ All modules implement consistent error handling:
 
 ---
 
-**Last Updated**: 2026-01-05 (v13.0.0)  
-**Status**: Phase 2 Complete, Phase 3 Next
+**Last Updated**: 2026-01-24 (v15.0.0)
+**Status**: Phase 2 Complete, Backend Architecture Added
 

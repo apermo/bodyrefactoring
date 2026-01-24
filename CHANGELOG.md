@@ -30,7 +30,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Warning when milestone has open issues
   - Auto-close milestone when release is published
 
+- **E2E tests for schedule API** (`tests/e2e/schedule-api.spec.js`)
+  - Tests for per-day endpoint validation, error handling, response format
+  - Tests for schedule list endpoint
+  - Frontend fallback behavior tests (503 → file-based schedules)
+
 ### Changed
+
+- DDEV config upgraded to PHP 8.4, Apache, MySQL 8.4
+- Import tool now handles `alternatives` exercise type correctly
 
 - `schedule-service.js` now supports per-day API with `fetchDaySchedule()`
 - `app.js` uses per-day API for schedule fetching with legacy fallback

@@ -165,26 +165,50 @@ function import_schedule( string $file_path, Database $db, bool $update, bool $d
 			// Import exercises.
 			$sort_order = 0;
 			foreach ( $day['details'] ?? [] as $exercise ) {
-				$db->execute(
-					'INSERT INTO schedule_exercises
-					 (day_id, exercise_id, sort_order, type, title, description, weight, default_unit, timers, rep_counter, custom_label, date_condition, date_description)
-					 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-					[
-						$day_id,
-						$exercise['id'],
-						$sort_order,
-						$exercise['type'],
-						$exercise['title'],
-						$exercise['desc'] ?? null,
-						$exercise['weight'] ?? null,
-						$exercise['defaultUnit'] ?? null,
-						isset( $exercise['timers'] ) ? json_encode( $exercise['timers'] ) : null,
-						isset( $exercise['repCounter'] ) ? json_encode( $exercise['repCounter'] ) : null,
-						$exercise['customLabel'] ?? null,
-						isset( $exercise['dateCondition'] ) ? json_encode( $exercise['dateCondition'] ) : null,
-						$exercise['dateDescription'] ?? null,
-					]
-				);
+				// Handle 'alternatives' type - store the whole structure as JSON.
+				if ( $exercise['type'] === 'alternatives' ) {
+					$title = 'Alternativen';
+					// Use first alternative's title if available.
+					if ( ! empty( $exercise['alternatives'][0]['title'] ) ) {
+						$titles = array_map( fn( $a ) => $a['title'], $exercise['alternatives'] );
+						$title  = implode( ' / ', $titles );
+					}
+					$db->execute(
+						'INSERT INTO schedule_exercises
+						 (day_id, exercise_id, sort_order, type, title, description, timers)
+						 VALUES (?, ?, ?, ?, ?, ?, ?)',
+						[
+							$day_id,
+							$exercise['id'],
+							$sort_order,
+							$exercise['type'],
+							$title,
+							null,
+							json_encode( $exercise['alternatives'] ),
+						]
+					);
+				} else {
+					$db->execute(
+						'INSERT INTO schedule_exercises
+						 (day_id, exercise_id, sort_order, type, title, description, weight, default_unit, timers, rep_counter, custom_label, date_condition, date_description)
+						 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+						[
+							$day_id,
+							$exercise['id'],
+							$sort_order,
+							$exercise['type'],
+							$exercise['title'],
+							$exercise['desc'] ?? null,
+							$exercise['weight'] ?? null,
+							$exercise['defaultUnit'] ?? null,
+							isset( $exercise['timers'] ) ? json_encode( $exercise['timers'] ) : null,
+							isset( $exercise['repCounter'] ) ? json_encode( $exercise['repCounter'] ) : null,
+							$exercise['customLabel'] ?? null,
+							isset( $exercise['dateCondition'] ) ? json_encode( $exercise['dateCondition'] ) : null,
+							$exercise['dateDescription'] ?? null,
+						]
+					);
+				}
 				++$sort_order;
 				++$exercise_count;
 			}
