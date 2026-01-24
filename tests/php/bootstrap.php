@@ -14,6 +14,7 @@ define( 'PHPUNIT_RUNNING', true );
 require_once __DIR__ . '/../../includes/DatabaseInterface.php';
 require_once __DIR__ . '/../../includes/Database.php';
 require_once __DIR__ . '/../../includes/ScheduleService.php';
+require_once __DIR__ . '/../../includes/ScheduleImportService.php';
 
 // Load mocks.
 require_once __DIR__ . '/Mocks/MockDatabase.php';

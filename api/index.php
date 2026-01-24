@@ -8,7 +8,9 @@
  * URL Structure: /api/v1/{resource}/{action}
  *
  * Available endpoints:
- * - GET /api/v1/schedules/day?date=YYYY-MM-DD - Get schedule for specific date
+ * - GET  /api/v1/schedules/day?date=YYYY-MM-DD - Get schedule for specific date
+ * - POST /api/v1/schedules/preview             - Validate and preview import (auth required)
+ * - POST /api/v1/schedules/import              - Import schedule to database (auth required)
  *
  * @package BodyRefactoring\Api
  */
@@ -51,10 +53,11 @@ if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {
 	exit;
 }
 
-// Check authentication if enabled.
+// Require authentication for all API endpoints.
+// TODO: Add ALLOW_GUEST_ACCESS check when implemented (see issue #114).
 if ( is_auth_enabled() && ! is_authenticated() ) {
 	http_response_code( 401 );
-	echo json_encode( [ 'error' => 'Unauthorized' ] );
+	echo json_encode( [ 'error' => 'Authentication required' ] );
 	exit;
 }
 

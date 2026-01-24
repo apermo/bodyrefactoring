@@ -3,6 +3,7 @@
  * Schedule Editor/Generator Tool
  *
  * A web-based interface for creating, editing, and managing training schedule JSON files.
+ * Requires authentication via APP_PASSWORD_HASH.
  *
  * @package BodyRefactoring
  */
@@ -10,6 +11,18 @@
 // Load dependencies and helpers.
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/assets/cachebuster.php';
+
+// Require authentication.
+if ( ! is_auth_enabled() ) {
+	http_response_code( 403 );
+	die( 'Schedule Editor requires APP_PASSWORD_HASH to be set in .env' );
+}
+
+if ( ! is_authenticated() ) {
+	// Redirect to login page.
+	header( 'Location: /?login=schedule-editor' );
+	exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -127,14 +140,18 @@ require_once __DIR__ . '/assets/cachebuster.php';
 						<i data-lucide="check-circle" class="w-4 h-4"></i>
 						Validate
 					</button>
-					<button onclick="exportSchedule()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded btn flex items-center gap-2">
+					<button onclick="deployToDatabase()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded btn flex items-center gap-2">
+						<i data-lucide="database" class="w-4 h-4"></i>
+						Deploy to Database
+					</button>
+					<button onclick="exportSchedule()" class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded btn flex items-center gap-2">
 						<i data-lucide="download" class="w-4 h-4"></i>
-						Export & Deploy via Git
+						Export JSON
 					</button>
 				</div>
 			</div>
 			<div class="text-xs text-slate-400 bg-slate-900/50 border border-slate-700 rounded p-3">
-				<strong>💡 Deployment:</strong> Export the schedule, save it to <code class="text-cyan-400">schedules/</code> folder, validate with CLI, then commit and push to Git for automatic deployment.
+				<strong>💡 Deployment:</strong> Click "Deploy to Database" to validate and import directly. Or use "Export JSON" to save the file locally.
 			</div>
 		</div>
 
@@ -208,6 +225,24 @@ require_once __DIR__ . '/assets/cachebuster.php';
 				<div id="exercises-list" class="space-y-2 max-h-[600px] overflow-y-auto">
 					<!-- Exercises will be rendered here -->
 				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Deploy Preview Modal -->
+	<div id="deploy-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+		<div class="card p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+			<div class="flex items-center justify-between mb-4">
+				<h3 class="text-xl font-bold text-white">Deploy to Database</h3>
+				<button onclick="closeDeployModal()" class="text-slate-400 hover:text-white">
+					<i data-lucide="x" class="w-6 h-6"></i>
+				</button>
+			</div>
+			<div id="deploy-content">
+				<!-- Preview content will be injected here -->
+			</div>
+			<div id="deploy-actions" class="flex gap-2 mt-6">
+				<!-- Action buttons will be injected here -->
 			</div>
 		</div>
 	</div>

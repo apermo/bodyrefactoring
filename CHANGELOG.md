@@ -42,6 +42,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Installation options: empty database, demo data, import JSON, upload files
   - Seed data (`includes/database/seed-data.sql`) for demo installation
 
+- **Schedule upload via web interface**
+  - Deploy to Database button in schedule editor with preview/confirm flow
+  - API endpoints: `POST /api/v1/schedules/preview`, `POST /api/v1/schedules/import`
+  - `ScheduleImportService` for reusable import logic
+  - Schedule editor now requires authentication (`APP_PASSWORD_HASH`)
+
 ### Changed
 
 - DDEV config upgraded to PHP 8.4, Apache, MySQL 8.4

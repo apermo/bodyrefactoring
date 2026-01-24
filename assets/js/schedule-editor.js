@@ -828,7 +828,250 @@ function exportSchedule() {
 	document.body.removeChild( a );
 	URL.revokeObjectURL( url );
 
-	alert( 'Schedule exported! Commit to Git to deploy.' );
+	alert( 'Schedule exported!' );
+}
+
+/**
+ * Deploy schedule to database with preview.
+ *
+ * @return {Promise<void>}
+ */
+async function deployToDatabase() {
+	saveDayData();
+
+	// Extract start date from filename.
+	const dateMatch = scheduleFilename?.match( /schedule-(\d{4}-\d{2}-\d{2})\.json/ );
+	if ( ! dateMatch ) {
+		alert( 'Invalid filename format. Expected schedule-YYYY-MM-DD.json' );
+		return;
+	}
+
+	const startDate = dateMatch[ 1 ];
+	const deployContent = document.getElementById( 'deploy-content' );
+	const deployActions = document.getElementById( 'deploy-actions' );
+
+	// Show loading state.
+	deployContent.innerHTML = '<div class="text-center py-8"><div class="text-slate-400">Validating schedule...</div></div>';
+	deployActions.innerHTML = '';
+	document.getElementById( 'deploy-modal' ).classList.remove( 'hidden' );
+	lucide.createIcons();
+
+	try {
+		// Call preview API.
+		const response = await fetch( '/api/v1/schedules/preview', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify( {
+				schedule: currentSchedule,
+				startDate,
+			} ),
+		} );
+
+		const preview = await response.json();
+
+		if ( ! response.ok ) {
+			deployContent.innerHTML = `
+				<div class="bg-red-500/20 border border-red-500 rounded p-4">
+					<div class="font-bold text-red-400 mb-2">Error</div>
+					<div class="text-sm text-slate-300">${preview.error || 'Unknown error'}</div>
+				</div>
+			`;
+			deployActions.innerHTML = `
+				<button onclick="closeDeployModal()" class="flex-1 bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded btn">
+					Close
+				</button>
+			`;
+			return;
+		}
+
+		if ( ! preview.valid ) {
+			// Show validation errors.
+			deployContent.innerHTML = `
+				<div class="bg-red-500/20 border border-red-500 rounded p-4">
+					<div class="font-bold text-red-400 mb-2">Validation Failed</div>
+					<ul class="text-sm text-slate-300 list-disc list-inside space-y-1">
+						${preview.errors.map( e => `<li>${e}</li>` ).join( '' )}
+					</ul>
+				</div>
+			`;
+			deployActions.innerHTML = `
+				<button onclick="closeDeployModal()" class="flex-1 bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded btn">
+					Close
+				</button>
+			`;
+			return;
+		}
+
+		// Show preview.
+		const updateWarning = preview.isUpdate
+			? `<div class="bg-yellow-500/20 border border-yellow-500 rounded p-3 mb-4">
+				<div class="flex items-center gap-2 text-yellow-400 font-bold text-sm">
+					<i data-lucide="alert-triangle" class="w-4 h-4"></i>
+					Update Mode
+				</div>
+				<div class="text-sm text-slate-300 mt-1">
+					This will replace existing template "${preview.existingTemplate.name}" (ID: ${preview.existingTemplate.id})
+				</div>
+			</div>`
+			: `<div class="bg-green-500/20 border border-green-500 rounded p-3 mb-4">
+				<div class="flex items-center gap-2 text-green-400 font-bold text-sm">
+					<i data-lucide="plus-circle" class="w-4 h-4"></i>
+					New Template
+				</div>
+				<div class="text-sm text-slate-300 mt-1">
+					Creating new template "${preview.templateName}"
+				</div>
+			</div>`;
+
+		const dayRows = preview.days
+			.sort( ( a, b ) => a.dayIndex - b.dayIndex )
+			.map( d => `
+				<tr class="border-b border-slate-700">
+					<td class="py-2 px-3 text-slate-400">${d.dayIndex}</td>
+					<td class="py-2 px-3 font-bold">${d.name}</td>
+					<td class="py-2 px-3 text-slate-400">${d.theme || '-'}</td>
+					<td class="py-2 px-3 text-center">${d.exerciseCount}</td>
+				</tr>
+			` ).join( '' );
+
+		deployContent.innerHTML = `
+			${updateWarning}
+			<div class="mb-4">
+				<div class="text-sm text-slate-400 mb-1">Start Date</div>
+				<div class="font-mono text-lg">${preview.startDate}</div>
+			</div>
+			<div class="overflow-x-auto">
+				<table class="w-full text-sm">
+					<thead>
+						<tr class="border-b border-slate-600 text-left">
+							<th class="py-2 px-3 text-slate-400">Index</th>
+							<th class="py-2 px-3 text-slate-400">Day</th>
+							<th class="py-2 px-3 text-slate-400">Theme</th>
+							<th class="py-2 px-3 text-slate-400 text-center">Exercises</th>
+						</tr>
+					</thead>
+					<tbody>${dayRows}</tbody>
+				</table>
+			</div>
+		`;
+
+		deployActions.innerHTML = `
+			<button onclick="confirmDeploy('${startDate}', ${preview.isUpdate})" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded btn flex items-center justify-center gap-2">
+				<i data-lucide="upload" class="w-4 h-4"></i>
+				${preview.isUpdate ? 'Update Template' : 'Create Template'}
+			</button>
+			<button onclick="closeDeployModal()" class="flex-1 bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded btn">
+				Cancel
+			</button>
+		`;
+
+		lucide.createIcons();
+
+	} catch ( error ) {
+		console.error( 'Deploy preview error:', error );
+		deployContent.innerHTML = `
+			<div class="bg-red-500/20 border border-red-500 rounded p-4">
+				<div class="font-bold text-red-400 mb-2">Connection Error</div>
+				<div class="text-sm text-slate-300">${error.message}</div>
+			</div>
+		`;
+		deployActions.innerHTML = `
+			<button onclick="closeDeployModal()" class="flex-1 bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded btn">
+				Close
+			</button>
+		`;
+	}
+}
+
+/**
+ * Confirm and execute deployment.
+ *
+ * @param {string}  startDate Start date.
+ * @param {boolean} isUpdate  Whether this is an update.
+ * @return {Promise<void>}
+ */
+async function confirmDeploy( startDate, isUpdate ) {
+	const deployContent = document.getElementById( 'deploy-content' );
+	const deployActions = document.getElementById( 'deploy-actions' );
+
+	// Show loading.
+	deployContent.innerHTML = '<div class="text-center py-8"><div class="text-slate-400">Deploying to database...</div></div>';
+	deployActions.innerHTML = '';
+
+	try {
+		const response = await fetch( '/api/v1/schedules/import', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify( {
+				schedule: currentSchedule,
+				startDate,
+				update: isUpdate,
+			} ),
+		} );
+
+		const result = await response.json();
+
+		if ( ! response.ok ) {
+			deployContent.innerHTML = `
+				<div class="bg-red-500/20 border border-red-500 rounded p-4">
+					<div class="font-bold text-red-400 mb-2">Import Failed</div>
+					<div class="text-sm text-slate-300">${result.error || 'Unknown error'}</div>
+				</div>
+			`;
+			deployActions.innerHTML = `
+				<button onclick="closeDeployModal()" class="flex-1 bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded btn">
+					Close
+				</button>
+			`;
+			return;
+		}
+
+		// Show success.
+		deployContent.innerHTML = `
+			<div class="bg-green-500/20 border border-green-500 rounded p-4 text-center">
+				<div class="flex items-center justify-center gap-2 text-green-400 font-bold text-lg mb-2">
+					<i data-lucide="check-circle" class="w-6 h-6"></i>
+					Success!
+				</div>
+				<div class="text-slate-300">
+					${result.message}
+				</div>
+				<div class="text-sm text-slate-400 mt-2">
+					Template ID: ${result.template_id}
+				</div>
+			</div>
+		`;
+		deployActions.innerHTML = `
+			<button onclick="closeDeployModal()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded btn">
+				Done
+			</button>
+		`;
+
+		lucide.createIcons();
+
+	} catch ( error ) {
+		console.error( 'Deploy error:', error );
+		deployContent.innerHTML = `
+			<div class="bg-red-500/20 border border-red-500 rounded p-4">
+				<div class="font-bold text-red-400 mb-2">Connection Error</div>
+				<div class="text-sm text-slate-300">${error.message}</div>
+			</div>
+		`;
+		deployActions.innerHTML = `
+			<button onclick="closeDeployModal()" class="flex-1 bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded btn">
+				Close
+			</button>
+		`;
+	}
+}
+
+/**
+ * Close deploy modal.
+ *
+ * @return {void}
+ */
+function closeDeployModal() {
+	document.getElementById( 'deploy-modal' ).classList.add( 'hidden' );
 }
 
 // Expose functions to global scope for HTML onclick handlers
@@ -844,3 +1087,7 @@ window.editExercise = editExercise;
 window.saveExercise = saveExercise;
 window.validateSchedule = validateSchedule;
 window.exportSchedule = exportSchedule;
+window.deployToDatabase = deployToDatabase;
+window.confirmDeploy = confirmDeploy;
+window.closeDeployModal = closeDeployModal;
+window.closeExerciseModal = closeExerciseModal;
