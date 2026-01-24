@@ -96,43 +96,6 @@
 	background-clip: text;
 }
 
-/*
- * Color Utility Classes (Config-Driven)
- *
- * These classes use CSS custom properties to enable theming via config.
- * Override --config-color-* properties in includes/config-loader.php.
- */
-
-/* Text colors - using CSS custom properties with Tailwind-like fallbacks */
-.text-config-primary { color: var(--config-color-primary, var(--color-primary)); }
-
-.text-config-muted { color: var(--config-color-text-muted, var(--color-text-muted)); }
-
-.text-config-secondary { color: var(--config-color-text-secondary, var(--color-text-secondary)); }
-
-.text-config-success { color: var(--config-color-success, var(--color-success)); }
-
-.text-config-danger { color: var(--config-color-danger, var(--color-danger)); }
-
-.text-config-warning { color: var(--config-color-warning, var(--color-warning)); }
-
-/* Background colors */
-.bg-config-primary { background-color: var(--config-color-background, var(--color-bg-primary)); }
-
-.bg-config-surface { background-color: var(--config-color-surface, var(--color-bg-secondary)); }
-
-/* Border colors */
-.border-config-primary { border-color: var(--config-color-border, var(--color-border-primary)); }
-
-/* Button styles using config colors */
-.btn-primary {
-	background-color: var(--config-color-primary, var(--color-primary));
-	color: var(--config-color-background, var(--color-bg-primary));
-}
-
-.btn-primary:hover {
-	filter: brightness(1.1);
-}
 
 body {
 	font-family: var(--font-primary);

@@ -179,6 +179,55 @@ class ConfigService {
 	getAll() {
 		return { ...this.#config };
 	}
+
+	/**
+	 * Replace Tailwind classes based on config mapping.
+	 *
+	 * @param {string} html - HTML string with Tailwind classes.
+	 * @return {string} HTML with replaced class names.
+	 */
+	replaceTailwindClasses( html ) {
+		const mapping = this.get( 'tailwind', {} );
+
+		if ( ! mapping || Object.keys( mapping ).length === 0 ) {
+			return html;
+		}
+
+		// Sort by key length descending to replace longer matches first
+		const sortedKeys = Object.keys( mapping ).sort(
+			( a, b ) => b.length - a.length,
+		);
+
+		let result = html;
+		for ( const from of sortedKeys ) {
+			const to = mapping[ from ];
+			// Replace class names with word boundaries
+			const pattern = new RegExp(
+				`(?<=\\s|"|'|^)${ from.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) }(?=\\s|"|'|$)`,
+				'g',
+			);
+			result = result.replace( pattern, to );
+		}
+
+		return result;
+	}
+
+	/**
+	 * Template tag for HTML with Tailwind class replacement.
+	 *
+	 * Usage: configService.tw`<div class="bg-slate-800">...</div>`
+	 *
+	 * @param {string[]} strings - Template strings.
+	 * @param {...*}     values  - Template values.
+	 * @return {string} Processed HTML string.
+	 */
+	tw( strings, ...values ) {
+		const html = strings.reduce(
+			( result, str, i ) => result + str + ( values[ i ] ?? '' ),
+			'',
+		);
+		return this.replaceTailwindClasses( html );
+	}
 }
 
 // Create and export singleton instance

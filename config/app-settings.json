@@ -1,4 +1,6 @@
 {
+	"tailwind": {
+	},
 	"theme": {
 		"colors": {
 			"primary": "#38bdf8",

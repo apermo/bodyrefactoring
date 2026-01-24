@@ -22,6 +22,24 @@ custom-config/
 
 ## Configuration Options
 
+### Tailwind Class Mapping
+
+Replace Tailwind color classes with different ones:
+
+```json
+{
+  "tailwind": {
+    "bg-slate-900": "bg-emerald-950",
+    "bg-slate-800": "bg-emerald-900",
+    "border-slate-700": "border-emerald-800",
+    "text-slate-400": "text-emerald-300",
+    "hover:bg-slate-700": "hover:bg-emerald-800"
+  }
+}
+```
+
+This replaces class names at render time - both in PHP and JavaScript generated HTML.
+
 ### Theme Colors
 
 Override the color scheme:

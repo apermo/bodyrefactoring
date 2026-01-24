@@ -12,6 +12,9 @@ require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/includes/config-loader.php';
 require_once __DIR__ . '/assets/cachebuster.php';
 
+// Start output buffering for Tailwind class replacement
+ob_start();
+
 // Prevent aggressive caching of the main HTML (especially for iOS PWA)
 header( 'Cache-Control: no-cache, must-revalidate' );
 
@@ -588,3 +591,6 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 
 </body>
 </html>
+<?php
+// Apply Tailwind class replacements from config
+echo replace_tailwind_classes( ob_get_clean() );

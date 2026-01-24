@@ -113,16 +113,41 @@ function is_feature_enabled( string $feature ): bool {
 /**
  * Generate CSS custom properties from theme configuration.
  *
+ * Generates variables that override the defaults in styles.css.
+ * Maps config keys to the actual CSS variable names used by the app.
+ *
  * @return string CSS custom properties block.
  */
 function generate_theme_css(): string {
 	$colors = get_config( 'theme.colors', [] );
 	$css    = ':root {' . PHP_EOL;
 
+	// Map config keys to actual CSS variable names
+	$color_map = [
+		'primary'       => '--color-primary',
+		'primaryRgb'    => '--color-primary-rgb',
+		'success'       => '--color-success',
+		'successRgb'    => '--color-success-rgb',
+		'danger'        => '--color-danger',
+		'dangerRgb'     => '--color-danger-rgb',
+		'warning'       => '--color-warning',
+		'warningRgb'    => '--color-warning-rgb',
+		'warningDark'   => '--color-warning-dark',
+		'background'    => '--color-bg-primary',
+		'backgroundRgb' => '--color-bg-primary-rgb',
+		'surface'       => '--color-bg-secondary',
+		'surfaceRgb'    => '--color-bg-secondary-rgb',
+		'text'          => '--color-text-primary',
+		'textMuted'     => '--color-text-muted',
+		'textMutedRgb'  => '--color-text-muted-rgb',
+		'textSecondary' => '--color-text-secondary',
+		'border'        => '--color-border-primary',
+	];
+
 	foreach ( $colors as $key => $value ) {
-		// Convert camelCase to kebab-case
-		$css_key = strtolower( preg_replace( '/([A-Z])/', '-$1', $key ) );
-		$css    .= "\t--config-color-{$css_key}: {$value};" . PHP_EOL;
+		if ( isset( $color_map[ $key ] ) ) {
+			$css .= "\t{$color_map[ $key ]}: {$value};" . PHP_EOL;
+		}
 	}
 
 	// Add gradient variables
@@ -130,15 +155,46 @@ function generate_theme_css(): string {
 	$accent   = get_config( 'theme.gradients.appAccent', '' );
 
 	if ( $gradient ) {
-		$css .= "\t--config-app-gradient: {$gradient};" . PHP_EOL;
+		$css .= "\t--app-gradient: {$gradient};" . PHP_EOL;
 	}
 	if ( $accent ) {
-		$css .= "\t--config-app-accent: {$accent};" . PHP_EOL;
+		$css .= "\t--app-accent: {$accent};" . PHP_EOL;
 	}
 
 	$css .= '}';
 
 	return $css;
+}
+
+/**
+ * Replace Tailwind classes based on configuration mapping.
+ *
+ * Swaps Tailwind class names in HTML output according to the
+ * tailwind mapping in app-settings.json.
+ *
+ * @param string $html The HTML content to process.
+ * @return string HTML with replaced class names.
+ */
+function replace_tailwind_classes( string $html ): string {
+	$mapping = get_config( 'tailwind', [] );
+
+	if ( empty( $mapping ) ) {
+		return $html;
+	}
+
+	// Sort by key length descending to replace longer matches first
+	// (e.g., "bg-slate-800/80" before "bg-slate-800")
+	uksort( $mapping, function( $a, $b ) {
+		return strlen( $b ) - strlen( $a );
+	} );
+
+	foreach ( $mapping as $from => $to ) {
+		// Replace class names with word boundaries to avoid partial matches
+		$pattern = '/(?<=\s|"|\'|^)' . preg_quote( $from, '/' ) . '(?=\s|"|\'|$)/';
+		$html    = preg_replace( $pattern, $to, $html );
+	}
+
+	return $html;
 }
 
 /**

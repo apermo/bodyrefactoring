@@ -542,7 +542,7 @@ async function renderSchedule() {
 			activeElementId = `card-${day.storageDate}`;
 		}
 
-		card.className = `day-card rounded-2xl bg-slate-800/40 border border-slate-700/50 overflow-hidden cursor-pointer ${activeClass} ${lockedClass}`;
+		card.className = configService.replaceTailwindClasses( `day-card rounded-2xl bg-slate-800/40 border border-slate-700/50 overflow-hidden cursor-pointer ${activeClass} ${lockedClass}` );
 
 		// Check Completion (Sync check is fine here)
 		let allDone = false;
@@ -847,7 +847,7 @@ async function renderSchedule() {
 			</div>
 		`;
 
-		card.innerHTML = headerHtml + detailsHtml;
+		card.innerHTML = configService.replaceTailwindClasses( headerHtml + detailsHtml );
 		container.appendChild( card );
 	} );
 
