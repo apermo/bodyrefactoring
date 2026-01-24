@@ -22,6 +22,44 @@ custom-config/
 
 ## Configuration Options
 
+### Special Days
+
+Customize activities for recovery and sick days:
+
+```json
+{
+  "specialDays": {
+    "recovery": {
+      "name": "Recovery",
+      "theme": "Regeneration",
+      "icon": "heart-pulse",
+      "colorClass": "text-emerald-400",
+      "bgClass": "bg-emerald-500/10",
+      "activities": [
+        { "id": "breathing", "type": "main", "title": "5 Min Atemübungen", "desc": "Tiefes Ein- und Ausatmen" },
+        { "id": "stretching", "type": "main", "title": "Leichtes Stretching", "desc": "5 Minuten sanfte Dehnübungen" }
+      ]
+    },
+    "sick": {
+      "name": "Krank",
+      "theme": "Genesung",
+      "icon": "thermometer",
+      "colorClass": "text-red-400",
+      "bgClass": "bg-red-500/10",
+      "activities": [
+        { "id": "hydration", "type": "main", "title": "Flüssigkeitszufuhr", "desc": "2 Liter Wasser/Tee trinken" }
+      ]
+    }
+  }
+}
+```
+
+Each activity requires:
+- `id`: Unique identifier for the activity
+- `type`: Always `"main"` for special day activities
+- `title`: Display title (German)
+- `desc`: Description (German)
+
 ### App Branding
 
 Customize the app name, icon, and background image:

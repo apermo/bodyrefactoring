@@ -1,4 +1,17 @@
 {
+	"specialDays": {
+		"recovery": {
+			"activities": [
+				{ "id": "meditation", "type": "main", "title": "5 Min Meditation", "desc": "Kurze mentale Pause" },
+				{ "id": "planning", "type": "main", "title": "Tagesplanung", "desc": "Nächste Schritte notieren" }
+			]
+		},
+		"sick": {
+			"activities": [
+				{ "id": "rest", "type": "main", "title": "Ausruhen", "desc": "Vollständige Erholung" }
+			]
+		}
+	},
 	"tailwind": {
 		"bg-slate-900": "bg-zinc-950",
 		"bg-slate-900/50": "bg-zinc-950/50",

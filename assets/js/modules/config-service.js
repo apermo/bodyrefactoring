@@ -150,6 +150,16 @@ class ConfigService {
 	}
 
 	/**
+	 * Get activities for a special day type.
+	 *
+	 * @param {string} type - Special day type ('recovery' or 'sick').
+	 * @return {Array} Array of activity objects.
+	 */
+	getSpecialDayActivities( type ) {
+		return this.get( `specialDays.${ type }.activities`, [] );
+	}
+
+	/**
 	 * Get all quotes from configuration.
 	 *
 	 * @return {string[]} Array of quote strings.

@@ -57,10 +57,6 @@ const SCHEDULE_PATH = 'schedules';
 // Use config service for quotes (allows customization per app type)
 const quotes = configService.getQuotes().length > 0 ? configService.getQuotes() : QUOTES;
 
-// Loaded special schedules (recovery and sick activities loaded from JSON)
-let loadedRecoveryActivities = [];
-let _loadedSickActivities = [];
-
 // --- GLOBAL STATE ---
 let currentWeekOffset = 0;
 
@@ -137,9 +133,6 @@ async function initApp() {
 			window.debugLog( `Loaded ${state.availableSchedules.length} schedules`, 'success' );
 		}
 
-		// Load special schedules (recovery, sick) before rendering
-		await loadSpecialSchedules();
-
 		if ( state.availableSchedules.length > 0 ) {
 			state.startDate = new Date( state.availableSchedules[ 0 ].date + 'T00:00:00' );
 			if ( window.debugLog ) {
@@ -189,39 +182,6 @@ async function initApp() {
 				splash.style.display = 'none';
 			}, 500 );
 		}
-	}
-}
-
-/**
- * Load special schedules (recovery and sick) from JSON files.
- *
- * Fetches schedule-recovery.json and schedule-sick.json and stores
- * the activities in global variables for use during rendering.
- *
- * @async
- * @return {Promise<void>}
- */
-async function loadSpecialSchedules() {
-	try {
-		// Load recovery schedule via API
-		const recoveryRes = await fetch( `${SCHEDULE_PATH}/?file=schedule-recovery.json` );
-		if ( recoveryRes.ok ) {
-			const recoveryJson = await recoveryRes.json();
-			if ( recoveryJson.days && recoveryJson.days[ 0 ] && recoveryJson.days[ 0 ].details ) {
-				loadedRecoveryActivities = recoveryJson.days[ 0 ].details;
-			}
-		}
-
-		// Load sick schedule via API
-		const sickRes = await fetch( `${SCHEDULE_PATH}/?file=schedule-sick.json` );
-		if ( sickRes.ok ) {
-			const sickJson = await sickRes.json();
-			if ( sickJson.days && sickJson.days[ 0 ] && sickJson.days[ 0 ].details ) {
-				_loadedSickActivities = sickJson.days[ 0 ].details;
-			}
-		}
-	} catch ( error ) {
-		console.error( 'Error loading special schedules:', error );
 	}
 }
 
@@ -615,7 +575,7 @@ async function renderSchedule() {
 						</div>
 				`;
 
-				loadedRecoveryActivities.forEach( activity => {
+				configService.getSpecialDayActivities( 'recovery' ).forEach( activity => {
 					const uniqueKey = `${RECOVERY_PREFIX}${day.storageDate}_${activity.id}`;
 					const isChecked = domainStorage.isRecoveryActivityComplete( day.storageDate, activity.id );
 
@@ -1306,7 +1266,7 @@ async function calculateStreak() {
 function isDayComplete( dateIso, details ) {
 	// Check if it's a recovery day
 	if ( domainStorage.isRecoveryDay( dateIso ) ) {
-		return loadedRecoveryActivities.every( activity => {
+		return configService.getSpecialDayActivities( 'recovery' ).every( activity => {
 			return domainStorage.isRecoveryActivityComplete( dateIso, activity.id );
 		} );
 	}
@@ -2843,7 +2803,7 @@ function backToNormal( dateIso ) {
 	}
 
 	// Remove all recovery activities
-	loadedRecoveryActivities.forEach( activity => {
+	configService.getSpecialDayActivities( 'recovery' ).forEach( activity => {
 		domainStorage.removeRecoveryActivity( dateIso, activity.id );
 	} );
 	domainStorage.removeRecoveryDay( dateIso );

@@ -76,6 +76,7 @@ define( 'DEBUG_LOG_ENABLED', getenv( 'DEBUG_MODE' ) === 'true' );
 // App customization - from config with .env fallback
 define( 'APP_NAME', get_app_name() );
 define( 'APP_ICON', get_app_icon() );
+define( 'APP_COLOR_SCHEME', 'default' ); // Deprecated: use tailwind config instead
 
 // Server paths and auth (always from .env)
 define( 'SCHEDULE_PATH', getenv( 'SCHEDULE_PATH' ) ?: 'schedules' );
