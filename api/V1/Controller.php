@@ -31,7 +31,7 @@ abstract class Controller {
 	 * @param mixed $data Response data.
 	 * @param int   $code HTTP status code.
 	 */
-	protected function response( $data, int $code = 200 ): void {
+	protected function response( mixed $data, int $code = 200 ): void {
 		http_response_code( $code );
 		echo json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
 		exit;
