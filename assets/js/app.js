@@ -121,7 +121,7 @@ async function initApp() {
 			window.debugLog( 'Modules loaded, starting init', 'success' );
 		}
 
-		// Fetch schedules (redirects to index.php on Plesk or schedules.json on Netlify)
+		// Fetch schedules from API endpoint
 		if ( window.debugLog ) {
 			window.debugLog( 'Fetching schedules/...', 'info' );
 		}

@@ -10,7 +10,6 @@ serve dynamic, evolvable training schedules without breaking historical data.
 
 - **[Changelog](CHANGELOG.md)** - Complete version history and release notes
 - **[Roadmap](docs/roadmap.md)** - Planned features and future development
-- **[Netlify Setup Guide](docs/netlify-setup.md)** - Complete PR preview deployment documentation
 - **[v13.0.0 Refactoring](docs/v13-refactoring/README.md)** - Complete architectural refactoring documentation (6 phases, 13 modules)
 - **[Schedule Editor Guide](docs/schedule-editor.md)** - Complete guide for using the visual schedule editor
 - **[Schedule Validation Guide](docs/schedule-validation.md)** - Complete guide for creating and validating training schedules
@@ -224,36 +223,9 @@ The app uses file modification timestamps for automatic cache invalidation:
 
 Unlike the initial version, v8.0+ requires a web server (Apache/Nginx/PHP) to list the schedule files.
 
-## **🌐 PR Preview Deployments (Netlify)**
+## **🌐 PR Preview Deployments**
 
-This repository automatically creates preview environments for every pull request using Netlify.
-
-### **What You Get**
-
-Every PR automatically gets:
-- ✅ Unique preview URL: `https://deploy-preview-{number}--bodyrefactoring.netlify.app`
-- ✅ Automatic deployment on every push to PR
-- ✅ Preview link posted in PR comments
-- ✅ Auto-cleanup when PR closes/merges
-- ✅ ~30-second build time
-- ✅ Free tier (100GB bandwidth/month)
-
-### **How It Works**
-
-1. **Build script** (`build.php`) converts PHP to static HTML
-2. **Netlify** detects `netlify.toml` configuration
-3. **Automatic deployment** on PR creation/update
-4. **Preview URL** appears in PR
-
-### **No Setup Required!**
-
-The repository is already configured. When you create a PR:
-1. Netlify automatically builds and deploys
-2. Preview URL appears in PR comments
-3. Test your changes before merging
-4. Production (Plesk) remains unaffected
-
-**Note:** PR previews are static (no PHP runtime). This is perfect for testing UI changes, schedules, and app logic. Production deployment remains on Plesk with full PHP support.
+> **Note:** Netlify PR previews were used until January 2026 but have been removed. As the app evolved to rely more heavily on PHP backend features (dynamic schedule API, authentication, etc.), static previews became less useful. The free tier bandwidth limitations also became a concern.
 
 ## **🔄 Automatic Deployment (Plesk)**
 

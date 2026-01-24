@@ -5,9 +5,6 @@ vendor/
 # Build output
 dist/
 
-# Netlify
-.netlify/
-
 # External libraries (CDN-loaded)
 # No local copies to ignore
 
