@@ -7,6 +7,8 @@
  * @package BodyRefactoring
  */
 
+require_once __DIR__ . '/DatabaseInterface.php';
+
 /**
  * Database connection singleton.
  *
@@ -14,7 +16,7 @@
  *   $db = Database::get_instance();
  *   $stmt = $db->prepare('SELECT * FROM schedule_templates WHERE id = ?');
  */
-class Database {
+class Database implements DatabaseInterface {
 
 	/**
 	 * Singleton instance.

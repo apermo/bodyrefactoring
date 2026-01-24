@@ -18,16 +18,16 @@ class ScheduleService {
 	/**
 	 * Database instance.
 	 *
-	 * @var Database
+	 * @var DatabaseInterface
 	 */
-	private Database $db;
+	private DatabaseInterface $db;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param Database|null $db Database instance (optional, uses singleton).
+	 * @param DatabaseInterface|null $db Database instance (optional, uses singleton).
 	 */
-	public function __construct( ?Database $db = null ) {
+	public function __construct( ?DatabaseInterface $db = null ) {
 		$this->db = $db ?? Database::get_instance();
 	}
 

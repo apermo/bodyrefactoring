@@ -16,3 +16,4 @@ dist/
 test-results/
 playwright-report/
 
+.phpunit.cache/

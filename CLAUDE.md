@@ -244,38 +244,60 @@ App uses explicit state machines for app lifecycle, timers, modals. See `/assets
 - Test as installed PWA (Add to Home Screen)
 - Validate JSON schedules before committing
 
+### Running Tests
+
+```bash
+npm test              # Run all tests (PHP unit + E2E quick)
+npm run test:php      # PHP unit tests only (via DDEV)
+npm run test:e2e      # E2E tests only (quick, excludes @slow)
+npm run test:e2e:full # All E2E tests including @slow
+```
+
+### PHP Unit Tests
+
+```bash
+npm run test:php                # Run unit tests via DDEV
+npm run test:php:coverage       # Run with code coverage
+vendor/bin/phpunit --filter ScheduleService  # Specific test class
+```
+
+**Test files:** `tests/php/Unit/`
+- `ScheduleServiceTest.php` - Schedule business logic
+- `SchedulesControllerTest.php` - API controller validation
+
 ### Playwright E2E Tests
 
 ```bash
-npm test              # Quick tests only, excludes @slow (~27s)
-npm run test:full     # All tests including @slow (~1.5min)
-npm run test:slow     # Only @slow tests
-npm run test:browsers # All tests on all browsers
-npm run test:headed   # Run with visible browser
-npm run test:debug    # Debug mode with Playwright Inspector
-npm run test:ui       # Interactive UI mode
-npm run test:report   # View last test report
+npm run test:e2e          # Quick tests only, excludes @slow
+npm run test:e2e:full     # All tests including @slow
+npm run test:e2e:slow     # Only @slow tests
+npm run test:e2e:browsers # All tests on all browsers
+npm run test:e2e:headed   # Run with visible browser
+npm run test:e2e:debug    # Debug mode with Playwright Inspector
+npm run test:e2e:ui       # Interactive UI mode
+npm run test:e2e:report   # View last test report
 
 # Run specific test file
 npx playwright test tests/e2e/consent-intro.spec.js
 
 # Run with different browsers
-BROWSERS=chromium,webkit npm test
-TEST_MODE=full BROWSERS=chromium npm test  # Full tests on Chrome
+BROWSERS=chromium,webkit npm run test:e2e
+TEST_MODE=full BROWSERS=chromium npm run test:e2e
 ```
 
 ### Test Categories
 
-- **Quick tests** (default): Fast tests for PR checks (~27s)
+- **Quick tests** (default): Fast tests for PR checks
 - **Slow tests** (`@slow`): Full rep counter timing flows (30-60s each)
 
-Run `test:full` when modifying rep counter code or before releases.
+Run `test:e2e:full` when modifying rep counter code or before releases.
 
 ### Test Architecture
 
+- **PHP Unit Tests**: `tests/php/Unit/` - business logic and API tests
 - **Page Objects**: `tests/pages/AppPage.js` - reusable page interactions
 - **Fixtures**: `tests/fixtures/` - mock schedule and test helpers
-- **Specs**: `tests/e2e/*.spec.js` - test files organized by feature
+- **E2E Specs**: `tests/e2e/*.spec.js` - test files organized by feature
 
 ### Consent & Intro Screen Handling
 
