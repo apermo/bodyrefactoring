@@ -18,30 +18,10 @@ $name_parts = explode( ' ', APP_NAME, 2 );
 $first_name = htmlspecialchars( $name_parts[0] );
 $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 
-// Color scheme values
-$gradients = [
-	'default' => 'linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%)',
-	'green'   => 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-	'purple'  => 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
-	'amber'   => 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-];
-$gradient  = $gradients[ APP_COLOR_SCHEME ] ?? $gradients['default'];
-
-$button_gradients = [
-	'default' => 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-	'green'   => 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-	'purple'  => 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
-	'amber'   => 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-];
-$button_gradient  = $button_gradients[ APP_COLOR_SCHEME ] ?? $button_gradients['default'];
-
-$accent_colors = [
-	'default' => '#22d3ee',
-	'green'   => '#22c55e',
-	'purple'  => '#a855f7',
-	'amber'   => '#f59e0b',
-];
-$accent_color  = $accent_colors[ APP_COLOR_SCHEME ] ?? $accent_colors['default'];
+// Default color values (customization via Tailwind config)
+$gradient        = 'linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%)';
+$button_gradient = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+$accent_color    = '#22d3ee';
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -107,8 +87,8 @@ $accent_color  = $accent_colors[ APP_COLOR_SCHEME ] ?? $accent_colors['default']
 		.cdn-list li { padding: 8px 0; color: #94a3b8; font-size: 13px; border-bottom: 1px solid rgba(51, 65, 85, 0.3); }
 		.cdn-list li:last-child { border-bottom: none; }
 		.highlight {
-			background: rgba(<?php echo APP_COLOR_SCHEME === 'green' ? '34, 197, 94' : ( APP_COLOR_SCHEME === 'purple' ? '168, 85, 247' : ( APP_COLOR_SCHEME === 'amber' ? '245, 158, 11' : '34, 211, 238' ) ); ?>, 0.1);
-			border: 1px solid rgba(<?php echo APP_COLOR_SCHEME === 'green' ? '34, 197, 94' : ( APP_COLOR_SCHEME === 'purple' ? '168, 85, 247' : ( APP_COLOR_SCHEME === 'amber' ? '245, 158, 11' : '34, 211, 238' ) ); ?>, 0.3);
+			background: rgba(34, 211, 238, 0.1);
+			border: 1px solid rgba(34, 211, 238, 0.3);
 			border-radius: 8px; padding: 12px; color: <?php echo $accent_color; ?>; font-size: 13px; font-weight: 600; margin-top: 16px;
 		}
 		.buttons { display: flex; gap: 12px; margin-top: 24px; }

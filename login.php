@@ -39,30 +39,10 @@ $name_parts = explode( ' ', APP_NAME, 2 );
 $first_name = htmlspecialchars( $name_parts[0] );
 $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 
-// Color scheme values
-$gradients = [
-	'default' => 'linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%)',
-	'green'   => 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-	'purple'  => 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
-	'amber'   => 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-];
-$gradient  = $gradients[ APP_COLOR_SCHEME ] ?? $gradients['default'];
-
-$button_gradients = [
-	'default' => 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-	'green'   => 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-	'purple'  => 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
-	'amber'   => 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-];
-$button_gradient  = $button_gradients[ APP_COLOR_SCHEME ] ?? $button_gradients['default'];
-
-$accent_colors = [
-	'default' => '#22d3ee',
-	'green'   => '#22c55e',
-	'purple'  => '#a855f7',
-	'amber'   => '#f59e0b',
-];
-$accent_color  = $accent_colors[ APP_COLOR_SCHEME ] ?? $accent_colors['default'];
+// Default color values (customization via Tailwind config)
+$gradient        = 'linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%)';
+$button_gradient = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+$accent_color    = '#22d3ee';
 ?>
 <!DOCTYPE html>
 <html lang="de">

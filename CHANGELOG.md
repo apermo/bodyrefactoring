@@ -16,12 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Logout button in menu when authenticated
   - Graceful fallback to consent flow when no password set
 
-- **Customizable branding** via environment variables
+- **Customizable branding** via environment variables and config
   - `APP_NAME` - Custom app title (default: "Body Refactoring")
-  - `APP_COLOR_SCHEME` - Color theme: default, green, purple, amber
   - `APP_ICON` - Path to custom icon/logo
   - Dynamic branding in splash screen, header, intro modal
-  - CSS color scheme classes with custom properties
+  - Color theming via Tailwind config in `app-settings.json`
 
 - **Secure schedule API endpoint**
   - All schedule access now routes through `schedules/index.php` API

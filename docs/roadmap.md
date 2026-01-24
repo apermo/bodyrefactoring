@@ -265,13 +265,11 @@ This document outlines planned features and improvements for the Body Refactorin
   - `APP_NAME` - Custom app title (default: "Body Refactoring")
   - `APP_ICON` - Path to custom icon/logo
   - `APP_BACKGROUND` - Background image URL or gradient
-  - `APP_COLOR_SCHEME` - Primary color theme (e.g., "green", "blue", "purple")
 
-- **Color Scheme Presets**
-  - Default: Current cyan/blue theme
-  - Green: Nature/wellness theme
-  - Purple: Focus/productivity theme
-  - Custom: Define via CSS variables
+- **Color Theming via Config**
+  - Tailwind class mapping in `app-settings.json`
+  - Theme colors via CSS custom properties
+  - See `docs/configuration.md` for details
 
 - **PWA Manifest Generation**
   - Dynamic `manifest.json` based on config
@@ -302,7 +300,6 @@ This document outlines planned features and improvements for the Body Refactorin
   APP_NAME="My Todo List"
   APP_ICON=/assets/custom-icon.png
   APP_BACKGROUND=/assets/bg.jpg
-  APP_COLOR_SCHEME=green
 
   # Security
   SCHEDULE_PATH=/private/schedules/

@@ -76,7 +76,6 @@ define( 'DEBUG_LOG_ENABLED', getenv( 'DEBUG_MODE' ) === 'true' );
 // App customization - from config with .env fallback
 define( 'APP_NAME', get_app_name() );
 define( 'APP_ICON', get_app_icon() );
-define( 'APP_COLOR_SCHEME', 'default' ); // Deprecated: use tailwind config instead
 
 // Server paths and auth (always from .env)
 define( 'SCHEDULE_PATH', getenv( 'SCHEDULE_PATH' ) ?: 'schedules' );
@@ -141,15 +140,4 @@ function set_auth_cookie(): void {
  */
 function clear_auth_cookie(): void {
 	setcookie( AUTH_COOKIE_NAME, '', time() - 3600, '/', '', true, true );
-}
-
-/**
- * Get color scheme CSS class.
- *
- * @return string CSS class name for the color scheme.
- */
-function get_color_scheme_class(): string {
-	$scheme = APP_COLOR_SCHEME;
-	$valid  = [ 'default', 'green', 'purple', 'amber' ];
-	return in_array( $scheme, $valid, true ) ? "scheme-{$scheme}" : 'scheme-default';
 }

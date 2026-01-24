@@ -73,7 +73,6 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 
 		// App branding (from PHP config)
 		window.APP_NAME = '<?php echo htmlspecialchars( APP_NAME, ENT_QUOTES ); ?>';
-		window.APP_COLOR_SCHEME = '<?php echo APP_COLOR_SCHEME; ?>';
 
 		// Debug logging functions - always available
 		window.debugLog = function(message, type = 'info') {
@@ -137,7 +136,7 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 	</script>
 	 <script type="module" src="<?php echo asset( 'assets/js/app.js' ); ?>"></script>
 </head>
-<body class="<?php echo get_color_scheme_class(); ?>" onclick="closeMenuOutside(event)">
+<body onclick="closeMenuOutside(event)">
 
 <div id="bg-fixed"></div>
 
