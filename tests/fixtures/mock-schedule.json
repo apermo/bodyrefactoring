@@ -5,15 +5,15 @@
 			"id": "mon",
 			"dayIndex": 1,
 			"name": "MONTAG",
-			"theme": "Test Day - Full Features",
+			"theme": "Test Day A",
 			"icon": "dumbbell",
 			"colorClass": "text-blue-400",
 			"bgClass": "bg-blue-500/10",
 			"details": [
 				{
-					"id": "warmup_test",
+					"id": "mon_warmup",
 					"type": "warmup",
-					"title": "Warmup Exercise",
+					"title": "Warmup",
 					"desc": "Test warmup with timers",
 					"timers": [
 						{ "l": "30s", "s": 30 },
@@ -21,10 +21,10 @@
 					]
 				},
 				{
-					"id": "main_with_repcounter",
+					"id": "mon_repcounter",
 					"type": "main",
 					"title": "Rep Counter Exercise",
-					"desc": "2 sets x 5 reps for testing",
+					"desc": "2 sets x 5 reps",
 					"weight": "5",
 					"defaultUnit": "KG",
 					"repCounter": {
@@ -35,106 +35,7 @@
 					}
 				},
 				{
-					"id": "main_with_weight",
-					"type": "main",
-					"title": "Weight Exercise",
-					"desc": "Exercise with weight tracking",
-					"weight": "10",
-					"defaultUnit": "KG"
-				},
-				{
-					"id": "main_simple",
-					"type": "main",
-					"title": "Simple Exercise",
-					"desc": "Basic exercise without extras"
-				},
-				{
-					"id": "cool_test",
-					"type": "cool",
-					"title": "Cooldown Exercise",
-					"desc": "Test cooldown",
-					"timers": [
-						{ "l": "2 Min", "s": 120 }
-					]
-				}
-			]
-		},
-		{
-			"id": "wed",
-			"dayIndex": 3,
-			"name": "MITTWOCH",
-			"theme": "Test Day - Alternatives",
-			"icon": "heart",
-			"colorClass": "text-red-400",
-			"bgClass": "bg-red-500/10",
-			"details": [
-				{
-					"id": "warmup_wed",
-					"type": "warmup",
-					"title": "Wednesday Warmup",
-					"desc": "Simple warmup"
-				},
-				{
-					"id": "alt_exercise",
-					"type": "alternatives",
-					"alternatives": [
-						{
-							"title": "Alternative A",
-							"desc": "First alternative option",
-							"weight": "3",
-							"defaultUnit": "STUFE"
-						},
-						{
-							"title": "Alternative B",
-							"desc": "Second alternative option"
-						}
-					]
-				},
-				{
-					"id": "main_wed",
-					"type": "main",
-					"title": "Wednesday Main",
-					"desc": "Regular main exercise"
-				}
-			]
-		},
-		{
-			"id": "fri",
-			"dayIndex": 5,
-			"name": "FREITAG",
-			"theme": "Test Day - With Rep Counter",
-			"icon": "flame",
-			"colorClass": "text-orange-400",
-			"bgClass": "bg-orange-500/10",
-			"details": [
-				{
-					"id": "warmup_fri",
-					"type": "warmup",
-					"title": "Friday Warmup",
-					"desc": "Quick warmup"
-				},
-				{
-					"id": "main_fri_repcounter",
-					"type": "main",
-					"title": "Rep Counter Exercise",
-					"desc": "2 sets x 5 reps for testing",
-					"weight": "5",
-					"defaultUnit": "KG",
-					"repCounter": {
-						"sets": 2,
-						"reps": 5,
-						"restSeconds": 7,
-						"delayMilliseconds": 1000
-					}
-				},
-				{
-					"id": "main_fri",
-					"type": "main",
-					"title": "Friday Main",
-					"desc": "Single main exercise"
-				},
-				{
-					"id": "main_fri_timing_test",
+					"id": "mon_timing",
 					"type": "main",
 					"title": "Timing Test Exercise",
 					"desc": "4 reps @ 1.5s for timing verification",
@@ -146,6 +47,485 @@
 						"restSeconds": 15,
 						"delayMilliseconds": 1500
 					}
+				},
+				{
+					"id": "mon_weight",
+					"type": "main",
+					"title": "Weight Exercise",
+					"desc": "Exercise with weight tracking",
+					"weight": "10",
+					"defaultUnit": "KG"
+				},
+				{
+					"id": "mon_simple",
+					"type": "main",
+					"title": "Simple Exercise",
+					"desc": "Basic exercise without extras"
+				},
+				{
+					"id": "mon_alternatives",
+					"type": "alternatives",
+					"alternatives": [
+						{
+							"title": "Alternative A",
+							"desc": "First option",
+							"weight": "3",
+							"defaultUnit": "STUFE"
+						},
+						{
+							"title": "Alternative B",
+							"desc": "Second option"
+						}
+					]
+				},
+				{
+					"id": "mon_cooldown",
+					"type": "cool",
+					"title": "Cooldown",
+					"desc": "Test cooldown with timer",
+					"timers": [
+						{ "l": "2 Min", "s": 120 }
+					]
+				}
+			]
+		},
+		{
+			"id": "tue",
+			"dayIndex": 2,
+			"name": "DIENSTAG",
+			"theme": "Test Day B",
+			"icon": "heart",
+			"colorClass": "text-red-400",
+			"bgClass": "bg-red-500/10",
+			"details": [
+				{
+					"id": "tue_warmup",
+					"type": "warmup",
+					"title": "Warmup",
+					"desc": "Test warmup with timers",
+					"timers": [
+						{ "l": "30s", "s": 30 },
+						{ "l": "1 Min", "s": 60 }
+					]
+				},
+				{
+					"id": "tue_weight",
+					"type": "main",
+					"title": "Weight Exercise",
+					"desc": "Exercise with weight tracking",
+					"weight": "10",
+					"defaultUnit": "KG"
+				},
+				{
+					"id": "tue_repcounter",
+					"type": "main",
+					"title": "Rep Counter Exercise",
+					"desc": "2 sets x 5 reps",
+					"weight": "5",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 5,
+						"restSeconds": 7,
+						"delayMilliseconds": 1000
+					}
+				},
+				{
+					"id": "tue_timing",
+					"type": "main",
+					"title": "Timing Test Exercise",
+					"desc": "4 reps @ 1.5s for timing verification",
+					"weight": "10",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 4,
+						"restSeconds": 15,
+						"delayMilliseconds": 1500
+					}
+				},
+				{
+					"id": "tue_alternatives",
+					"type": "alternatives",
+					"alternatives": [
+						{
+							"title": "Alternative A",
+							"desc": "First option",
+							"weight": "3",
+							"defaultUnit": "STUFE"
+						},
+						{
+							"title": "Alternative B",
+							"desc": "Second option"
+						}
+					]
+				},
+				{
+					"id": "tue_simple",
+					"type": "main",
+					"title": "Simple Exercise",
+					"desc": "Basic exercise without extras"
+				},
+				{
+					"id": "tue_cooldown",
+					"type": "cool",
+					"title": "Cooldown",
+					"desc": "Test cooldown with timer",
+					"timers": [
+						{ "l": "2 Min", "s": 120 }
+					]
+				}
+			]
+		},
+		{
+			"id": "wed",
+			"dayIndex": 3,
+			"name": "MITTWOCH",
+			"theme": "Test Day C",
+			"icon": "zap",
+			"colorClass": "text-yellow-400",
+			"bgClass": "bg-yellow-500/10",
+			"details": [
+				{
+					"id": "wed_warmup",
+					"type": "warmup",
+					"title": "Warmup",
+					"desc": "Test warmup with timers",
+					"timers": [
+						{ "l": "30s", "s": 30 },
+						{ "l": "1 Min", "s": 60 }
+					]
+				},
+				{
+					"id": "wed_simple",
+					"type": "main",
+					"title": "Simple Exercise",
+					"desc": "Basic exercise without extras"
+				},
+				{
+					"id": "wed_alternatives",
+					"type": "alternatives",
+					"alternatives": [
+						{
+							"title": "Alternative A",
+							"desc": "First option",
+							"weight": "3",
+							"defaultUnit": "STUFE"
+						},
+						{
+							"title": "Alternative B",
+							"desc": "Second option"
+						}
+					]
+				},
+				{
+					"id": "wed_repcounter",
+					"type": "main",
+					"title": "Rep Counter Exercise",
+					"desc": "2 sets x 5 reps",
+					"weight": "5",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 5,
+						"restSeconds": 7,
+						"delayMilliseconds": 1000
+					}
+				},
+				{
+					"id": "wed_timing",
+					"type": "main",
+					"title": "Timing Test Exercise",
+					"desc": "4 reps @ 1.5s for timing verification",
+					"weight": "10",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 4,
+						"restSeconds": 15,
+						"delayMilliseconds": 1500
+					}
+				},
+				{
+					"id": "wed_weight",
+					"type": "main",
+					"title": "Weight Exercise",
+					"desc": "Exercise with weight tracking",
+					"weight": "10",
+					"defaultUnit": "KG"
+				},
+				{
+					"id": "wed_cooldown",
+					"type": "cool",
+					"title": "Cooldown",
+					"desc": "Test cooldown with timer",
+					"timers": [
+						{ "l": "2 Min", "s": 120 }
+					]
+				}
+			]
+		},
+		{
+			"id": "thu",
+			"dayIndex": 4,
+			"name": "DONNERSTAG",
+			"theme": "Test Day D",
+			"icon": "flame",
+			"colorClass": "text-orange-400",
+			"bgClass": "bg-orange-500/10",
+			"details": [
+				{
+					"id": "thu_warmup",
+					"type": "warmup",
+					"title": "Warmup",
+					"desc": "Test warmup with timers",
+					"timers": [
+						{ "l": "30s", "s": 30 },
+						{ "l": "1 Min", "s": 60 }
+					]
+				},
+				{
+					"id": "thu_alternatives",
+					"type": "alternatives",
+					"alternatives": [
+						{
+							"title": "Alternative A",
+							"desc": "First option",
+							"weight": "3",
+							"defaultUnit": "STUFE"
+						},
+						{
+							"title": "Alternative B",
+							"desc": "Second option"
+						}
+					]
+				},
+				{
+					"id": "thu_simple",
+					"type": "main",
+					"title": "Simple Exercise",
+					"desc": "Basic exercise without extras"
+				},
+				{
+					"id": "thu_weight",
+					"type": "main",
+					"title": "Weight Exercise",
+					"desc": "Exercise with weight tracking",
+					"weight": "10",
+					"defaultUnit": "KG"
+				},
+				{
+					"id": "thu_repcounter",
+					"type": "main",
+					"title": "Rep Counter Exercise",
+					"desc": "2 sets x 5 reps",
+					"weight": "5",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 5,
+						"restSeconds": 7,
+						"delayMilliseconds": 1000
+					}
+				},
+				{
+					"id": "thu_timing",
+					"type": "main",
+					"title": "Timing Test Exercise",
+					"desc": "4 reps @ 1.5s for timing verification",
+					"weight": "10",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 4,
+						"restSeconds": 15,
+						"delayMilliseconds": 1500
+					}
+				},
+				{
+					"id": "thu_cooldown",
+					"type": "cool",
+					"title": "Cooldown",
+					"desc": "Test cooldown with timer",
+					"timers": [
+						{ "l": "2 Min", "s": 120 }
+					]
+				}
+			]
+		},
+		{
+			"id": "fri",
+			"dayIndex": 5,
+			"name": "FREITAG",
+			"theme": "Test Day E",
+			"icon": "target",
+			"colorClass": "text-green-400",
+			"bgClass": "bg-green-500/10",
+			"details": [
+				{
+					"id": "fri_warmup",
+					"type": "warmup",
+					"title": "Warmup",
+					"desc": "Test warmup with timers",
+					"timers": [
+						{ "l": "30s", "s": 30 },
+						{ "l": "1 Min", "s": 60 }
+					]
+				},
+				{
+					"id": "fri_repcounter",
+					"type": "main",
+					"title": "Rep Counter Exercise",
+					"desc": "2 sets x 5 reps",
+					"weight": "5",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 5,
+						"restSeconds": 7,
+						"delayMilliseconds": 1000
+					}
+				},
+				{
+					"id": "fri_timing",
+					"type": "main",
+					"title": "Timing Test Exercise",
+					"desc": "4 reps @ 1.5s for timing verification",
+					"weight": "10",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 4,
+						"restSeconds": 15,
+						"delayMilliseconds": 1500
+					}
+				},
+				{
+					"id": "fri_alternatives",
+					"type": "alternatives",
+					"alternatives": [
+						{
+							"title": "Alternative A",
+							"desc": "First option",
+							"weight": "3",
+							"defaultUnit": "STUFE"
+						},
+						{
+							"title": "Alternative B",
+							"desc": "Second option"
+						}
+					]
+				},
+				{
+					"id": "fri_weight",
+					"type": "main",
+					"title": "Weight Exercise",
+					"desc": "Exercise with weight tracking",
+					"weight": "10",
+					"defaultUnit": "KG"
+				},
+				{
+					"id": "fri_simple",
+					"type": "main",
+					"title": "Simple Exercise",
+					"desc": "Basic exercise without extras"
+				},
+				{
+					"id": "fri_cooldown",
+					"type": "cool",
+					"title": "Cooldown",
+					"desc": "Test cooldown with timer",
+					"timers": [
+						{ "l": "2 Min", "s": 120 }
+					]
+				}
+			]
+		},
+		{
+			"id": "sat",
+			"dayIndex": 6,
+			"name": "SAMSTAG",
+			"theme": "Test Day F",
+			"icon": "star",
+			"colorClass": "text-pink-400",
+			"bgClass": "bg-pink-500/10",
+			"details": [
+				{
+					"id": "sat_warmup",
+					"type": "warmup",
+					"title": "Warmup",
+					"desc": "Test warmup with timers",
+					"timers": [
+						{ "l": "30s", "s": 30 },
+						{ "l": "1 Min", "s": 60 }
+					]
+				},
+				{
+					"id": "sat_weight",
+					"type": "main",
+					"title": "Weight Exercise",
+					"desc": "Exercise with weight tracking",
+					"weight": "10",
+					"defaultUnit": "KG"
+				},
+				{
+					"id": "sat_simple",
+					"type": "main",
+					"title": "Simple Exercise",
+					"desc": "Basic exercise without extras"
+				},
+				{
+					"id": "sat_repcounter",
+					"type": "main",
+					"title": "Rep Counter Exercise",
+					"desc": "2 sets x 5 reps",
+					"weight": "5",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 5,
+						"restSeconds": 7,
+						"delayMilliseconds": 1000
+					}
+				},
+				{
+					"id": "sat_timing",
+					"type": "main",
+					"title": "Timing Test Exercise",
+					"desc": "4 reps @ 1.5s for timing verification",
+					"weight": "10",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 4,
+						"restSeconds": 15,
+						"delayMilliseconds": 1500
+					}
+				},
+				{
+					"id": "sat_alternatives",
+					"type": "alternatives",
+					"alternatives": [
+						{
+							"title": "Alternative A",
+							"desc": "First option",
+							"weight": "3",
+							"defaultUnit": "STUFE"
+						},
+						{
+							"title": "Alternative B",
+							"desc": "Second option"
+						}
+					]
+				},
+				{
+					"id": "sat_cooldown",
+					"type": "cool",
+					"title": "Cooldown",
+					"desc": "Test cooldown with timer",
+					"timers": [
+						{ "l": "2 Min", "s": 120 }
+					]
 				}
 			]
 		},
@@ -153,18 +533,86 @@
 			"id": "sun",
 			"dayIndex": 0,
 			"name": "SONNTAG",
-			"theme": "Rest Day",
-			"icon": "bed",
+			"theme": "Test Day G",
+			"icon": "sun",
 			"colorClass": "text-purple-400",
 			"bgClass": "bg-purple-500/10",
 			"details": [
 				{
-					"id": "rest_stretch",
-					"type": "cool",
-					"title": "Light Stretching",
-					"desc": "Optional recovery stretching",
+					"id": "sun_warmup",
+					"type": "warmup",
+					"title": "Warmup",
+					"desc": "Test warmup with timers",
 					"timers": [
-						{ "l": "5 Min", "s": 300 }
+						{ "l": "30s", "s": 30 },
+						{ "l": "1 Min", "s": 60 }
+					]
+				},
+				{
+					"id": "sun_simple",
+					"type": "main",
+					"title": "Simple Exercise",
+					"desc": "Basic exercise without extras"
+				},
+				{
+					"id": "sun_weight",
+					"type": "main",
+					"title": "Weight Exercise",
+					"desc": "Exercise with weight tracking",
+					"weight": "10",
+					"defaultUnit": "KG"
+				},
+				{
+					"id": "sun_alternatives",
+					"type": "alternatives",
+					"alternatives": [
+						{
+							"title": "Alternative A",
+							"desc": "First option",
+							"weight": "3",
+							"defaultUnit": "STUFE"
+						},
+						{
+							"title": "Alternative B",
+							"desc": "Second option"
+						}
+					]
+				},
+				{
+					"id": "sun_repcounter",
+					"type": "main",
+					"title": "Rep Counter Exercise",
+					"desc": "2 sets x 5 reps",
+					"weight": "5",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 5,
+						"restSeconds": 7,
+						"delayMilliseconds": 1000
+					}
+				},
+				{
+					"id": "sun_timing",
+					"type": "main",
+					"title": "Timing Test Exercise",
+					"desc": "4 reps @ 1.5s for timing verification",
+					"weight": "10",
+					"defaultUnit": "KG",
+					"repCounter": {
+						"sets": 2,
+						"reps": 4,
+						"restSeconds": 15,
+						"delayMilliseconds": 1500
+					}
+				},
+				{
+					"id": "sun_cooldown",
+					"type": "cool",
+					"title": "Cooldown",
+					"desc": "Test cooldown with timer",
+					"timers": [
+						{ "l": "2 Min", "s": 120 }
 					]
 				}
 			]
