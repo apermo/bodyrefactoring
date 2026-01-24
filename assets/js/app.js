@@ -24,6 +24,7 @@ import { TimerCoordinator } from './modules/timer-coordinator.js';
 import { showCalendarModal, isEventAdded } from './modules/calendar-modal.js';
 import { getLocalISODate } from './modules/utils.js';
 import { checkAndShowIntroModal, closeIntroModal } from './intro-modal.js';
+import configService from './modules/config-service.js';
 
 // --- STATE MACHINES & SERVICES ---
 const appStateMachine = new AppStateMachine();
@@ -53,8 +54,8 @@ const MAX_SHIELDS = CONFIG.MAX_SHIELDS;
 // Schedule API endpoint (always 'schedules', regardless of where files are stored)
 const SCHEDULE_PATH = 'schedules';
 
-// Use imported constants
-const quotes = QUOTES;
+// Use config service for quotes (allows customization per app type)
+const quotes = configService.getQuotes().length > 0 ? configService.getQuotes() : QUOTES;
 
 // Loaded special schedules (recovery and sick activities loaded from JSON)
 let loadedRecoveryActivities = [];

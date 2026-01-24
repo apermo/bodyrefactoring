@@ -3,6 +3,9 @@
 /vendor/
 /private/
 
+# Custom configuration (user overrides)
+/custom-config/*.json
+
 # Node.js
 /node_modules/
 

@@ -9,6 +9,7 @@
 
 // Load dependencies and helpers.
 require_once __DIR__ . '/tools.php';
+require_once __DIR__ . '/includes/config-loader.php';
 require_once __DIR__ . '/assets/cachebuster.php';
 
 // Prevent aggressive caching of the main HTML (especially for iOS PWA)
@@ -53,6 +54,13 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 	<script src="https://unpkg.com/lucide@latest" onload="lucide.createIcons(); if(window.debugLog) debugLog('Lucide icons loaded', 'success');"></script>
 
 	<link rel="stylesheet" href="<?php echo asset( 'assets/css/styles.css' ); ?>">
+	<style id="config-theme">
+		<?php echo generate_theme_css(); ?>
+	</style>
+	<script>
+		// App configuration (from JSON config files)
+		window.APP_CONFIG = <?php echo get_frontend_config_json(); ?>;
+	</script>
 	<script>
 		// Mode reset password (from PHP config)
 		window.MODE_RESET_PASSWORD = '<?php echo MODE_RESET_PASSWORD; ?>';
@@ -141,16 +149,16 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 <div id="completion-modal" class="modal-overlay">
 	<div class="modal-content">
 		<div class="text-6xl mb-4">🔥</div>
-		<h2 class="text-2xl font-black text-white mb-2 uppercase">Training Complete!</h2>
+		<h2 class="text-2xl font-black text-white mb-2 uppercase"><?php echo htmlspecialchars( get_string( 'training.complete', 'Training Complete!' ) ); ?></h2>
 		<p id="modal-quote" class="text-slate-400 mb-6 italic">"Konsistenz schlägt Intensität."</p>
 		<div class="bg-slate-800 rounded-xl p-4 mb-6 border border-slate-700">
-			<div class="text-xs text-slate-500 uppercase tracking-widest">Aktuelle Streak</div>
+			<div class="text-xs text-slate-500 uppercase tracking-widest"><?php echo htmlspecialchars( get_string( 'training.currentStreak', 'Aktuelle Streak' ) ); ?></div>
 			<div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500"
 				 id="modal-streak">0 Tage
 			</div>
 		</div>
 		<button onclick="closeModal()"
-				class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition">Weiter so!
+				class="w-full font-bold py-3 rounded-xl transition btn-primary"><?php echo htmlspecialchars( get_string( 'training.continueButton', 'Weiter so!' ) ); ?>
 		</button>
 	</div>
 </div>
@@ -161,7 +169,7 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 		<h2 class="text-2xl font-black mb-2 uppercase" style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Gut gemacht!</h2>
 		<p class="text-slate-400 mb-6">Du hast auf deinen Körper gehört und sanft erholt.</p>
 		<div class="bg-slate-800/50 rounded-xl p-4 mb-6 border border-purple-500/30">
-			<div class="text-xs text-slate-500 uppercase tracking-widest">Aktuelle Streak</div>
+			<div class="text-xs text-slate-500 uppercase tracking-widest"><?php echo htmlspecialchars( get_string( 'training.currentStreak', 'Aktuelle Streak' ) ); ?></div>
 			<div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500"
 				 id="modal-recovery-streak">0 Tage
 			</div>
@@ -179,7 +187,7 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 		<h2 class="text-2xl font-black mb-2 uppercase" style="background: linear-gradient(135deg, #ef4444 0%, #9333ea 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Ruhe dich gut aus</h2>
 		<p class="text-slate-400 mb-6">Gute Entscheidung, Erholung hat Priorität.</p>
 		<div class="bg-slate-800/50 rounded-xl p-4 mb-6 border border-red-500/30">
-			<div class="text-xs text-slate-500 uppercase tracking-widest">Aktuelle Streak</div>
+			<div class="text-xs text-slate-500 uppercase tracking-widest"><?php echo htmlspecialchars( get_string( 'training.currentStreak', 'Aktuelle Streak' ) ); ?></div>
 			<div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-purple-500"
 				 id="modal-sick-streak">0 Tage
 			</div>
@@ -414,7 +422,7 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 			<!-- Exercise Title -->
 			<div class="text-center mb-8">
 				<h2 id="rep-exercise-title" class="text-3xl font-bold text-white mb-2">Übung</h2>
-				<div id="rep-set-info" class="text-xl text-slate-400">Satz 1 von 3</div>
+				<div id="rep-set-info" class="text-xl text-slate-400"></div>
 			</div>
 
 			<!-- Big Counter Display -->
@@ -426,9 +434,7 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 			</div>
 
 			<!-- Status Text -->
-			<div id="rep-status-text" class="text-center text-2xl text-white mb-8">
-				Bereit...
-			</div>
+			<div id="rep-status-text" class="text-center text-2xl text-white mb-8"></div>
 
 			<!-- Abort Button -->
 			<button onclick="abortRepCounter()" class="w-full bg-red-500/20 hover:bg-red-500/30 border-2 border-red-500 text-white font-bold py-4 rounded-xl transition">
