@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **MySQL-backed schedule API**
-  - Per-day schedule endpoint: `GET /schedules/day/?date=YYYY-MM-DD`
+- **Versioned REST API** (`/api/v1/`)
+  - Central router: `/api/index.php`
+  - Per-day schedule endpoint: `GET /api/v1/schedules/day?date=YYYY-MM-DD`
   - Database schema for schedule templates, days, exercises, and date overrides
   - `ScheduleService` class for schedule queries and override logic
   - `Database` singleton for PDO connection management

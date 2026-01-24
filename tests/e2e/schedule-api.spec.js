@@ -6,7 +6,7 @@ const { AppPage } = require( '../pages/AppPage' );
 /**
  * Schedule API E2E Tests
  *
- * Tests for the per-day schedule API endpoint: GET /schedules/day/?date=YYYY-MM-DD
+ * Tests for the per-day schedule API endpoint: GET /api/v1/schedules/day?date=YYYY-MM-DD
  *
  * Response codes:
  * - 200: Schedule found
@@ -16,7 +16,7 @@ const { AppPage } = require( '../pages/AppPage' );
  * - 503: Database unavailable
  */
 test.describe( 'Schedule API', () => {
-	const API_ENDPOINT = '/schedules/day/';
+	const API_ENDPOINT = '/api/v1/schedules/day';
 
 	test.describe( 'Valid requests', () => {
 		test( 'returns schedule for today', async ( { request, baseURL } ) => {
@@ -218,7 +218,7 @@ test.describe( 'Schedule API', () => {
  * in environments without database access or test data.
  */
 test.describe( 'Schedule API - Overrides', () => {
-	const API_ENDPOINT = '/schedules/day/';
+	const API_ENDPOINT = '/api/v1/schedules/day';
 
 	// These tests are conditional - they pass if the override exists,
 	// otherwise they're informational about the feature.
@@ -293,7 +293,7 @@ test.describe( 'Schedule Fallback Behavior', () => {
 
 	test( 'handles 503 by falling back to file-based schedules', async ( { page } ) => {
 		// Mock the per-day API to return 503
-		await page.route( '**/schedules/day/**', async ( route ) => {
+		await page.route( '**/api/v1/schedules/day**', async ( route ) => {
 			await route.fulfill( {
 				status: 503,
 				contentType: 'application/json',

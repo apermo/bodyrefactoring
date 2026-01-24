@@ -1,0 +1,21 @@
+# API Router Configuration
+# Routes all /api/* requests to index.php
+
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteBase /api/
+
+	# Handle CORS preflight
+	RewriteCond %{REQUEST_METHOD} OPTIONS
+	RewriteRule ^(.*)$ index.php [L]
+
+	# Route all requests to index.php (except existing files)
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Deny access to handler files directly
+<FilesMatch "^v\d+/">
+	Require all denied
+</FilesMatch>

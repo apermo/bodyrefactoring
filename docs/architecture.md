@@ -290,7 +290,7 @@ state.setCurrentWeekOffset(0);
 
 ### Schedule API
 
-**Per-day endpoint** (`/schedules/day/?date=YYYY-MM-DD`):
+**Per-day endpoint** (`/api/v1/schedules/day?date=YYYY-MM-DD`):
 ```json
 {
   "date": "2026-01-25",

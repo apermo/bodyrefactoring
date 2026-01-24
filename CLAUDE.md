@@ -117,7 +117,7 @@ PHP classes in `/includes/`:
 **API endpoints:**
 - `GET /schedules/` - List available schedules
 - `GET /schedules/?file=schedule-*.json` - Get full schedule file
-- `GET /schedules/day/?date=YYYY-MM-DD` - Get single day (database-backed)
+- `GET /api/v1/schedules/day?date=YYYY-MM-DD` - Get single day (database-backed)
 
 **Database tables:**
 - `schedule_templates` - Weekly schedule definitions

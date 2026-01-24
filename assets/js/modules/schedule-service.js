@@ -128,7 +128,7 @@ export class ScheduleService {
 	/**
 	 * Fetch schedule for a specific date using per-day API.
 	 *
-	 * Uses the new /schedules/day/?date=YYYY-MM-DD endpoint with fallback
+	 * Uses the /api/v1/schedules/day?date=YYYY-MM-DD endpoint with fallback
 	 * to the legacy file-based approach if the database API is unavailable.
 	 *
 	 * @async
@@ -144,7 +144,7 @@ export class ScheduleService {
 		// Try per-day API if enabled
 		if ( this.usePerDayApi ) {
 			try {
-				const response = await fetch( `schedules/day/?date=${dateStr}` );
+				const response = await fetch( `/api/v1/schedules/day?date=${dateStr}` );
 
 				// Handle skip override (204 No Content)
 				if ( response.status === 204 ) {

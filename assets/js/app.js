@@ -350,7 +350,7 @@ async function fetchScheduleForDate( dateStr ) {
 /**
  * Fetch schedule for a specific day using the per-day API.
  *
- * Uses the /schedules/day/?date=YYYY-MM-DD endpoint with fallback
+ * Uses the /api/v1/schedules/day?date=YYYY-MM-DD endpoint with fallback
  * to the legacy file-based approach if the database API is unavailable.
  *
  * @async
@@ -372,7 +372,7 @@ async function fetchDaySchedule( dateStr, dayIndex ) {
 	// Try per-day API if enabled
 	if ( state.usePerDayApi !== false ) {
 		try {
-			const response = await fetch( `schedules/day/?date=${dateStr}` );
+			const response = await fetch( `/api/v1/schedules/day?date=${dateStr}` );
 
 			// Handle skip override (204 No Content)
 			if ( response.status === 204 ) {
@@ -735,7 +735,7 @@ async function renderSchedule() {
 				const isChecked = domainStorage.isExerciseComplete( day.storageDate, ex.id );
 
 				// --- RENDER LOGIC ---
-				if ( ex.type === 'alternatives' ) {
+				if ( ex.type === 'alternatives' && Array.isArray( ex.alternatives ) ) {
 					let altContent = '';
 					ex.alternatives.forEach( ( alt, idx ) => {
 						let altTimersHtml = '';
