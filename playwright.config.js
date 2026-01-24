@@ -38,24 +38,43 @@ const selectedBrowsers = browserEnv
 	? browserEnv.split( ',' ).map( ( b ) => b.trim() )
 	: [ 'mobile-safari' ]; // Default: iOS Safari only
 
+// Health check project - runs first, no browser needed
+// Uses Playwright's request fixture for fast HTTP checks
+// grep: /.*/ overrides global grepInvert to ensure health checks always run
+const healthCheckProject = {
+	name: 'health-check',
+	testMatch: /health-check\.spec\.js/,
+	grep: /.*/,
+};
+
 // All available browser configurations
-const allProjects = [
+// Each depends on health-check passing before running
+const allBrowserProjects = [
 	{
 		name: 'chromium',
 		use: { ...devices[ 'Desktop Chrome' ] },
+		dependencies: [ 'health-check' ],
+		testIgnore: /health-check\.spec\.js/,
 	},
 	{
 		name: 'webkit',
 		use: { ...devices[ 'Desktop Safari' ] },
+		dependencies: [ 'health-check' ],
+		testIgnore: /health-check\.spec\.js/,
 	},
 	{
 		name: 'mobile-safari',
 		use: { ...devices[ 'iPhone 14' ] },
+		dependencies: [ 'health-check' ],
+		testIgnore: /health-check\.spec\.js/,
 	},
 ];
 
 // Filter to selected browsers (default: mobile-safari)
-const projects = allProjects.filter( ( p ) => selectedBrowsers.includes( p.name ) );
+const selectedBrowserProjects = allBrowserProjects.filter( ( p ) => selectedBrowsers.includes( p.name ) );
+
+// Final projects: health-check first, then filtered browser projects
+const projects = [ healthCheckProject, ...selectedBrowserProjects ];
 
 // Test filtering: exclude @slow tests by default
 // TEST_MODE=full  -> run all tests (no grep filter)
