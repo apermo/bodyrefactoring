@@ -9,7 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **MySQL-backed schedule API**
+  - Per-day schedule endpoint: `GET /schedules/day/?date=YYYY-MM-DD`
+  - Database schema for schedule templates, days, exercises, and date overrides
+  - `ScheduleService` class for schedule queries and override logic
+  - `Database` singleton for PDO connection management
+  - Date overrides support: replace, add, or skip days
+  - Automatic fallback to file-based schedules when database unavailable
+
+- **Schedule import tool**
+  - CLI tool: `php tools/import-schedule.php`
+  - Import individual JSON files or all schedules (`--all`)
+  - Update existing templates (`--update`)
+  - Preview mode (`--dry-run`)
+  - Schema initialization (`--init`)
+
 ### Changed
+
+- `schedule-service.js` now supports per-day API with `fetchDaySchedule()`
+- `app.js` uses per-day API for schedule fetching with legacy fallback
+- Added `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` to `.env.example`
 
 ### Removed
 
