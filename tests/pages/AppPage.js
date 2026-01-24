@@ -16,7 +16,9 @@ class AppPage {
 		this.prevWeekButton = page.locator( '#btn-prev' );
 		this.nextWeekButton = page.locator( '#btn-next' );
 		this.todayButton = page.locator( '#btn-today' );
+		this.weekLabel = page.locator( '#week-label' );
 		this.weekDisplay = page.locator( '#week-display' );
+		this.weekInfo = page.locator( '#week-info' );
 
 		// Schedule container
 		this.scheduleContainer = page.locator( '#schedule-container' );

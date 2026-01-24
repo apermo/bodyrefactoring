@@ -13,8 +13,9 @@ test.describe( 'Week Navigation', () => {
 		await app.goto();
 		await app.waitForAppReady();
 
-		// Should show "Aktuelle Woche"
-		await expect( app.weekDisplay ).toHaveText( 'Aktuelle Woche' );
+		// Should show "Aktuelle Woche" in label and "KW X" in display
+		await expect( app.weekLabel ).toHaveText( 'Aktuelle Woche' );
+		await expect( app.weekDisplay ).toContainText( 'KW' );
 	} );
 
 	test( 'navigates to next week', async ( { page } ) => {
@@ -25,8 +26,8 @@ test.describe( 'Week Navigation', () => {
 		// Click next week
 		await app.goToNextWeek();
 
-		// Should show "+1 Wochen"
-		await expect( app.weekDisplay ).toHaveText( '+1 Wochen' );
+		// Should show "+1 Wochen" in label
+		await expect( app.weekLabel ).toHaveText( '+1 Wochen' );
 
 		// Today button should now be visible
 		await expect( app.todayButton ).toBeVisible();
@@ -40,8 +41,8 @@ test.describe( 'Week Navigation', () => {
 		// Click previous week
 		await app.goToPreviousWeek();
 
-		// Should show "-1 Wochen"
-		await expect( app.weekDisplay ).toHaveText( '-1 Wochen' );
+		// Should show "-1 Wochen" in label
+		await expect( app.weekLabel ).toHaveText( '-1 Wochen' );
 
 		// Today button should be visible
 		await expect( app.todayButton ).toBeVisible();
@@ -55,13 +56,13 @@ test.describe( 'Week Navigation', () => {
 		// Navigate away from current week
 		await app.goToNextWeek();
 		await app.goToNextWeek();
-		await expect( app.weekDisplay ).toHaveText( '+2 Wochen' );
+		await expect( app.weekLabel ).toHaveText( '+2 Wochen' );
 
 		// Click today button
 		await app.goToToday();
 
 		// Should return to current week
-		await expect( app.weekDisplay ).toHaveText( 'Aktuelle Woche' );
+		await expect( app.weekLabel ).toHaveText( 'Aktuelle Woche' );
 
 		// Today button should be hidden again
 		await expect( app.todayButton ).toBeHidden();
@@ -85,15 +86,15 @@ test.describe( 'Week Navigation', () => {
 		await app.goToNextWeek();
 		await app.goToNextWeek();
 		await app.goToNextWeek();
-		await expect( app.weekDisplay ).toHaveText( '+3 Wochen' );
+		await expect( app.weekLabel ).toHaveText( '+3 Wochen' );
 
 		// Go back 2 weeks
 		await app.goToPreviousWeek();
 		await app.goToPreviousWeek();
-		await expect( app.weekDisplay ).toHaveText( '+1 Wochen' );
+		await expect( app.weekLabel ).toHaveText( '+1 Wochen' );
 
 		// Go back to current
 		await app.goToPreviousWeek();
-		await expect( app.weekDisplay ).toHaveText( 'Aktuelle Woche' );
+		await expect( app.weekLabel ).toHaveText( 'Aktuelle Woche' );
 	} );
 } );

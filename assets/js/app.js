@@ -246,6 +246,47 @@ function isExerciseHiddenByMode( exercise ) {
 }
 
 /**
+ * Calculate ISO week number for a given date.
+ *
+ * @param {Date} date - The date to calculate week number for.
+ * @return {number} ISO week number (1-53).
+ */
+function getISOWeekNumber( date ) {
+	const tempDate = new Date( date.getTime() );
+	tempDate.setHours( 0, 0, 0, 0 );
+	// Set to nearest Thursday (current date + 4 - current day number, making Sunday day 7)
+	tempDate.setDate( tempDate.getDate() + 4 - ( tempDate.getDay() || 7 ) );
+	// Get first day of year
+	const yearStart = new Date( tempDate.getFullYear(), 0, 1 );
+	// Calculate full weeks to nearest Thursday
+	return Math.ceil( ( ( tempDate - yearStart ) / 86400000 + 1 ) / 7 );
+}
+
+/**
+ * Calculate which week of the month a date falls in.
+ *
+ * @param {Date} date - The date to check.
+ * @return {number} Week of month (1-5).
+ */
+function getWeekOfMonth( date ) {
+	return Math.ceil( date.getDate() / 7 );
+}
+
+/**
+ * Get German month name for a date.
+ *
+ * @param {Date} date - The date.
+ * @return {string} German month name.
+ */
+function getGermanMonthName( date ) {
+	const months = [
+		'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+		'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+	];
+	return months[ date.getMonth() ];
+}
+
+/**
  * Check if exercise should be shown based on its dateCondition.
  *
  * Evaluates the dateCondition field against the given date.
@@ -451,7 +492,9 @@ async function renderSchedule() {
 	// Nav Logic
 	const btnPrev = document.getElementById( 'btn-prev' );
 	const btnToday = document.getElementById( 'btn-today' );
+	const weekLabel = document.getElementById( 'week-label' );
 	const weekDisplay = document.getElementById( 'week-display' );
+	const weekInfo = document.getElementById( 'week-info' );
 
 	// Allow going back only if Monday is >= Global Start Date
 	const mondayDate = computedSchedule[ 0 ].fullDateObj;
@@ -460,16 +503,25 @@ async function renderSchedule() {
 
 	btnPrev.disabled = mondayDate <= startDateClean;
 
-	// Show "Today" button only when not on current week
+	// Calculate week info
+	const isoWeek = getISOWeekNumber( mondayDate );
+	const weekOfMonth = getWeekOfMonth( mondayDate );
+	const monthName = getGermanMonthName( mondayDate );
+
+	// Display KW as main element
+	weekDisplay.innerText = `KW ${isoWeek}`;
+	weekInfo.innerText = `${weekOfMonth}. Woche im ${monthName}`;
+
+	// Show week offset in label, "Today" button only when not on current week
 	if ( currentWeekOffset === 0 ) {
-		weekDisplay.innerText = 'Aktuelle Woche';
+		weekLabel.innerText = 'Aktuelle Woche';
 		btnToday.classList.add( 'hidden' );
 	} else {
 		btnToday.classList.remove( 'hidden' );
 		if ( currentWeekOffset > 0 ) {
-			weekDisplay.innerText = `+${currentWeekOffset} Wochen`;
+			weekLabel.innerText = `+${currentWeekOffset} Wochen`;
 		} else {
-			weekDisplay.innerText = `${currentWeekOffset} Wochen`;
+			weekLabel.innerText = `${currentWeekOffset} Wochen`;
 		}
 	}
 

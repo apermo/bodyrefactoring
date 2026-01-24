@@ -304,8 +304,9 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 		<button onclick="changeWeek(-1)" id="btn-prev" class="nav-btn w-10 h-10"><i data-lucide="chevron-left"
 																					class="w-6 h-6"></i></button>
 		<div class="text-center flex-1">
-			<div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">WOCHE</div>
-			<div id="week-display" class="font-bold text-white text-base">Aktuell</div>
+			<div id="week-label" class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Aktuelle Woche</div>
+			<div id="week-display" class="font-bold text-white text-xl">KW 4</div>
+			<div id="week-info" class="text-[10px] text-slate-500 font-mono"></div>
 		</div>
 		<button onclick="goToToday()" id="btn-today" class="nav-btn w-10 h-10 hidden" title="Zurück zu heute">
 			<i data-lucide="home" class="w-5 h-5"></i>
