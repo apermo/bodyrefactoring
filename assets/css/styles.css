@@ -35,6 +35,9 @@
 	/* Border Colors */
 	--color-border-primary: #334155;    /* Slate - borders */
 
+	/* App Background */
+	--app-background-image: url("../img/background.jpg");
+
 	/* Rep Counter Colors - Current (for existing functionality) */
 	--color-rep-blue: #60a5fa;          /* Blue - current rep counter */
 	--color-rep-blue-rgb: 96, 165, 250; /* RGB for rgba() */
@@ -115,7 +118,7 @@ body {
 	width: 100%;
 	height: 100%;
 	z-index: -1;
-	background-image: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.75)), url("../img/background.jpg");
+	background-image: linear-gradient(rgba(var(--color-bg-primary-rgb), 0.65), rgba(var(--color-bg-primary-rgb), 0.75)), var(--app-background-image);
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;

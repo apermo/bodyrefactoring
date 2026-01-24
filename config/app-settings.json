@@ -1,4 +1,9 @@
 {
+	"app": {
+		"name": "Body Refactoring",
+		"icon": "assets/img/gymlogo.png",
+		"backgroundImage": "assets/img/background.jpg"
+	},
 	"tailwind": {
 	},
 	"theme": {

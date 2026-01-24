@@ -22,6 +22,20 @@ custom-config/
 
 ## Configuration Options
 
+### App Branding
+
+Customize the app name, icon, and background image:
+
+```json
+{
+  "app": {
+    "name": "My App",
+    "icon": "assets/img/custom-icon.png",
+    "backgroundImage": "assets/img/custom-background.jpg"
+  }
+}
+```
+
 ### Tailwind Class Mapping
 
 Replace Tailwind color classes with different ones:
@@ -55,7 +69,7 @@ Override the color scheme:
 }
 ```
 
-Colors are injected as CSS custom properties (`--config-color-primary`, etc.).
+Colors are injected as CSS custom properties (`--color-primary`, etc.).
 
 ### Strings
 
@@ -188,9 +202,11 @@ cp config/examples/green-learning.json custom-config/app-settings.json
 
 ## What Stays in .env
 
-Security-sensitive settings remain in `.env`:
+Security-sensitive and server-specific settings remain in `.env`:
 
 - `DEPLOY_SECRET` - GitHub webhook secret
 - `APP_PASSWORD_HASH` - Authentication password hash
 - `RESET_PASSWORD_MODE` - Mode reset password
+- `SCHEDULE_PATH` - Directory for schedule files
+- `SESSION_DURATION` - Authentication session duration
 

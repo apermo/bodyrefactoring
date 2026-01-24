@@ -161,6 +161,12 @@ function generate_theme_css(): string {
 		$css .= "\t--app-accent: {$accent};" . PHP_EOL;
 	}
 
+	// Add background image URL
+	$bg_image = get_background_image();
+	if ( $bg_image ) {
+		$css .= "\t--app-background-image: url(\"{$bg_image}\");" . PHP_EOL;
+	}
+
 	$css .= '}';
 
 	return $css;
@@ -195,6 +201,33 @@ function replace_tailwind_classes( string $html ): string {
 	}
 
 	return $html;
+}
+
+/**
+ * Get app name from config.
+ *
+ * @return string App name.
+ */
+function get_app_name(): string {
+	return get_config( 'app.name', 'Body Refactoring' );
+}
+
+/**
+ * Get app icon from config.
+ *
+ * @return string App icon path.
+ */
+function get_app_icon(): string {
+	return get_config( 'app.icon', 'assets/img/gymlogo.png' );
+}
+
+/**
+ * Get background image from config.
+ *
+ * @return string Background image path.
+ */
+function get_background_image(): string {
+	return get_config( 'app.backgroundImage', 'assets/img/background.jpg' );
 }
 
 /**
