@@ -35,14 +35,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Tests for schedule list endpoint
   - Frontend fallback behavior tests (503 → file-based schedules)
 
+- **Web-based database installer** (`installer.php`)
+  - Auto-redirect when `DATABASE_VERSION` is missing or outdated
+  - Pre-flight checks: PHP version, database connection, file permissions
+  - Installation options: empty database, demo data, import JSON, upload files
+  - Seed data (`includes/database/seed-data.sql`) for demo installation
+
 ### Changed
 
 - DDEV config upgraded to PHP 8.4, Apache, MySQL 8.4
 - Import tool now handles `alternatives` exercise type correctly
+- Database import uses mysql CLI for reliable multi-statement execution
 
 - `schedule-service.js` now supports per-day API with `fetchDaySchedule()`
 - `app.js` uses per-day API for schedule fetching with legacy fallback
-- Added `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` to `.env.example`
+- Added `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`, `DATABASE_VERSION` to `.env.example`
+- App redirects to installer when database setup is needed
 
 ### Removed
 

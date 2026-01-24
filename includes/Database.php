@@ -186,28 +186,84 @@ class Database {
 	 */
 	public function init_schema(): bool {
 		$schema_file = __DIR__ . '/database/schema.sql';
+		return $this->import_sql_file( $schema_file );
+	}
 
-		if ( ! file_exists( $schema_file ) ) {
-			throw new RuntimeException( 'Schema file not found: ' . $schema_file );
+	/**
+	 * Import seed data into the database.
+	 *
+	 * @return bool True on success.
+	 * @throws RuntimeException If seed file not found.
+	 * @throws PDOException If import fails.
+	 */
+	public function import_seed_data(): bool {
+		$seed_file = __DIR__ . '/database/seed-data.sql';
+		return $this->import_sql_file( $seed_file );
+	}
+
+	/**
+	 * Import an SQL file into the database.
+	 *
+	 * Uses mysql command for reliable multi-statement execution.
+	 *
+	 * @param string $file_path Path to SQL file.
+	 * @return bool True on success.
+	 * @throws RuntimeException If file not found or import fails.
+	 */
+	public function import_sql_file( string $file_path ): bool {
+		if ( ! file_exists( $file_path ) ) {
+			throw new RuntimeException( 'SQL file not found: ' . $file_path );
 		}
 
-		$sql = file_get_contents( $schema_file );
+		// Get connection parameters.
+		$host     = getenv( 'DB_HOST' ) ?: 'db';
+		$name     = getenv( 'DB_NAME' ) ?: 'db';
+		$user     = getenv( 'DB_USER' ) ?: 'db';
+		$password = getenv( 'DB_PASS' ) ?: 'db';
+		$port     = getenv( 'DB_PORT' ) ?: '3306';
 
-		// Split by semicolon and execute each statement
-		$statements = array_filter(
-			array_map( 'trim', explode( ';', $sql ) ),
-			fn( $s ) => ! empty( $s ) && strpos( $s, '--' ) !== 0
+		// Build mysql command.
+		$cmd = sprintf(
+			'mysql -h %s -P %s -u %s -p%s %s < %s 2>&1',
+			escapeshellarg( $host ),
+			escapeshellarg( $port ),
+			escapeshellarg( $user ),
+			escapeshellarg( $password ),
+			escapeshellarg( $name ),
+			escapeshellarg( $file_path )
 		);
 
-		foreach ( $statements as $statement ) {
-			// Skip pure comment blocks
-			if ( preg_match( '/^--/', $statement ) ) {
-				continue;
-			}
-			$this->pdo->exec( $statement );
+		exec( $cmd, $output, $return_code );
+
+		if ( $return_code !== 0 ) {
+			throw new RuntimeException( 'SQL import failed: ' . implode( "\n", $output ) );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Initialize database with schema and seed data if not already set up.
+	 *
+	 * Safe to call multiple times - only runs if tables don't exist.
+	 *
+	 * @return array{initialized: bool, message: string}
+	 */
+	public function auto_init(): array {
+		if ( $this->tables_exist() ) {
+			return [
+				'initialized' => false,
+				'message'     => 'Database already initialized',
+			];
+		}
+
+		$this->init_schema();
+		$this->import_seed_data();
+
+		return [
+			'initialized' => true,
+			'message'     => 'Database initialized with schema and seed data',
+		];
 	}
 
 	/**

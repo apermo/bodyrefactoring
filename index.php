@@ -24,6 +24,12 @@ if ( is_auth_enabled() && ! is_authenticated() ) {
 	exit;
 }
 
+// Database installation check - redirect to installer if needed
+if ( needs_database_install() ) {
+	header( 'Location: /installer.php' );
+	exit;
+}
+
 // Consent check - only for non-authenticated instances
 if ( ! is_auth_enabled() && ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' ) ) {
 	require_once __DIR__ . '/consent.php';

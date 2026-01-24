@@ -85,6 +85,10 @@ define( 'SESSION_DURATION', (int) ( getenv( 'SESSION_DURATION' ) ?: 24966000 ) )
 // Auth cookie name (derived from app name for multi-instance support)
 define( 'AUTH_COOKIE_NAME', 'br_auth_' . substr( md5( APP_NAME ), 0, 8 ) );
 
+// Database version tracking
+define( 'REQUIRED_DATABASE_VERSION', 1 );
+define( 'CURRENT_DATABASE_VERSION', (int) ( getenv( 'DATABASE_VERSION' ) ?: 0 ) );
+
 /**
  * Check if authentication is enabled.
  *
@@ -140,4 +144,61 @@ function set_auth_cookie(): void {
  */
 function clear_auth_cookie(): void {
 	setcookie( AUTH_COOKIE_NAME, '', time() - 3600, '/', '', true, true );
+}
+
+/**
+ * Check if database installation/upgrade is needed.
+ *
+ * @return bool True if installer should run.
+ */
+function needs_database_install(): bool {
+	// Check if database is configured.
+	if ( ! getenv( 'DB_HOST' ) || ! getenv( 'DB_NAME' ) ) {
+		return false; // No database configured, use file-based mode.
+	}
+
+	return CURRENT_DATABASE_VERSION < REQUIRED_DATABASE_VERSION;
+}
+
+/**
+ * Redirect to installer if database setup is needed.
+ *
+ * Call this at the start of pages that require database access.
+ */
+function require_database_or_redirect(): void {
+	if ( needs_database_install() ) {
+		header( 'Location: /installer.php' );
+		exit;
+	}
+}
+
+/**
+ * Update the DATABASE_VERSION in .env file.
+ *
+ * @param int $version The version number to set.
+ * @return bool True on success.
+ */
+function set_database_version( int $version ): bool {
+	$env_file = __DIR__ . '/.env';
+
+	if ( ! file_exists( $env_file ) || ! is_writable( $env_file ) ) {
+		return false;
+	}
+
+	$content = file_get_contents( $env_file );
+
+	// Check if DATABASE_VERSION already exists.
+	if ( preg_match( '/^DATABASE_VERSION=.*/m', $content ) ) {
+		// Update existing value.
+		$content = preg_replace(
+			'/^DATABASE_VERSION=.*/m',
+			'DATABASE_VERSION=' . $version,
+			$content
+		);
+	} else {
+		// Append new value.
+		$content .= "\nDATABASE_VERSION=" . $version . "\n";
+	}
+
+	return file_put_contents( $env_file, $content ) !== false;
 }
