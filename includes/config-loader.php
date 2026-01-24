@@ -218,7 +218,7 @@ function get_app_name(): string {
  * @return string App icon path.
  */
 function get_app_icon(): string {
-	return get_config( 'app.icon', 'assets/img/gymlogo.png' );
+	return get_config( 'app.icon', '/assets/img/gymlogo.png' );
 }
 
 /**
@@ -227,7 +227,7 @@ function get_app_icon(): string {
  * @return string Background image path.
  */
 function get_background_image(): string {
-	return get_config( 'app.backgroundImage', 'assets/img/background.jpg' );
+	return get_config( 'app.backgroundImage', '/assets/img/background.jpg' );
 }
 
 /**

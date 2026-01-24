@@ -68,8 +68,8 @@ Customize the app name, icon, and background image:
 {
   "app": {
     "name": "My App",
-    "icon": "assets/img/custom-icon.png",
-    "backgroundImage": "assets/img/custom-background.jpg"
+    "icon": "/assets/img/custom-icon.png",
+    "backgroundImage": "/assets/img/custom-background.jpg"
   }
 }
 ```
