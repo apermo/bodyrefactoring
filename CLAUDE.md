@@ -21,6 +21,9 @@ After making code changes:
 ### Communication Style
 - Always communicate in English, even if user writes in German
 
+### Backwards Compatibility
+**Not required.** This is a single-user app. Feel free to make breaking changes to data structures, APIs, or localStorage formats without migration code. If you believe backwards compatibility is important for a specific change, suggest it but do not implement without confirmation.
+
 ## Project Overview
 
 Body Refactoring is a personal, gamified progressive web app (PWA) for fitness tracking and habit building. It uses LocalStorage for data persistence and a PHP backend for serving dynamic training schedules.
