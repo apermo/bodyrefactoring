@@ -36,6 +36,24 @@ Body Refactoring is a personal, gamified progressive web app (PWA) for fitness t
 
 ## Essential Commands
 
+### Database Setup (v15.0+)
+```bash
+# Initialize database schema (run once)
+php tools/import-schedule.php --init
+
+# Import all schedules into MySQL
+php tools/import-schedule.php --all
+
+# Import single schedule
+php tools/import-schedule.php schedules/schedule-2026-01-25.json
+
+# Update existing template
+php tools/import-schedule.php --update schedules/schedule-2026-01-25.json
+
+# Preview import without changes
+php tools/import-schedule.php --dry-run schedules/schedule-2026-01-25.json
+```
+
 ### Schedule Validation (run before committing schedule changes)
 ```bash
 cd schedules/
@@ -78,12 +96,34 @@ The app uses ES6 modules in `/assets/js/modules/`:
 
 Main application logic is in `/assets/js/app.js` (being refactored incrementally).
 
-### Schedule Files
+### Backend Services (v15.0+)
 
-Located in `/schedules/`:
+PHP classes in `/includes/`:
+
+- **Database.php** - PDO connection singleton with helper methods
+- **ScheduleService.php** - Schedule queries, template lookup, override logic
+- **config-loader.php** - JSON configuration loading
+
+### Schedule System
+
+**Storage options:**
+1. **MySQL database** (v15.0+) - Primary, supports overrides and one-time events
+2. **JSON files** - Fallback when database unavailable
+
+**JSON files** in `/schedules/`:
 - Named `schedule-YYYY-MM-DD.json`
-- App loads the most recent schedule ≤ current date
-- Schema: `schema-schedule-v1.json`, Template: `template-schedule.json`
+- Schema: `schema-schedule-v1.json`, `schema-schedule-v2.json`, `schema-schedule-v3.json`
+
+**API endpoints:**
+- `GET /schedules/` - List available schedules
+- `GET /schedules/?file=schedule-*.json` - Get full schedule file
+- `GET /schedules/day/?date=YYYY-MM-DD` - Get single day (database-backed)
+
+**Database tables:**
+- `schedule_templates` - Weekly schedule definitions
+- `schedule_days` - Day configurations within templates
+- `schedule_exercises` - Exercises within days
+- `date_overrides` - One-time date overrides (replace, add, skip)
 
 ### Cache Busting
 
@@ -132,6 +172,7 @@ Before creating new functions:
 - **Atomic commits**: Commits should be cherry-pickable and revertable
 - **No mixed changes**: Don't combine features, fixes, or refactors in one commit
 - **Do not add Co-Authored-By lines to commits**
+- **Link to issues**: When a commit completes an issue, include `closes #N` in the commit body to auto-close the issue on merge
 
 ### CHANGELOG.md
 - Update `[Unreleased]` section for every change
@@ -288,25 +329,43 @@ When user says "let's start with vX.Y.Z":
 5. Prepare CHANGELOG.md with new unreleased section
 6. Commit: `docs(changelog): prepare vX.Y.Z section`
 7. Ask about deleting previous branch
-8. Check roadmap.md for planned work
+8. Check GitHub milestone for planned work: `gh issue list --milestone "vX.Y.Z"`
 9. Provide status summary
 
 **Version sync:** `composer.json` is the authoritative source. The pre-commit hook automatically syncs the version to `package.json`. GitHub Actions validates that versions match on PRs.
 
-## Roadmap Tracking
+## Roadmap & Issue Tracking
 
-### Status Indicators for docs/roadmap.md
-- ✅ Complete (entire section finished)
-- 🚧 In Progress (currently working on)
-- 🔄 Partially Complete (some items done)
-- (no emoji) Planned (not started)
+The project roadmap is tracked via [GitHub Issues and Milestones](https://github.com/apermo/bodyrefactoring/milestones).
 
-### Roadmap Footer Format
-```markdown
-**Last Updated**: YYYY-MM-DD
-**Current Stable Release**: vX.Y.Z
-**Development Cycle**: vN
-```
+### When to Create New Issues
+
+**Create a refactoring issue when:**
+- Function/class exceeds 200 lines
+- Mixed responsibilities detected
+- Adding features requires touching multiple unrelated parts
+- Code duplication appears
+- Testing becomes impossible without full system
+- Performance issues due to poor structure
+
+**Signs it's time to refactor:**
+- Bug fixes become difficult due to complexity
+- New features take longer than they should
+- Team members (or future self) struggle to understand code
+- Playwright tests are brittle due to tight coupling
+
+### Issue Labels
+
+- **Type labels**: `type: feature`, `type: refactor`, `type: test`, `type: chore`
+- **Area labels**: `area: rep-counter`, `area: schedule`, `area: gamification`, `area: ui`, etc.
+- **Priority labels**: `priority: high`, `priority: low`
+
+### Milestone Workflow
+
+1. Filter issues by milestone: `gh issue list --milestone "v15.0.0"`
+2. Pick an issue and mark as in-progress
+3. Reference issue in commits: `feat: add feature X (closes #42)`
+4. PR auto-closes issue on merge
 
 ## Linting
 
