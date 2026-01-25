@@ -275,19 +275,19 @@ class SchedulesController extends Controller {
 	}
 
 	/**
-	 * Require authentication for admin endpoints.
+	 * Require admin authentication for protected endpoints.
 	 */
 	private function require_auth(): void {
-		if ( ! function_exists( 'is_auth_enabled' ) ) {
+		if ( ! function_exists( 'is_admin' ) ) {
 			require_once __DIR__ . '/../../tools.php';
 		}
 
 		if ( ! is_auth_enabled() ) {
-			$this->error( 403, 'Authentication not configured. Set APP_PASSWORD_HASH in .env' );
+			$this->error( 403, 'Authentication not configured. Set ADMIN_PASSWORD_HASH in .env' );
 		}
 
-		if ( ! is_authenticated() ) {
-			$this->error( 401, 'Authentication required' );
+		if ( ! has_admin_access() ) {
+			$this->error( 403, 'Admin access required' );
 		}
 	}
 }

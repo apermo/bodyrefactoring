@@ -3,7 +3,7 @@
  * Schedule Editor/Generator Tool
  *
  * A web-based interface for creating, editing, and managing training schedule JSON files.
- * Requires authentication via APP_PASSWORD_HASH.
+ * Requires admin authentication.
  *
  * @package BodyRefactoring
  */
@@ -12,13 +12,13 @@
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/assets/cachebuster.php';
 
-// Require authentication.
+// Require admin authentication.
 if ( ! is_auth_enabled() ) {
 	http_response_code( 403 );
-	die( 'Schedule Editor requires APP_PASSWORD_HASH to be set in .env' );
+	die( 'Schedule Editor requires ADMIN_PASSWORD_HASH to be set in .env' );
 }
 
-if ( ! is_authenticated() ) {
+if ( ! has_admin_access() ) {
 	// Redirect to login page.
 	header( 'Location: /?login=schedule-editor' );
 	exit;

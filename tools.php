@@ -77,10 +77,23 @@ define( 'DEBUG_LOG_ENABLED', getenv( 'DEBUG_MODE' ) === 'true' );
 define( 'APP_NAME', get_app_name() );
 define( 'APP_ICON', get_app_icon() );
 
-// Server paths and auth (always from .env)
+// Server paths (always from .env)
 define( 'SCHEDULE_PATH', getenv( 'SCHEDULE_PATH' ) ?: 'schedules' );
-define( 'APP_PASSWORD_HASH', getenv( 'APP_PASSWORD_HASH' ) ?: '' );
-define( 'SESSION_DURATION', (int) ( getenv( 'SESSION_DURATION' ) ?: 24966000 ) );
+define( 'SESSION_DURATION', (int) ( getenv( 'SESSION_DURATION' ) ?: 31536000 ) );
+
+// Authentication configuration
+define( 'ADMIN_PASSWORD_HASH', getenv( 'ADMIN_PASSWORD_HASH' ) ?: '' );
+define( 'ALLOW_USER_ACCESS', strtolower( getenv( 'ALLOW_USER_ACCESS' ) ?: '' ) === 'true' );
+define( 'USER_PASSWORD_HASH', getenv( 'USER_PASSWORD_HASH' ) ?: '' );
+define( 'DEV_DOMAIN', getenv( 'DEV_DOMAIN' ) ?: '' );
+
+// Legacy support: fall back to APP_PASSWORD_HASH if ADMIN_PASSWORD_HASH not set
+if ( empty( ADMIN_PASSWORD_HASH ) && getenv( 'APP_PASSWORD_HASH' ) ) {
+	// Can't redefine constant, so we use a function to get the effective admin hash
+	define( 'LEGACY_APP_PASSWORD_HASH', getenv( 'APP_PASSWORD_HASH' ) );
+} else {
+	define( 'LEGACY_APP_PASSWORD_HASH', '' );
+}
 
 // Auth cookie name (derived from app name for multi-instance support)
 define( 'AUTH_COOKIE_NAME', 'br_auth_' . substr( md5( APP_NAME ), 0, 8 ) );
@@ -90,53 +103,223 @@ define( 'REQUIRED_DATABASE_VERSION', 1 );
 define( 'CURRENT_DATABASE_VERSION', (int) ( getenv( 'DATABASE_VERSION' ) ?: 0 ) );
 
 /**
- * Check if authentication is enabled.
+ * Get the effective admin password hash (supports legacy APP_PASSWORD_HASH).
  *
- * @return bool True if APP_PASSWORD_HASH is set.
+ * @return string The admin password hash.
+ */
+function get_admin_password_hash(): string {
+	if ( ! empty( ADMIN_PASSWORD_HASH ) ) {
+		return ADMIN_PASSWORD_HASH;
+	}
+	return LEGACY_APP_PASSWORD_HASH;
+}
+
+/**
+ * Check if development mode is active (yolo mode).
+ *
+ * When DEV_DOMAIN matches the current host, all auth is bypassed.
+ *
+ * @return bool True if dev mode is active.
+ */
+function is_dev_mode(): bool {
+	if ( empty( DEV_DOMAIN ) ) {
+		return false;
+	}
+
+	$current_host = $_SERVER['HTTP_HOST'] ?? '';
+	return strcasecmp( DEV_DOMAIN, $current_host ) === 0;
+}
+
+/**
+ * Check if admin authentication is configured.
+ *
+ * @return bool True if admin password hash is set.
  */
 function is_auth_enabled(): bool {
-	return ! empty( APP_PASSWORD_HASH );
+	return ! empty( get_admin_password_hash() );
 }
 
 /**
- * Check if user is authenticated.
+ * Check if user authentication is required for app access.
  *
- * @return bool True if user has valid auth cookie.
+ * @return bool True if users need to log in to use the app.
+ */
+function is_user_login_required(): bool {
+	// No admin password = public instance.
+	if ( ! is_auth_enabled() ) {
+		return false;
+	}
+
+	// User access not allowed = must be admin.
+	if ( ! ALLOW_USER_ACCESS ) {
+		return true;
+	}
+
+	// User access allowed but password required.
+	return ! empty( USER_PASSWORD_HASH );
+}
+
+/**
+ * Get the current authentication role from cookie.
+ *
+ * @return string|null 'admin', 'user', or null if not authenticated via cookie.
+ */
+function get_cookie_auth_role(): ?string {
+	if ( ! isset( $_COOKIE[ AUTH_COOKIE_NAME ] ) ) {
+		return null;
+	}
+
+	$cookie_value = $_COOKIE[ AUTH_COOKIE_NAME ];
+
+	// New format: role:token
+	if ( strpos( $cookie_value, ':' ) !== false ) {
+		list( $role, $token ) = explode( ':', $cookie_value, 2 );
+
+		// Validate token against appropriate password hash.
+		if ( $role === 'admin' ) {
+			$expected = substr( hash( 'sha256', get_admin_password_hash() ), 0, 32 );
+			if ( hash_equals( $expected, $token ) ) {
+				return 'admin';
+			}
+		} elseif ( $role === 'user' ) {
+			// User token validates against user password if set, otherwise admin password.
+			$hash     = ! empty( USER_PASSWORD_HASH ) ? USER_PASSWORD_HASH : get_admin_password_hash();
+			$expected = substr( hash( 'sha256', $hash ), 0, 32 );
+			if ( hash_equals( $expected, $token ) ) {
+				return 'user';
+			}
+		}
+
+		return null; // Invalid token.
+	}
+
+	// Legacy format: just token (treat as admin for backwards compatibility).
+	$expected = substr( hash( 'sha256', get_admin_password_hash() ), 0, 32 );
+	if ( hash_equals( $expected, $cookie_value ) ) {
+		return 'admin';
+	}
+
+	return null;
+}
+
+/**
+ * Get the current authentication role.
+ *
+ * Returns the effective role considering dev mode, cookies, and access settings.
+ *
+ * @return string 'admin', 'user', or 'anonymous'.
+ */
+function get_auth_role(): string {
+	// Dev mode bypasses all auth (treat as admin).
+	if ( is_dev_mode() ) {
+		return 'admin';
+	}
+
+	// Check cookie-based auth.
+	$cookie_role = get_cookie_auth_role();
+	if ( $cookie_role !== null ) {
+		return $cookie_role;
+	}
+
+	// No cookie - check if anonymous user access is allowed.
+	if ( ! is_auth_enabled() ) {
+		return 'admin'; // No auth configured = full access.
+	}
+
+	if ( ALLOW_USER_ACCESS && empty( USER_PASSWORD_HASH ) ) {
+		return 'user'; // Anonymous user access allowed.
+	}
+
+	return 'anonymous';
+}
+
+/**
+ * Check if current user has admin privileges.
+ *
+ * Named to avoid conflict with WordPress is_admin() which checks admin area.
+ *
+ * @return bool True if user is admin.
+ */
+function has_admin_access(): bool {
+	return get_auth_role() === 'admin';
+}
+
+/**
+ * Check if current user has at least user-level access.
+ *
+ * @return bool True if user is admin or authenticated user.
+ */
+function has_user_access(): bool {
+	return in_array( get_auth_role(), [ 'admin', 'user' ], true );
+}
+
+/**
+ * Check if user is authenticated (has any non-anonymous role).
+ *
+ * @return bool True if user has valid auth.
  */
 function is_authenticated(): bool {
-	if ( ! is_auth_enabled() ) {
-		return true; // No auth required
-	}
-
-	if ( ! isset( $_COOKIE[ AUTH_COOKIE_NAME ] ) ) {
-		return false;
-	}
-
-	// Cookie should contain a hash that matches our password hash
-	$expected_token = substr( hash( 'sha256', APP_PASSWORD_HASH ), 0, 32 );
-	return hash_equals( $expected_token, $_COOKIE[ AUTH_COOKIE_NAME ] );
+	return get_auth_role() !== 'anonymous';
 }
 
 /**
- * Verify a password against the stored hash.
+ * Check if current user can log out.
+ *
+ * Users can log out if they authenticated via cookie (not anonymous access).
+ *
+ * @return bool True if logout is available.
+ */
+function can_logout(): bool {
+	return get_cookie_auth_role() !== null;
+}
+
+/**
+ * Verify a password against admin or user hash.
  *
  * @param string $password The password to verify.
- * @return bool True if password is correct.
+ * @param string $role     The role to verify for ('admin' or 'user').
+ * @return bool True if password is correct for the specified role.
  */
-function verify_password( string $password ): bool {
-	if ( ! is_auth_enabled() ) {
+function verify_password( string $password, string $role = 'admin' ): bool {
+	if ( $role === 'admin' ) {
+		$hash = get_admin_password_hash();
+		if ( empty( $hash ) ) {
+			return false;
+		}
+		return password_verify( $password, $hash );
+	}
+
+	if ( $role === 'user' ) {
+		// If user password is set, verify against it.
+		if ( ! empty( USER_PASSWORD_HASH ) ) {
+			return password_verify( $password, USER_PASSWORD_HASH );
+		}
+		// No user password but user access allowed = no password needed.
+		// This shouldn't be called in that case, but return false for safety.
 		return false;
 	}
-	return password_verify( $password, APP_PASSWORD_HASH );
+
+	return false;
 }
 
 /**
- * Set the authentication cookie.
+ * Set the authentication cookie for a role.
+ *
+ * @param string $role The role to set ('admin' or 'user').
  */
-function set_auth_cookie(): void {
-	$token   = substr( hash( 'sha256', APP_PASSWORD_HASH ), 0, 32 );
+function set_auth_cookie( string $role = 'admin' ): void {
+	if ( $role === 'admin' ) {
+		$hash = get_admin_password_hash();
+	} else {
+		// User cookie uses user password hash if set, otherwise admin hash.
+		$hash = ! empty( USER_PASSWORD_HASH ) ? USER_PASSWORD_HASH : get_admin_password_hash();
+	}
+
+	$token   = substr( hash( 'sha256', $hash ), 0, 32 );
+	$value   = $role . ':' . $token;
 	$expires = time() + SESSION_DURATION;
-	setcookie( AUTH_COOKIE_NAME, $token, $expires, '/', '', true, true );
+
+	setcookie( AUTH_COOKIE_NAME, $value, $expires, '/', '', true, true );
 }
 
 /**

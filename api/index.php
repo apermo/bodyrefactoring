@@ -53,9 +53,10 @@ if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {
 	exit;
 }
 
-// Require authentication for all API endpoints.
-// TODO: Add ALLOW_GUEST_ACCESS check when implemented (see issue #114).
-if ( is_auth_enabled() && ! is_authenticated() ) {
+// Check authentication for API access.
+// User-level access is required for most endpoints.
+// Admin-only endpoints check has_admin_access() in their handlers.
+if ( ! has_user_access() ) {
 	http_response_code( 401 );
 	echo json_encode( [ 'error' => 'Authentication required' ] );
 	exit;

@@ -18,20 +18,20 @@ ob_start();
 // Prevent aggressive caching of the main HTML (especially for iOS PWA)
 header( 'Cache-Control: no-cache, must-revalidate' );
 
-// Authentication check - redirect to login if auth enabled and not authenticated
-if ( is_auth_enabled() && ! is_authenticated() ) {
+// Authentication check - redirect to login if user access not granted
+if ( ! has_user_access() ) {
 	require_once __DIR__ . '/login.php';
 	exit;
 }
 
-// Database installation check - redirect to installer if needed
-if ( needs_database_install() ) {
+// Database installation check - redirect to installer if needed (admin only)
+if ( needs_database_install() && has_admin_access() ) {
 	header( 'Location: /installer.php' );
 	exit;
 }
 
-// Consent check - only for non-authenticated instances
-if ( ! is_auth_enabled() && ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' ) ) {
+// Consent check - show consent to all users who haven't accepted
+if ( ! isset( $_COOKIE['br_consent'] ) || $_COOKIE['br_consent'] !== 'accepted' ) {
 	require_once __DIR__ . '/consent.php';
 	exit;
 }
@@ -69,6 +69,13 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 	<script>
 		// App configuration (from JSON config files)
 		window.APP_CONFIG = <?php echo get_frontend_config_json(); ?>;
+
+		// Authentication state
+		window.APP_AUTH = {
+			role: '<?php echo get_auth_role(); ?>',
+			isAdmin: <?php echo has_admin_access() ? 'true' : 'false'; ?>,
+			canLogout: <?php echo can_logout() ? 'true' : 'false'; ?>
+		};
 	</script>
 	<script>
 		// Mode reset password (from PHP config)

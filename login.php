@@ -3,43 +3,62 @@
  * Login Page
  *
  * Password authentication screen for protected instances.
- * Only shown when APP_PASSWORD_HASH is set in .env.
+ * Supports both admin and user login with role selection.
  *
  * @package BodyRefactoring
  */
 
-// Load tools.php if not already loaded
+// Load tools.php if not already loaded.
 if ( ! defined( 'APP_VERSION' ) ) {
 	require_once __DIR__ . '/tools.php';
 }
 
-// Redirect if auth not enabled or already authenticated
-if ( ! is_auth_enabled() || is_authenticated() ) {
+// Redirect if auth not enabled or already authenticated appropriately.
+if ( ! is_auth_enabled() ) {
 	header( 'Location: index.php' );
 	exit;
 }
 
-$show_error = false;
+// If already authenticated with sufficient access, redirect.
+if ( has_user_access() ) {
+	header( 'Location: index.php' );
+	exit;
+}
 
-// Handle login form submission
+$show_error   = false;
+$error_message = '';
+
+// Determine if user login option is available.
+// User login is available when ALLOW_USER_ACCESS=true AND USER_PASSWORD_HASH is set.
+$user_login_available = ALLOW_USER_ACCESS && ! empty( USER_PASSWORD_HASH );
+
+// Handle login form submission.
 if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
 	$password = $_POST['password'] ?? '';
+	$role     = $_POST['role'] ?? 'admin';
 
-	if ( verify_password( $password ) ) {
-		set_auth_cookie();
+	// Validate role selection.
+	if ( $role === 'user' && ! $user_login_available ) {
+		$role = 'admin'; // Fall back to admin if user login not available.
+	}
+
+	// Verify password against appropriate hash.
+	if ( verify_password( $password, $role ) ) {
+		set_auth_cookie( $role );
 		header( 'Location: index.php' );
 		exit;
 	} else {
-		$show_error = true;
+		$show_error    = true;
+		$error_message = 'Falsches Passwort. Bitte versuche es erneut.';
 	}
 }
 
-// Split app name for styling (first word highlighted)
+// Split app name for styling (first word highlighted).
 $name_parts = explode( ' ', APP_NAME, 2 );
 $first_name = htmlspecialchars( $name_parts[0] );
 $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 
-// Default color values (customization via Tailwind config)
+// Default color values (customization via Tailwind config).
 $gradient        = 'linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%)';
 $button_gradient = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
 $accent_color    = '#22d3ee';
@@ -106,6 +125,41 @@ $accent_color    = '#22d3ee';
 			border-radius: 8px; padding: 12px;
 			color: #ef4444; font-size: 14px; margin-bottom: 16px;
 		}
+		.role-selector {
+			display: flex;
+			gap: 12px;
+			margin-bottom: 16px;
+		}
+		.role-option {
+			flex: 1;
+			position: relative;
+		}
+		.role-option input[type="radio"] {
+			position: absolute;
+			opacity: 0;
+			width: 100%;
+			height: 100%;
+			cursor: pointer;
+		}
+		.role-option label {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 12px 16px;
+			background: rgba(15, 23, 42, 0.8);
+			border: 2px solid rgba(51, 65, 85, 0.5);
+			border-radius: 12px;
+			cursor: pointer;
+			transition: all 0.2s;
+			margin-bottom: 0;
+		}
+		.role-option input[type="radio"]:checked + label {
+			border-color: <?php echo $accent_color; ?>;
+			background: rgba(34, 211, 238, 0.1);
+		}
+		.role-option input[type="radio"]:focus + label {
+			border-color: <?php echo $accent_color; ?>;
+		}
 		.submit-btn {
 			width: 100%; padding: 16px; border: none; border-radius: 12px;
 			font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s;
@@ -129,8 +183,24 @@ $accent_color    = '#22d3ee';
 		<form method="POST" class="login-form">
 			<?php if ( $show_error ) : ?>
 				<div class="error-message">
-					Falsches Passwort. Bitte versuche es erneut.
+					<?php echo htmlspecialchars( $error_message ); ?>
 				</div>
+			<?php endif; ?>
+
+			<?php if ( $user_login_available ) : ?>
+				<label>Anmelden als</label>
+				<div class="role-selector">
+					<div class="role-option">
+						<input type="radio" id="role-user" name="role" value="user" checked>
+						<label for="role-user">Benutzer</label>
+					</div>
+					<div class="role-option">
+						<input type="radio" id="role-admin" name="role" value="admin">
+						<label for="role-admin">Admin</label>
+					</div>
+				</div>
+			<?php else : ?>
+				<input type="hidden" name="role" value="admin">
 			<?php endif; ?>
 
 			<label for="password">Passwort</label>
