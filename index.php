@@ -139,6 +139,21 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 		// Log page load start
 		window.addEventListener('DOMContentLoaded', function() {
 			debugLog('DOM loaded, v<?php echo APP_VERSION; ?>', 'info');
+
+			// Show login success message
+			const urlParams = new URLSearchParams(window.location.search);
+			if (urlParams.get('login') === 'success') {
+				// Remove the parameter from URL without reload
+				window.history.replaceState({}, '', window.location.pathname);
+
+				// Show success notification
+				const notification = document.createElement('div');
+				notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+				notification.innerHTML = '<span class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5"></i> Erfolgreich angemeldet</span>';
+				document.body.appendChild(notification);
+				if (window.lucide) lucide.createIcons();
+				setTimeout(() => notification.remove(), 3000);
+			}
 		});
 
 		// Catch and log unhandled errors
@@ -263,11 +278,13 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 				<i data-lucide="heart-pulse" class="w-4 h-4 text-red-400 flex-shrink-0"></i>
 				<span class="truncate">Krank / Recovery</span>
 			</button>
+			<?php if ( has_admin_access() ) : ?>
 			<a href="schedule-editor.php" target="_blank"
 			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
 				<i data-lucide="edit" class="w-4 h-4 text-purple-400 flex-shrink-0"></i>
 				<span class="truncate">Schedule Editor</span>
 			</a>
+			<?php endif; ?>
 			<button onclick="exportData()"
 					class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white border-b border-slate-700 flex items-center gap-3 w-full">
 				<i data-lucide="download" class="w-4 h-4 text-blue-400 flex-shrink-0"></i>
@@ -289,11 +306,11 @@ $rest_name  = isset( $name_parts[1] ) ? htmlspecialchars( $name_parts[1] ) : '';
 				<span class="truncate">Website</span>
 			</a>
 			<a href="https://github.com/apermo/bodyrefactoring" target="_blank"
-			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white <?php echo is_auth_enabled() ? '' : 'border-b border-slate-700'; ?> flex items-center gap-3 w-full">
+			   class="px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white <?php echo can_logout() ? '' : 'border-b border-slate-700'; ?> flex items-center gap-3 w-full">
 				<i data-lucide="github" class="w-4 h-4 flex-shrink-0"></i>
 				<span class="truncate">GitHub Repo</span>
 			</a>
-			<?php if ( is_auth_enabled() ) : ?>
+			<?php if ( can_logout() ) : ?>
 			<a href="logout.php"
 			   class="px-4 py-3 text-left text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 border-b border-slate-700 flex items-center gap-3 w-full">
 				<i data-lucide="log-out" class="w-4 h-4 flex-shrink-0"></i>

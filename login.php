@@ -45,7 +45,7 @@ if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
 	// Verify password against appropriate hash.
 	if ( verify_password( $password, $role ) ) {
 		set_auth_cookie( $role );
-		header( 'Location: index.php' );
+		header( 'Location: index.php?login=success' );
 		exit;
 	} else {
 		$show_error    = true;
