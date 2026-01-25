@@ -11,8 +11,73 @@
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/includes/Database.php';
 
-// Redirect to app if already installed.
-if ( ! needs_database_install() ) {
+/**
+ * Check if auth configuration is missing from .env.
+ *
+ * Returns true only if ADMIN_PASSWORD_HASH is not defined at all.
+ * An empty value means the user intentionally left it empty (public instance).
+ *
+ * @return bool True if auth config should be prompted.
+ */
+function needs_auth_setup(): bool {
+	$env_file = __DIR__ . '/.env';
+	if ( ! file_exists( $env_file ) ) {
+		return true;
+	}
+
+	$content = file_get_contents( $env_file );
+
+	// Check if ADMIN_PASSWORD_HASH is defined (even if empty).
+	if ( preg_match( '/^ADMIN_PASSWORD_HASH\s*=/m', $content ) ) {
+		return false;
+	}
+
+	// Also check legacy APP_PASSWORD_HASH.
+	if ( preg_match( '/^APP_PASSWORD_HASH\s*=/m', $content ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Save authentication configuration to .env file.
+ *
+ * @param string $admin_hash      Admin password hash (can be empty).
+ * @param bool   $allow_user      Whether to allow user access.
+ * @param string $user_hash       User password hash (can be empty).
+ * @return bool True on success.
+ */
+function save_auth_config( string $admin_hash, bool $allow_user, string $user_hash ): bool {
+	$env_file = __DIR__ . '/.env';
+
+	if ( ! file_exists( $env_file ) || ! is_writable( $env_file ) ) {
+		return false;
+	}
+
+	$content = file_get_contents( $env_file );
+
+	// Remove existing auth config lines.
+	$content = preg_replace( '/^ADMIN_PASSWORD_HASH=.*\n?/m', '', $content );
+	$content = preg_replace( '/^APP_PASSWORD_HASH=.*\n?/m', '', $content );
+	$content = preg_replace( '/^ALLOW_USER_ACCESS=.*\n?/m', '', $content );
+	$content = preg_replace( '/^USER_PASSWORD_HASH=.*\n?/m', '', $content );
+
+	// Add new auth config.
+	$auth_config  = "\n# Authentication Configuration\n";
+	$auth_config .= 'ADMIN_PASSWORD_HASH=' . $admin_hash . "\n";
+	$auth_config .= 'ALLOW_USER_ACCESS=' . ( $allow_user ? 'true' : 'false' ) . "\n";
+	if ( ! empty( $user_hash ) ) {
+		$auth_config .= 'USER_PASSWORD_HASH=' . $user_hash . "\n";
+	}
+
+	$content .= $auth_config;
+
+	return file_put_contents( $env_file, $content ) !== false;
+}
+
+// Redirect to app if already installed AND auth is configured.
+if ( ! needs_database_install() && ! needs_auth_setup() ) {
 	header( 'Location: /' );
 	exit;
 }
@@ -255,7 +320,49 @@ function install_database( string $mode, ?string $file = null ): array {
 if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) ) {
 	$action = $_POST['action'];
 
-	if ( $action === 'set_version_only' ) {
+	if ( $action === 'setup_auth' ) {
+		// Handle authentication setup.
+		$admin_password = $_POST['admin_password'] ?? '';
+		$allow_user     = isset( $_POST['allow_user'] ) && $_POST['allow_user'] === '1';
+		$user_password  = $_POST['user_password'] ?? '';
+		$skip_auth      = isset( $_POST['skip_auth'] ) && $_POST['skip_auth'] === '1';
+
+		// Generate hashes (empty string for public instance).
+		$admin_hash = '';
+		$user_hash  = '';
+
+		if ( ! $skip_auth && ! empty( $admin_password ) ) {
+			$admin_hash = password_hash( $admin_password, PASSWORD_BCRYPT );
+
+			if ( $allow_user && ! empty( $user_password ) ) {
+				$user_hash = password_hash( $user_password, PASSWORD_BCRYPT );
+			}
+		}
+
+		if ( save_auth_config( $admin_hash, $allow_user, $user_hash ) ) {
+			$success = [
+				'message' => 'Authentication configured',
+				'details' => [
+					$skip_auth || empty( $admin_password )
+						? 'Public instance (no authentication required)'
+						: 'Admin password set',
+					$allow_user ? 'User access enabled' : 'Admin-only access',
+					! empty( $user_hash ) ? 'User password required' : 'No user password',
+				],
+			];
+			// Continue to database setup or redirect.
+			if ( ! needs_database_install() ) {
+				$step = 'complete';
+			} else {
+				$step = 'check';
+			}
+		} else {
+			$error = [
+				'message' => 'Failed to save authentication config',
+				'details' => [ 'Make sure .env file is writable' ],
+			];
+		}
+	} elseif ( $action === 'set_version_only' ) {
 		// Just add DATABASE_VERSION to .env without touching the database.
 		if ( set_database_version( REQUIRED_DATABASE_VERSION ) ) {
 			$success = [
@@ -435,6 +542,121 @@ $force_install   = isset( $_GET['force'] ) && $_GET['force'] === '1';
 					</details>
 				</div>
 			</div>
+
+		<?php elseif ( needs_auth_setup() ) : ?>
+			<!-- Authentication Setup -->
+			<?php if ( $error ) : ?>
+				<div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
+					<p class="text-red-400 font-medium"><?php echo htmlspecialchars( $error['message'] ); ?></p>
+					<?php if ( ! empty( $error['details'] ) ) : ?>
+						<ul class="mt-2 text-sm text-slate-400">
+							<?php foreach ( $error['details'] as $detail ) : ?>
+								<li><?php echo htmlspecialchars( $detail ); ?></li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
+
+			<div class="bg-slate-800 rounded-lg p-6 mb-6">
+				<h2 class="text-xl font-semibold mb-2">Pre-flight Checks</h2>
+				<p class="text-green-400 mb-4">All checks passed</p>
+				<ul class="space-y-2 text-sm text-slate-400">
+					<?php foreach ( $preflight['checks'] as $check ) : ?>
+						<li class="flex items-center gap-2">
+							<span class="text-green-400">&#10003;</span>
+							<?php echo htmlspecialchars( $check['label'] ); ?>: <?php echo htmlspecialchars( $check['value'] ); ?>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+
+			<form method="POST" class="space-y-6" id="auth-form">
+				<input type="hidden" name="action" value="setup_auth">
+
+				<div class="bg-slate-800 rounded-lg p-6">
+					<h2 class="text-xl font-semibold mb-4">Authentication Setup</h2>
+					<p class="text-slate-400 mb-6">
+						Configure access protection for your instance. You can make it public or require passwords.
+					</p>
+
+					<div class="space-y-6">
+						<!-- Public Instance Option -->
+						<label class="flex items-start gap-4 p-4 rounded-lg border border-slate-700 hover:border-slate-600 cursor-pointer transition-colors">
+							<input type="checkbox" name="skip_auth" value="1" id="skip_auth" class="mt-1">
+							<div>
+								<span class="font-medium text-white">Public Instance</span>
+								<p class="text-sm text-slate-400">
+									No password required. Anyone can access all features.
+								</p>
+							</div>
+						</label>
+
+						<!-- Admin Password -->
+						<div id="auth-fields">
+							<div class="mb-4">
+								<label for="admin_password" class="block text-sm font-medium text-slate-300 mb-2">
+									Admin Password
+								</label>
+								<input type="password" name="admin_password" id="admin_password"
+									class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+									placeholder="Enter admin password">
+								<p class="text-sm text-slate-500 mt-1">
+									Required for full access (editing, importing schedules)
+								</p>
+							</div>
+
+							<!-- User Access Option -->
+							<label class="flex items-start gap-4 p-4 rounded-lg border border-slate-700 hover:border-slate-600 cursor-pointer transition-colors mb-4">
+								<input type="checkbox" name="allow_user" value="1" id="allow_user" class="mt-1">
+								<div>
+									<span class="font-medium text-white">Enable User Access</span>
+									<p class="text-sm text-slate-400">
+										Allow a separate user role with limited permissions (view schedules, track progress).
+									</p>
+								</div>
+							</label>
+
+							<!-- User Password (shown when user access enabled) -->
+							<div id="user-password-field" class="hidden">
+								<label for="user_password" class="block text-sm font-medium text-slate-300 mb-2">
+									User Password
+								</label>
+								<input type="password" name="user_password" id="user_password"
+									class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+									placeholder="Enter user password (optional)">
+								<p class="text-sm text-slate-500 mt-1">
+									Leave empty for public user access with admin-only protection
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors">
+					Continue
+				</button>
+			</form>
+
+			<script>
+				// Toggle auth fields visibility based on public instance checkbox.
+				const skipAuth = document.getElementById('skip_auth');
+				const authFields = document.getElementById('auth-fields');
+				const adminPassword = document.getElementById('admin_password');
+
+				skipAuth.addEventListener('change', function() {
+					authFields.style.display = this.checked ? 'none' : 'block';
+					adminPassword.required = !this.checked;
+				});
+
+				// Toggle user password field visibility.
+				const allowUser = document.getElementById('allow_user');
+				const userPasswordField = document.getElementById('user-password-field');
+
+				allowUser.addEventListener('change', function() {
+					userPasswordField.classList.toggle('hidden', !this.checked);
+				});
+			</script>
 
 		<?php else : ?>
 			<!-- Installation Options -->
