@@ -366,8 +366,6 @@
 					"type": "main",
 					"title": "Crunches (90° Ablage)",
 					"desc": "Rücken auf Matte, Waden 90° auf Bank. Bauch isolieren.",
-					"weight": "0",
-					"defaultUnit": "KG",
 					"repCounter": {
 						"sets": 3,
 						"reps": 15,
@@ -492,7 +490,7 @@
 			"id": "fri",
 			"dayIndex": 5,
 			"name": "FREITAG",
-			"theme": "Cardio & Core",
+			"theme": "Cardio, Core & Functional",
 			"icon": "swords",
 			"colorClass": "text-pink-400",
 			"bgClass": "bg-pink-500/10",
@@ -548,8 +546,6 @@
 					"type": "main",
 					"title": "Crunches (90° Ablage)",
 					"desc": "Wie Mi: Rücken auf Matte, Beine auf Bank.",
-					"weight": "0",
-					"defaultUnit": "KG",
 					"repCounter": {
 						"sets": 3,
 						"reps": 15,
@@ -561,23 +557,48 @@
 					"id": "ex_decline_max",
 					"type": "main",
 					"title": "Decline Crunches (MAX)",
-					"desc": "Bank negativ. Beine fixieren. Ein Satz so viele wie möglich! Hausaufgabe: Mitzählen!",
-					"weight": "0",
-					"defaultUnit": "REPS"
+					"desc": "Bank negativ. Beine fixieren. Ein Satz so viele wie möglich! Hausaufgabe: Mitzählen!"
 				},
 				{
-					"id": "ex_deadbug",
+					"id": "ex_heeltaps",
 					"type": "main",
-					"title": "Dead Bug (Toter Käfer)",
-					"desc": "NEU: Rücken flach am Boden. Arm/Bein langsam senken. Anti-Hohlkreuz!",
-					"weight": "0",
-					"defaultUnit": "KG",
+					"title": "Heel Taps (Dead Bug Beginner)",
+					"desc": "NEU: Rücken flach! Knie 90° lassen. Nur Fersen senken, nicht strecken.",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 10,
 						"restSeconds": 60,
-						"delayMilliseconds": 4000
+						"delayMilliseconds": 3500
 					}
+				},
+				{
+					"id": "ex_woodchoppers",
+					"type": "main",
+					"title": "Cable Woodchoppers",
+					"desc": "NEU: Kabel oben. Diagonal zum Knie ziehen. Rumpfrotation! Pro Seite.",
+					"weight": "2",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 4,
+						"reps": 12,
+						"restSeconds": 30,
+						"delayMilliseconds": 3000,
+						"bilateral": true
+					}
+				},
+				{
+					"id": "ex_farmers_walk",
+					"type": "main",
+					"title": "Farmer's Carry",
+					"desc": "NEU: Schwere Hanteln. Aufrecht gehen. Griffkraft & Core.",
+					"weight": "20",
+					"defaultUnit": "KG",
+					"timers": [
+						{
+							"l": "3 Sätze",
+							"s": 45
+						}
+					]
 				},
 				{
 					"id": "cool_upper",
