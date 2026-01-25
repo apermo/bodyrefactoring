@@ -141,6 +141,16 @@ PHP uses `filemtime()` for versioned asset URLs: `asset.js?v=<timestamp>`
 - JS: camelCase, const/let only, strict equality, JSDoc for functions
 - CSS: One selector per line, alphabetical properties
 
+### WordPress Function Names
+**Do not redefine WordPress core function names** unless the function is an exact replica with the same intended logic that could be replaced by the WordPress core function.
+
+Examples of WordPress functions to avoid redefining:
+- `is_admin()` - In WP this checks if in admin area, not if user is administrator
+- `current_user_can()` - In WP this checks user capabilities
+- `get_option()`, `update_option()` - In WP these handle options API
+
+If you need similar functionality, use distinct names like `has_admin_access()` instead of `is_admin()`.
+
 ### Code Reuse
 Before creating new functions:
 1. Search the codebase for similar functionality
