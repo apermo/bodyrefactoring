@@ -248,13 +248,62 @@ function getGermanMonthName( date ) {
 }
 
 /**
+ * Get the last day of a month.
+ *
+ * @param {number} year  - Full year.
+ * @param {number} month - Month (0-11).
+ * @return {number} Last day of the month (28-31).
+ */
+function getLastDayOfMonth( year, month ) {
+	return new Date( year, month + 1, 0 ).getDate();
+}
+
+/**
+ * Check if a date is the nth occurrence of a weekday in its month.
+ *
+ * @param {Date}   date    - The date to check.
+ * @param {number} nth     - Which occurrence (1-5, or -1 for last).
+ * @param {number} weekday - Day of week (0=Sun, 1=Mon, ..., 6=Sat).
+ * @return {boolean} True if date matches the nth weekday.
+ */
+function isNthWeekdayOfMonth( date, nth, weekday ) {
+	// Check if the weekday matches
+	if ( date.getDay() !== weekday ) {
+		return false;
+	}
+
+	const dayOfMonth = date.getDate();
+	const year = date.getFullYear();
+	const month = date.getMonth();
+
+	if ( nth === -1 ) {
+		// Last occurrence: check if adding 7 days would exceed the month
+		const lastDay = getLastDayOfMonth( year, month );
+		return dayOfMonth + 7 > lastDay;
+	}
+
+	// Nth occurrence: check which occurrence this is
+	const occurrence = Math.ceil( dayOfMonth / 7 );
+	return occurrence === nth;
+}
+
+/**
  * Check if exercise should be shown based on its dateCondition.
  *
  * Evaluates the dateCondition field against the given date.
  * If no dateCondition is set, the exercise is always shown.
  *
- * @param {Object} exercise - Exercise object.
- * @param {Date} targetDate - The date to check against.
+ * Supported conditions:
+ * - once: Exact date match (YYYY-MM-DD)
+ * - weekOfMonth: Week 1-5 within month
+ * - weekParity: Odd/even ISO week numbers
+ * - dayOfMonth: Specific day (positive from start, negative from end)
+ * - nthWeekday: Nth occurrence of weekday in month
+ * - months: Restrict to specific months (combines with dayOfMonth/nthWeekday)
+ * - weekInterval: Every N weeks from reference date
+ *
+ * @param {Object} exercise   - Exercise object.
+ * @param {Date}   targetDate - The date to check against.
  * @return {boolean} True if exercise should be shown.
  */
 function shouldShowExerciseForDate( exercise, targetDate ) {
@@ -264,6 +313,12 @@ function shouldShowExerciseForDate( exercise, targetDate ) {
 	}
 
 	const condition = exercise.dateCondition;
+	const targetMonth = targetDate.getMonth() + 1; // 1-12
+
+	// Check months filter first (can combine with other conditions)
+	if ( condition.months && ! condition.months.includes( targetMonth ) ) {
+		return false;
+	}
 
 	// One-time task: show only on exact date
 	if ( condition.once ) {
@@ -280,18 +335,52 @@ function shouldShowExerciseForDate( exercise, targetDate ) {
 
 	// Week parity: check if ISO week number is odd/even
 	if ( condition.weekParity ) {
-		// Calculate ISO week number
-		const tempDate = new Date( targetDate.getTime() );
-		tempDate.setHours( 0, 0, 0, 0 );
-		// Set to nearest Thursday (current date + 4 - current day number, making Sunday day 7)
-		tempDate.setDate( tempDate.getDate() + 4 - ( tempDate.getDay() || 7 ) );
-		// Get first day of year
-		const yearStart = new Date( tempDate.getFullYear(), 0, 1 );
-		// Calculate full weeks to nearest Thursday
-		const weekNumber = Math.ceil( ( ( tempDate - yearStart ) / 86400000 + 1 ) / 7 );
-
+		const weekNumber = getISOWeekNumber( targetDate );
 		const isOdd = weekNumber % 2 === 1;
 		return condition.weekParity === 'odd' ? isOdd : ! isOdd;
+	}
+
+	// Day of month: positive from start, negative from end
+	if ( condition.dayOfMonth !== undefined ) {
+		const dayOfMonth = targetDate.getDate();
+		const year = targetDate.getFullYear();
+		const month = targetDate.getMonth();
+		const lastDay = getLastDayOfMonth( year, month );
+
+		if ( condition.dayOfMonth > 0 ) {
+			// Positive: count from start (e.g., 15 = 15th)
+			return dayOfMonth === condition.dayOfMonth;
+		}
+		// Negative: count from end (e.g., -1 = last day, -2 = 2nd to last)
+		const targetDay = lastDay + condition.dayOfMonth + 1;
+		return dayOfMonth === targetDay;
+	}
+
+	// Nth weekday of month
+	if ( condition.nthWeekday ) {
+		return isNthWeekdayOfMonth(
+			targetDate,
+			condition.nthWeekday.nth,
+			condition.nthWeekday.weekday,
+		);
+	}
+
+	// Week interval: every N weeks from reference date
+	if ( condition.weekInterval ) {
+		const refDate = new Date( condition.weekInterval.from + 'T12:00:00' );
+		const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+
+		// Calculate weeks since reference
+		const diffMs = targetDate.getTime() - refDate.getTime();
+		const weeksSince = Math.floor( diffMs / msPerWeek );
+
+		// Check if this week is on the interval
+		return weeksSince >= 0 && weeksSince % condition.weekInterval.every === 0;
+	}
+
+	// If only months was specified (no other condition), show on all days of those months
+	if ( condition.months ) {
+		return true;
 	}
 
 	// Unknown condition type - show by default

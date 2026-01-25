@@ -78,48 +78,86 @@
 	"definitions": {
 		"dateCondition": {
 			"type": "object",
-			"description": "Date-based condition for when this task should appear. Only one condition type allowed.",
-			"oneOf": [
-				{
+			"description": "Date-based condition for when this task should appear.",
+			"properties": {
+				"once": {
+					"type": "string",
+					"description": "ISO date (YYYY-MM-DD) for one-time task",
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+				},
+				"weekOfMonth": {
+					"type": "array",
+					"description": "Array of week numbers (1-5) within the month",
+					"items": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 5
+					},
+					"minItems": 1,
+					"uniqueItems": true
+				},
+				"weekParity": {
+					"type": "string",
+					"description": "Show only in odd or even ISO week numbers",
+					"enum": ["odd", "even"]
+				},
+				"dayOfMonth": {
+					"type": "integer",
+					"description": "Day of month (1-31 from start, -1 to -31 from end). E.g., 15 = 15th, -1 = last day, -2 = 2nd to last",
+					"minimum": -31,
+					"maximum": 31
+				},
+				"nthWeekday": {
+					"type": "object",
+					"description": "Nth occurrence of a weekday in the month",
+					"required": ["nth", "weekday"],
 					"properties": {
-						"once": {
+						"nth": {
+							"type": "integer",
+							"description": "Which occurrence (1-5, or -1 for last)",
+							"minimum": -1,
+							"maximum": 5
+						},
+						"weekday": {
+							"type": "integer",
+							"description": "Day of week (0=Sunday, 1=Monday, ..., 6=Saturday)",
+							"minimum": 0,
+							"maximum": 6
+						}
+					},
+					"additionalProperties": false
+				},
+				"months": {
+					"type": "array",
+					"description": "Restrict to specific months (1-12). Combine with dayOfMonth or nthWeekday for quarterly/semi-annual patterns",
+					"items": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 12
+					},
+					"minItems": 1,
+					"uniqueItems": true
+				},
+				"weekInterval": {
+					"type": "object",
+					"description": "Every N weeks from a reference date",
+					"required": ["every", "from"],
+					"properties": {
+						"every": {
+							"type": "integer",
+							"description": "Interval in weeks (e.g., 3 = every 3 weeks)",
+							"minimum": 1
+						},
+						"from": {
 							"type": "string",
-							"description": "ISO date (YYYY-MM-DD) for one-time task",
+							"description": "Reference start date (ISO format YYYY-MM-DD)",
 							"pattern": "^\\d{4}-\\d{2}-\\d{2}$"
 						}
 					},
-					"required": ["once"],
-					"additionalProperties": false
-				},
-				{
-					"properties": {
-						"weekOfMonth": {
-							"type": "array",
-							"description": "Array of week numbers (1-5) within the month",
-							"items": {
-								"type": "integer",
-								"minimum": 1,
-								"maximum": 5
-							},
-							"minItems": 1,
-							"uniqueItems": true
-						}
-					},
-					"required": ["weekOfMonth"],
-					"additionalProperties": false
-				},
-				{
-					"properties": {
-						"weekParity": {
-							"type": "string",
-							"description": "Show only in odd or even ISO week numbers",
-							"enum": ["odd", "even"]
-						}
-					},
-					"required": ["weekParity"],
 					"additionalProperties": false
 				}
-			]
+			},
+			"additionalProperties": false
 		},
 		"exerciseBase": {
 			"type": "object",

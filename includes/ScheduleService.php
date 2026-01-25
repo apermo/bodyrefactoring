@@ -326,6 +326,108 @@ class ScheduleService {
 	}
 
 	/**
+	 * Check if an exercise should show based on its dateCondition.
+	 *
+	 * Evaluates the dateCondition against a target date.
+	 *
+	 * @param array  $exercise    Exercise with optional dateCondition.
+	 * @param string $target_date Date in YYYY-MM-DD format.
+	 * @return bool True if exercise should show.
+	 */
+	public static function should_show_exercise_for_date( array $exercise, string $target_date ): bool {
+		if ( empty( $exercise['dateCondition'] ) ) {
+			return true;
+		}
+
+		$condition = $exercise['dateCondition'];
+		$date      = new DateTime( $target_date );
+		$month     = (int) $date->format( 'n' ); // 1-12
+
+		// Check months filter first
+		if ( ! empty( $condition['months'] ) && ! in_array( $month, $condition['months'], true ) ) {
+			return false;
+		}
+
+		// One-time task
+		if ( ! empty( $condition['once'] ) ) {
+			return $condition['once'] === $target_date;
+		}
+
+		// Week of month
+		if ( ! empty( $condition['weekOfMonth'] ) ) {
+			$day_of_month  = (int) $date->format( 'j' );
+			$week_of_month = (int) ceil( $day_of_month / 7 );
+			return in_array( $week_of_month, $condition['weekOfMonth'], true );
+		}
+
+		// Week parity
+		if ( ! empty( $condition['weekParity'] ) ) {
+			$week_number = (int) $date->format( 'W' );
+			$is_odd      = $week_number % 2 === 1;
+			return $condition['weekParity'] === 'odd' ? $is_odd : ! $is_odd;
+		}
+
+		// Day of month
+		if ( isset( $condition['dayOfMonth'] ) ) {
+			$day_of_month = (int) $date->format( 'j' );
+			$target_day   = $condition['dayOfMonth'];
+
+			if ( $target_day > 0 ) {
+				return $day_of_month === $target_day;
+			}
+			// Negative: count from end
+			$last_day    = (int) $date->format( 't' );
+			$target_day  = $last_day + $target_day + 1;
+			return $day_of_month === $target_day;
+		}
+
+		// Nth weekday of month
+		if ( ! empty( $condition['nthWeekday'] ) ) {
+			$nth     = $condition['nthWeekday']['nth'];
+			$weekday = $condition['nthWeekday']['weekday'];
+
+			// Check weekday matches
+			if ( (int) $date->format( 'w' ) !== $weekday ) {
+				return false;
+			}
+
+			$day_of_month = (int) $date->format( 'j' );
+
+			if ( $nth === -1 ) {
+				// Last occurrence
+				$last_day = (int) $date->format( 't' );
+				return $day_of_month + 7 > $last_day;
+			}
+
+			$occurrence = (int) ceil( $day_of_month / 7 );
+			return $occurrence === $nth;
+		}
+
+		// Week interval
+		if ( ! empty( $condition['weekInterval'] ) ) {
+			$ref_date  = new DateTime( $condition['weekInterval']['from'] );
+			$interval  = $condition['weekInterval']['every'];
+			$diff      = $ref_date->diff( $date );
+			$diff_days = (int) $diff->days;
+
+			// If invert is 1, target date is before reference date.
+			if ( $diff->invert === 1 ) {
+				return false;
+			}
+
+			$weeks_diff = (int) floor( $diff_days / 7 );
+			return $weeks_diff % $interval === 0;
+		}
+
+		// If only months specified (no other condition), show on all days
+		if ( ! empty( $condition['months'] ) ) {
+			return true;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get a template by ID with all its days and exercises.
 	 *
 	 * @param int $template_id Template ID.

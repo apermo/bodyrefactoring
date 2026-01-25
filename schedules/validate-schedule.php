@@ -489,46 +489,121 @@ function validate_v3_fields( array $exercise, string $ex_prefix ): array {
 			return $errors;
 		}
 
-		// Only one condition type allowed.
 		$condition_keys = array_keys( $condition );
-		$valid_keys     = [ 'once', 'weekOfMonth', 'weekParity' ];
-		$found_keys     = array_intersect( $condition_keys, $valid_keys );
 
-		if ( count( $found_keys ) === 0 ) {
-			$errors[] = "$condition_prefix: Must contain one of: 'once', 'weekOfMonth', or 'weekParity'";
-		} elseif ( count( $found_keys ) > 1 ) {
-			$errors[] = "$condition_prefix: Only one condition type allowed (found: " . implode( ', ', $found_keys ) . ')';
-		} else {
-			// Validate the specific condition type.
-			$key = reset( $found_keys );
-
-			if ( $key === 'once' ) {
-				if ( ! is_string( $condition['once'] ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $condition['once'] ) ) {
-					$errors[] = "$condition_prefix: 'once' must be an ISO date string (YYYY-MM-DD)";
-				}
-			} elseif ( $key === 'weekOfMonth' ) {
-				if ( ! is_array( $condition['weekOfMonth'] ) ) {
-					$errors[] = "$condition_prefix: 'weekOfMonth' must be an array";
-				} elseif ( empty( $condition['weekOfMonth'] ) ) {
-					$errors[] = "$condition_prefix: 'weekOfMonth' must contain at least one week number";
-				} else {
-					foreach ( $condition['weekOfMonth'] as $index => $week ) {
-						if ( ! is_int( $week ) || $week < 1 || $week > 5 ) {
-							$errors[] = "$condition_prefix: 'weekOfMonth[$index]' must be an integer between 1 and 5";
-						}
-					}
-				}
-			} elseif ( $key === 'weekParity' ) {
-				if ( ! in_array( $condition['weekParity'], [ 'odd', 'even' ], true ) ) {
-					$errors[] = "$condition_prefix: 'weekParity' must be 'odd' or 'even'";
-				}
-			}
-		}
+		// Valid dateCondition keys.
+		$valid_keys = [ 'once', 'weekOfMonth', 'weekParity', 'dayOfMonth', 'nthWeekday', 'months', 'weekInterval' ];
 
 		// Check for unknown keys.
 		$unknown_keys = array_diff( $condition_keys, $valid_keys );
 		if ( ! empty( $unknown_keys ) ) {
 			$errors[] = "$condition_prefix: Unknown keys: " . implode( ', ', $unknown_keys );
+		}
+
+		// Primary condition types (mutually exclusive except 'months' can combine).
+		$primary_keys = [ 'once', 'weekOfMonth', 'weekParity', 'dayOfMonth', 'nthWeekday', 'weekInterval' ];
+		$found_primary = array_intersect( $condition_keys, $primary_keys );
+
+		// Validate: at most one primary condition (or just 'months' alone).
+		if ( count( $found_primary ) > 1 ) {
+			$errors[] = "$condition_prefix: Only one primary condition allowed (found: " . implode( ', ', $found_primary ) . ')';
+		}
+
+		// Must have at least one condition.
+		if ( empty( $found_primary ) && ! isset( $condition['months'] ) ) {
+			$errors[] = "$condition_prefix: Must contain at least one condition";
+		}
+
+		// Validate 'once'.
+		if ( isset( $condition['once'] ) ) {
+			if ( ! is_string( $condition['once'] ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $condition['once'] ) ) {
+				$errors[] = "$condition_prefix: 'once' must be an ISO date string (YYYY-MM-DD)";
+			}
+		}
+
+		// Validate 'weekOfMonth'.
+		if ( isset( $condition['weekOfMonth'] ) ) {
+			if ( ! is_array( $condition['weekOfMonth'] ) ) {
+				$errors[] = "$condition_prefix: 'weekOfMonth' must be an array";
+			} elseif ( empty( $condition['weekOfMonth'] ) ) {
+				$errors[] = "$condition_prefix: 'weekOfMonth' must contain at least one week number";
+			} else {
+				foreach ( $condition['weekOfMonth'] as $index => $week ) {
+					if ( ! is_int( $week ) || $week < 1 || $week > 5 ) {
+						$errors[] = "$condition_prefix: 'weekOfMonth[$index]' must be an integer between 1 and 5";
+					}
+				}
+			}
+		}
+
+		// Validate 'weekParity'.
+		if ( isset( $condition['weekParity'] ) ) {
+			if ( ! in_array( $condition['weekParity'], [ 'odd', 'even' ], true ) ) {
+				$errors[] = "$condition_prefix: 'weekParity' must be 'odd' or 'even'";
+			}
+		}
+
+		// Validate 'dayOfMonth'.
+		if ( isset( $condition['dayOfMonth'] ) ) {
+			$day = $condition['dayOfMonth'];
+			if ( ! is_int( $day ) || $day < -31 || $day > 31 || $day === 0 ) {
+				$errors[] = "$condition_prefix: 'dayOfMonth' must be an integer from -31 to -1 or 1 to 31";
+			}
+		}
+
+		// Validate 'nthWeekday'.
+		if ( isset( $condition['nthWeekday'] ) ) {
+			$nth_weekday = $condition['nthWeekday'];
+			if ( ! is_array( $nth_weekday ) ) {
+				$errors[] = "$condition_prefix: 'nthWeekday' must be an object";
+			} else {
+				if ( ! isset( $nth_weekday['nth'] ) ) {
+					$errors[] = "$condition_prefix: 'nthWeekday' missing required field 'nth'";
+				} elseif ( ! is_int( $nth_weekday['nth'] ) || $nth_weekday['nth'] < -1 || $nth_weekday['nth'] > 5 || $nth_weekday['nth'] === 0 ) {
+					$errors[] = "$condition_prefix: 'nthWeekday.nth' must be -1 (last) or 1-5";
+				}
+
+				if ( ! isset( $nth_weekday['weekday'] ) ) {
+					$errors[] = "$condition_prefix: 'nthWeekday' missing required field 'weekday'";
+				} elseif ( ! is_int( $nth_weekday['weekday'] ) || $nth_weekday['weekday'] < 0 || $nth_weekday['weekday'] > 6 ) {
+					$errors[] = "$condition_prefix: 'nthWeekday.weekday' must be 0-6 (0=Sunday, 6=Saturday)";
+				}
+			}
+		}
+
+		// Validate 'months'.
+		if ( isset( $condition['months'] ) ) {
+			if ( ! is_array( $condition['months'] ) ) {
+				$errors[] = "$condition_prefix: 'months' must be an array";
+			} elseif ( empty( $condition['months'] ) ) {
+				$errors[] = "$condition_prefix: 'months' must contain at least one month";
+			} else {
+				foreach ( $condition['months'] as $index => $month ) {
+					if ( ! is_int( $month ) || $month < 1 || $month > 12 ) {
+						$errors[] = "$condition_prefix: 'months[$index]' must be an integer between 1 and 12";
+					}
+				}
+			}
+		}
+
+		// Validate 'weekInterval'.
+		if ( isset( $condition['weekInterval'] ) ) {
+			$interval = $condition['weekInterval'];
+			if ( ! is_array( $interval ) ) {
+				$errors[] = "$condition_prefix: 'weekInterval' must be an object";
+			} else {
+				if ( ! isset( $interval['every'] ) ) {
+					$errors[] = "$condition_prefix: 'weekInterval' missing required field 'every'";
+				} elseif ( ! is_int( $interval['every'] ) || $interval['every'] < 1 ) {
+					$errors[] = "$condition_prefix: 'weekInterval.every' must be a positive integer";
+				}
+
+				if ( ! isset( $interval['from'] ) ) {
+					$errors[] = "$condition_prefix: 'weekInterval' missing required field 'from'";
+				} elseif ( ! is_string( $interval['from'] ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $interval['from'] ) ) {
+					$errors[] = "$condition_prefix: 'weekInterval.from' must be an ISO date string (YYYY-MM-DD)";
+				}
+			}
 		}
 	}
 

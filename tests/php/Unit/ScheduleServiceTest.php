@@ -266,4 +266,258 @@ class ScheduleServiceTest extends TestCase {
 		$result = $this->service->get_schedule_for_date( '2026-01-26' );
 		$this->assertEquals( 1, $result['dayIndex'] );
 	}
+
+	/**
+	 * Test should_show_exercise_for_date with no dateCondition.
+	 */
+	public function test_should_show_exercise_no_condition(): void {
+		$exercise = [ 'id' => 'test', 'title' => 'Test' ];
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-24' ) );
+	}
+
+	/**
+	 * Test 'once' dateCondition - matches exact date.
+	 */
+	public function test_should_show_exercise_once_condition(): void {
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [ 'once' => '2026-01-24' ],
+		];
+
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-24' ) );
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-25' ) );
+	}
+
+	/**
+	 * Test 'weekOfMonth' dateCondition.
+	 */
+	public function test_should_show_exercise_week_of_month_condition(): void {
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [ 'weekOfMonth' => [ 1, 3 ] ],
+		];
+
+		// 2026-01-03 is in week 1 (days 1-7).
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-03' ) );
+		// 2026-01-15 is in week 3 (days 15-21).
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-15' ) );
+		// 2026-01-10 is in week 2 (days 8-14).
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-10' ) );
+	}
+
+	/**
+	 * Test 'weekParity' dateCondition - odd weeks.
+	 */
+	public function test_should_show_exercise_week_parity_odd(): void {
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [ 'weekParity' => 'odd' ],
+		];
+
+		// 2026-01-05 is in ISO week 2 (even).
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-05' ) );
+		// 2026-01-12 is in ISO week 3 (odd).
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-12' ) );
+	}
+
+	/**
+	 * Test 'weekParity' dateCondition - even weeks.
+	 */
+	public function test_should_show_exercise_week_parity_even(): void {
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [ 'weekParity' => 'even' ],
+		];
+
+		// 2026-01-05 is in ISO week 2 (even).
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-05' ) );
+		// 2026-01-12 is in ISO week 3 (odd).
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-12' ) );
+	}
+
+	/**
+	 * Test 'dayOfMonth' dateCondition - positive day.
+	 */
+	public function test_should_show_exercise_day_of_month_positive(): void {
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [ 'dayOfMonth' => 15 ],
+		];
+
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-15' ) );
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-02-15' ) );
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-14' ) );
+	}
+
+	/**
+	 * Test 'dayOfMonth' dateCondition - negative day (from end of month).
+	 */
+	public function test_should_show_exercise_day_of_month_negative(): void {
+		// -1 = last day of month.
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [ 'dayOfMonth' => -1 ],
+		];
+
+		// January has 31 days.
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-31' ) );
+		// February 2026 has 28 days.
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-02-28' ) );
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-30' ) );
+
+		// -2 = second to last day.
+		$exercise['dateCondition']['dayOfMonth'] = -2;
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-30' ) );
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-02-27' ) );
+	}
+
+	/**
+	 * Test 'nthWeekday' dateCondition - first Monday.
+	 */
+	public function test_should_show_exercise_nth_weekday_first(): void {
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [
+				'nthWeekday' => [
+					'nth'     => 1,
+					'weekday' => 1, // Monday
+				],
+			],
+		];
+
+		// 2026-01-05 is the first Monday of January.
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-05' ) );
+		// 2026-01-12 is the second Monday.
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-12' ) );
+		// 2026-02-02 is the first Monday of February.
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-02-02' ) );
+	}
+
+	/**
+	 * Test 'nthWeekday' dateCondition - last Friday.
+	 */
+	public function test_should_show_exercise_nth_weekday_last(): void {
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [
+				'nthWeekday' => [
+					'nth'     => -1,
+					'weekday' => 5, // Friday
+				],
+			],
+		];
+
+		// 2026-01-30 is the last Friday of January.
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-30' ) );
+		// 2026-01-23 is the 4th Friday (not last).
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-23' ) );
+		// 2026-02-27 is the last Friday of February.
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-02-27' ) );
+	}
+
+	/**
+	 * Test 'months' dateCondition - only show in specific months.
+	 */
+	public function test_should_show_exercise_months_filter(): void {
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [ 'months' => [ 1, 4, 7, 10 ] ], // Quarterly.
+		];
+
+		// January - included.
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-15' ) );
+		// April - included.
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-04-15' ) );
+		// February - not included.
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-02-15' ) );
+	}
+
+	/**
+	 * Test 'months' combined with 'dayOfMonth' for quarterly patterns.
+	 */
+	public function test_should_show_exercise_months_with_day_of_month(): void {
+		// First day of Q1, Q2, Q3, Q4.
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [
+				'months'     => [ 1, 4, 7, 10 ],
+				'dayOfMonth' => 1,
+			],
+		];
+
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-01' ) );
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-04-01' ) );
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-15' ) );
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-02-01' ) );
+	}
+
+	/**
+	 * Test 'months' combined with 'nthWeekday' for quarterly patterns.
+	 */
+	public function test_should_show_exercise_months_with_nth_weekday(): void {
+		// First Monday of Jan, Apr, Jul, Oct.
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [
+				'months'     => [ 1, 4, 7, 10 ],
+				'nthWeekday' => [
+					'nth'     => 1,
+					'weekday' => 1, // Monday
+				],
+			],
+		];
+
+		// 2026-01-05 is first Monday of January.
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-05' ) );
+		// 2026-04-06 is first Monday of April.
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-04-06' ) );
+		// 2026-02-02 is first Monday of February (not in months list).
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-02-02' ) );
+		// 2026-01-12 is second Monday of January (wrong week).
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-12' ) );
+	}
+
+	/**
+	 * Test 'weekInterval' dateCondition - every 3 weeks.
+	 */
+	public function test_should_show_exercise_week_interval(): void {
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [
+				'weekInterval' => [
+					'every' => 3,
+					'from'  => '2026-01-05', // Reference Monday.
+				],
+			],
+		];
+
+		// Week 0 (reference week).
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-05' ) );
+		// Week 3 (3 weeks later).
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-26' ) );
+		// Week 6 (6 weeks later).
+		$this->assertTrue( ScheduleService::should_show_exercise_for_date( $exercise, '2026-02-16' ) );
+		// Week 1 (not on interval).
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-12' ) );
+		// Week 2 (not on interval).
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-19' ) );
+	}
+
+	/**
+	 * Test 'weekInterval' dateCondition - before reference date returns false.
+	 */
+	public function test_should_show_exercise_week_interval_before_reference(): void {
+		$exercise = [
+			'id'            => 'test',
+			'dateCondition' => [
+				'weekInterval' => [
+					'every' => 2,
+					'from'  => '2026-01-15',
+				],
+			],
+		];
+
+		// Date before reference should not match.
+		$this->assertFalse( ScheduleService::should_show_exercise_for_date( $exercise, '2026-01-10' ) );
+	}
 }
