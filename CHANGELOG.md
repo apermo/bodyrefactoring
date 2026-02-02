@@ -5,7 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [14.6.2] - 2026-02-02
+
+### Added
+
+- **Schedule for week of 2026-02-02** with exercise refinements
+- **Face Pulls** on Monday (rear delts, external rotators)
+- **Overhead Face Pulls** on Wednesday (lower traps, overhead stability)
+- **Friday exercises**: Knee Plank, Bird Dog for plank progression
+- **Friday frequency**: Latziehen (3x/week), Beinbeugen Kabel (2x/week)
+- **Saturday**: Blazepods reaction drills, rowing intervals
+- **Sunday**: Beat Saber/VR now required (not optional) for 900 kcal target
+
+### Changed
+
+- Increased reps from 12 to 15 on most exercises (Butterfly Reverse kept at 12)
+- **Friday** restructured as "Core & Cable Strength" with Mon/Wed exercise overlap
+- **Saturday** restructured as "Combat & Conditioning" (boxing moved from Friday)
+- **Sunday** restructured as "Endurance Day" (walk 45-60 min + VR 30-45 min)
+- Beat Saber description: Removed "Expert Level" → "Level nach Gefühl wählen"
+- Decline Crunches moved to end of Friday as benchmark exercise
+
+### Removed
+
+- Friday: Pallof Press (Christopeit cable height not adjustable)
+- Friday: Boxing section (moved to Saturday)
 
 ## [14.6.1] - 2026-01-25
 
