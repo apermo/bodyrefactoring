@@ -518,32 +518,20 @@
 			"id": "fri",
 			"dayIndex": 5,
 			"name": "FREITAG",
-			"theme": "Cardio, Core & Functional",
-			"icon": "swords",
+			"theme": "Core & Cable Strength",
+			"icon": "dumbbell",
 			"colorClass": "text-pink-400",
 			"bgClass": "bg-pink-500/10",
 			"details": [
 				{
-					"id": "warmup_shadow",
+					"id": "warmup_row_fri",
 					"type": "warmup",
-					"title": "Schattenboxen",
-					"desc": "Locker bewegen",
+					"title": "Rudern",
+					"desc": "Aufwärmen",
 					"timers": [
 						{
-							"l": "3 Min",
-							"s": 180
-						}
-					]
-				},
-				{
-					"id": "ex_boxen",
-					"type": "main",
-					"title": "Boxsack & Pods",
-					"desc": "5 Runden",
-					"timers": [
-						{
-							"l": "20 Min",
-							"s": 1200
+							"l": "5 Min",
+							"s": 300
 						}
 					]
 				},
@@ -551,9 +539,29 @@
 					"id": "ex_incline_plank",
 					"type": "main",
 					"title": "Incline Plank (Bank)",
-					"desc": "Hände auf Bank, Körper gerade. Winkel dokumentieren!",
+					"desc": "Hände auf Bank, Körper gerade.",
 					"weight": "3",
 					"defaultUnit": "STUFE",
+					"timers": [
+						{
+							"l": "30s",
+							"s": 30
+						},
+						{
+							"l": "45s",
+							"s": 45
+						},
+						{
+							"l": "60s",
+							"s": 60
+						}
+					]
+				},
+				{
+					"id": "ex_knee_plank",
+					"type": "main",
+					"title": "Knee Plank",
+					"desc": "Knie am Boden, Körper gerade. Progression zu Full Plank!",
 					"timers": [
 						{
 							"l": "30s",
@@ -573,7 +581,7 @@
 					"id": "ex_crunches_bank_90_fri",
 					"type": "main",
 					"title": "Crunches (90° Ablage)",
-					"desc": "Wie Mi: Rücken auf Matte, Beine auf Bank.",
+					"desc": "3 x 15 Wdh. Rücken auf Matte, Beine auf Bank.",
 					"repCounter": {
 						"sets": 3,
 						"reps": 15,
@@ -582,21 +590,28 @@
 					}
 				},
 				{
-					"id": "ex_decline_max",
-					"type": "main",
-					"title": "Decline Crunches (MAX)",
-					"desc": "Bank negativ. Beine fixieren. Ein Satz so viele wie möglich! Hausaufgabe: Mitzählen!"
-				},
-				{
 					"id": "ex_heeltaps",
 					"type": "main",
-					"title": "Heel Taps (Dead Bug Beginner)",
-					"desc": "NEU: Rücken flach! Knie 90° lassen. Nur Fersen senken, nicht strecken.",
+					"title": "Heel Taps",
+					"desc": "3 x 10 Wdh. Rücken flach! Knie 90°, nur Fersen senken.",
 					"repCounter": {
 						"sets": 3,
 						"reps": 10,
 						"restSeconds": 60,
 						"delayMilliseconds": 3500
+					}
+				},
+				{
+					"id": "ex_bird_dog",
+					"type": "main",
+					"title": "Bird Dog",
+					"desc": "3 x 10 Wdh pro Seite. Arm + Bein diagonal strecken. Rücken gerade!",
+					"repCounter": {
+						"sets": 6,
+						"reps": 10,
+						"restSeconds": 30,
+						"delayMilliseconds": 3000,
+						"bilateral": true
 					}
 				},
 				{
@@ -615,10 +630,69 @@
 					}
 				},
 				{
+					"id": "ex_latziehen_fri",
+					"type": "main",
+					"title": "Latziehen",
+					"desc": "3 x 15 Wdh. Wie Mo/Mi - Rückenarbeit!",
+					"weight": "3",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
+						"reps": 15,
+						"restSeconds": 60,
+						"delayMilliseconds": 2750
+					}
+				},
+				{
+					"id": "ex_beinbeugen_fri",
+					"type": "main",
+					"title": "Beinbeugen stehend (Kabel)",
+					"desc": "4 x 15 Wdh (2x Links, 2x Rechts). Ferse zum Po.",
+					"weight": "1",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 4,
+						"reps": 15,
+						"restSeconds": 30,
+						"delayMilliseconds": 2500,
+						"bilateral": true
+					}
+				},
+				{
+					"id": "ex_cable_kickbacks",
+					"type": "main",
+					"title": "Cable Kickbacks",
+					"desc": "3 x 15 Wdh pro Seite. Kabel unten, Bein nach hinten strecken. Gluteus!",
+					"weight": "1",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 6,
+						"reps": 15,
+						"restSeconds": 30,
+						"delayMilliseconds": 2500,
+						"bilateral": true
+					}
+				},
+				{
+					"id": "ex_lateral_raises",
+					"type": "main",
+					"title": "Cable Lateral Raises",
+					"desc": "3 x 15 Wdh pro Seite. Kabel unten, Arm seitlich heben. Schulterbreite!",
+					"weight": "1",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 6,
+						"reps": 15,
+						"restSeconds": 30,
+						"delayMilliseconds": 2500,
+						"bilateral": true
+					}
+				},
+				{
 					"id": "ex_farmers_walk",
 					"type": "main",
 					"title": "Farmer's Carry",
-					"desc": "NEU: Schwere Hanteln. Aufrecht gehen. Griffkraft & Core.",
+					"desc": "3 x 45s. Schwere Hanteln. Aufrecht gehen. Griffkraft & Core.",
 					"weight": "20",
 					"defaultUnit": "KG",
 					"timers": [
@@ -627,6 +701,12 @@
 							"s": 45
 						}
 					]
+				},
+				{
+					"id": "ex_decline_max",
+					"type": "main",
+					"title": "Decline Crunches (MAX)",
+					"desc": "Benchmark! Bank negativ. Ein Satz so viele wie möglich!"
 				},
 				{
 					"id": "cool_upper",
@@ -646,48 +726,123 @@
 			"id": "sat",
 			"dayIndex": 6,
 			"name": "SAMSTAG",
-			"theme": "Nature Walk / Cardio",
-			"icon": "trees",
+			"theme": "Combat & Conditioning",
+			"icon": "swords",
 			"colorClass": "text-yellow-400",
 			"bgClass": "bg-yellow-500/10",
 			"details": [
 				{
-					"id": "warmup_joints",
+					"id": "warmup_shadow",
 					"type": "warmup",
-					"title": "Gelenke kreisen",
-					"desc": "Vorbereitung",
+					"title": "Schattenboxen",
+					"desc": "Locker bewegen",
 					"timers": [
 						{
-							"l": "1 Min",
-							"s": 60
+							"l": "3 Min",
+							"s": 180
 						}
 					]
 				},
 				{
-					"id": "m_alt_group_sat",
+					"id": "ex_boxen",
+					"type": "main",
+					"title": "Boxsack & Pods",
+					"desc": "5 Runden mit Blazepods zwischen den Runden",
+					"timers": [
+						{
+							"l": "20 Min",
+							"s": 1200
+						},
+						{
+							"l": "30 Min",
+							"s": 1800
+						}
+					]
+				},
+				{
+					"id": "ex_blazepods_sat",
+					"type": "main",
+					"title": "Blazepods Reaktion",
+					"desc": "Zwischen Boxrunden. Random Light Modus.",
+					"timers": [
+						{
+							"l": "5 Min",
+							"s": 300
+						}
+					]
+				},
+				{
+					"id": "ex_rowing_intervals",
+					"type": "main",
+					"title": "Rudern Intervalle",
+					"desc": "1 Min Belastung, 1 Min Pause. 5 Runden.",
+					"timers": [
+						{
+							"l": "10 Min",
+							"s": 600
+						}
+					]
+				},
+				{
+					"id": "cool_calves",
+					"type": "cool",
+					"title": "Waden & Hüfte dehnen",
+					"desc": "Nach dem Kampf entspannen",
+					"timers": [
+						{
+							"l": "5 Min",
+							"s": 300
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "sun",
+			"dayIndex": 0,
+			"name": "SONNTAG",
+			"theme": "Endurance Day",
+			"icon": "flame",
+			"colorClass": "text-orange-400",
+			"bgClass": "bg-orange-500/10",
+			"details": [
+				{
+					"id": "warmup_mob_sun",
+					"type": "warmup",
+					"title": "Mobilisation",
+					"desc": "Schulterkreisen, Hüfte öffnen",
+					"timers": [
+						{
+							"l": "3 Min",
+							"s": 180
+						}
+					]
+				},
+				{
+					"id": "ex_walk_sun",
 					"type": "alternatives",
 					"alternatives": [
 						{
 							"title": "Nature Walk",
-							"desc": "Draußen (Ausdauer)",
+							"desc": "Draußen im Naturschutzgebiet",
 							"timers": [
 								{
-									"l": "70 Min",
-									"s": 4200
+									"l": "45 Min",
+									"s": 2700
 								},
 								{
-									"l": "90 Min",
-									"s": 5400
+									"l": "60 Min",
+									"s": 3600
 								}
 							]
 						},
 						{
-							"title": "Indoor Cardio",
-							"desc": "Laufband / Rad",
+							"title": "Indoor Walk",
+							"desc": "Laufband oder Walkingpad",
 							"timers": [
 								{
-									"l": "50 Min",
-									"s": 3000
+									"l": "45 Min",
+									"s": 2700
 								},
 								{
 									"l": "60 Min",
@@ -698,67 +853,18 @@
 					]
 				},
 				{
-					"id": "cool_calves",
-					"type": "cool",
-					"title": "Waden dehnen",
-					"desc": "Wichtig!",
+					"id": "ex_vr_sun",
+					"type": "main",
+					"title": "Beat Saber / VR",
+					"desc": "Kalorien verbrennen! Level nach Gefühl.",
 					"timers": [
 						{
-							"l": "2 Min",
-							"s": 120
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "sun",
-			"dayIndex": 0,
-			"name": "SONNTAG",
-			"theme": "Rest & Recovery",
-			"icon": "coffee",
-			"colorClass": "text-slate-300",
-			"bgClass": "bg-slate-700/50",
-			"details": [
-				{
-					"id": "warmup_mob_sun",
-					"type": "warmup",
-					"title": "Mobilisation",
-					"desc": "Schulterkreisen",
-					"timers": [
-						{
-							"l": "3 Min",
-							"s": 180
-						}
-					]
-				},
-				{
-					"id": "ex_rest_group_sun",
-					"type": "alternatives",
-					"alternatives": [
-						{
-							"title": "Spaziergang",
-							"desc": "Draußen (Frische Luft)",
-							"timers": [
-								{
-									"l": "30 Min",
-									"s": 1800
-								},
-								{
-									"l": "45 Min",
-									"s": 2700
-								}
-							]
+							"l": "30 Min",
+							"s": 1800
 						},
 						{
-							"title": "Walkingpad",
-							"desc": "Indoor (Light)",
-							"timers": [
-								{
-									"l": "30 Min",
-									"s": 1800
-								}
-							]
+							"l": "45 Min",
+							"s": 2700
 						}
 					]
 				},
