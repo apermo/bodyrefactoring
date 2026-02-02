@@ -285,11 +285,9 @@ When user says "let's start with vX.Y.Z":
 3. Update `composer.json` version (without 'v' prefix)
 4. Commit: `chore: bump version to X.Y.Z`
    - The pre-commit hook auto-syncs `package.json` from `composer.json`
-5. Prepare CHANGELOG.md with new unreleased section
-6. Commit: `docs(changelog): prepare vX.Y.Z section`
-7. Ask about deleting previous branch
-8. Check roadmap.md for planned work
-9. Provide status summary
+5. Ensure CHANGELOG.md has `## [Unreleased]` section (add if missing after release)
+6. Check GitHub milestone for planned work: `gh issue list --milestone "vX.Y.Z"`
+7. Provide status summary
 
 **Version sync:** `composer.json` is the authoritative source. The pre-commit hook automatically syncs the version to `package.json`. GitHub Actions validates that versions match on PRs.
 
