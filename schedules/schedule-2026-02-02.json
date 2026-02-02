@@ -130,6 +130,20 @@
 					}
 				},
 				{
+					"id": "ex_facepulls",
+					"type": "main",
+					"title": "Face Pulls",
+					"desc": "3 x 15 Wdh. Seil zum Gesicht, Ellbogen hoch. Externe Rotation!",
+					"weight": "2",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
+						"reps": 15,
+						"restSeconds": 60,
+						"delayMilliseconds": 2500
+					}
+				},
+				{
 					"id": "ex_trizeps_seil",
 					"type": "main",
 					"title": "Trizeps Drücken (Seil)",
@@ -320,6 +334,20 @@
 					}
 				},
 				{
+					"id": "ex_facepulls_oh",
+					"type": "main",
+					"title": "Overhead Face Pulls",
+					"desc": "3 x 15 Wdh. Kabel hoch, zur Stirn ziehen. Unterer Trapez!",
+					"weight": "2",
+					"defaultUnit": "STUFE",
+					"repCounter": {
+						"sets": 3,
+						"reps": 15,
+						"restSeconds": 60,
+						"delayMilliseconds": 2500
+					}
+				},
+				{
 					"id": "ex_brustpresse",
 					"type": "main",
 					"title": "Brustpresse",
@@ -452,7 +480,7 @@
 					"alternatives": [
 						{
 							"title": "Beat Saber (VR)",
-							"desc": "Expert Level",
+							"desc": "Level nach Gefühl wählen",
 							"timers": [
 								{
 									"l": "40 Min",
