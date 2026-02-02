@@ -91,12 +91,12 @@
 					"id": "ex_brustpresse",
 					"type": "main",
 					"title": "Brustpresse",
-					"desc": "3 x 12 Wdh",
+					"desc": "3 x 15 Wdh",
 					"weight": "3",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2500
 					}
@@ -105,12 +105,12 @@
 					"id": "ex_butterfly",
 					"type": "main",
 					"title": "Butterfly",
-					"desc": "3 x 12 Wdh",
+					"desc": "3 x 15 Wdh",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2500
 					}
@@ -119,7 +119,7 @@
 					"id": "ex_butter_rev",
 					"type": "main",
 					"title": "Butterfly Reverse",
-					"desc": "3 x 12 Wdh (Hintere Schulter - Neu am Mo)",
+					"desc": "3 x 12 Wdh (Hintere Schulter)",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
@@ -133,12 +133,12 @@
 					"id": "ex_trizeps_seil",
 					"type": "main",
 					"title": "Trizeps Drücken (Seil)",
-					"desc": "Neu: Arme isoliert. Ellbogen fixieren!",
+					"desc": "3 x 15 Wdh. Ellbogen fixieren!",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2500
 					}
@@ -147,12 +147,12 @@
 					"id": "ex_bizeps",
 					"type": "main",
 					"title": "Bizeps Curls",
-					"desc": "3 x 12 Wdh",
+					"desc": "3 x 15 Wdh",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2500
 					}
@@ -161,12 +161,12 @@
 					"id": "ex_beinbeugen_kabel",
 					"type": "main",
 					"title": "Beinbeugen stehend (Kabel)",
-					"desc": "NEU: 4 Sätze (2x Links, 2x Rechts). Ferse zum Po ziehen.",
+					"desc": "4 x 15 Wdh (2x Links, 2x Rechts). Ferse zum Po ziehen.",
 					"weight": "1",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 4,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 30,
 						"delayMilliseconds": 2500,
 						"bilateral": true
@@ -323,12 +323,12 @@
 					"id": "ex_brustpresse",
 					"type": "main",
 					"title": "Brustpresse",
-					"desc": "3 x 12 Wdh",
+					"desc": "3 x 15 Wdh",
 					"weight": "3",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2500
 					}
@@ -337,12 +337,12 @@
 					"id": "ex_butterfly",
 					"type": "main",
 					"title": "Butterfly",
-					"desc": "3 x 12 Wdh",
+					"desc": "3 x 15 Wdh",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2500
 					}
@@ -351,12 +351,12 @@
 					"id": "ex_trizeps_seil",
 					"type": "main",
 					"title": "Trizeps Drücken (Seil)",
-					"desc": "Mit Seil am Kabelzug.",
+					"desc": "3 x 15 Wdh. Ellbogen fixieren!",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 2500
 					}
@@ -377,12 +377,12 @@
 					"id": "ex_pull_through",
 					"type": "main",
 					"title": "Cable Pull-Throughs",
-					"desc": "NEU: Mit Seil durch die Beine. Hüfte vorstrecken! Gluteus-Fokus.",
+					"desc": "3 x 15 Wdh. Hüfte vorstrecken! Gluteus-Fokus.",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 60,
 						"delayMilliseconds": 3000
 					}
@@ -575,12 +575,12 @@
 					"id": "ex_woodchoppers",
 					"type": "main",
 					"title": "Cable Woodchoppers",
-					"desc": "NEU: Kabel oben. Diagonal zum Knie ziehen. Rumpfrotation! Pro Seite.",
+					"desc": "4 x 15 Wdh. Kabel oben, diagonal zum Knie. Rumpfrotation!",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 4,
-						"reps": 12,
+						"reps": 15,
 						"restSeconds": 30,
 						"delayMilliseconds": 3000,
 						"bilateral": true
