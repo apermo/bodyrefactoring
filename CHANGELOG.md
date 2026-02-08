@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [14.6.2] - 2026-02-02
 
 ### Added
@@ -971,6 +973,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for client-side data
 - Responsive design for mobile devices
 
+[14.6.1]: https://github.com/apermo/bodyrefactoring/compare/v14.6.1...v14.6.2
 [14.6.1]: https://github.com/apermo/bodyrefactoring/compare/v14.6.0...v14.6.1
 [14.6.0]: https://github.com/apermo/bodyrefactoring/compare/v14.5.0...v14.6.0
 [14.5.0]: https://github.com/apermo/bodyrefactoring/compare/v14.4.3...v14.5.0
