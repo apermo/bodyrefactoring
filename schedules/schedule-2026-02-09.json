@@ -598,7 +598,7 @@
 						"sets": 3,
 						"reps": 10,
 						"restSeconds": 60,
-						"delayMilliseconds": 3500
+						"delayMilliseconds": 1800
 					}
 				},
 				{
@@ -617,14 +617,14 @@
 				{
 					"id": "ex_woodchoppers",
 					"type": "main",
-					"title": "Cable Woodchoppers",
-					"desc": "4 x 15 Wdh. Kabel oben, diagonal zum Knie. Rumpfrotation!",
-					"weight": "2",
-					"defaultUnit": "STUFE",
+					"title": "Dumbbell Woodchoppers",
+					"desc": "4 x 10 Wdh. Hantel diagonal führen. Rumpfrotation!",
+					"weight": "6",
+					"defaultUnit": "KG",
 					"repCounter": {
 						"sets": 4,
-						"reps": 15,
-						"restSeconds": 30,
+						"reps": 10,
+						"restSeconds": 60,
 						"delayMilliseconds": 3000,
 						"bilateral": true
 					}
@@ -676,16 +676,15 @@
 				{
 					"id": "ex_lateral_raises",
 					"type": "main",
-					"title": "Cable Lateral Raises",
-					"desc": "3 x 15 Wdh pro Seite. Kabel unten, Arm seitlich heben. Schulterbreite!",
-					"weight": "1",
-					"defaultUnit": "STUFE",
+					"title": "Dumbbell Lateral Raises",
+					"desc": "3 x 15 Wdh. Beide Arme gleichzeitig seitlich heben.",
+					"weight": "2",
+					"defaultUnit": "KG",
 					"repCounter": {
-						"sets": 6,
+						"sets": 3,
 						"reps": 15,
-						"restSeconds": 30,
-						"delayMilliseconds": 2500,
-						"bilateral": true
+						"restSeconds": 60,
+						"delayMilliseconds": 2500
 					}
 				},
 				{
@@ -726,88 +725,13 @@
 			"id": "sat",
 			"dayIndex": 6,
 			"name": "SAMSTAG",
-			"theme": "Combat & Conditioning",
-			"icon": "swords",
-			"colorClass": "text-yellow-400",
-			"bgClass": "bg-yellow-500/10",
+			"theme": "Endurance & Kondition",
+			"icon": "footprints",
+			"colorClass": "text-green-400",
+			"bgClass": "bg-green-500/10",
 			"details": [
 				{
-					"id": "warmup_shadow",
-					"type": "warmup",
-					"title": "Schattenboxen",
-					"desc": "Locker bewegen",
-					"timers": [
-						{
-							"l": "3 Min",
-							"s": 180
-						}
-					]
-				},
-				{
-					"id": "ex_boxen",
-					"type": "main",
-					"title": "Boxsack & Pods",
-					"desc": "5 Runden mit Blazepods zwischen den Runden",
-					"timers": [
-						{
-							"l": "20 Min",
-							"s": 1200
-						},
-						{
-							"l": "30 Min",
-							"s": 1800
-						}
-					]
-				},
-				{
-					"id": "ex_blazepods_sat",
-					"type": "main",
-					"title": "Blazepods Reaktion",
-					"desc": "Zwischen Boxrunden. Random Light Modus.",
-					"timers": [
-						{
-							"l": "5 Min",
-							"s": 300
-						}
-					]
-				},
-				{
-					"id": "ex_rowing_intervals",
-					"type": "main",
-					"title": "Rudern Intervalle",
-					"desc": "1 Min Belastung, 1 Min Pause. 5 Runden.",
-					"timers": [
-						{
-							"l": "10 Min",
-							"s": 600
-						}
-					]
-				},
-				{
-					"id": "cool_calves",
-					"type": "cool",
-					"title": "Waden & Hüfte dehnen",
-					"desc": "Nach dem Kampf entspannen",
-					"timers": [
-						{
-							"l": "5 Min",
-							"s": 300
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "sun",
-			"dayIndex": 0,
-			"name": "SONNTAG",
-			"theme": "Endurance Day",
-			"icon": "flame",
-			"colorClass": "text-orange-400",
-			"bgClass": "bg-orange-500/10",
-			"details": [
-				{
-					"id": "warmup_mob_sun",
+					"id": "warmup_mob_sat",
 					"type": "warmup",
 					"title": "Mobilisation",
 					"desc": "Schulterkreisen, Hüfte öffnen",
@@ -819,12 +743,12 @@
 					]
 				},
 				{
-					"id": "ex_walk_sun",
+					"id": "ex_walk_sat",
 					"type": "alternatives",
 					"alternatives": [
 						{
 							"title": "Nature Walk",
-							"desc": "Draußen im Naturschutzgebiet",
+							"desc": "Draußen im Naturschutzgebiet. Kombinierbar mit Einkaufen!",
 							"timers": [
 								{
 									"l": "45 Min",
@@ -849,6 +773,69 @@
 									"s": 3600
 								}
 							]
+						}
+					]
+				},
+				{
+					"id": "ex_rowing_intervals",
+					"type": "main",
+					"title": "Rudern Intervalle",
+					"desc": "1 Min Belastung, 1 Min Pause. 5 Runden.",
+					"timers": [
+						{
+							"l": "10 Min",
+							"s": 600
+						}
+					]
+				},
+				{
+					"id": "cool_calves_sat",
+					"type": "cool",
+					"title": "Waden & Hüfte dehnen",
+					"desc": "Stretching nach Ausdauer",
+					"timers": [
+						{
+							"l": "5 Min",
+							"s": 300
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "sun",
+			"dayIndex": 0,
+			"name": "SONNTAG",
+			"theme": "Combat & VR Day",
+			"icon": "swords",
+			"colorClass": "text-orange-400",
+			"bgClass": "bg-orange-500/10",
+			"details": [
+				{
+					"id": "warmup_shadow_sun",
+					"type": "warmup",
+					"title": "Schattenboxen",
+					"desc": "Locker bewegen",
+					"timers": [
+						{
+							"l": "3 Min",
+							"s": 180
+						}
+					]
+				},
+				{
+					"id": "ex_boxen_sun",
+					"type": "main",
+					"title": "Boxsack & Pods",
+					"desc": "4-5 Runden mit Blazepods zwischen den Runden",
+					"timers": [
+						{
+							"l": "20 Min",
+							"s": 1200
+						},
+						{
+							"l": "25 Min",
+							"s": 1500
 						}
 					]
 				},
