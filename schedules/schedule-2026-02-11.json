@@ -140,7 +140,7 @@
 						"sets": 3,
 						"reps": 15,
 						"restSeconds": 60,
-						"delayMilliseconds": 2500
+						"delayMilliseconds": 2200
 					}
 				},
 				{
@@ -334,17 +334,17 @@
 					}
 				},
 				{
-					"id": "ex_facepulls_oh",
+					"id": "ex_facepulls",
 					"type": "main",
-					"title": "Overhead Face Pulls",
-					"desc": "3 x 15 Wdh. Kabel hoch, zur Stirn ziehen. Unterer Trapez!",
+					"title": "Face Pulls",
+					"desc": "3 x 15 Wdh. Seil zum Gesicht, Ellbogen hoch. Externe Rotation!",
 					"weight": "2",
 					"defaultUnit": "STUFE",
 					"repCounter": {
 						"sets": 3,
 						"reps": 15,
 						"restSeconds": 60,
-						"delayMilliseconds": 2500
+						"delayMilliseconds": 2200
 					}
 				},
 				{
@@ -524,7 +524,7 @@
 			"bgClass": "bg-pink-500/10",
 			"details": [
 				{
-					"id": "warmup_row_fri",
+					"id": "warmup_row",
 					"type": "warmup",
 					"title": "Rudern",
 					"desc": "Aufwärmen",
@@ -578,7 +578,7 @@
 					]
 				},
 				{
-					"id": "ex_crunches_bank_90_fri",
+					"id": "ex_crunches_bank_90",
 					"type": "main",
 					"title": "Crunches (90° Ablage)",
 					"desc": "3 x 15 Wdh. Rücken auf Matte, Beine auf Bank.",
@@ -630,7 +630,7 @@
 					}
 				},
 				{
-					"id": "ex_latziehen_fri",
+					"id": "ex_latziehen",
 					"type": "main",
 					"title": "Latziehen",
 					"desc": "3 x 15 Wdh. Wie Mo/Mi - Rückenarbeit!",
@@ -644,7 +644,7 @@
 					}
 				},
 				{
-					"id": "ex_beinbeugen_fri",
+					"id": "ex_beinbeugen_kabel",
 					"type": "main",
 					"title": "Beinbeugen stehend (Kabel)",
 					"desc": "4 x 15 Wdh (2x Links, 2x Rechts). Ferse zum Po.",
@@ -731,7 +731,7 @@
 			"bgClass": "bg-green-500/10",
 			"details": [
 				{
-					"id": "warmup_mob_sat",
+					"id": "warmup_mob",
 					"type": "warmup",
 					"title": "Mobilisation",
 					"desc": "Schulterkreisen, Hüfte öffnen",
@@ -743,7 +743,7 @@
 					]
 				},
 				{
-					"id": "ex_walk_sat",
+					"id": "ex_walk",
 					"type": "alternatives",
 					"alternatives": [
 						{
@@ -789,7 +789,7 @@
 					]
 				},
 				{
-					"id": "cool_calves_sat",
+					"id": "cool_calves",
 					"type": "cool",
 					"title": "Waden & Hüfte dehnen",
 					"desc": "Stretching nach Ausdauer",
@@ -812,7 +812,7 @@
 			"bgClass": "bg-orange-500/10",
 			"details": [
 				{
-					"id": "warmup_shadow_sun",
+					"id": "warmup_shadow",
 					"type": "warmup",
 					"title": "Schattenboxen",
 					"desc": "Locker bewegen",
@@ -824,7 +824,7 @@
 					]
 				},
 				{
-					"id": "ex_boxen_sun",
+					"id": "ex_boxen",
 					"type": "main",
 					"title": "Boxsack & Pods",
 					"desc": "4-5 Runden mit Blazepods zwischen den Runden",
@@ -840,7 +840,7 @@
 					]
 				},
 				{
-					"id": "ex_vr_sun",
+					"id": "ex_vr",
 					"type": "main",
 					"title": "Beat Saber / VR",
 					"desc": "Kalorien verbrennen! Level nach Gefühl.",
