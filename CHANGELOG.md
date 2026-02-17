@@ -5,7 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [14.6.4] - 2026-02-17
+
+### Added
+
+- **Schedule for week of 2026-02-18** with progressive overload and cooldown variety
+- **Brustpresse on Friday** for 3x/week chest press frequency
+- **Cooldown alternatives** on Mon, Tue, Thu, Fri, Sat (pick based on feel)
+
+### Changed
+
+- **Bein-Adduktion**: Reduced to 4x10, increased to STUFE 2 (weight jump)
+- **Brustpresse**: Reduced to 3x12 for weight progression
+- **Latziehen**: Reduced to 3x12 for STUFE 7 progression
+- **Butterfly**: Increased to 3x18 (endurance before next weight bump)
+- **Dumbbell Woodchoppers**: Slower tempo (3400ms) for control
+- **Tuesday Walkingpad**: Split into 3x 30min sessions
+- **Mon/Wed chest order**: Alternated to reduce machine changes
+
+### Removed
+
+- **Decline Crunches (MAX)** from Friday
 
 ## [14.6.3] - 2026-02-09
 
