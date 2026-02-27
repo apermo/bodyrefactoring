@@ -126,7 +126,7 @@
 			"sets": 3,
 			"reps": 18,
 			"restSeconds": 60,
-			"delayMilliseconds": 2150
+			"delayMilliseconds": 2200
 		}
 		},
 		{
@@ -434,7 +434,7 @@
 			"sets": 3,
 			"reps": 18,
 			"restSeconds": 60,
-			"delayMilliseconds": 2250
+			"delayMilliseconds": 2200
 		}
 		},
 		{
@@ -488,7 +488,7 @@
 			"sets": 3,
 			"reps": 15,
 			"restSeconds": 60,
-			"delayMilliseconds": 2350
+			"delayMilliseconds": 2400
 		}
 		},
 		{
@@ -757,7 +757,7 @@
 			"sets": 4,
 			"reps": 15,
 			"restSeconds": 30,
-			"delayMilliseconds": 2500,
+			"delayMilliseconds": 2250,
 			"bilateral": true
 		}
 		},
