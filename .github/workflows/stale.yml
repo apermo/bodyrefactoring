@@ -2,7 +2,7 @@ name: 'Close stale issues and PRs'
 
 on:
   schedule:
-    - cron: '0 6 * * *' # Daily at 6am UTC
+    - cron: '0 10 * * *' # Daily at 10am UTC
   workflow_dispatch: # Allow manual trigger
 
 permissions:
@@ -15,23 +15,26 @@ jobs:
     steps:
       - uses: actions/stale@v9
         with:
-          # Timing
-          days-before-stale: 30
-          days-before-close: 14
+          # Timing (separate for issues and PRs)
+          days-before-issue-stale: 30
+          days-before-issue-close: 14
+          days-before-pr-stale: 14
+          days-before-pr-close: 14
 
           # Labels
           stale-issue-label: 'stale'
           stale-pr-label: 'stale'
 
           # Exempt labels (won't be marked stale)
-          exempt-issue-labels: 'pinned,security,in-progress'
+          # Only unlabeled issues and "question" issues can go stale
+          exempt-issue-labels: 'bug,documentation,type: feature,type: refactor,type: chore,type: test,area: rep-counter,area: gamification,area: schedule,area: state-machine,area: pwa,area: ui,area: testing,priority: high,priority: low,pinned,security,in-progress'
           exempt-pr-labels: 'dependencies,security,in-progress'
 
           # Messages
           stale-issue-message: >
             This issue has been automatically marked as stale because it has not had
             recent activity. It will be closed in 14 days if no further activity occurs.
-            If this issue is still relevant, please comment or remove the stale label.
+            If this issue is still relevant, please add a label or comment.
           stale-pr-message: >
             This PR has been automatically marked as stale because it has not had
             recent activity. It will be closed in 14 days if no further activity occurs.

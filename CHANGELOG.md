@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.6.5] - 2026-02-27
+
+### Added
+
+- **Schedule for week of 2026-02-28** with optimized Monday order
+
+### Changed
+
+- **Monday exercise order**: Bizeps Curls after Adduktion for leg rest, Rudern/Latziehen grouped
+- **Butterfly Reverse**: Increased to 3x15 (from 3x12)
+- **Butterfly**: Synced rep timing to 2200ms across Mon/Wed (from 2500ms)
+- **Beinbeugen Kabel**: Synced rep timing to 2250ms across Mon/Fri (from 2500ms)
+- **Cable Pull-Throughs**: Adjusted rep timing to 2400ms (from 3000ms)
+- **Stalebot**: Runs at 10am UTC, exempts all typed/area/priority labels, separate PR timing (14 days)
+
 ## [14.6.4] - 2026-02-17
 
 ### Added
@@ -1008,7 +1023,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for client-side data
 - Responsive design for mobile devices
 
-[14.6.3]: https://github.com/apermo/bodyrefactoring/compare/v14.6.3...v14.6.4
+[14.6.5]: https://github.com/apermo/bodyrefactoring/compare/v14.6.4...v14.6.5
+[14.6.4]: https://github.com/apermo/bodyrefactoring/compare/v14.6.3...v14.6.4
 [14.6.3]: https://github.com/apermo/bodyrefactoring/compare/v14.6.2...v14.6.3
 [14.6.2]: https://github.com/apermo/bodyrefactoring/compare/v14.6.1...v14.6.2
 [14.6.1]: https://github.com/apermo/bodyrefactoring/compare/v14.6.0...v14.6.1
