@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Schedule for week of 2026-02-28** with optimized Monday order
+
+### Changed
+
+- **Monday exercise order**: Bizeps Curls after Adduktion for leg rest, Rudern/Latziehen grouped
+- **Butterfly Reverse**: Increased to 3x15 (from 3x12)
+- **Butterfly**: Adjusted rep timing to 2150ms (from 2500ms)
+- **Beinbeugen Kabel**: Adjusted rep timing to 2250ms (from 2500ms)
+- **Stalebot**: Runs at 10am UTC, exempts all typed/area/priority labels, separate PR timing (14 days)
+
 ## [14.6.4] - 2026-02-17
 
 ### Added
