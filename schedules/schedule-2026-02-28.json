@@ -434,7 +434,7 @@
 			"sets": 3,
 			"reps": 18,
 			"restSeconds": 60,
-			"delayMilliseconds": 2500
+			"delayMilliseconds": 2250
 		}
 		},
 		{
@@ -488,7 +488,7 @@
 			"sets": 3,
 			"reps": 15,
 			"restSeconds": 60,
-			"delayMilliseconds": 3000
+			"delayMilliseconds": 2350
 		}
 		},
 		{
