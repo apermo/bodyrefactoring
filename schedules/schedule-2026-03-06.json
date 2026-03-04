@@ -820,6 +820,55 @@
 		]
 		},
 		{
+		"id": "ex_band_squats",
+		"type": "main",
+		"title": "Squats mit Bänderstange",
+		"desc": "Neolymp Board + Bänderstange. Erst Equipment kennenlernen!",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 3000
+		}
+		},
+		{
+		"id": "ex_band_curls",
+		"type": "main",
+		"title": "Stehende Curls mit Bänderstange",
+		"desc": "Board + Bänderstange. Ellbogen am Körper!",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_seitenheben",
+		"type": "main",
+		"title": "Seitenheben aufrecht mit Griff",
+		"desc": "Board + Griff. Pro Seite! Kontrolliert heben.",
+		"repCounter": {
+			"sets": 6,
+			"reps": 12,
+			"restSeconds": 30,
+			"delayMilliseconds": 2500,
+			"bilateral": true
+		}
+		},
+		{
+		"id": "ex_band_trizeps",
+		"type": "main",
+		"title": "Trizepsstrecken",
+		"desc": "Türanker oben + Trizepsseil. Wie Cable Pushdowns!",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
 		"id": "cool_upper",
 		"type": "alternatives",
 		"alternatives": [
@@ -933,6 +982,31 @@
 		]
 		},
 		{
+		"id": "ex_band_wadenheben",
+		"type": "main",
+		"title": "Wadenheben mit Bands Board",
+		"desc": "Board + Band. Fersen hoch, 2-3s halten!",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 45,
+			"delayMilliseconds": 3000
+		}
+		},
+		{
+		"id": "ex_miniband_sidekicks",
+		"type": "main",
+		"title": "Sidekicks",
+		"desc": "Miniband um Knöchel. Pro Seite! Hüftstabilität.",
+		"repCounter": {
+			"sets": 6,
+			"reps": 10,
+			"restSeconds": 30,
+			"delayMilliseconds": 3000,
+			"bilateral": true
+		}
+		},
+		{
 		"id": "cool_calves",
 		"type": "alternatives",
 		"alternatives": [
@@ -1026,6 +1100,30 @@
 			"s": 2700
 			}
 		]
+		},
+		{
+		"id": "ex_band_latzug",
+		"type": "main",
+		"title": "Latzug zur Brust",
+		"desc": "Türanker oben + Pull Up Band. Sitzend auf Matte, Band zur Brust ziehen.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_rudern_kopf",
+		"type": "main",
+		"title": "Rudern zum Kopf",
+		"desc": "Türanker + Pull Up Band. Hintere Schulter! Wie Face Pulls.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 60,
+			"delayMilliseconds": 2200
+		}
 		},
 		{
 		"id": "cool_mental",
