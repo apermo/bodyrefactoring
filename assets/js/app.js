@@ -1813,14 +1813,7 @@ function startRepCountdown() {
 
 	// Only speak 3, 2, 1 (not 5, 4)
 	if ( countdown === 3 ) {
-		// Ensure voices are loaded before speaking
-		if ( window.speechSynthesis.getVoices().length === 0 ) {
-			window.speechSynthesis.onvoiceschanged = () => {
-				speak( '3' );
-			};
-		} else {
-			speak( '3' );
-		}
+		speak( '3' );
 	}
 
 	// Use timerCoordinator.setInterval for countdown

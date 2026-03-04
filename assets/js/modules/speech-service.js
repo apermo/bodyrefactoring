@@ -34,15 +34,17 @@ export class SpeechService {
 	 * @return {void}
 	 */
 	initVoices() {
-		// Load voices
-		window.speechSynthesis.getVoices();
-
-		// Set up voice change listener (voices load async on some browsers)
-		if ( ! window.speechSynthesis.onvoiceschanged ) {
-			window.speechSynthesis.onvoiceschanged = () => {
-				this.voicesLoaded = true;
-			};
+		// Check if voices are already available
+		const voices = window.speechSynthesis.getVoices();
+		if ( voices.length > 0 ) {
+			this.voicesLoaded = true;
+			return;
 		}
+
+		// Voices load async on some browsers (notably iOS Safari)
+		window.speechSynthesis.addEventListener( 'voiceschanged', () => {
+			this.voicesLoaded = true;
+		}, { once: true } );
 	}
 
 	/**
