@@ -49,18 +49,6 @@ jobs:
             echo "pr_version=$PR_VERSION" >> $GITHUB_OUTPUT
           fi
 
-      - name: Comment on PR (failure)
-        if: failure()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '## ⚠️ Version Check Failed\n\n${{ steps.version-check.outputs.message }}\n\nPlease update the version in `composer.json`.'
-            })
-
     outputs:
       pr_version: ${{ steps.version-check.outputs.pr_version }}
       result: ${{ steps.version-check.outputs.result }}
@@ -90,18 +78,6 @@ jobs:
             echo "message=❌ CHANGELOG.md missing entry for version $PR_VERSION" >> $GITHUB_OUTPUT
             exit 1
           fi
-
-      - name: Comment on PR (failure)
-        if: failure()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '## ⚠️ CHANGELOG Check Failed\n\n${{ steps.changelog-check.outputs.message }}\n\nPlease add an entry for version `${{ needs.validate-version.outputs.pr_version }}` to `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/) format.'
-            })
 
     outputs:
       result: ${{ steps.changelog-check.outputs.result }}
@@ -175,19 +151,6 @@ jobs:
             exit 1
           fi
 
-      - name: Comment on PR (failure)
-        if: failure()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const output = `${{ steps.schedule-validation.outputs.output }}`;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '## ⚠️ Schedule Validation Failed\n\n```\n' + output + '\n```\n\nPlease fix the validation errors in your schedule JSON files.'
-            })
-
       - name: Set skipped result
         if: steps.check-changes.outputs.has_changes == 'false'
         id: set-skipped
@@ -228,18 +191,6 @@ jobs:
             echo "result=success" >> $GITHUB_OUTPUT
             echo "message=Versions in sync: $COMPOSER_VERSION" >> $GITHUB_OUTPUT
           fi
-
-      - name: Comment on PR (failure)
-        if: failure()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '## Version Sync Failed\n\n${{ steps.version-sync-check.outputs.message }}\n\nThe `package.json` version must match `composer.json`. Run `git commit` locally with the pre-commit hook enabled to auto-sync, or manually update `package.json`.'
-            })
 
     outputs:
       result: ${{ steps.version-sync-check.outputs.result }}
