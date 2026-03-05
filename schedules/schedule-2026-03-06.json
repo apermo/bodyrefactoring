@@ -622,7 +622,7 @@
 	"id": "fri",
 	"dayIndex": 5,
 	"name": "FREITAG",
-	"theme": "Core & Cable Strength",
+	"theme": "Core & Band Intro",
 	"icon": "dumbbell",
 	"colorClass": "text-pink-400",
 	"bgClass": "bg-pink-500/10",
@@ -747,36 +747,6 @@
 		}
 		},
 		{
-		"id": "ex_beinbeugen_kabel",
-		"type": "main",
-		"title": "Beinbeugen stehend (Kabel)",
-		"desc": "4 x 15 Wdh (2x Links, 2x Rechts). Ferse zum Po.",
-		"weight": "1",
-		"defaultUnit": "STUFE",
-		"repCounter": {
-			"sets": 4,
-			"reps": 15,
-			"restSeconds": 30,
-			"delayMilliseconds": 2250,
-			"bilateral": true
-		}
-		},
-		{
-		"id": "ex_cable_kickbacks",
-		"type": "main",
-		"title": "Cable Kickbacks",
-		"desc": "3 x 15 Wdh pro Seite. Kabel unten, Bein nach hinten strecken. Gluteus!",
-		"weight": "1",
-		"defaultUnit": "STUFE",
-		"repCounter": {
-			"sets": 6,
-			"reps": 15,
-			"restSeconds": 30,
-			"delayMilliseconds": 2500,
-			"bilateral": true
-		}
-		},
-		{
 		"id": "ex_woodchoppers",
 		"type": "main",
 		"title": "Dumbbell Woodchoppers",
@@ -790,34 +760,6 @@
 			"delayMilliseconds": 3400,
 			"bilateral": true
 		}
-		},
-		{
-		"id": "ex_lateral_raises",
-		"type": "main",
-		"title": "Dumbbell Lateral Raises",
-		"desc": "3 x 15 Wdh. Beide Arme gleichzeitig seitlich heben.",
-		"weight": "2",
-		"defaultUnit": "KG",
-		"repCounter": {
-			"sets": 3,
-			"reps": 15,
-			"restSeconds": 60,
-			"delayMilliseconds": 2500
-		}
-		},
-		{
-		"id": "ex_farmers_walk",
-		"type": "main",
-		"title": "Farmer's Carry",
-		"desc": "3 x 45s. Schwere Hanteln. Aufrecht gehen. Griffkraft & Core.",
-		"weight": "20",
-		"defaultUnit": "KG",
-		"timers": [
-			{
-			"l": "3 Sätze",
-			"s": 45
-			}
-		]
 		},
 		{
 		"id": "ex_band_squats",
