@@ -118,7 +118,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Check if trainings files changed
+      - name: Check if schedule files changed
         id: check-changes
         run: |
           # Get list of changed files
@@ -148,7 +148,7 @@ jobs:
         if: steps.check-changes.outputs.has_changes == 'true'
         id: schedule-validation
         run: |
-          cd trainings
+          cd schedules
 
           # Run validation
           OUTPUT=$(php validate-schedule.php 2>&1)

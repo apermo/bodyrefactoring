@@ -1,0 +1,815 @@
+{
+"version": 2,
+"days": [
+	{
+	"id": "mon",
+	"dayIndex": 1,
+	"name": "MONTAG",
+	"theme": "Ganzkörper mit Bändern",
+	"icon": "dumbbell",
+	"colorClass": "text-blue-400",
+	"bgClass": "bg-blue-500/10",
+	"details": [
+		{
+		"id": "warmup_mob",
+		"type": "warmup",
+		"title": "Joint Mobility",
+		"desc": "Schultern, Hüfte lockern. Leicht nach der Anreise.",
+		"timers": [
+			{
+			"l": "3 Min",
+			"s": 180
+			}
+		]
+		},
+		{
+		"id": "ex_band_squats",
+		"type": "main",
+		"title": "Squats mit Bänderstange",
+		"desc": "Board + Bänderstange. Knie nicht über Fußspitzen!",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 3000
+		}
+		},
+		{
+		"id": "ex_band_rudern_sitzen",
+		"type": "main",
+		"title": "Rudern im Sitzen mit Griffen",
+		"desc": "Board an Wand lehnen. Aufrecht sitzen, Griffe zum Bauch ziehen.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_seitenheben",
+		"type": "main",
+		"title": "Seitenheben aufrecht mit Griff",
+		"desc": "Board + Griff. Pro Seite! Schulter, seitlicher Deltamuskel.",
+		"repCounter": {
+			"sets": 6,
+			"reps": 12,
+			"restSeconds": 30,
+			"delayMilliseconds": 2500,
+			"bilateral": true
+		}
+		},
+		{
+		"id": "ex_band_brustpresse",
+		"type": "main",
+		"title": "Brustpresse",
+		"desc": "Pull Up Band unter Schulterblättern. Liegend auf Matte, Arme nach oben drücken.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_trizeps",
+		"type": "main",
+		"title": "Trizepsstrecken",
+		"desc": "Türanker oben + Trizepsseil. Ellbogen fixieren!",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_curls",
+		"type": "main",
+		"title": "Stehende Curls mit Bänderstange",
+		"desc": "Board + Bänderstange. Ellbogen am Körper!",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_miniband_sidekicks",
+		"type": "main",
+		"title": "Sidekicks",
+		"desc": "Miniband um Knöchel. Pro Seite! Hüftstabilität.",
+		"repCounter": {
+			"sets": 6,
+			"reps": 10,
+			"restSeconds": 30,
+			"delayMilliseconds": 3000,
+			"bilateral": true
+		}
+		},
+		{
+		"id": "cool_stretch",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Full Body Stretch",
+			"desc": "Ganzer Körper dehnen. Auf der Yogamatte.",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			},
+			{
+			"title": "Cat-Cow + Child's Pose",
+			"desc": "Cat-Cow 2 Min, dann Child's Pose. Wirbelsäule mobilisieren.",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			}
+		]
+		}
+	]
+	},
+	{
+	"id": "tue",
+	"dayIndex": 2,
+	"name": "DIENSTAG",
+	"theme": "Strand & Wattwandern",
+	"icon": "footprints",
+	"colorClass": "text-emerald-400",
+	"bgClass": "bg-emerald-500/10",
+	"details": [
+		{
+		"id": "warmup_mob",
+		"type": "warmup",
+		"title": "Mobilisation",
+		"desc": "Schulterkreisen, Hüfte öffnen",
+		"timers": [
+			{
+			"l": "3 Min",
+			"s": 180
+			}
+		]
+		},
+		{
+		"id": "ex_walk",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Wattwandern (Ebbe 10:55)",
+			"desc": "Wattschuhe anziehen! Carolinensiel Watt bei Niedrigwasser.",
+			"timers": [
+				{
+				"l": "60 Min",
+				"s": 3600
+				},
+				{
+				"l": "90 Min",
+				"s": 5400
+				}
+			]
+			},
+			{
+			"title": "Strandspaziergang",
+			"desc": "Am Deich oder Strand entlang. Frische Seeluft!",
+			"timers": [
+				{
+				"l": "45 Min",
+				"s": 2700
+				},
+				{
+				"l": "60 Min",
+				"s": 3600
+				}
+			]
+			}
+		]
+		},
+		{
+		"id": "ex_fitness_plus",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Apple Fitness+ Workout",
+			"desc": "Yoga, Pilates oder Core. Session nach Gefühl wählen.",
+			"timers": [
+				{
+				"l": "20 Min",
+				"s": 1200
+				},
+				{
+				"l": "30 Min",
+				"s": 1800
+				}
+			]
+			},
+			{
+			"title": "Miniband Beine & Po",
+			"desc": "Kniebeuge, Sidekicks, Beinöffner. Leichtes Miniband-Programm.",
+			"timers": [
+				{
+				"l": "15 Min",
+				"s": 900
+				}
+			]
+			}
+		]
+		},
+		{
+		"id": "cool_calves",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Waden & Hüfte dehnen",
+			"desc": "Nach langem Gehen. Waden-Stretch + Hüftbeuger.",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			},
+			{
+			"title": "Downward Dog + Runners Lunge",
+			"desc": "Down Dog 2 Min (Waden), dann Runners Lunge pro Seite (Hüfte).",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			}
+		]
+		}
+	]
+	},
+	{
+	"id": "wed",
+	"dayIndex": 3,
+	"name": "MITTWOCH",
+	"theme": "Kraft & Core mit Bändern",
+	"icon": "dumbbell",
+	"colorClass": "text-blue-400",
+	"bgClass": "bg-blue-500/10",
+	"details": [
+		{
+		"id": "warmup_blaze",
+		"type": "warmup",
+		"title": "Blazepods",
+		"desc": "Reaction Drill",
+		"timers": [
+			{
+			"l": "5 Min",
+			"s": 300
+			}
+		]
+		},
+		{
+		"id": "ex_band_kreuzheben",
+		"type": "main",
+		"title": "Kreuzheben mit gestreckten Beinen mit Bänderstange",
+		"desc": "Board + Bänderstange. Rücken gerade! Hamstrings + unterer Rücken.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 3000
+		}
+		},
+		{
+		"id": "ex_band_rudern_vorgebeugt",
+		"type": "main",
+		"title": "Rudern vorgebeugt mit Bänderstange",
+		"desc": "Board + Bänderstange. Bänderstange zum Bauchnabel ziehen.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_latzug",
+		"type": "main",
+		"title": "Latzug zur Brust",
+		"desc": "Türanker oben + Pull Up Band. Sitzend, Band zur Brust ziehen.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_zug_unten",
+		"type": "main",
+		"title": "Fitnessband lang Zug unten mit Griff",
+		"desc": "Board + Griff. Pro Seite! Brust und Schulter.",
+		"repCounter": {
+			"sets": 6,
+			"reps": 12,
+			"restSeconds": 30,
+			"delayMilliseconds": 2500,
+			"bilateral": true
+		}
+		},
+		{
+		"id": "ex_band_trizeps_kopf",
+		"type": "main",
+		"title": "Trizeps über Kopf ziehen mit Bänderstange",
+		"desc": "Board + Bänderstange. Ellbogen nah am Kopf!",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_rudern_kopf",
+		"type": "main",
+		"title": "Rudern zum Kopf",
+		"desc": "Türanker + Pull Up Band. Hintere Schulter! Wie Face Pulls.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 60,
+			"delayMilliseconds": 2200
+		}
+		},
+		{
+		"id": "ex_knee_plank",
+		"type": "main",
+		"title": "Knee Plank",
+		"desc": "Auf Yogamatte. Knie am Boden, Körper gerade.",
+		"timers": [
+			{
+			"l": "30s",
+			"s": 30
+			},
+			{
+			"l": "45s",
+			"s": 45
+			},
+			{
+			"l": "60s",
+			"s": 60
+			}
+		]
+		},
+		{
+		"id": "ex_bird_dog",
+		"type": "main",
+		"title": "Bird Dog",
+		"desc": "Pro Seite. Arm + Bein diagonal strecken. Rücken gerade!",
+		"repCounter": {
+			"sets": 6,
+			"reps": 10,
+			"restSeconds": 30,
+			"delayMilliseconds": 3000,
+			"bilateral": true
+		}
+		},
+		{
+		"id": "ex_crunches",
+		"type": "main",
+		"title": "Crunches",
+		"desc": "Auf Yogamatte. Schulterblätter vom Boden lösen.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 60,
+			"delayMilliseconds": 2000
+		}
+		},
+		{
+		"id": "cool_stretch",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Oberkörper Stretch",
+			"desc": "Schultern, Brust, Arme dehnen.",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			},
+			{
+			"title": "Thread the Needle",
+			"desc": "Auf allen Vieren. Arm unter Körper fädeln. Thorax-Rotation.",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			}
+		]
+		}
+	]
+	},
+	{
+	"id": "thu",
+	"dayIndex": 4,
+	"name": "DONNERSTAG",
+	"theme": "Active Recovery & Wattwandern",
+	"icon": "footprints",
+	"colorClass": "text-purple-400",
+	"bgClass": "bg-purple-500/10",
+	"details": [
+		{
+		"id": "warmup_arms",
+		"type": "warmup",
+		"title": "Armkreisen",
+		"desc": "Schultern lockern",
+		"timers": [
+			{
+			"l": "2 Min",
+			"s": 120
+			}
+		]
+		},
+		{
+		"id": "ex_walk",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Wattwandern (Ebbe 13:02)",
+			"desc": "Nachmittags-Wattour! Wattschuhe anziehen.",
+			"timers": [
+				{
+				"l": "60 Min",
+				"s": 3600
+				},
+				{
+				"l": "90 Min",
+				"s": 5400
+				}
+			]
+			},
+			{
+			"title": "Strandspaziergang",
+			"desc": "Am Deich oder Strand entlang.",
+			"timers": [
+				{
+				"l": "45 Min",
+				"s": 2700
+				},
+				{
+				"l": "60 Min",
+				"s": 3600
+				}
+			]
+			}
+		]
+		},
+		{
+		"id": "ex_recovery",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Apple Fitness+ Yoga",
+			"desc": "Rücken oder Ganzkörper Fokus. Auf Yogamatte.",
+			"timers": [
+				{
+				"l": "20 Min",
+				"s": 1200
+				},
+				{
+				"l": "30 Min",
+				"s": 1800
+				}
+			]
+			},
+			{
+			"title": "Mobility Flow",
+			"desc": "Cat-Cow, Hüftkreise, Schulteröffnung. Locker auf der Matte.",
+			"timers": [
+				{
+				"l": "15 Min",
+				"s": 900
+				}
+			]
+			}
+		]
+		},
+		{
+		"id": "cool_child",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Cat-Cow + Child's Pose",
+			"desc": "Cat-Cow 2 Min, dann Child's Pose. Wirbelsäule mobilisieren.",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			},
+			{
+			"title": "Supine Twist + Happy Baby",
+			"desc": "Knie zur Seite drehen (2 Min/Seite), dann Happy Baby. LWS entlasten.",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			}
+		]
+		}
+	]
+	},
+	{
+	"id": "fri",
+	"dayIndex": 5,
+	"name": "FREITAG",
+	"theme": "Push, Pull & Beine",
+	"icon": "dumbbell",
+	"colorClass": "text-pink-400",
+	"bgClass": "bg-pink-500/10",
+	"details": [
+		{
+		"id": "warmup_blaze",
+		"type": "warmup",
+		"title": "Blazepods",
+		"desc": "Reaction Drill",
+		"timers": [
+			{
+			"l": "5 Min",
+			"s": 300
+			}
+		]
+		},
+		{
+		"id": "ex_band_curls",
+		"type": "main",
+		"title": "Stehende Curls mit Bänderstange",
+		"desc": "Board + Bänderstange. Ellbogen am Körper!",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_nackenheben",
+		"type": "main",
+		"title": "Nackenheben",
+		"desc": "Board + Band. Schultern und Schulterblätter nach oben ziehen.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 45,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_seitenheben",
+		"type": "main",
+		"title": "Seitenheben mit Griff",
+		"desc": "Board + Griff. Pro Seite! Arm seitlich heben.",
+		"repCounter": {
+			"sets": 6,
+			"reps": 12,
+			"restSeconds": 30,
+			"delayMilliseconds": 2500,
+			"bilateral": true
+		}
+		},
+		{
+		"id": "ex_band_trizeps_kickbacks",
+		"type": "main",
+		"title": "Trizeps Kickbacks mit Griff",
+		"desc": "Board + Griff. Pro Seite! Vorgebeugt, Arm nach hinten strecken.",
+		"repCounter": {
+			"sets": 6,
+			"reps": 12,
+			"restSeconds": 30,
+			"delayMilliseconds": 2500,
+			"bilateral": true
+		}
+		},
+		{
+		"id": "ex_band_wadenheben",
+		"type": "main",
+		"title": "Wadenheben mit Bands Board",
+		"desc": "Board + Band. Fersen hoch, 2-3s halten!",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 45,
+			"delayMilliseconds": 3000
+		}
+		},
+		{
+		"id": "ex_band_beinbeuger",
+		"type": "main",
+		"title": "Beinbeuger",
+		"desc": "Pull Up Band um Knöchel. Bauchlage, Füße zum Po ziehen.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 12,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_band_butterfly",
+		"type": "main",
+		"title": "Butterfly einarmig",
+		"desc": "Pull Up Band. Liegend, pro Seite! Band zur Brustmitte ziehen.",
+		"repCounter": {
+			"sets": 6,
+			"reps": 12,
+			"restSeconds": 30,
+			"delayMilliseconds": 2500,
+			"bilateral": true
+		}
+		},
+		{
+		"id": "ex_heeltaps",
+		"type": "main",
+		"title": "Heel Taps",
+		"desc": "Rücken flach auf Matte! Knie 90°, nur Fersen senken.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 10,
+			"restSeconds": 60,
+			"delayMilliseconds": 1800
+		}
+		},
+		{
+		"id": "ex_miniband_hueftabduktion",
+		"type": "main",
+		"title": "Hüftabduktion im Sitzen",
+		"desc": "Miniband um Knie. Sitzend Knie nach außen drücken.",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 45,
+			"delayMilliseconds": 2000
+		}
+		},
+		{
+		"id": "cool_walk",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Oberkörper Stretch",
+			"desc": "Schultern, Brust, Arme dehnen.",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			},
+			{
+			"title": "Strandspaziergang (Ebbe 14:34)",
+			"desc": "Nachmittags am Strand. Wattwandern optional!",
+			"timers": [
+				{
+				"l": "45 Min",
+				"s": 2700
+				},
+				{
+				"l": "60 Min",
+				"s": 3600
+				}
+			]
+			}
+		]
+		}
+	]
+	},
+	{
+	"id": "sat",
+	"dayIndex": 6,
+	"name": "SAMSTAG",
+	"theme": "Reisetag",
+	"icon": "footprints",
+	"colorClass": "text-green-400",
+	"bgClass": "bg-green-500/10",
+	"details": [
+		{
+		"id": "warmup_mob",
+		"type": "warmup",
+		"title": "Mobilisation",
+		"desc": "Schulterkreisen, Hüfte öffnen. Vor dem Packen!",
+		"timers": [
+			{
+			"l": "3 Min",
+			"s": 180
+			}
+		]
+		},
+		{
+		"id": "ex_walk",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Morgenspaziergang am Meer",
+			"desc": "Letzte Runde an der Nordsee vor der Abreise.",
+			"timers": [
+				{
+				"l": "30 Min",
+				"s": 1800
+				},
+				{
+				"l": "45 Min",
+				"s": 2700
+				}
+			]
+			},
+			{
+			"title": "Deich-Spaziergang",
+			"desc": "Am Deich entlang. Frische Luft vor der Heimfahrt.",
+			"timers": [
+				{
+				"l": "30 Min",
+				"s": 1800
+				},
+				{
+				"l": "45 Min",
+				"s": 2700
+				}
+			]
+			}
+		]
+		},
+		{
+		"id": "cool_stretch",
+		"type": "alternatives",
+		"alternatives": [
+			{
+			"title": "Waden & Hüfte dehnen",
+			"desc": "Nach dem Spaziergang. Vor der langen Autofahrt!",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			},
+			{
+			"title": "Standing Quad + Hamstring",
+			"desc": "Stehend dehnen. Oberschenkel vorne/hinten. Gut vor dem Sitzen im Auto.",
+			"timers": [
+				{
+				"l": "5 Min",
+				"s": 300
+				}
+			]
+			}
+		]
+		}
+	]
+	},
+	{
+	"id": "sun",
+	"dayIndex": 0,
+	"name": "SONNTAG",
+	"theme": "Wieder Zuhause",
+	"icon": "home",
+	"colorClass": "text-orange-400",
+	"bgClass": "bg-orange-500/10",
+	"details": [
+		{
+		"id": "info_home",
+		"type": "warmup",
+		"title": "Zuhause",
+		"desc": "Ab 15.03. gilt der reguläre Plan.",
+		"timers": [
+			{
+			"l": "Info",
+			"s": 60
+			}
+		]
+		},
+		{
+		"id": "cool_mental",
+		"type": "cool",
+		"title": "Mental Reset",
+		"desc": "Wochenplanung",
+		"timers": [
+			{
+			"l": "10 Min",
+			"s": 600
+			}
+		]
+		}
+	]
+	}
+]
+}
