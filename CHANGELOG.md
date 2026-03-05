@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.6.6] - 2026-03-05
+
+### Added
+
+- **Schedules for Mar 6, 9, 15** covering home training, vacation, and return
+- **Neolymp band intro exercises** on Fri/Sat/Sun (Mar 6-8) for equipment familiarization
+- **Vacation schedule** (Mar 9-14) with Neolymp Bands Board, Pull Up Bands, Minibands, Trizepsseil, Blazepods, and yoga mat
+- **Wattwandern** integrated
+
+### Fixed
+
+- Speech service voice initialization on first app start
+
 ## [14.6.5] - 2026-02-27
 
 ### Added
