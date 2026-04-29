@@ -255,37 +255,79 @@
 		},
 		{
 		"id": "ex_walking_1",
-		"type": "main",
-		"title": "Walkingpad (1/3)",
-		"desc": "Schritte sammeln",
-		"timers": [
+		"type": "alternatives",
+		"alternatives": [
 			{
-			"l": "30 Min",
-			"s": 1800
+			"title": "Walkingpad (1/3)",
+			"desc": "Schritte sammeln",
+			"timers": [
+				{
+				"l": "30 Min",
+				"s": 1800
+				}
+			]
+			},
+			{
+			"title": "Fahrrad (1/3)",
+			"desc": "Heimtrainer, lockere Belastung",
+			"timers": [
+				{
+				"l": "30 Min",
+				"s": 1800
+				}
+			]
 			}
 		]
 		},
 		{
 		"id": "ex_walking_2",
-		"type": "main",
-		"title": "Walkingpad (2/3)",
-		"desc": "Schritte sammeln",
-		"timers": [
+		"type": "alternatives",
+		"alternatives": [
 			{
-			"l": "30 Min",
-			"s": 1800
+			"title": "Walkingpad (2/3)",
+			"desc": "Schritte sammeln",
+			"timers": [
+				{
+				"l": "30 Min",
+				"s": 1800
+				}
+			]
+			},
+			{
+			"title": "Fahrrad (2/3)",
+			"desc": "Heimtrainer, lockere Belastung",
+			"timers": [
+				{
+				"l": "30 Min",
+				"s": 1800
+				}
+			]
 			}
 		]
 		},
 		{
 		"id": "ex_walking_3",
-		"type": "main",
-		"title": "Walkingpad (3/3)",
-		"desc": "Schritte sammeln",
-		"timers": [
+		"type": "alternatives",
+		"alternatives": [
 			{
-			"l": "30 Min",
-			"s": 1800
+			"title": "Walkingpad (3/3)",
+			"desc": "Schritte sammeln",
+			"timers": [
+				{
+				"l": "30 Min",
+				"s": 1800
+				}
+			]
+			},
+			{
+			"title": "Fahrrad (3/3)",
+			"desc": "Heimtrainer, lockere Belastung",
+			"timers": [
+				{
+				"l": "30 Min",
+				"s": 1800
+				}
+			]
 			}
 		]
 		},
@@ -907,6 +949,20 @@
 			{
 			"title": "Indoor Walk",
 			"desc": "Laufband oder Walkingpad",
+			"timers": [
+				{
+				"l": "45 Min",
+				"s": 2700
+				},
+				{
+				"l": "60 Min",
+				"s": 3600
+				}
+			]
+			},
+			{
+			"title": "Fahrrad",
+			"desc": "Outdoor-Tour. Statt Spaziergang.",
 			"timers": [
 				{
 				"l": "45 Min",
