@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Schedule for 2026-04-29**: New baseline training schedule
 - **Bike alternative**: Added Fahrrad as alternative to Walkingpad on Tuesdays (3 sessions) and to walking options on Saturdays
 
+### Changed
+
+- **Reps standardized to 15** across all rep-counter exercises: Butterfly decreased from 18, Latziehen/Brustpresse from 12, Adduktion/Heel Taps/Bird Dog/Woodchoppers from 10
+
 ## [14.6.7] - 2026-03-05
 
 ### Fixed
