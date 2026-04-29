@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.6.8] - 2026-04-29
+
+### Added
+
+- **Schedule for 2026-04-29**: New baseline training schedule
+- **Bike alternative**: Added Fahrrad as alternative to Walkingpad on Tuesdays (3 sessions) and to walking options on Saturdays
+
+### Changed
+
+- **Reps standardized to 15** across all rep-counter exercises: Butterfly decreased from 18, Latziehen/Brustpresse from 12, Adduktion/Heel Taps/Bird Dog/Woodchoppers from 10
+- **Monday volume**: Added Dumbbell Lateral Raises and Farmer's Carry (both optional) to support calorie goal
+- **Wednesday volume**: Added Dumbbell Lateral Raises and Farmer's Carry to support calorie goal
+
 ## [14.6.7] - 2026-03-05
 
 ### Fixed
