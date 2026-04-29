@@ -39,7 +39,7 @@
 		"defaultUnit": "STUFE",
 		"repCounter": {
 			"sets": 4,
-			"reps": 10,
+			"reps": 15,
 			"restSeconds": 30,
 			"delayMilliseconds": 2500,
 			"bilateral": true
@@ -63,7 +63,7 @@
 		"id": "ex_rudern",
 		"type": "main",
 		"title": "Rudern sitzend",
-		"desc": "3 x 15 Wdh (Volumen erhöht)",
+		"desc": "3 x 15 Wdh",
 		"weight": "3",
 		"defaultUnit": "STUFE",
 		"repCounter": {
@@ -77,12 +77,12 @@
 		"id": "ex_latziehen",
 		"type": "main",
 		"title": "Latziehen",
-		"desc": "3 x 12 Wdh",
+		"desc": "3 x 15 Wdh",
 		"weight": "3",
 		"defaultUnit": "STUFE",
 		"repCounter": {
 			"sets": 3,
-			"reps": 12,
+			"reps": 15,
 			"restSeconds": 60,
 			"delayMilliseconds": 2750
 		}
@@ -105,12 +105,12 @@
 		"id": "ex_brustpresse",
 		"type": "main",
 		"title": "Brustpresse",
-		"desc": "3 x 12 Wdh",
+		"desc": "3 x 15 Wdh",
 		"weight": "3",
 		"defaultUnit": "STUFE",
 		"repCounter": {
 			"sets": 3,
-			"reps": 12,
+			"reps": 15,
 			"restSeconds": 60,
 			"delayMilliseconds": 2500
 		}
@@ -119,12 +119,12 @@
 		"id": "ex_butterfly",
 		"type": "main",
 		"title": "Butterfly",
-		"desc": "3 x 18 Wdh",
+		"desc": "3 x 15 Wdh",
 		"weight": "2",
 		"defaultUnit": "STUFE",
 		"repCounter": {
 			"sets": 3,
-			"reps": 18,
+			"reps": 15,
 			"restSeconds": 60,
 			"delayMilliseconds": 2200
 		}
@@ -403,7 +403,7 @@
 		"defaultUnit": "STUFE",
 		"repCounter": {
 			"sets": 4,
-			"reps": 10,
+			"reps": 15,
 			"restSeconds": 30,
 			"delayMilliseconds": 2500,
 			"bilateral": true
@@ -427,12 +427,12 @@
 		"id": "ex_latziehen",
 		"type": "main",
 		"title": "Latziehen",
-		"desc": "3 x 12 Wdh",
+		"desc": "3 x 15 Wdh",
 		"weight": "3",
 		"defaultUnit": "STUFE",
 		"repCounter": {
 			"sets": 3,
-			"reps": 12,
+			"reps": 15,
 			"restSeconds": 60,
 			"delayMilliseconds": 2750
 		}
@@ -441,7 +441,7 @@
 		"id": "ex_rudern",
 		"type": "main",
 		"title": "Rudern sitzend",
-		"desc": "3 x 15 Wdh (Volumen erhöht)",
+		"desc": "3 x 15 Wdh",
 		"weight": "3",
 		"defaultUnit": "STUFE",
 		"repCounter": {
@@ -469,12 +469,12 @@
 		"id": "ex_butterfly",
 		"type": "main",
 		"title": "Butterfly",
-		"desc": "3 x 18 Wdh",
+		"desc": "3 x 15 Wdh",
 		"weight": "2",
 		"defaultUnit": "STUFE",
 		"repCounter": {
 			"sets": 3,
-			"reps": 18,
+			"reps": 15,
 			"restSeconds": 60,
 			"delayMilliseconds": 2200
 		}
@@ -483,12 +483,12 @@
 		"id": "ex_brustpresse",
 		"type": "main",
 		"title": "Brustpresse",
-		"desc": "3 x 12 Wdh",
+		"desc": "3 x 15 Wdh",
 		"weight": "3",
 		"defaultUnit": "STUFE",
 		"repCounter": {
 			"sets": 3,
-			"reps": 12,
+			"reps": 15,
 			"restSeconds": 60,
 			"delayMilliseconds": 2500
 		}
@@ -739,10 +739,10 @@
 		"id": "ex_heeltaps",
 		"type": "main",
 		"title": "Heel Taps",
-		"desc": "3 x 10 Wdh. Rücken flach! Knie 90°, nur Fersen senken.",
+		"desc": "3 x 15 Wdh. Rücken flach! Knie 90°, nur Fersen senken.",
 		"repCounter": {
 			"sets": 3,
-			"reps": 10,
+			"reps": 15,
 			"restSeconds": 60,
 			"delayMilliseconds": 1800
 		}
@@ -751,10 +751,10 @@
 		"id": "ex_bird_dog",
 		"type": "main",
 		"title": "Bird Dog",
-		"desc": "3 x 10 Wdh pro Seite. Arm + Bein diagonal strecken. Rücken gerade!",
+		"desc": "3 x 15 Wdh pro Seite. Arm + Bein diagonal strecken. Rücken gerade!",
 		"repCounter": {
 			"sets": 6,
-			"reps": 10,
+			"reps": 15,
 			"restSeconds": 30,
 			"delayMilliseconds": 3000,
 			"bilateral": true
@@ -764,12 +764,12 @@
 		"id": "ex_latziehen",
 		"type": "main",
 		"title": "Latziehen",
-		"desc": "3 x 12 Wdh. Wie Mo/Mi - Rückenarbeit!",
+		"desc": "3 x 15 Wdh. Wie Mo/Mi - Rückenarbeit!",
 		"weight": "3",
 		"defaultUnit": "STUFE",
 		"repCounter": {
 			"sets": 3,
-			"reps": 12,
+			"reps": 15,
 			"restSeconds": 60,
 			"delayMilliseconds": 2750
 		}
@@ -778,12 +778,12 @@
 		"id": "ex_brustpresse",
 		"type": "main",
 		"title": "Brustpresse",
-		"desc": "3 x 12 Wdh",
+		"desc": "3 x 15 Wdh",
 		"weight": "3",
 		"defaultUnit": "STUFE",
 		"repCounter": {
 			"sets": 3,
-			"reps": 12,
+			"reps": 15,
 			"restSeconds": 60,
 			"delayMilliseconds": 2500
 		}
@@ -822,12 +822,12 @@
 		"id": "ex_woodchoppers",
 		"type": "main",
 		"title": "Dumbbell Woodchoppers",
-		"desc": "4 x 10 Wdh. Hantel diagonal führen. Rumpfrotation!",
+		"desc": "4 x 15 Wdh. Hantel diagonal führen. Rumpfrotation!",
 		"weight": "6",
 		"defaultUnit": "KG",
 		"repCounter": {
 			"sets": 4,
-			"reps": 10,
+			"reps": 15,
 			"restSeconds": 60,
 			"delayMilliseconds": 3400,
 			"bilateral": true
