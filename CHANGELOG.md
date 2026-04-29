@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Reps standardized to 15** across all rep-counter exercises: Butterfly decreased from 18, Latziehen/Brustpresse from 12, Adduktion/Heel Taps/Bird Dog/Woodchoppers from 10
+- **Monday volume**: Added Dumbbell Lateral Raises and Farmer's Carry (both optional) to support calorie goal
+- **Wednesday volume**: Added Dumbbell Lateral Raises and Farmer's Carry to support calorie goal
 
 ## [14.6.7] - 2026-03-05
 
