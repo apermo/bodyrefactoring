@@ -187,6 +187,36 @@
 		}
 		},
 		{
+		"id": "ex_lateral_raises",
+		"type": "main",
+		"title": "Dumbbell Lateral Raises",
+		"desc": "3 x 15 Wdh. Beide Arme gleichzeitig seitlich heben.",
+		"weight": "2",
+		"defaultUnit": "KG",
+		"optional": true,
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_farmers_walk",
+		"type": "main",
+		"title": "Farmer's Carry",
+		"desc": "3 x 45s. Schwere Hanteln. Aufrecht gehen. Griffkraft & Core.",
+		"weight": "20",
+		"defaultUnit": "KG",
+		"optional": true,
+		"timers": [
+			{
+			"l": "3 Sätze",
+			"s": 45
+			}
+		]
+		},
+		{
 		"id": "cool_stretch",
 		"type": "alternatives",
 		"alternatives": [
@@ -532,6 +562,34 @@
 			"restSeconds": 60,
 			"delayMilliseconds": 2400
 		}
+		},
+		{
+		"id": "ex_lateral_raises",
+		"type": "main",
+		"title": "Dumbbell Lateral Raises",
+		"desc": "3 x 15 Wdh. Beide Arme gleichzeitig seitlich heben.",
+		"weight": "2",
+		"defaultUnit": "KG",
+		"repCounter": {
+			"sets": 3,
+			"reps": 15,
+			"restSeconds": 60,
+			"delayMilliseconds": 2500
+		}
+		},
+		{
+		"id": "ex_farmers_walk",
+		"type": "main",
+		"title": "Farmer's Carry",
+		"desc": "3 x 45s. Schwere Hanteln. Aufrecht gehen. Griffkraft & Core.",
+		"weight": "20",
+		"defaultUnit": "KG",
+		"timers": [
+			{
+			"l": "3 Sätze",
+			"s": 45
+			}
+		]
 		},
 		{
 		"id": "cool_foam_bws",
