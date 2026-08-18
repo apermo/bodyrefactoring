@@ -16,10 +16,12 @@ jobs:
       - uses: actions/stale@v9
         with:
           # Timing (separate for issues and PRs)
+          # -1 is actions/stale's "never close" value: items are still
+          # labelled stale, but they are never closed automatically.
           days-before-issue-stale: 30
-          days-before-issue-close: 14
+          days-before-issue-close: -1
           days-before-pr-stale: 14
-          days-before-pr-close: 14
+          days-before-pr-close: -1
 
           # Labels
           stale-issue-label: 'stale'
@@ -33,11 +35,11 @@ jobs:
           # Messages
           stale-issue-message: >
             This issue has been automatically marked as stale because it has not had
-            recent activity. It will be closed in 14 days if no further activity occurs.
+            recent activity. It will not be closed automatically.
             If this issue is still relevant, please add a label or comment.
           stale-pr-message: >
             This PR has been automatically marked as stale because it has not had
-            recent activity. It will be closed in 14 days if no further activity occurs.
+            recent activity. It will not be closed automatically.
             If this PR is still relevant, please comment or remove the stale label.
 
           # Operations per run (GitHub API rate limiting)
