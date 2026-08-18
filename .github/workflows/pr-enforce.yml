@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set initial status
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             await github.rest.repos.createCommitStatus({
@@ -30,7 +30,7 @@ jobs:
             });
 
       - name: Wait for validation checks to complete
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const requiredChecks = ['Check Version Bump', 'Check CHANGELOG Entry', 'Validate Training Schedules'];
@@ -82,7 +82,7 @@ jobs:
 
       - name: Check validation results
         id: check-results
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             // Get all check runs for this commit
@@ -142,7 +142,7 @@ jobs:
 
       - name: Update status (success)
         if: steps.check-results.outputs.all_passed == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             await github.rest.repos.createCommitStatus({
@@ -156,7 +156,7 @@ jobs:
 
       - name: Update status (failure)
         if: steps.check-results.outputs.all_passed != 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const failedChecks = '${{ steps.check-results.outputs.failed_checks }}';

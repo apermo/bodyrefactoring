@@ -17,12 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Checkout base branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           path: base
@@ -60,7 +60,7 @@ jobs:
     if: needs.validate-version.outputs.result == 'success'
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -89,7 +89,7 @@ jobs:
     if: github.event.action != 'edited'
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -167,7 +167,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -203,7 +203,7 @@ jobs:
     if: always() && github.event.action != 'edited'
     steps:
       - name: Update PR description
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             // Get current PR body
@@ -260,7 +260,7 @@ jobs:
     if: always() && github.event.action != 'edited'
     steps:
       - name: Create summary comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const versionResult = '${{ needs.validate-version.outputs.result }}';
