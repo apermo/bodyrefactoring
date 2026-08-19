@@ -1,6 +1,6 @@
 {
 	"name": "bodyrefactoring",
-	"version": "14.6.8",
+	"version": "14.6.9",
 	"private": true,
 	"description": "Body Refactoring - Personal Training Tracker with Dynamic Scheduling",
 	"scripts": {

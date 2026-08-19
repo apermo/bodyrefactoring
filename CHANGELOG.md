@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [14.6.9] - 2026-08-18
+
+### Changed
+
+- **Stalebot**: No longer auto-closes issues and PRs (`days-before-*-close: -1`); they are still marked stale after inactivity
+- **Stale messages**: Reworded to state that items are not closed automatically, dropping the 14-day closing notice
+
 ## [14.6.8] - 2026-04-29
 
 ### Added
@@ -1059,6 +1066,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LocalStorage for client-side data
 - Responsive design for mobile devices
 
+[14.6.9]: https://github.com/apermo/bodyrefactoring/compare/v14.6.8...v14.6.9
 [14.6.5]: https://github.com/apermo/bodyrefactoring/compare/v14.6.4...v14.6.5
 [14.6.4]: https://github.com/apermo/bodyrefactoring/compare/v14.6.3...v14.6.4
 [14.6.3]: https://github.com/apermo/bodyrefactoring/compare/v14.6.2...v14.6.3
